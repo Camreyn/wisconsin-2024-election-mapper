@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Wisconsin 2024 Election County Mapper</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="sidebar" aria-label="Election result controls">
+        <div class="brand-block">
+          <p class="eyebrow">Wisconsin county collector</p>
+          <h1>2024 Presidential Results</h1>
+          <p class="subcopy">
+            Certified county totals, collected county-by-county and joined to
+            Wisconsin county boundaries.
+          </p>
+        </div>
+
+        <div class="summary-grid" aria-label="Statewide summary">
+          <article>
+            <span>Trump</span>
+            <strong id="trumpTotal">--</strong>
+          </article>
+          <article>
+            <span>Harris</span>
+            <strong id="harrisTotal">--</strong>
+          </article>
+          <article>
+            <span>Margin</span>
+            <strong id="stateMargin">--</strong>
+          </article>
+          <article>
+            <span>Counties</span>
+            <strong id="countyCount">0 / 72</strong>
+          </article>
+        </div>
+
+        <div class="control-panel">
+          <button id="collectBtn" class="primary-button" type="button">
+            Collect Counties
+          </button>
+          <button id="mapBtn" class="secondary-button" type="button">
+            Reload Boundaries
+          </button>
+          <button id="exportBtn" class="secondary-button" type="button">
+            Export CSV
+          </button>
+        </div>
+
+        <label class="field-label" for="countySearch">County search</label>
+        <input
+          id="countySearch"
+          class="search-input"
+          type="search"
+          placeholder="Try Dane, Brown, Sauk..."
+          autocomplete="off"
+        />
+
+        <div class="mode-row" aria-label="Map color mode">
+          <button class="mode-button active" type="button" data-mode="winner">
+            Winner
+          </button>
+          <button class="mode-button" type="button" data-mode="margin">
+            Margin
+          </button>
+          <button class="mode-button" type="button" data-mode="turnout">
+            Votes
+          </button>
+        </div>
+
+        <section class="status-panel" aria-label="Collection status">
+          <div class="progress-track">
+            <div id="progressBar" class="progress-fill"></div>
+          </div>
+          <p id="statusText">Ready to collect certified county totals.</p>
+          <ol id="collectorLog" class="collector-log"></ol>
+        </section>
+
+        <section class="eta-panel" aria-label="Election Truth Alliance test status">
+          <div class="panel-heading">
+            <p class="eyebrow">ETA-style checks</p>
+            <h2>Test Status</h2>
+          </div>
+          <div id="etaTests" class="eta-tests"></div>
+          <p class="eta-note">
+            ETA's published methods rely heavily on precinct-level data. Any
+            turnout source using pre-Election-Day registration counts must be
+            treated as provisional because Wisconsin allows Election Day
+            registration.
+          </p>
+        </section>
+
+        <section class="source-note" aria-label="Data sources">
+          <h2>Sources & Provenance</h2>
+          <div class="source-list">
+            <article>
+              <strong>Presidential county results</strong>
+              <p>Used for map shading, county table, statewide totals, candidate breakdown, CSV export, and selected-county details.</p>
+              <span>Local file: County by County Report_POTUS.pdf</span>
+              <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
+            </article>
+            <article>
+              <strong>U.S. Senate county results</strong>
+              <p>Used as a county-level verification source for the down-ballot comparison.</p>
+              <span>Local file: County by County Report_US Senate.pdf</span>
+              <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
+            </article>
+            <article>
+              <strong>Ward federal/state results</strong>
+              <p>Used for ETA-style ward scatterplots, down-ballot histograms, and selected-county graph filtering.</p>
+              <span>Local files: Ward by Ward Report Federal and State Contests.xlsx; eta-data.js</span>
+              <a href="https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx" target="_blank" rel="noreferrer">Archived WEC spreadsheet</a>
+            </article>
+            <article>
+              <strong>County boundaries</strong>
+              <p>Used to draw Wisconsin county polygons. OpenStreetMap tiles were removed so the local app avoids referer-blocked map backgrounds.</p>
+              <span>Runtime fetch: U.S. Census TIGERweb State/County layer</span>
+              <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer" target="_blank" rel="noreferrer">TIGERweb service</a>
+            </article>
+            <article>
+              <strong>Methodology</strong>
+              <p>Used to choose ETA-style check names and graph types: down-ballot difference, vote-share-by-vote-count scatterplots, and turnout histograms.</p>
+              <span>External reference: Election Truth Alliance methodology page</span>
+              <a href="https://electiontruthalliance.org/our-methodology/" target="_blank" rel="noreferrer">ETA methodology</a>
+            </article>
+            <article>
+              <strong>Result-reporting context</strong>
+              <p>Used to explain why Wisconsin election-night results are county-posted and why certified WEC reports are the stable source for this app.</p>
+              <span>External reference: Wisconsin MyVote election results note</span>
+              <a href="https://myvote.wi.gov/en-us/Election-Results" target="_blank" rel="noreferrer">MyVote results note</a>
+            </article>
+            <article>
+              <strong>Turnout denominator warning</strong>
+              <p>Used to explain why pre-Election-Day registered-voter counts can understate final registration in Wisconsin, which allows Election Day registration.</p>
+              <span>External references: MyVote voter deadlines; Votebeat Oak Creek turnout explainer</span>
+              <a href="https://myvotemirror.wi.gov/en-us/Voter-Deadlines" target="_blank" rel="noreferrer">Registration deadlines</a>
+              <a href="https://www.votebeat.org/wisconsin/2024/11/07/more-ballots-than-voters-oak-creek-turnout-baldwin-hovde-race/" target="_blank" rel="noreferrer">Votebeat explainer</a>
+            </article>
+            <article>
+              <strong>Voter-file cost context</strong>
+              <p>Used only to decide not to use the statewide Badger Voters file because it is too expensive for this project.</p>
+              <span>External references: Badger Voters FAQ; Wis. Admin. Code EL 3.50</span>
+              <a href="https://badgervoters.wi.gov/faq" target="_blank" rel="noreferrer">Badger Voters FAQ</a>
+              <a href="https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-EL-3-50" target="_blank" rel="noreferrer">Fee rule</a>
+            </article>
+          </div>
+        </section>
+      </section>
+
+      <section class="map-stage" aria-label="Wisconsin county map and table">
+        <div class="toolbar">
+          <div>
+            <p class="eyebrow">Interactive map</p>
+            <h2 id="mapTitle">County winner shading</h2>
+          </div>
+          <div class="legend" aria-label="Map legend">
+            <span><i class="legend-red"></i>Trump</span>
+            <span><i class="legend-blue"></i>Harris</span>
+            <span><i class="legend-neutral"></i>No geometry</span>
+          </div>
+        </div>
+
+        <div id="map" class="map"></div>
+        <div id="tileFallback" class="tile-fallback" hidden></div>
+
+        <section class="details-strip" aria-label="Selected county details">
+          <div>
+            <span>Selected county</span>
+            <strong id="selectedCounty">None selected</strong>
+          </div>
+          <div>
+            <span>Winner</span>
+            <strong id="selectedWinner">--</strong>
+          </div>
+          <div>
+            <span>Margin</span>
+            <strong id="selectedMargin">--</strong>
+          </div>
+          <div>
+            <span>Total votes</span>
+            <strong id="selectedTotal">--</strong>
+          </div>
+        </section>
+
+        <section class="candidate-breakdown" aria-label="Other candidate breakdown">
+          <div class="breakdown-heading">
+            <div>
+              <span>Other candidate detail</span>
+              <strong id="breakdownTitle">Statewide</strong>
+            </div>
+            <p id="breakdownTotal">57,063 other votes</p>
+          </div>
+          <div id="candidateBreakdown" class="breakdown-grid"></div>
+        </section>
+
+        <section class="eta-graphs" aria-label="ETA-style analysis graphs">
+          <div class="graph-card">
+            <div class="graph-heading">
+              <div>
+                <span>ETA-style graph</span>
+                <strong>Vote Share by Vote Count</strong>
+              </div>
+              <p>Ward scatterplot with trend lines</p>
+            </div>
+            <div id="voteShareGraph" class="graph-surface"></div>
+          </div>
+
+          <div class="graph-card">
+            <div class="graph-heading">
+              <div>
+                <span>ETA-style graph</span>
+                <strong>Down-Ballot Difference</strong>
+              </div>
+              <p>President vs U.S. Senate drop-off</p>
+            </div>
+            <div id="downBallotGraph" class="graph-surface"></div>
+          </div>
+
+          <div class="graph-card graph-card-wide">
+            <div class="graph-heading">
+              <div>
+                <span>ETA-style graph</span>
+                <strong>Turnout Histogram</strong>
+              </div>
+              <p>Waiting for registration denominators</p>
+            </div>
+            <div id="turnoutGraph" class="graph-surface"></div>
+          </div>
+        </section>
+
+        <section class="table-wrap" aria-label="County results table">
+          <table>
+            <thead>
+              <tr>
+                <th>County</th>
+                <th>Trump</th>
+                <th>Harris</th>
+                <th>Other</th>
+                <th>Margin</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="countyRows"></tbody>
+          </table>
+        </section>
+      </section>
+    </main>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+    <script src="./eta-data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
