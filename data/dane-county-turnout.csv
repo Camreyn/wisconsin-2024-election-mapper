@@ -1,0 +1,2 @@
+county,municipality,ward,ballots_cast,registered_voters,registration_denominator_timing,source_url,source_level,notes
+Dane,Dane County,County total,367502,398500,final,https://elections.countyofdane.com/Election-Result/172,county,Official Dane County 2024 General Election canvass page. This is a county-level turnout total, not ward-level denominator data.

@@ -38,11 +38,11 @@ Use `npm.cmd` in PowerShell if Windows blocks `npm.ps1`.
 To import a turnout CSV:
 
 ```powershell
-python scripts/import-turnout.py data/your-turnout-file.csv
+py scripts/import-turnout.py data/your-turnout-file.csv
 ```
 
-Use `data/turnout-template.csv` as a format example. The template is not loaded
-as real app data.
+Use `data/turnout-template.csv` as a format example. You can pass more than one
+CSV to combine verified sources. The template is not loaded as real app data.
 
 ## Data Notes
 
@@ -63,8 +63,16 @@ The down-ballot and vote-share checks are run from the WEC ward-level federal
 and state contest spreadsheet using the President and U.S. Senate reports. The
 turnout analysis still requires registered-voter or eligible-voter denominators,
 preferably by ward/precinct. The WEC ward results spreadsheet used here does not
-include those denominator fields, so the panel reports turnout as `Needs data`
-instead of treating it as pass/fail.
+include those denominator fields, so the panel reports turnout as `Partial` only
+where local denominator rows have been imported.
+
+In plain terms: turnout is currently partial. The app has official ward vote
+totals statewide, and it now has City of Milwaukee ward-level turnout
+denominators from a free official City of Milwaukee report plus a Dane County
+official county-level turnout total and Jefferson County ward/reporting-unit
+turnout rows. Oneida County is also imported from its county voter turnout table.
+Other counties remain missing until county/municipal canvass PDFs or web tables
+are collected and imported.
 
 The low-cost turnout path is to collect county or municipal ward-by-ward canvass
 reports. Some local reports publish registered-voter counts from before Election
@@ -81,7 +89,8 @@ The app also renders ETA-style graph types:
 - Down-ballot difference histogram comparing presidential votes with U.S. Senate
   votes by party.
 - Turnout histogram placeholder that remains warning-gated until registration
-  denominator data is imported.
+  denominator data is imported; imported county-level totals are labeled as
+  county-level source rows.
 
 Selecting a county from the map or table filters the ETA-style graphs to that
 county's ward rows; no selection shows the statewide ward dataset.
@@ -94,6 +103,14 @@ Downloaded verification files:
 - `data/County by County Report_US Senate.pdf`
 - `data/Ward by Ward Report Federal and State Contests.xlsx`
 - `data/wi-counties.geojson`
+- `data/City of Milwaukee 2024 General Election Ward by Ward Results.pdf`
+- `data/milwaukee-city-turnout.csv`
+- `data/dane-2024-general-result.html`
+- `data/dane-county-turnout.csv`
+- `data/jefferson-2024-general-result.html`
+- `data/jefferson-county-turnout.csv`
+- `data/oneida-2024-general-result.html`
+- `data/oneida-county-turnout.csv`
 
 ## Complete Source Inventory
 
@@ -115,9 +132,13 @@ Every source currently used by the app:
 - Wisconsin result-reporting context: Wisconsin MyVote election results note.
   Used to explain county-posted election-night results and certified WEC source
   preference.
-- Turnout denominator warning: Wisconsin registration-deadline information plus
-  Votebeat's Oak Creek turnout explainer.
-  Used to warn about pre-Election-Day registration denominators.
+- Turnout denominator warning and imported turnout rows: Wisconsin
+  registration-deadline information plus Votebeat's Oak Creek turnout explainer,
+  the City of Milwaukee ward report, Dane County's 2024 General Election
+  canvass page, Jefferson County's 2024 results page, and Oneida County's
+  November 5 voter turnout table. Used to warn about pre-Election-Day or unknown
+  registration denominators and power the partial Milwaukee, Dane, Jefferson,
+  and Oneida turnout histograms.
 - Voter-file cost context: Badger Voters FAQ and Wis. Admin. Code EL 3.50.
   Used only to evaluate and reject the statewide voter-file option as too costly
   for this project.
@@ -132,3 +153,13 @@ Links:
   <https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer>
 - Election Truth Alliance methodology:
   <https://electiontruthalliance.org/our-methodology/>
+- City of Milwaukee ward-by-ward 2024 General Election report:
+  <https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf>
+- Dane County 2024 General Election canvass page:
+  <https://elections.countyofdane.com/Election-Result/172>
+- Jefferson County 2024 Fall General Election results page:
+  <https://apps.jeffersoncountywi.gov/jc/election/results/11052024>
+- Oneida County November 5 election results page:
+  <https://www.oneidacountywi.gov/election-results/>
+- Votebeat/Wisconsin Watch Oak Creek turnout explainer:
+  <https://www.votebeat.org/wisconsin/2024/11/07/more-ballots-than-voters-oak-creek-turnout-baldwin-hovde-race/>

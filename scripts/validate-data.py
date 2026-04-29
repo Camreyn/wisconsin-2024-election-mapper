@@ -57,6 +57,7 @@ def main() -> int:
     labels = read_json("candidate-labels.json")
     ward_analysis = read_json("ward-analysis.json")
     geojson = read_json("wi-counties.geojson")
+    turnout = read_json("turnout-data.json")
 
     assert_equal("county row count", len(counties), 72, errors)
     assert_equal("candidate label count", len(labels), len(OTHER_KEYS), errors)
@@ -105,6 +106,14 @@ def main() -> int:
     if abs(hovde - EXPECTED_SENATE_TOTALS["hovde"]) > 5:
         errors.append(f"reconstructed Hovde total outside rounding tolerance: {hovde}")
 
+    assert_equal("turnout metadata row count", len(turnout["rows"]), turnout["metadata"]["rows"], errors)
+    for row in turnout["rows"]:
+        if normalize_county(row["county"]) not in county_names:
+            errors.append(f"turnout county not recognized: {row['county']}")
+        if isinstance(row.get("turnoutPct"), (int, float)) and row["registeredVoters"] > 0:
+            expected = round((row["ballotsCast"] / row["registeredVoters"]) * 100, 2)
+            assert_equal(f"{row['county']} {row['ward']} turnoutPct", row["turnoutPct"], expected, errors)
+
     if errors:
         print("Validation failed:")
         for error in errors:
@@ -118,6 +127,7 @@ def main() -> int:
                 "countyRows": len(counties),
                 "wardRows": len(ward_rows),
                 "countyFeatures": len(geojson["features"]),
+                "turnoutRows": len(turnout["rows"]),
                 "presidentTotals": totals,
             },
             indent=2,

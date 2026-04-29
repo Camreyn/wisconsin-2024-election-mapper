@@ -94,6 +94,7 @@ input {
 .summary-grid article,
 .status-panel,
 .eta-panel,
+.coverage-panel,
 .source-note,
 .details-strip,
 .candidate-breakdown,
@@ -206,6 +207,7 @@ input {
 
 .status-panel,
 .eta-panel,
+.coverage-panel,
 .source-note {
   padding: 15px;
 }
@@ -287,6 +289,10 @@ input {
   background: var(--gold);
 }
 
+.eta-badge.partial {
+  background: var(--gold);
+}
+
 .eta-test strong {
   display: block;
   margin-bottom: 2px;
@@ -312,6 +318,79 @@ input {
 
 .eta-note {
   margin-top: 11px;
+}
+
+.coverage-summary {
+  margin: 10px 0 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.coverage-list {
+  display: grid;
+  gap: 6px;
+  max-height: 230px;
+  overflow: auto;
+}
+
+.coverage-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f8fafb;
+}
+
+.coverage-row strong {
+  font-size: 0.9rem;
+}
+
+.coverage-row span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.coverage-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.coverage-sources a {
+  color: var(--blue-strong);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.coverage-status {
+  padding: 3px 7px;
+  border-radius: 999px;
+  color: white;
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.coverage-status.partial {
+  background: var(--gold);
+}
+
+.coverage-status.missing {
+  background: #7c8795;
+}
+
+.coverage-status.complete {
+  background: var(--green);
 }
 
 .source-note {
@@ -601,6 +680,35 @@ input {
   display: block;
   width: 100%;
   height: auto;
+}
+
+.graph-explainer {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f8fafb;
+}
+
+.graph-explainer strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.graph-explainer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.48;
+}
+
+.graph-explainer p + p {
+  margin-top: 8px;
+}
+
+.warning-explainer {
+  border-left: 3px solid var(--gold);
+  background: rgba(183, 129, 45, 0.1);
 }
 
 .graph-axis {

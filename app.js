@@ -70,6 +70,8 @@ const els = {
   statusText: document.querySelector("#statusText"),
   collectorLog: document.querySelector("#collectorLog"),
   etaTests: document.querySelector("#etaTests"),
+  coverageSummary: document.querySelector("#coverageSummary"),
+  coverageList: document.querySelector("#coverageList"),
   voteShareGraph: document.querySelector("#voteShareGraph"),
   downBallotGraph: document.querySelector("#downBallotGraph"),
   turnoutGraph: document.querySelector("#turnoutGraph"),
@@ -89,6 +91,7 @@ const els = {
 function init() {
   renderSummary();
   renderEtaTests();
+  renderCoverageTracker();
   renderEtaGraphs();
   renderCandidateBreakdown();
   renderTable(RESULTS);
@@ -371,6 +374,11 @@ function etaTestResults() {
     Math.abs(ETA_ANALYSIS.downBallot.repDropPct) >= 2 ||
     Math.abs(ETA_ANALYSIS.downBallot.demDropPct) >= 2 ||
     ETA_ANALYSIS.downBallot.repOutlierWards + ETA_ANALYSIS.downBallot.demOutlierWards > 50;
+  const turnoutCoverage = turnoutCoverageRows();
+  const turnoutRows = window.WI_TURNOUT_DATA?.metadata?.rows || 0;
+  const turnoutWarningRows = window.WI_TURNOUT_DATA?.metadata?.warningRows || 0;
+  const partialCount = turnoutCoverage.filter((row) => row.status === "partial").length;
+  const missingCount = turnoutCoverage.filter((row) => row.status === "missing").length;
 
   return [
     {
@@ -387,10 +395,14 @@ function etaTestResults() {
     },
     {
       name: "Turnout analysis",
-      status: TURNOUT_SOURCE_POLICY.status,
-      statusClass: "needs-data",
-      detail: `Not run yet. Best low-cost route is ${TURNOUT_SOURCE_POLICY.acceptedSource} Required fields: ${TURNOUT_SOURCE_POLICY.requiredFields.join(", ")}.`,
-      warning: TURNOUT_SOURCE_POLICY.warning,
+      status: turnoutRows ? "Partial" : TURNOUT_SOURCE_POLICY.status,
+      statusClass: turnoutRows ? "partial" : "needs-data",
+      detail: turnoutRows
+        ? `Partial turnout analysis is running for ${formatNumber(turnoutRows)} imported source rows from county/municipal reports. Coverage: ${partialCount} partial ${partialCount === 1 ? "county" : "counties"}, ${missingCount} counties still missing. Required fields for more imports: ${TURNOUT_SOURCE_POLICY.requiredFields.join(", ")}.`
+        : `Not run. The app has official ward vote totals, but it does not yet have registered-voter or eligible-voter counts needed to calculate turnout. County/municipal canvass PDFs are the planned free source for those denominators. Required fields: ${TURNOUT_SOURCE_POLICY.requiredFields.join(", ")}.`,
+      warning: turnoutWarningRows
+        ? `${formatNumber(turnoutWarningRows)} imported turnout rows use pre-Election-Day or unknown registration denominators. ${TURNOUT_SOURCE_POLICY.warning}`
+        : TURNOUT_SOURCE_POLICY.warning,
     },
     {
       name: "Official-result completeness",
@@ -400,6 +412,69 @@ function etaTestResults() {
         "All 72 counties are present, detailed candidate/write-in totals sum to each county's Other total, and statewide totals match the WEC report.",
     },
   ];
+}
+
+function renderCoverageTracker() {
+  const rows = turnoutCoverageRows();
+  const partial = rows.filter((row) => row.status === "partial").length;
+  const complete = rows.filter((row) => row.status === "complete").length;
+  const missing = rows.filter((row) => row.status === "missing").length;
+  const turnoutRows = window.WI_TURNOUT_DATA?.metadata?.rows || 0;
+  const warningRows = window.WI_TURNOUT_DATA?.metadata?.warningRows || 0;
+
+  els.coverageSummary.textContent = `${formatNumber(turnoutRows)} turnout source rows imported. ${complete} complete counties, ${partial} partial counties, ${missing} missing counties. ${warningRows ? `${formatNumber(warningRows)} rows carry denominator warnings.` : ""}`;
+  els.coverageList.innerHTML = rows
+    .map(
+      (row) => `
+        <div class="coverage-row">
+          <div>
+            <strong>${row.county}</strong>
+            <span>${row.detail}</span>
+            ${row.sources?.length ? `<div class="coverage-sources">${row.sources.map((source, index) => `<a href="${source}" target="_blank" rel="noreferrer">Source ${index + 1}: ${formatSourceHost(source)}</a>`).join("")}</div>` : ""}
+          </div>
+          <em class="coverage-status ${row.status}">${row.status}</em>
+        </div>
+      `,
+    )
+    .join("");
+}
+
+function turnoutCoverageRows() {
+  const rows = window.WI_TURNOUT_DATA?.rows || [];
+  const byCounty = new Map();
+  rows.forEach((row) => {
+    const key = normalizeCounty(row.county);
+    const current = byCounty.get(key) || { rows: 0, municipalities: new Set(), warnings: 0, countyLevelRows: 0, sources: new Set() };
+    current.rows += 1;
+    current.municipalities.add(row.municipality || "Unknown municipality");
+    if (row.sourceUrl) {
+      current.sources.add(row.sourceUrl);
+    }
+    if (row.warningRequired) {
+      current.warnings += 1;
+    }
+    if (row.sourceLevel === "county") {
+      current.countyLevelRows += 1;
+    }
+    byCounty.set(key, current);
+  });
+
+  return RESULTS.map((countyRow) => {
+    const data = byCounty.get(normalizeCounty(countyRow.county));
+    if (!data) {
+      return {
+        county: countyRow.county,
+        status: "missing",
+        detail: "No turnout denominator rows imported",
+      };
+    }
+    return {
+      county: countyRow.county,
+      status: "partial",
+      detail: `${formatNumber(data.rows)} turnout row${data.rows === 1 ? "" : "s"} from ${data.municipalities.size} local area${data.municipalities.size === 1 ? "" : "s"}${data.countyLevelRows ? `; ${formatNumber(data.countyLevelRows)} county-level row${data.countyLevelRows === 1 ? "" : "s"}` : ""}; ${formatNumber(data.warnings)} warning rows`,
+      sources: [...data.sources],
+    };
+  });
 }
 
 function renderEtaGraphs(county = selectedCounty) {
@@ -570,6 +645,14 @@ function renderTurnoutGraph(county) {
     const y = (value) => margin.top + (1 - value / maxCount) * plotHeight;
     const barWidth = Math.max(5, plotWidth / bins.length - 3);
     const warningCount = rows.filter((row) => row.warningRequired).length;
+    const countyLevelCount = rows.filter((row) => row.sourceLevel === "county").length;
+    const graphNotes = [];
+    if (warningCount) {
+      graphNotes.push(`${formatNumber(warningCount)} rows use pre-Election-Day or unknown registration denominators.`);
+    }
+    if (countyLevelCount) {
+      graphNotes.push(`${formatNumber(countyLevelCount)} row${countyLevelCount === 1 ? "" : "s"} use county-level totals, not ward-level denominators.`);
+    }
     const bars = bins
       .map((bin, index) => {
         const barHeight = height - margin.bottom - y(bin.count);
@@ -583,16 +666,12 @@ function renderTurnoutGraph(county) {
         ${bars}
         <line class="graph-axis" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
         <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
-        <text class="graph-title" x="${margin.left}" y="18">${label}: turnout histogram (${formatNumber(rows.length)} rows)</text>
+        <text class="graph-title" x="${margin.left}" y="18">${label}: turnout histogram (${formatNumber(rows.length)} source rows)</text>
         <text class="graph-label" x="${width / 2}" y="${height - 8}" text-anchor="middle">Turnout percent bins</text>
-        <text class="graph-label" transform="translate(15 ${height / 2}) rotate(-90)" text-anchor="middle">Ward/local row count</text>
+        <text class="graph-label" transform="translate(15 ${height / 2}) rotate(-90)" text-anchor="middle">Source row count</text>
         <text class="graph-label" x="${margin.left}" y="${height - 28}">0%</text>
         <text class="graph-label" x="${width - margin.right}" y="${height - 28}" text-anchor="end">120%+</text>
-        ${
-          warningCount
-            ? `<text class="graph-warning-text" x="${margin.left}" y="${height - 32}">${formatNumber(warningCount)} rows use pre-Election-Day or unknown registration denominators.</text>`
-            : ""
-        }
+        ${graphNotes.length ? `<text class="graph-warning-text" x="${margin.left}" y="${height - 32}">${graphNotes.join(" ")}</text>` : ""}
       </svg>
     `;
     return;
@@ -841,6 +920,14 @@ function formatNumber(value) {
 function formatSigned(value) {
   const sign = value > 0 ? "+" : value < 0 ? "-" : "";
   return `${sign}${formatNumber(Math.abs(value))}`;
+}
+
+function formatSourceHost(source) {
+  try {
+    return new URL(source).hostname.replace(/^www\./, "");
+  } catch {
+    return source;
+  }
 }
 
 function sleep(ms) {

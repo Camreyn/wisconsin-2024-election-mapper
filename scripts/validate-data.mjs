@@ -40,6 +40,7 @@ const counties = readJson("president-county-results.json");
 const labels = readJson("candidate-labels.json");
 const wardAnalysis = readJson("ward-analysis.json");
 const geojson = readJson("wi-counties.geojson");
+const turnout = readJson("turnout-data.json");
 
 assertEqual(errors, "county row count", counties.length, 72);
 assertEqual(errors, "candidate label count", labels.length, otherKeys.length);
@@ -80,10 +81,21 @@ assertEqual(
   { trump: expectedTotals.trump, harris: expectedTotals.harris, total: expectedTotals.total },
 );
 
+assertEqual(errors, "turnout metadata row count", turnout.rows.length, turnout.metadata.rows);
+for (const row of turnout.rows) {
+  if (!countyNames.includes(normalizeCounty(row.county))) {
+    errors.push(`turnout county not recognized: ${row.county}`);
+  }
+  if (typeof row.turnoutPct === "number" && row.registeredVoters > 0) {
+    const expected = Math.round((row.ballotsCast / row.registeredVoters) * 10000) / 100;
+    assertEqual(errors, `${row.county} ${row.ward} turnoutPct`, row.turnoutPct, expected);
+  }
+}
+
 if (errors.length) {
   console.error("Validation failed:");
   for (const error of errors) console.error(`- ${error}`);
   process.exit(1);
 }
 
-console.log(JSON.stringify({ status: "passed", countyRows: counties.length, wardRows: wardRows.length, countyFeatures: geojson.features.length, presidentTotals: totals }, null, 2));
+console.log(JSON.stringify({ status: "passed", countyRows: counties.length, wardRows: wardRows.length, countyFeatures: geojson.features.length, turnoutRows: turnout.rows.length, presidentTotals: totals }, null, 2));

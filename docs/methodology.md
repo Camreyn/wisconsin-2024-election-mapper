@@ -47,6 +47,16 @@ share crosses the configured review threshold.
 
 ## Turnout Analysis
 
+The turnout analysis is currently partial. The app has official ward vote totals
+statewide, City of Milwaukee ward-level turnout denominators from a free
+official City of Milwaukee report, and a Dane County official county-level
+turnout total. It also has Jefferson County ward/reporting-unit registered-voter
+and ballots-cast rows from the county's 2024 results page plus Oneida County
+reporting-unit rows from its county voter turnout table. County-level rows are
+useful for rough context, but they are not the same as ward-level denominator
+data. Other counties remain missing until county/municipal canvass PDFs or web
+tables are collected and imported.
+
 Turnout requires:
 
 - ballots cast,
@@ -65,9 +75,10 @@ timing.
 Run:
 
 ```powershell
-python scripts/build-data.py
-python scripts/validate-data.py
+py scripts/build-data.py
+py scripts/validate-data.py
 ```
 
-Use `scripts/import-turnout.py data/your-turnout-file.csv` when a county or
-municipal turnout file has been converted to the required CSV format.
+Use `py scripts/import-turnout.py data/your-turnout-file.csv` when a county or
+municipal turnout file has been converted to the required CSV format. Pass more
+than one CSV to combine verified sources.

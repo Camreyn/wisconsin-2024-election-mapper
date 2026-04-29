@@ -96,6 +96,15 @@
           </p>
         </section>
 
+        <section class="coverage-panel" aria-label="Turnout coverage tracker">
+          <div class="panel-heading">
+            <p class="eyebrow">Turnout coverage</p>
+            <h2>County Tracker</h2>
+          </div>
+          <p id="coverageSummary" class="coverage-summary">Checking turnout coverage...</p>
+          <div id="coverageList" class="coverage-list"></div>
+        </section>
+
         <section class="source-note" aria-label="Data sources">
           <h2>Sources & Provenance</h2>
           <div class="source-list">
@@ -138,7 +147,11 @@
             <article>
               <strong>Turnout denominator warning</strong>
               <p>Used to explain why pre-Election-Day registered-voter counts can understate final registration in Wisconsin, which allows Election Day registration.</p>
-              <span>External references: MyVote voter deadlines; Votebeat Oak Creek turnout explainer</span>
+              <span>Local imported data: data/milwaukee-city-turnout.csv; data/dane-county-turnout.csv; data/jefferson-county-turnout.csv; data/oneida-county-turnout.csv; data/turnout-data.json/js. External references: City of Milwaukee ward-by-ward report; Dane County 2024 General Election canvass page; Jefferson County 2024 results page; Oneida County voter turnout table; MyVote voter deadlines; Votebeat Oak Creek turnout explainer</span>
+              <a href="https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf" target="_blank" rel="noreferrer">City Milwaukee ward report</a>
+              <a href="https://elections.countyofdane.com/Election-Result/172" target="_blank" rel="noreferrer">Dane canvass page</a>
+              <a href="https://apps.jeffersoncountywi.gov/jc/election/results/11052024" target="_blank" rel="noreferrer">Jefferson results page</a>
+              <a href="https://www.oneidacountywi.gov/election-results/" target="_blank" rel="noreferrer">Oneida turnout table</a>
               <a href="https://myvotemirror.wi.gov/en-us/Voter-Deadlines" target="_blank" rel="noreferrer">Registration deadlines</a>
               <a href="https://www.votebeat.org/wisconsin/2024/11/07/more-ballots-than-voters-oak-creek-turnout-baldwin-hovde-race/" target="_blank" rel="noreferrer">Votebeat explainer</a>
             </article>
@@ -209,6 +222,20 @@
               <button class="graph-download" type="button" data-graph="voteShareGraph">Download SVG</button>
             </div>
             <div id="voteShareGraph" class="graph-surface"></div>
+            <div class="graph-explainer">
+              <strong>How to read this</strong>
+              <p>
+                Each dot is one ward. Left-to-right shows how many votes a candidate received there;
+                up-and-down shows that candidate's share of the ward vote. Think of it like a weather
+                map: one dot is just one reading, but the trend line shows whether the readings lean in
+                a pattern.
+              </p>
+              <p>
+                Simple example: if bigger Harris wards also tend to have higher Harris percentages,
+                the blue trend line rises and the check may flag for review. A flag means "look closer,"
+                not "proof something happened."
+              </p>
+            </div>
           </div>
 
           <div class="graph-card">
@@ -220,6 +247,19 @@
               <button class="graph-download" type="button" data-graph="downBallotGraph">Download SVG</button>
             </div>
             <div id="downBallotGraph" class="graph-surface"></div>
+            <div class="graph-explainer">
+              <strong>How to read this</strong>
+              <p>
+                This compares presidential votes with U.S. Senate votes in the same ward. It is like
+                checking two receipts from the same shopping trip: if one line item is much bigger or
+                smaller than expected, it gets marked for a closer look.
+              </p>
+              <p>
+                Simple example: if Trump received 1,000 votes in a ward and Hovde received 950, the
+                Republican presidential-to-Senate drop-off is 50 votes, or 5%. Normal split-ticket voting
+                can cause differences; the chart helps show whether those differences cluster oddly.
+              </p>
+            </div>
           </div>
 
           <div class="graph-card graph-card-wide">
@@ -231,6 +271,19 @@
               <button class="graph-download" type="button" data-graph="turnoutGraph">Download SVG</button>
             </div>
             <div id="turnoutGraph" class="graph-surface"></div>
+            <div class="graph-explainer warning-explainer">
+              <strong>How to read this</strong>
+              <p>
+                This graph is running only for counties where we have imported turnout denominator rows.
+                Think of turnout as a fraction: votes cast divided by possible voters. We have the vote
+                totals statewide, but the reliable bottom number still has to be collected county by county.
+              </p>
+              <p>
+                Simple example: 900 ballots out of 1,000 registered voters is 90% turnout. But if the
+                1,000 count was from before Election Day, and 80 people registered on Election Day, the
+                real denominator is 1,080. That is why this section warns about pre-Election-Day values.
+              </p>
+            </div>
           </div>
         </section>
 
