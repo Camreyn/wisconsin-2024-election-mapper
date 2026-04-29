@@ -1,0 +1,10 @@
+{
+  "name": "wisconsin-2024-election-mapper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static Wisconsin 2024 election county mapper with WEC result data and ETA-style review charts.",
+  "scripts": {
+    "build:data": "node scripts/build-data.mjs",
+    "validate": "node scripts/validate-data.mjs"
+  }
+}

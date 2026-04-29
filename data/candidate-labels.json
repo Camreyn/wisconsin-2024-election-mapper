@@ -1,0 +1,54 @@
+[
+  {
+    "key": "kennedy",
+    "label": "Robert F. Kennedy Jr."
+  },
+  {
+    "key": "stein",
+    "label": "Jill Stein"
+  },
+  {
+    "key": "oliver",
+    "label": "Chase Oliver"
+  },
+  {
+    "key": "terry",
+    "label": "Randall Terry"
+  },
+  {
+    "key": "west",
+    "label": "Cornel West"
+  },
+  {
+    "key": "deLaCruz",
+    "label": "Claudia De la Cruz"
+  },
+  {
+    "key": "sonski",
+    "label": "Peter Sonski (write-in)"
+  },
+  {
+    "key": "fox",
+    "label": "Cherunda Lynn Fox (write-in)"
+  },
+  {
+    "key": "kienitz",
+    "label": "Brian Kienitz (write-in)"
+  },
+  {
+    "key": "jenkins",
+    "label": "Doug Jenkins / Kimberly LaLonde (write-in)"
+  },
+  {
+    "key": "futureMadamPotus",
+    "label": "Future Madam Potus / Jessica Kennedy (write-in)"
+  },
+  {
+    "key": "mcneil",
+    "label": "Andre Ramone McNeil Sr. (write-in)"
+  },
+  {
+    "key": "scattering",
+    "label": "Scattering"
+  }
+]

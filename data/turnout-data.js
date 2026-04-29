@@ -1,0 +1,1 @@
+window.WI_TURNOUT_DATA = {"metadata":{"sourceCsv":null,"rows":0,"warningRows":0,"warningRule":"Warn when registration denominator timing is preElectionDay or unknown."},"rows":[]};

@@ -576,12 +576,17 @@ input {
   margin-bottom: 12px;
 }
 
-.graph-heading p {
+.graph-download {
   margin: 0;
-  color: var(--muted);
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  background: white;
   font-size: 0.9rem;
   font-weight: 800;
-  text-align: right;
+  cursor: pointer;
 }
 
 .graph-surface {
@@ -715,9 +720,6 @@ tbody tr.is-selected {
     grid-template-columns: 1fr;
   }
 
-  .graph-heading p {
-    text-align: left;
-  }
 
   .summary-grid,
   .control-panel,

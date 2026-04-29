@@ -102,25 +102,25 @@
             <article>
               <strong>Presidential county results</strong>
               <p>Used for map shading, county table, statewide totals, candidate breakdown, CSV export, and selected-county details.</p>
-              <span>Local file: County by County Report_POTUS.pdf</span>
+              <span>Local files: data/County by County Report_POTUS.pdf; data/president-county-results.json</span>
               <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
             </article>
             <article>
               <strong>U.S. Senate county results</strong>
               <p>Used as a county-level verification source for the down-ballot comparison.</p>
-              <span>Local file: County by County Report_US Senate.pdf</span>
+              <span>Local file: data/County by County Report_US Senate.pdf</span>
               <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
             </article>
             <article>
               <strong>Ward federal/state results</strong>
               <p>Used for ETA-style ward scatterplots, down-ballot histograms, and selected-county graph filtering.</p>
-              <span>Local files: Ward by Ward Report Federal and State Contests.xlsx; eta-data.js</span>
+              <span>Local files: data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js</span>
               <a href="https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx" target="_blank" rel="noreferrer">Archived WEC spreadsheet</a>
             </article>
             <article>
               <strong>County boundaries</strong>
               <p>Used to draw Wisconsin county polygons. OpenStreetMap tiles were removed so the local app avoids referer-blocked map backgrounds.</p>
-              <span>Runtime fetch: U.S. Census TIGERweb State/County layer</span>
+              <span>Local files: data/wi-counties.geojson; data/wi-counties.js</span>
               <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer" target="_blank" rel="noreferrer">TIGERweb service</a>
             </article>
             <article>
@@ -206,7 +206,7 @@
                 <span>ETA-style graph</span>
                 <strong>Vote Share by Vote Count</strong>
               </div>
-              <p>Ward scatterplot with trend lines</p>
+              <button class="graph-download" type="button" data-graph="voteShareGraph">Download SVG</button>
             </div>
             <div id="voteShareGraph" class="graph-surface"></div>
           </div>
@@ -217,7 +217,7 @@
                 <span>ETA-style graph</span>
                 <strong>Down-Ballot Difference</strong>
               </div>
-              <p>President vs U.S. Senate drop-off</p>
+              <button class="graph-download" type="button" data-graph="downBallotGraph">Download SVG</button>
             </div>
             <div id="downBallotGraph" class="graph-surface"></div>
           </div>
@@ -228,7 +228,7 @@
                 <span>ETA-style graph</span>
                 <strong>Turnout Histogram</strong>
               </div>
-              <p>Waiting for registration denominators</p>
+              <button class="graph-download" type="button" data-graph="turnoutGraph">Download SVG</button>
             </div>
             <div id="turnoutGraph" class="graph-surface"></div>
           </div>
@@ -255,7 +255,10 @@
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
-    <script src="./eta-data.js"></script>
+    <script src="./data/app-data.js"></script>
+    <script src="./data/eta-data.js"></script>
+    <script src="./data/wi-counties.js"></script>
+    <script src="./data/turnout-data.js"></script>
     <script src="./app.js"></script>
   </body>
 </html>

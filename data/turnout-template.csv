@@ -1,0 +1,2 @@
+county,municipality,ward,ballots_cast,registered_voters,registration_denominator_timing,source_url,notes
+Milwaukee,Example Municipality,Example Ward 1,0,0,preElectionDay,https://example.com/local-canvass.pdf,Replace this row with county or municipal canvass data.

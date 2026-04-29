@@ -4,14 +4,45 @@ A static web app that collects Wisconsin's 72 county-level 2024 presidential
 results and maps them against Wisconsin county boundaries. It includes the full
 certified candidate/write-in breakdown behind each county's "Other" total.
 
+![App screenshot](assets/app-screenshot.png)
+
 ## How To Run
 
 Open `index.html` in a browser. The app is static and does not need a build
 step or a local server.
 
-The map uses Leaflet and loads county boundaries from the U.S. Census TIGERweb
-service. If those external resources are blocked, the app falls back to an
+The map uses Leaflet and local Wisconsin county boundaries in
+`data/wi-counties.geojson`. If Leaflet is blocked, the app falls back to an
 interactive county tile grid using the same result data.
+
+For GitHub Pages, publish the repository root from the `main` branch.
+
+## Verify The Data
+
+Run these from the repo root:
+
+```powershell
+python scripts/build-data.py
+python scripts/validate-data.py
+```
+
+Or, if you use npm:
+
+```powershell
+npm.cmd run build:data
+npm.cmd run validate
+```
+
+Use `npm.cmd` in PowerShell if Windows blocks `npm.ps1`.
+
+To import a turnout CSV:
+
+```powershell
+python scripts/import-turnout.py data/your-turnout-file.csv
+```
+
+Use `data/turnout-template.csv` as a format example. The template is not loaded
+as real app data.
 
 ## Data Notes
 
@@ -20,7 +51,7 @@ reporting website; MyVote says those are posted by county clerks. For a stable
 2024 map, this app uses the certified county result table sourced to the
 Wisconsin Elections Commission's `County by County Report_POTUS`.
 
-The official WEC PDF is saved locally as `County by County Report_POTUS.pdf`.
+The official WEC PDF is saved locally as `data/County by County Report_POTUS.pdf`.
 
 ## ETA-Style Test Panel
 
@@ -55,23 +86,26 @@ The app also renders ETA-style graph types:
 Selecting a county from the map or table filters the ETA-style graphs to that
 county's ward rows; no selection shows the statewide ward dataset.
 
+See `docs/methodology.md` for interpretation notes and limitations.
+
 Downloaded verification files:
 
-- `County by County Report_POTUS.pdf`
-- `County by County Report_US Senate.pdf`
-- `Ward by Ward Report Federal and State Contests.xlsx`
+- `data/County by County Report_POTUS.pdf`
+- `data/County by County Report_US Senate.pdf`
+- `data/Ward by Ward Report Federal and State Contests.xlsx`
+- `data/wi-counties.geojson`
 
 ## Complete Source Inventory
 
 Every source currently used by the app:
 
-- Presidential county results: WEC `County by County Report_POTUS.pdf`.
+- Presidential county results: WEC `data/County by County Report_POTUS.pdf`.
   Powers map shading, county table, statewide totals, candidate breakdown, CSV
   export, and selected-county details.
-- U.S. Senate county results: WEC `County by County Report_US Senate.pdf`.
+- U.S. Senate county results: WEC `data/County by County Report_US Senate.pdf`.
   Used as county-level verification context for the down-ballot comparison.
-- Ward federal/state results: WEC `Ward by Ward Report Federal and State
-  Contests.xlsx`, converted into `eta-data.js`.
+- Ward federal/state results: WEC `data/Ward by Ward Report Federal and State
+  Contests.xlsx`, converted into `data/eta-data.js`.
   Powers ETA-style ward scatterplots, down-ballot histograms, and selected-county
   graph filtering.
 - County boundaries: U.S. Census TIGERweb State/County layer.
