@@ -217,7 +217,15 @@
             <div class="graph-heading">
               <div>
                 <span>ETA-style graph</span>
-                <strong>Vote Share by Vote Count</strong>
+                <div class="graph-title-row">
+                  <strong>Vote Share by Vote Count</strong>
+                  <button class="graph-info" type="button" aria-label="Vote share graph data warning">
+                    !
+                    <span role="tooltip">
+                      Uses official WEC ward-level vote totals. Accurate as a descriptive chart, but a pattern or flagged result means "review further," not proof of manipulation by itself.
+                    </span>
+                  </button>
+                </div>
               </div>
               <button class="graph-download" type="button" data-graph="voteShareGraph">Download SVG</button>
             </div>
@@ -242,7 +250,15 @@
             <div class="graph-heading">
               <div>
                 <span>ETA-style graph</span>
-                <strong>Down-Ballot Difference</strong>
+                <div class="graph-title-row">
+                  <strong>Down-Ballot Difference</strong>
+                  <button class="graph-info" type="button" aria-label="Down-ballot graph data warning">
+                    !
+                    <span role="tooltip">
+                      Uses official WEC ward-level President and U.S. Senate vote totals. Differences can come from normal split-ticket voting, so this is a screening chart, not a conclusion.
+                    </span>
+                  </button>
+                </div>
               </div>
               <button class="graph-download" type="button" data-graph="downBallotGraph">Download SVG</button>
             </div>
@@ -266,7 +282,15 @@
             <div class="graph-heading">
               <div>
                 <span>ETA-style graph</span>
-                <strong>Turnout Histogram</strong>
+                <div class="graph-title-row">
+                  <strong>Turnout Histogram</strong>
+                  <button class="graph-info graph-info-warning" type="button" aria-label="Turnout graph data warning">
+                    !
+                    <span role="tooltip">
+                      Turnout is partial. It only includes counties where denominator rows were imported. Pre-Election-Day or unknown registered-voter counts can overstate turnout because Wisconsin allows Election Day registration.
+                    </span>
+                  </button>
+                </div>
               </div>
               <button class="graph-download" type="button" data-graph="turnoutGraph">Download SVG</button>
             </div>
