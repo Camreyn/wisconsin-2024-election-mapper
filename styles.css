@@ -662,7 +662,7 @@ input {
 }
 
 .graph-info {
-  position: relative;
+  flex: 0 0 auto;
   display: inline-grid;
   place-items: center;
   width: 21px;
@@ -683,47 +683,6 @@ input {
   color: white;
   border-color: var(--gold);
   background: var(--gold);
-}
-
-.graph-info span {
-  position: absolute;
-  z-index: 20;
-  bottom: calc(100% + 9px);
-  left: 50%;
-  width: min(320px, 70vw);
-  padding: 10px 11px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  color: var(--ink);
-  background: white;
-  box-shadow: var(--shadow);
-  font-size: 0.82rem;
-  font-weight: 800;
-  line-height: 1.35;
-  text-align: left;
-  transform: translateX(-50%);
-  opacity: 0;
-  pointer-events: none;
-  visibility: hidden;
-}
-
-.graph-info span::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  background: white;
-  transform: translate(-50%, -5px) rotate(45deg);
-}
-
-.graph-info:hover span,
-.graph-info:focus-visible span {
-  opacity: 1;
-  visibility: visible;
 }
 
 .graph-download {
