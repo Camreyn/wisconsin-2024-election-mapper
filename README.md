@@ -1,5 +1,7 @@
 # Wisconsin 2024 Election County Mapper
 
+https://camreyn.github.io/wisconsin-2024-election-mapper/
+
 A static web app that collects Wisconsin's 72 county-level 2024 presidential
 results and maps them against Wisconsin county boundaries. It includes the full
 certified candidate/write-in breakdown behind each county's "Other" total.
