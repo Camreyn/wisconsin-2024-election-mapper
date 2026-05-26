@@ -956,6 +956,34 @@ input {
   overflow: auto;
 }
 
+.county-table-note {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px 0;
+}
+
+.county-table-note strong {
+  font-size: 1rem;
+}
+
+.county-table-note span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.county-table-note .review-flag {
+  width: 18px;
+  height: 18px;
+  font-style: normal;
+  font-size: 0.72rem;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -973,6 +1001,24 @@ td {
 th:first-child,
 td:first-child {
   text-align: left;
+}
+
+.review-cell {
+  text-align: center;
+}
+
+.review-flag {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: white;
+  background: var(--gold);
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: help;
 }
 
 th {

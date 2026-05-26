@@ -63,7 +63,9 @@ vote-share and down-ballot graphs use official WEC ward vote totals, while
 turnout remains partial because denominator rows are only imported for some
 counties. The app also has download buttons for a coverage CSV and a source
 inventory CSV, plus a "checked but not imported" log for sources that were
-reviewed but lacked turnout denominator fields.
+reviewed but lacked turnout denominator fields. The county table can show a
+`!` review flag when county-level screening thresholds are crossed; this means
+"review further," not proof of tampering.
 
 ## ETA-Style Test Panel
 

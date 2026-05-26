@@ -89,7 +89,16 @@ const CHECKED_NOT_USABLE = [
   },
 ];
 
+const COUNTY_REVIEW_POLICY = {
+  minWardRows: 10,
+  voteShareCorrelationThreshold: ETA_ANALYSIS.voteShare.threshold,
+  downBallotAverageThresholdPct: 2,
+  outlierThresholdPct: ETA_ANALYSIS.downBallot.outlierThresholdPct,
+  minCandidateVotes: ETA_ANALYSIS.downBallot.minCandidateVotes,
+};
+
 const byCounty = new Map(RESULTS.map((row) => [normalizeCounty(row.county), row]));
+const countyReviewCache = new Map();
 const stateTotals = RESULTS.reduce(
   (acc, row) => {
     acc.trump += row.trump;
@@ -357,23 +366,84 @@ function hexToRgb(hex) {
 
 function renderTable(rows) {
   els.countyRows.innerHTML = rows
-    .map(
-      (row) => `
+    .map((row) => {
+      const review = countyReviewSummary(row.county);
+      return `
         <tr data-county="${row.county}" class="${selectedCounty === row.county ? "is-selected" : ""}">
           <td>${row.county}</td>
+          <td class="review-cell">${review.flag ? `<span class="review-flag" title="${escapeAttr(review.title)}" aria-label="${escapeAttr(review.title)}">!</span>` : ""}</td>
           <td>${formatNumber(row.trump)} <span class="party-r">${row.trumpPct.toFixed(2)}%</span></td>
           <td>${formatNumber(row.harris)} <span class="party-d">${row.harrisPct.toFixed(2)}%</span></td>
           <td>${formatNumber(row.other)} (${row.otherPct.toFixed(2)}%)</td>
           <td>${winnerLabel(row)} +${Math.abs(row.marginPct).toFixed(2)}%</td>
           <td>${formatNumber(row.total)}</td>
         </tr>
-      `,
-    )
+      `;
+    })
     .join("");
 
   els.countyRows.querySelectorAll("tr").forEach((row) => {
     row.addEventListener("click", () => selectCounty(row.dataset.county));
   });
+}
+
+function countyReviewSummary(county) {
+  const key = normalizeCounty(county);
+  if (countyReviewCache.has(key)) {
+    return countyReviewCache.get(key);
+  }
+
+  const rows = window.ETA_WARD_CHARTS?.metadata?.rows?.filter((row) => normalizeCounty(row.county) === key) || [];
+  if (rows.length < COUNTY_REVIEW_POLICY.minWardRows) {
+    const result = {
+      flag: false,
+      title: `${county} County has fewer than ${COUNTY_REVIEW_POLICY.minWardRows} WEC ward rows in this analysis, so the app does not apply a county-level review flag.`,
+      notes: "Not enough ward rows for county-level review flag",
+    };
+    countyReviewCache.set(key, result);
+    return result;
+  }
+
+  const trumpCorrelation = pearsonSafe(
+    rows.map((row) => row.trump),
+    rows.map((row) => row.trumpShare),
+  );
+  const harrisCorrelation = pearsonSafe(
+    rows.map((row) => row.harris),
+    rows.map((row) => row.harrisShare),
+  );
+  const demAverageDropoff = average(rows.map((row) => row.demDropoff));
+  const repAverageDropoff = average(rows.map((row) => row.repDropoff));
+  const demOutliers = rows.filter((row) => row.harris >= COUNTY_REVIEW_POLICY.minCandidateVotes && Math.abs(row.demDropoff) >= COUNTY_REVIEW_POLICY.outlierThresholdPct).length;
+  const repOutliers = rows.filter((row) => row.trump >= COUNTY_REVIEW_POLICY.minCandidateVotes && Math.abs(row.repDropoff) >= COUNTY_REVIEW_POLICY.outlierThresholdPct).length;
+  const outlierTrigger = Math.max(3, Math.ceil(rows.length * 0.05));
+
+  const reasons = [];
+  if (
+    Math.abs(trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
+    Math.abs(harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold
+  ) {
+    reasons.push(`vote-share correlation crossed threshold: Trump r=${trumpCorrelation.toFixed(3)}, Harris r=${harrisCorrelation.toFixed(3)}`);
+  }
+  if (
+    Math.abs(demAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
+    Math.abs(repAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct
+  ) {
+    reasons.push(`average President-vs-Senate drop-off crossed threshold: DEM ${demAverageDropoff.toFixed(2)}%, REP ${repAverageDropoff.toFixed(2)}%`);
+  }
+  if (demOutliers + repOutliers >= outlierTrigger) {
+    reasons.push(`drop-off outlier count crossed threshold: DEM ${demOutliers}, REP ${repOutliers}, trigger ${outlierTrigger}`);
+  }
+
+  const result = {
+    flag: reasons.length > 0,
+    title: reasons.length
+      ? `Statistical review flag for ${county} County: ${reasons.join("; ")}. This is not proof that tampering occurred; it means the county should be reviewed with records, ballots, or official explanations.`
+      : `${county} County does not cross this app's county-level review flag thresholds. This does not prove the absence of problems.`,
+    notes: reasons.join(" | "),
+  };
+  countyReviewCache.set(key, result);
+  return result;
 }
 
 function renderTiles(rows) {
@@ -981,6 +1051,8 @@ function exportCsv() {
   const candidateHeaders = CANDIDATE_LABELS.map((candidate) => candidate.label);
   const headers = [
     "County",
+    "Review Flag",
+    "Review Notes",
     "Trump",
     "Trump %",
     "Harris",
@@ -992,19 +1064,24 @@ function exportCsv() {
     "Margin %",
     "Total",
   ];
-  const rows = RESULTS.map((row) => [
-    row.county,
-    row.trump,
-    row.trumpPct,
-    row.harris,
-    row.harrisPct,
-    ...CANDIDATE_LABELS.map((candidate) => row[candidate.key]),
-    row.other,
-    row.otherPct,
-    row.margin,
-    row.marginPct,
-    row.total,
-  ]);
+  const rows = RESULTS.map((row) => {
+    const review = countyReviewSummary(row.county);
+    return [
+      row.county,
+      review.flag ? "Review flag" : "",
+      review.notes,
+      row.trump,
+      row.trumpPct,
+      row.harris,
+      row.harrisPct,
+      ...CANDIDATE_LABELS.map((candidate) => row[candidate.key]),
+      row.other,
+      row.otherPct,
+      row.margin,
+      row.marginPct,
+      row.total,
+    ];
+  });
   downloadCsv("wisconsin-2024-president-county-results.csv", headers, rows);
 }
 
@@ -1098,6 +1175,22 @@ function pearson(xs, ys) {
   return numerator / Math.sqrt(xDenominator * yDenominator);
 }
 
+function pearsonSafe(xs, ys) {
+  if (xs.length < 2 || ys.length < 2 || xs.length !== ys.length) {
+    return 0;
+  }
+  const value = pearson(xs, ys);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function average(values) {
+  const valid = values.filter((value) => typeof value === "number" && Number.isFinite(value));
+  if (!valid.length) {
+    return 0;
+  }
+  return valid.reduce((sum, value) => sum + value, 0) / valid.length;
+}
+
 function normalizeCounty(name = "") {
   return name.toLowerCase().replace(/\s+county$/, "").replace(/\./g, "").replace(/\s+/g, " ").trim();
 }
@@ -1117,6 +1210,14 @@ function formatSourceHost(source) {
   } catch {
     return source;
   }
+}
+
+function escapeAttr(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
 }
 
 function sleep(ms) {
