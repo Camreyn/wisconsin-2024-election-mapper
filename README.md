@@ -55,6 +55,16 @@ Wisconsin Elections Commission's `County by County Report_POTUS`.
 
 The official WEC PDF is saved locally as `data/County by County Report_POTUS.pdf`.
 
+## Transparency Tools
+
+The app includes a Data Confidence panel and a County Data Status table. These
+sections separate accurate calculations from stronger conclusions: the
+vote-share and down-ballot graphs use official WEC ward vote totals, while
+turnout remains partial because denominator rows are only imported for some
+counties. The app also has download buttons for a coverage CSV and a source
+inventory CSV, plus a "checked but not imported" log for sources that were
+reviewed but lacked turnout denominator fields.
+
 ## ETA-Style Test Panel
 
 The app includes a status panel based on the Election Truth Alliance's published

@@ -97,7 +97,9 @@ input {
 .coverage-panel,
 .source-note,
 .details-strip,
+.confidence-panel,
 .candidate-breakdown,
+.coverage-table-panel,
 .graph-card,
 .table-wrap {
   border: 1px solid var(--line);
@@ -448,7 +450,7 @@ input {
 
 .map-stage {
   display: grid;
-  grid-template-rows: auto minmax(360px, 1fr) auto auto auto minmax(180px, 31vh);
+  grid-template-rows: auto minmax(360px, 1fr) repeat(5, auto) minmax(180px, 31vh);
   gap: 16px;
   padding: 24px;
   min-width: 0;
@@ -583,6 +585,79 @@ input {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
   padding: 14px;
+}
+
+.confidence-panel,
+.coverage-table-panel {
+  padding: 14px;
+}
+
+.confidence-summary {
+  margin: 10px 0 12px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.confidence-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.confidence-pill {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.confidence-pill.strong {
+  background: var(--green);
+}
+
+.confidence-pill.review,
+.confidence-pill.partial,
+.confidence-pill.warning {
+  background: var(--gold);
+}
+
+.confidence-pill.missing {
+  background: #7c8795;
+}
+
+.plain-method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.plain-method-grid article {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f8fafb;
+}
+
+.plain-method-grid strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.plain-method-grid p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .candidate-breakdown {
@@ -741,6 +816,114 @@ input {
   background: rgba(183, 129, 45, 0.1);
 }
 
+.table-panel-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.table-panel-heading h2 {
+  margin: 0;
+  font-size: 1.18rem;
+}
+
+.table-panel-heading p:last-child {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.4;
+  text-align: right;
+}
+
+.coverage-table-wrap {
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+
+.coverage-table {
+  min-width: 980px;
+}
+
+.coverage-table td {
+  vertical-align: top;
+  white-space: normal;
+}
+
+.coverage-table-sources {
+  display: grid;
+  gap: 4px;
+}
+
+.coverage-cell-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.coverage-table-sources span,
+.coverage-table-sources a {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.coverage-table-sources a {
+  color: var(--blue-strong);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+.checked-log {
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #f8fafb;
+}
+
+.checked-log > strong {
+  display: block;
+}
+
+.checked-log > p {
+  margin: 5px 0 10px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+#checkedNotUsableList {
+  display: grid;
+  gap: 8px;
+}
+
+#checkedNotUsableList article {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+#checkedNotUsableList p,
+#checkedNotUsableList span {
+  display: block;
+  margin: 4px 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+#checkedNotUsableList a {
+  color: var(--blue-strong);
+  font-weight: 800;
+}
+
 .graph-axis {
   stroke: #7c8795;
   stroke-width: 1;
@@ -836,7 +1019,7 @@ tbody tr.is-selected {
   }
 
   .map-stage {
-    grid-template-rows: auto minmax(340px, 58vh) auto minmax(220px, 34vh);
+    grid-template-rows: auto minmax(340px, 58vh) repeat(6, auto);
   }
 }
 
@@ -849,12 +1032,14 @@ tbody tr.is-selected {
   .toolbar,
   .details-strip,
   .breakdown-heading,
+  .table-panel-heading,
   .graph-heading {
     display: grid;
     grid-template-columns: 1fr;
   }
 
-  .eta-graphs {
+  .eta-graphs,
+  .plain-method-grid {
     grid-template-columns: 1fr;
   }
 

@@ -39,6 +39,56 @@ const TURNOUT_SOURCE_POLICY = {
   ],
 };
 
+const DATA_VERSION_LABEL = "May 2026 local bundle";
+
+const SOURCE_INVENTORY = [
+  {
+    category: "Presidential county results",
+    file: "data/County by County Report_POTUS.pdf; data/president-county-results.json",
+    sourceUrl: "https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf",
+    usedFor: "Map shading, county table, statewide totals, candidate breakdown, CSV export, selected-county details.",
+    confidence: "Official WEC certified county result report.",
+  },
+  {
+    category: "U.S. Senate county results",
+    file: "data/County by County Report_US Senate.pdf",
+    sourceUrl: "https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf",
+    usedFor: "County-level verification context for down-ballot comparison.",
+    confidence: "Official WEC certified county result report.",
+  },
+  {
+    category: "Ward federal/state results",
+    file: "data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js",
+    sourceUrl:
+      "https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx",
+    usedFor: "ETA-style ward scatterplots, down-ballot histograms, selected-county graph filtering.",
+    confidence: "Official WEC ward-level vote totals; graph interpretation remains a screening tool.",
+  },
+  {
+    category: "County boundaries",
+    file: "data/wi-counties.geojson; data/wi-counties.js",
+    sourceUrl: "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+    usedFor: "County polygon map.",
+    confidence: "U.S. Census TIGERweb geography.",
+  },
+  {
+    category: "Turnout imported rows",
+    file: "data/milwaukee-city-turnout.csv; data/dane-county-turnout.csv; data/jefferson-county-turnout.csv; data/oneida-county-turnout.csv; data/turnout-data.json/js",
+    sourceUrl: "Multiple local county/municipal sources; see county coverage table.",
+    usedFor: "Partial turnout histogram and denominator-warning labels.",
+    confidence: "Partial coverage; warning-gated when denominator timing is pre-Election-Day or unknown.",
+  },
+];
+
+const CHECKED_NOT_USABLE = [
+  {
+    county: "Waukesha",
+    sourceUrl: "https://www.waukeshacounty.gov/media/tcgned1s/fed-state-official-results-detail.xlsx",
+    reason: "Official detail file was checked, but it did not contain registered-voter or eligible-voter denominator fields needed for turnout analysis.",
+    missingFields: "registeredVoters or eligibleVoters denominator; denominator timing",
+  },
+];
+
 const byCounty = new Map(RESULTS.map((row) => [normalizeCounty(row.county), row]));
 const stateTotals = RESULTS.reduce(
   (acc, row) => {
@@ -65,6 +115,8 @@ const els = {
   collectBtn: document.querySelector("#collectBtn"),
   mapBtn: document.querySelector("#mapBtn"),
   exportBtn: document.querySelector("#exportBtn"),
+  coverageCsvBtn: document.querySelector("#coverageCsvBtn"),
+  sourceCsvBtn: document.querySelector("#sourceCsvBtn"),
   search: document.querySelector("#countySearch"),
   progressBar: document.querySelector("#progressBar"),
   statusText: document.querySelector("#statusText"),
@@ -72,6 +124,11 @@ const els = {
   etaTests: document.querySelector("#etaTests"),
   coverageSummary: document.querySelector("#coverageSummary"),
   coverageList: document.querySelector("#coverageList"),
+  dataVersionSummary: document.querySelector("#dataVersionSummary"),
+  confidenceBadges: document.querySelector("#confidenceBadges"),
+  coverageTableSummary: document.querySelector("#coverageTableSummary"),
+  coverageTableRows: document.querySelector("#coverageTableRows"),
+  checkedNotUsableList: document.querySelector("#checkedNotUsableList"),
   voteShareGraph: document.querySelector("#voteShareGraph"),
   downBallotGraph: document.querySelector("#downBallotGraph"),
   turnoutGraph: document.querySelector("#turnoutGraph"),
@@ -92,6 +149,9 @@ function init() {
   renderSummary();
   renderEtaTests();
   renderCoverageTracker();
+  renderConfidenceSummary();
+  renderCoverageTable();
+  renderCheckedNotUsable();
   renderEtaGraphs();
   renderCandidateBreakdown();
   renderTable(RESULTS);
@@ -104,6 +164,8 @@ function wireControls() {
   els.collectBtn.addEventListener("click", () => collectCounties({ quick: false }));
   els.mapBtn.addEventListener("click", loadCountyBoundaries);
   els.exportBtn.addEventListener("click", exportCsv);
+  els.coverageCsvBtn.addEventListener("click", exportCoverageCsv);
+  els.sourceCsvBtn.addEventListener("click", exportSourceCsv);
   els.search.addEventListener("input", () => {
     const query = els.search.value.trim().toLowerCase();
     const rows = RESULTS.filter((row) => row.county.toLowerCase().includes(query));
@@ -439,6 +501,69 @@ function renderCoverageTracker() {
     .join("");
 }
 
+function renderConfidenceSummary() {
+  const rows = turnoutCoverageRows();
+  const turnoutRows = window.WI_TURNOUT_DATA?.metadata?.rows || 0;
+  const warningRows = window.WI_TURNOUT_DATA?.metadata?.warningRows || 0;
+  const partial = rows.filter((row) => row.status === "partial").length;
+  const missing = rows.filter((row) => row.status === "missing").length;
+
+  els.dataVersionSummary.textContent = `Data version: ${DATA_VERSION_LABEL}. Current bundle has ${formatNumber(RESULTS.length)} WEC county result rows, ${formatNumber(ETA_ANALYSIS.wardRows)} WEC ward-analysis rows, and ${formatNumber(turnoutRows)} imported turnout rows across ${partial} counties. ${missing} counties still need turnout denominators.`;
+  els.confidenceBadges.innerHTML = [
+    confidenceBadge("Official WEC county totals", "strong"),
+    confidenceBadge("Official WEC ward vote graphs", "strong"),
+    confidenceBadge("Accurate calculations, limited conclusions", "review"),
+    confidenceBadge(`${formatNumber(turnoutRows)} partial turnout rows`, "partial"),
+    confidenceBadge(`${formatNumber(warningRows)} denominator-warning rows`, warningRows ? "warning" : "strong"),
+    confidenceBadge(`${missing} turnout counties missing`, missing ? "missing" : "strong"),
+  ].join("");
+}
+
+function renderCoverageTable() {
+  const rows = turnoutCoverageRows();
+  const partial = rows.filter((row) => row.status === "partial").length;
+  const missing = rows.filter((row) => row.status === "missing").length;
+
+  els.coverageTableSummary.textContent = `${partial} counties have imported turnout rows; ${missing} still need denominator data. Vote-result coverage is complete for all ${RESULTS.length} counties.`;
+  els.coverageTableRows.innerHTML = rows
+    .map((row) => {
+      const sourceLinks = row.sources?.length
+        ? row.sources.map((source, index) => `<a href="${source}" target="_blank" rel="noreferrer">Turnout ${index + 1}: ${formatSourceHost(source)}</a>`).join("")
+        : "<span>No turnout denominator source imported</span>";
+      const warning = row.status === "missing" ? "No turnout rows" : row.warnings ? `Yes - ${formatNumber(row.warnings)} row${row.warnings === 1 ? "" : "s"}` : "No warning rows";
+      return `
+        <tr>
+          <td>${row.county}</td>
+          <td><span class="confidence-pill strong">Official WEC</span></td>
+          <td>
+            <span class="confidence-pill ${row.status === "missing" ? "missing" : "partial"}">${row.status === "missing" ? "Missing" : "Partial"}</span>
+            <p class="coverage-cell-note">${row.status === "missing" ? "No turnout denominator rows imported" : row.detail}</p>
+          </td>
+          <td>${warning}</td>
+          <td class="coverage-table-sources"><span>WEC vote files</span>${sourceLinks}</td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function renderCheckedNotUsable() {
+  els.checkedNotUsableList.innerHTML = CHECKED_NOT_USABLE.map(
+    (item) => `
+      <article>
+        <strong>${item.county} County</strong>
+        <p>${item.reason}</p>
+        <span>Missing: ${item.missingFields}</span>
+        <a href="${item.sourceUrl}" target="_blank" rel="noreferrer">${formatSourceHost(item.sourceUrl)}</a>
+      </article>
+    `,
+  ).join("");
+}
+
+function confidenceBadge(label, tone) {
+  return `<span class="confidence-pill ${tone}">${label}</span>`;
+}
+
 function turnoutCoverageRows() {
   const rows = window.WI_TURNOUT_DATA?.rows || [];
   const byCounty = new Map();
@@ -472,6 +597,10 @@ function turnoutCoverageRows() {
       county: countyRow.county,
       status: "partial",
       detail: `${formatNumber(data.rows)} turnout row${data.rows === 1 ? "" : "s"} from ${data.municipalities.size} local area${data.municipalities.size === 1 ? "" : "s"}${data.countyLevelRows ? `; ${formatNumber(data.countyLevelRows)} county-level row${data.countyLevelRows === 1 ? "" : "s"}` : ""}; ${formatNumber(data.warnings)} warning rows`,
+      rows: data.rows,
+      warnings: data.warnings,
+      localAreaCount: data.municipalities.size,
+      countyLevelRows: data.countyLevelRows,
       sources: [...data.sources],
     };
   });
@@ -555,7 +684,7 @@ function renderVoteShareGraph(county) {
       <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
       ${points}
       ${trendLines}
-      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: each dot is one ward/candidate pair (${formatNumber(scope.rows.length)} wards)</text>
+      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: WEC ward vote-share chart (${formatNumber(scope.rows.length)} wards)</text>
       <text class="graph-label" x="${width / 2}" y="${height - 8}" text-anchor="middle">Candidate votes in ward</text>
       <text class="graph-label" transform="translate(16 ${height / 2}) rotate(-90)" text-anchor="middle">Candidate vote share</text>
       <circle cx="${width - 150}" cy="18" r="5" fill="#c84c42"></circle>
@@ -616,7 +745,7 @@ function renderDownBallotGraph(county) {
       ${bars}
       <line class="graph-axis" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
       <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
-      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: distribution of ward drop-off rates</text>
+      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: WEC ward President vs Senate drop-off rates</text>
       <text class="graph-label" x="${margin.left}" y="${height - 24}" text-anchor="start">-30%</text>
       <text class="graph-label" x="${zeroX}" y="${height - 24}" text-anchor="middle">0%</text>
       <text class="graph-label" x="${width - margin.right}" y="${height - 24}" text-anchor="end">+30%</text>
@@ -631,8 +760,8 @@ function renderDownBallotGraph(county) {
 }
 
 function renderTurnoutGraph(county) {
-  const label = county ? `${county} County` : "statewide";
   const rows = turnoutRowsForCounty(county);
+  const label = turnoutGraphLabel(county, rows);
   if (rows.length) {
     const width = 760;
     const height = 300;
@@ -697,6 +826,17 @@ function turnoutRowsForCounty(county) {
   }
   const normalized = normalizeCounty(county || "");
   return county ? data.rows.filter((row) => normalizeCounty(row.county) === normalized) : data.rows;
+}
+
+function turnoutGraphLabel(county, rows) {
+  if (!county) {
+    return "Statewide imported turnout rows";
+  }
+  const localAreas = [...new Set(rows.map((row) => row.municipality).filter(Boolean))];
+  if (localAreas.length === 1 && normalizeCounty(localAreas[0]) !== normalizeCounty(county)) {
+    return `${county} County imported turnout rows (${localAreas[0]} only)`;
+  }
+  return `${county} County imported turnout rows`;
 }
 
 function buildTurnoutBins(rows) {
@@ -865,14 +1005,63 @@ function exportCsv() {
     row.marginPct,
     row.total,
   ]);
+  downloadCsv("wisconsin-2024-president-county-results.csv", headers, rows);
+}
+
+function exportCoverageCsv() {
+  const headers = [
+    "county",
+    "vote_results",
+    "turnout_status",
+    "turnout_rows",
+    "local_area_count",
+    "county_level_rows",
+    "warning_rows",
+    "turnout_sources",
+    "notes",
+  ];
+  const rows = turnoutCoverageRows().map((row) => [
+    row.county,
+    "Official WEC county and ward vote totals present",
+    row.status,
+    row.rows || 0,
+    row.localAreaCount || 0,
+    row.countyLevelRows || 0,
+    row.warnings || 0,
+    (row.sources || []).join(" "),
+    row.status === "missing" ? "No turnout denominator rows imported" : row.detail,
+  ]);
+  downloadCsv("wisconsin-2024-data-coverage.csv", headers, rows);
+}
+
+function exportSourceCsv() {
+  const headers = ["category", "file_or_local_data", "source_url", "used_for", "confidence_or_status"];
+  const sourceRows = SOURCE_INVENTORY.map((source) => [
+    source.category,
+    source.file,
+    source.sourceUrl,
+    source.usedFor,
+    source.confidence,
+  ]);
+  const checkedRows = CHECKED_NOT_USABLE.map((item) => [
+    `Checked but not imported - ${item.county}`,
+    item.missingFields,
+    item.sourceUrl,
+    "Reviewed for turnout analysis but not imported.",
+    item.reason,
+  ]);
+  downloadCsv("wisconsin-2024-source-inventory.csv", headers, [...sourceRows, ...checkedRows]);
+}
+
+function downloadCsv(filename, headers, rows) {
   const csv = [headers, ...rows]
-    .map((row) => row.map((cell) => `"${String(cell).replaceAll('"', '""')}"`).join(","))
+    .map((row) => row.map((cell) => `"${String(cell ?? "").replaceAll('"', '""')}"`).join(","))
     .join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "wisconsin-2024-president-county-results.csv";
+  link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
 }

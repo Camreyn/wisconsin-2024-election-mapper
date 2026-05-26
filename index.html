@@ -51,6 +51,12 @@
           <button id="exportBtn" class="secondary-button" type="button">
             Export CSV
           </button>
+          <button id="coverageCsvBtn" class="secondary-button" type="button">
+            Coverage CSV
+          </button>
+          <button id="sourceCsvBtn" class="secondary-button" type="button">
+            Source CSV
+          </button>
         </div>
 
         <label class="field-label" for="countySearch">County search</label>
@@ -201,6 +207,29 @@
           </div>
         </section>
 
+        <section class="confidence-panel" aria-label="Data confidence summary">
+          <div class="panel-heading">
+            <p class="eyebrow">Data confidence</p>
+            <h2>What This App Can Say</h2>
+          </div>
+          <p id="dataVersionSummary" class="confidence-summary">Checking data version...</p>
+          <div id="confidenceBadges" class="confidence-badges"></div>
+          <div class="plain-method-grid">
+            <article>
+              <strong>Accurate calculation</strong>
+              <p>The vote-share and down-ballot graphs calculate patterns from official WEC ward-level vote totals.</p>
+            </article>
+            <article>
+              <strong>Limited conclusion</strong>
+              <p>A flagged pattern means review further. It is not proof by itself and does not replace a ballot audit or records review.</p>
+            </article>
+            <article>
+              <strong>Partial turnout</strong>
+              <p>Turnout graphs only run where denominator rows have been imported, and warning-gated denominators need extra care.</p>
+            </article>
+          </div>
+        </section>
+
         <section class="candidate-breakdown" aria-label="Other candidate breakdown">
           <div class="breakdown-heading">
             <div>
@@ -314,6 +343,35 @@
                 real denominator is 1,080. That is why this section warns about pre-Election-Day values.
               </p>
             </div>
+          </div>
+        </section>
+
+        <section class="coverage-table-panel" aria-label="Data coverage and confidence table">
+          <div class="table-panel-heading">
+            <div>
+              <p class="eyebrow">Coverage & confidence</p>
+              <h2>County Data Status</h2>
+            </div>
+            <p id="coverageTableSummary">Building county coverage table...</p>
+          </div>
+          <div class="coverage-table-wrap">
+            <table class="coverage-table">
+              <thead>
+                <tr>
+                  <th>County</th>
+                  <th>Vote Results</th>
+                  <th>Turnout Data</th>
+                  <th>Denominator Warning</th>
+                  <th>Sources</th>
+                </tr>
+              </thead>
+              <tbody id="coverageTableRows"></tbody>
+            </table>
+          </div>
+          <div class="checked-log">
+            <strong>Checked But Not Imported</strong>
+            <p>These sources were reviewed but did not have the denominator fields needed for turnout analysis.</p>
+            <div id="checkedNotUsableList"></div>
           </div>
         </section>
 
