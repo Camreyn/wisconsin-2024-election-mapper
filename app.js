@@ -138,6 +138,7 @@ const els = {
   coverageTableSummary: document.querySelector("#coverageTableSummary"),
   coverageTableRows: document.querySelector("#coverageTableRows"),
   checkedNotUsableList: document.querySelector("#checkedNotUsableList"),
+  reviewFlagSummary: document.querySelector("#reviewFlagSummary"),
   voteShareGraph: document.querySelector("#voteShareGraph"),
   downBallotGraph: document.querySelector("#downBallotGraph"),
   turnoutGraph: document.querySelector("#turnoutGraph"),
@@ -365,6 +366,7 @@ function hexToRgb(hex) {
 }
 
 function renderTable(rows) {
+  updateReviewFlagSummary(rows);
   els.countyRows.innerHTML = rows
     .map((row) => {
       const review = countyReviewSummary(row.county);
@@ -385,6 +387,13 @@ function renderTable(rows) {
   els.countyRows.querySelectorAll("tr").forEach((row) => {
     row.addEventListener("click", () => selectCounty(row.dataset.county));
   });
+}
+
+function updateReviewFlagSummary(rows) {
+  const flagCount = rows.filter((row) => countyReviewSummary(row.county).flag).length;
+  const countyWord = flagCount === 1 ? "county" : "counties";
+  const scope = rows.length === RESULTS.length ? "statewide table" : "filtered table";
+  els.reviewFlagSummary.innerHTML = `<i class="review-flag">!</i> ${formatNumber(flagCount)} ${countyWord} in this ${scope} have statistical review flags. Not proof of tampering.`;
 }
 
 function countyReviewSummary(county) {
@@ -852,6 +861,13 @@ function renderTurnoutGraph(county) {
     if (countyLevelCount) {
       graphNotes.push(`${formatNumber(countyLevelCount)} row${countyLevelCount === 1 ? "" : "s"} use county-level totals, not ward-level denominators.`);
     }
+    const warningLines = svgTextLines(graphNotes.join(" "), {
+      x: margin.left,
+      y: height - 40,
+      maxChars: 74,
+      className: "graph-warning-text",
+      lineHeight: 15,
+    });
     const bars = bins
       .map((bin, index) => {
         const barHeight = height - margin.bottom - y(bin.count);
@@ -870,7 +886,7 @@ function renderTurnoutGraph(county) {
         <text class="graph-label" transform="translate(15 ${height / 2}) rotate(-90)" text-anchor="middle">Source row count</text>
         <text class="graph-label" x="${margin.left}" y="${height - 28}">0%</text>
         <text class="graph-label" x="${width - margin.right}" y="${height - 28}" text-anchor="end">120%+</text>
-        ${graphNotes.length ? `<text class="graph-warning-text" x="${margin.left}" y="${height - 32}">${graphNotes.join(" ")}</text>` : ""}
+        ${warningLines}
       </svg>
     `;
     return;
@@ -933,6 +949,34 @@ function renderGraphMessage(target, message) {
       <text class="graph-warning-text" x="40" y="112">${message}</text>
     </svg>
   `;
+}
+
+function svgTextLines(text, { x, y, maxChars, className, lineHeight }) {
+  if (!text) {
+    return "";
+  }
+  const words = text.split(/\s+/);
+  const lines = [];
+  let current = "";
+
+  words.forEach((word) => {
+    const next = current ? `${current} ${word}` : word;
+    if (next.length > maxChars && current) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = next;
+    }
+  });
+
+  if (current) {
+    lines.push(current);
+  }
+
+  return lines
+    .slice(0, 3)
+    .map((line, index) => `<text class="${className}" x="${x}" y="${y + index * lineHeight}">${line}</text>`)
+    .join("");
 }
 
 function regressionLine(points, xScale, yScale, xMax, color) {
