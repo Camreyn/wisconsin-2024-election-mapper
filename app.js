@@ -393,7 +393,7 @@ function updateReviewFlagSummary(rows) {
   const flagCount = rows.filter((row) => countyReviewSummary(row.county).flag).length;
   const countyWord = flagCount === 1 ? "county" : "counties";
   const scope = rows.length === RESULTS.length ? "statewide table" : "filtered table";
-  els.reviewFlagSummary.innerHTML = `<i class="review-flag">!</i> ${formatNumber(flagCount)} ${countyWord} in this ${scope} have statistical review flags. Not proof of tampering.`;
+  els.reviewFlagSummary.innerHTML = `<i class="review-flag">!</i> ${formatNumber(flagCount)} ${countyWord} in this ${scope} have statistical review flags. Not proof of tampering. Hover over each icon for county-specific details.`;
 }
 
 function countyReviewSummary(county) {
@@ -856,15 +856,15 @@ function renderTurnoutGraph(county) {
     const countyLevelCount = rows.filter((row) => row.sourceLevel === "county").length;
     const graphNotes = [];
     if (warningCount) {
-      graphNotes.push(`${formatNumber(warningCount)} rows use pre-Election-Day or unknown registration denominators.`);
+      graphNotes.push(`${formatNumber(warningCount)} rows have denominator warnings.`);
     }
     if (countyLevelCount) {
-      graphNotes.push(`${formatNumber(countyLevelCount)} row${countyLevelCount === 1 ? "" : "s"} use county-level totals, not ward-level denominators.`);
+      graphNotes.push(`${formatNumber(countyLevelCount)} row${countyLevelCount === 1 ? "" : "s"} use county-level totals.`);
     }
     const warningLines = svgTextLines(graphNotes.join(" "), {
       x: margin.left,
-      y: height - 40,
-      maxChars: 74,
+      y: height - 45,
+      maxChars: 52,
       className: "graph-warning-text",
       lineHeight: 15,
     });
@@ -892,13 +892,16 @@ function renderTurnoutGraph(county) {
     return;
   }
 
-  const placeholderWarning = svgTextLines(TURNOUT_SOURCE_POLICY.warning, {
+  const placeholderWarning = svgTextLines(
+    "Warning: turnout denominators may be pre-Election-Day or missing. Election Day registration can make those rates look too high.",
+    {
     x: 52,
-    y: 228,
-    maxChars: 82,
+    y: 224,
+    maxChars: 58,
     className: "graph-warning-text",
     lineHeight: 15,
-  });
+    },
+  );
 
   els.turnoutGraph.innerHTML = `
     <svg viewBox="0 0 760 260" role="img" aria-label="Turnout histogram placeholder">
