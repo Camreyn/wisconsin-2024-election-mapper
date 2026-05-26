@@ -142,6 +142,7 @@ const els = {
   voteShareGraph: document.querySelector("#voteShareGraph"),
   downBallotGraph: document.querySelector("#downBallotGraph"),
   turnoutGraph: document.querySelector("#turnoutGraph"),
+  turnoutGraphNote: document.querySelector("#turnoutGraphNote"),
   countyRows: document.querySelector("#countyRows"),
   mapTitle: document.querySelector("#mapTitle"),
   map: document.querySelector("#map"),
@@ -861,13 +862,7 @@ function renderTurnoutGraph(county) {
     if (countyLevelCount) {
       graphNotes.push(`${formatNumber(countyLevelCount)} row${countyLevelCount === 1 ? "" : "s"} use county-level totals.`);
     }
-    const warningLines = svgTextLines(graphNotes.join(" "), {
-      x: margin.left,
-      y: height - 45,
-      maxChars: 52,
-      className: "graph-warning-text",
-      lineHeight: 15,
-    });
+    els.turnoutGraphNote.textContent = graphNotes.join(" ");
     const bars = bins
       .map((bin, index) => {
         const barHeight = height - margin.bottom - y(bin.count);
@@ -886,22 +881,13 @@ function renderTurnoutGraph(county) {
         <text class="graph-label" transform="translate(15 ${height / 2}) rotate(-90)" text-anchor="middle">Source row count</text>
         <text class="graph-label" x="${margin.left}" y="${height - 64}">0%</text>
         <text class="graph-label" x="${width - margin.right}" y="${height - 64}" text-anchor="end">120%+</text>
-        ${warningLines}
       </svg>
     `;
     return;
   }
 
-  const placeholderWarning = svgTextLines(
-    "Warning: turnout denominators may be pre-Election-Day or missing. Election Day registration can make those rates look too high.",
-    {
-    x: 52,
-    y: 224,
-    maxChars: 58,
-    className: "graph-warning-text",
-    lineHeight: 15,
-    },
-  );
+  els.turnoutGraphNote.textContent =
+    "Warning: turnout denominators may be pre-Election-Day or missing. Election Day registration can make those rates look too high.";
 
   els.turnoutGraph.innerHTML = `
     <svg viewBox="0 0 760 260" role="img" aria-label="Turnout histogram placeholder">
