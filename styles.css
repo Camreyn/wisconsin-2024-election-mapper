@@ -840,19 +840,54 @@ input {
 }
 
 .coverage-table-wrap {
-  max-height: 360px;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: visible;
   border: 1px solid var(--line);
   border-radius: 7px;
 }
 
 .coverage-table {
-  min-width: 980px;
+  min-width: 900px;
+  table-layout: fixed;
+}
+
+.coverage-table th:nth-child(1),
+.coverage-table td:nth-child(1) {
+  width: 12%;
+}
+
+.coverage-table th:nth-child(2),
+.coverage-table td:nth-child(2) {
+  width: 14%;
+}
+
+.coverage-table th:nth-child(3),
+.coverage-table td:nth-child(3) {
+  width: 28%;
+}
+
+.coverage-table th:nth-child(4),
+.coverage-table td:nth-child(4) {
+  width: 18%;
+}
+
+.coverage-table th:nth-child(5),
+.coverage-table td:nth-child(5) {
+  width: 28%;
 }
 
 .coverage-table td {
   vertical-align: top;
   white-space: normal;
+}
+
+.coverage-table th,
+.coverage-table td {
+  padding: 10px 12px;
+}
+
+.coverage-table .confidence-pill {
+  white-space: nowrap;
 }
 
 .coverage-table-sources {
@@ -863,7 +898,7 @@ input {
 .coverage-cell-note {
   margin: 6px 0 0;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   font-weight: 800;
   line-height: 1.35;
 }
@@ -871,7 +906,7 @@ input {
 .coverage-table-sources span,
 .coverage-table-sources a {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 800;
 }
 

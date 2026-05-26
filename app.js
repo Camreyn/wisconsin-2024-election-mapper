@@ -892,6 +892,14 @@ function renderTurnoutGraph(county) {
     return;
   }
 
+  const placeholderWarning = svgTextLines(TURNOUT_SOURCE_POLICY.warning, {
+    x: 52,
+    y: 228,
+    maxChars: 82,
+    className: "graph-warning-text",
+    lineHeight: 15,
+  });
+
   els.turnoutGraph.innerHTML = `
     <svg viewBox="0 0 760 260" role="img" aria-label="Turnout histogram placeholder">
       <rect width="760" height="260" fill="#fbfcfd"></rect>
@@ -900,7 +908,7 @@ function renderTurnoutGraph(county) {
       <line class="graph-axis" x1="52" y1="210" x2="708" y2="210"></line>
       <line class="graph-axis" x1="52" y1="32" x2="52" y2="210"></line>
       <text class="graph-title" x="52" y="24">${label}: turnout histogram will render when denominator data is imported</text>
-      <text class="graph-warning-text" x="52" y="242">${TURNOUT_SOURCE_POLICY.warning}</text>
+      ${placeholderWarning}
     </svg>
   `;
 }
