@@ -840,8 +840,8 @@ input {
 }
 
 .coverage-table-wrap {
-  overflow-x: auto;
-  overflow-y: visible;
+  max-height: 380px;
+  overflow: auto;
   border: 1px solid var(--line);
   border-radius: 7px;
 }

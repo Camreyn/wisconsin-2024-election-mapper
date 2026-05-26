@@ -843,8 +843,8 @@ function renderTurnoutGraph(county) {
   const label = turnoutGraphLabel(county, rows);
   if (rows.length) {
     const width = 760;
-    const height = 300;
-    const margin = { top: 24, right: 24, bottom: 54, left: 52 };
+    const height = 340;
+    const margin = { top: 24, right: 24, bottom: 88, left: 52 };
     const bins = buildTurnoutBins(rows);
     const maxCount = Math.max(...bins.map((bin) => bin.count), 1);
     const plotWidth = width - margin.left - margin.right;
@@ -884,8 +884,8 @@ function renderTurnoutGraph(county) {
         <text class="graph-title" x="${margin.left}" y="18">${label}: turnout histogram (${formatNumber(rows.length)} source rows)</text>
         <text class="graph-label" x="${width / 2}" y="${height - 8}" text-anchor="middle">Turnout percent bins</text>
         <text class="graph-label" transform="translate(15 ${height / 2}) rotate(-90)" text-anchor="middle">Source row count</text>
-        <text class="graph-label" x="${margin.left}" y="${height - 28}">0%</text>
-        <text class="graph-label" x="${width - margin.right}" y="${height - 28}" text-anchor="end">120%+</text>
+        <text class="graph-label" x="${margin.left}" y="${height - 64}">0%</text>
+        <text class="graph-label" x="${width - margin.right}" y="${height - 64}" text-anchor="end">120%+</text>
         ${warningLines}
       </svg>
     `;
