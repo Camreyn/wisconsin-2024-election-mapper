@@ -99,6 +99,7 @@ input {
 .details-strip,
 .confidence-panel,
 .candidate-breakdown,
+.city-split-panel,
 .coverage-table-panel,
 .graph-card,
 .table-wrap {
@@ -450,7 +451,7 @@ input {
 
 .map-stage {
   display: grid;
-  grid-template-rows: auto minmax(360px, 1fr) repeat(5, auto) minmax(180px, 31vh);
+  grid-template-rows: auto minmax(360px, 1fr) repeat(6, auto) minmax(180px, 31vh);
   gap: 16px;
   padding: 24px;
   min-width: 0;
@@ -711,6 +712,73 @@ input {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+.city-split-panel {
+  padding: 14px;
+}
+
+.city-split-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.city-split-heading h2 {
+  margin: 0;
+  font-size: 1.18rem;
+}
+
+.city-split-heading label {
+  display: grid;
+  gap: 5px;
+  min-width: min(320px, 100%);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.city-split-heading select {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  background: white;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+  text-transform: none;
+}
+
+.city-split-summary {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.city-split-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.split-graph {
+  min-width: 0;
+}
+
+.split-graph strong {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.split-surface {
+  min-height: 240px;
 }
 
 .graph-card {
@@ -1115,7 +1183,7 @@ tbody tr.is-selected {
   }
 
   .map-stage {
-    grid-template-rows: auto minmax(340px, 58vh) repeat(6, auto);
+    grid-template-rows: auto minmax(340px, 58vh) repeat(7, auto);
   }
 }
 
@@ -1129,13 +1197,15 @@ tbody tr.is-selected {
   .details-strip,
   .breakdown-heading,
   .table-panel-heading,
+  .city-split-heading,
   .graph-heading {
     display: grid;
     grid-template-columns: 1fr;
   }
 
   .eta-graphs,
-  .plain-method-grid {
+  .plain-method-grid,
+  .city-split-grid {
     grid-template-columns: 1fr;
   }
 

@@ -347,6 +347,38 @@
           </div>
         </section>
 
+        <section class="city-split-panel" aria-label="Major city versus rest of county graphs">
+          <div class="city-split-heading">
+            <div>
+              <p class="eyebrow">Major city split</p>
+              <h2>City vs Rest of County</h2>
+            </div>
+            <label>
+              <span>Choose city</span>
+              <select id="citySplitSelect"></select>
+            </label>
+          </div>
+          <p id="citySplitSummary" class="city-split-summary">Building city split graphs...</p>
+          <div class="city-split-grid">
+            <article class="split-graph">
+              <strong id="cityVoteShareTitle">City vote-share</strong>
+              <div id="cityVoteShareGraph" class="graph-surface split-surface"></div>
+            </article>
+            <article class="split-graph">
+              <strong id="countyRestVoteShareTitle">Rest of county vote-share</strong>
+              <div id="countyRestVoteShareGraph" class="graph-surface split-surface"></div>
+            </article>
+            <article class="split-graph">
+              <strong id="cityDownBallotTitle">City down-ballot</strong>
+              <div id="cityDownBallotGraph" class="graph-surface split-surface"></div>
+            </article>
+            <article class="split-graph">
+              <strong id="countyRestDownBallotTitle">Rest of county down-ballot</strong>
+              <div id="countyRestDownBallotGraph" class="graph-surface split-surface"></div>
+            </article>
+          </div>
+        </section>
+
         <section class="coverage-table-panel" aria-label="Data coverage and confidence table">
           <div class="table-panel-heading">
             <div>

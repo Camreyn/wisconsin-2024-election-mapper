@@ -115,6 +115,7 @@ let map;
 let geoLayer;
 let colorMode = "winner";
 let selectedCounty = null;
+let citySplitData = [];
 
 const els = {
   trumpTotal: document.querySelector("#trumpTotal"),
@@ -143,6 +144,16 @@ const els = {
   downBallotGraph: document.querySelector("#downBallotGraph"),
   turnoutGraph: document.querySelector("#turnoutGraph"),
   turnoutGraphNote: document.querySelector("#turnoutGraphNote"),
+  citySplitSelect: document.querySelector("#citySplitSelect"),
+  citySplitSummary: document.querySelector("#citySplitSummary"),
+  cityVoteShareTitle: document.querySelector("#cityVoteShareTitle"),
+  countyRestVoteShareTitle: document.querySelector("#countyRestVoteShareTitle"),
+  cityDownBallotTitle: document.querySelector("#cityDownBallotTitle"),
+  countyRestDownBallotTitle: document.querySelector("#countyRestDownBallotTitle"),
+  cityVoteShareGraph: document.querySelector("#cityVoteShareGraph"),
+  countyRestVoteShareGraph: document.querySelector("#countyRestVoteShareGraph"),
+  cityDownBallotGraph: document.querySelector("#cityDownBallotGraph"),
+  countyRestDownBallotGraph: document.querySelector("#countyRestDownBallotGraph"),
   countyRows: document.querySelector("#countyRows"),
   mapTitle: document.querySelector("#mapTitle"),
   map: document.querySelector("#map"),
@@ -164,6 +175,7 @@ function init() {
   renderCoverageTable();
   renderCheckedNotUsable();
   renderEtaGraphs();
+  renderCitySplitOptions();
   renderCandidateBreakdown();
   renderTable(RESULTS);
   wireControls();
@@ -203,6 +215,8 @@ function wireControls() {
   document.querySelectorAll(".graph-download").forEach((button) => {
     button.addEventListener("click", () => downloadGraph(button.dataset.graph));
   });
+
+  els.citySplitSelect.addEventListener("change", renderCitySplitGraphs);
 }
 
 function renderSummary() {
@@ -712,17 +726,95 @@ function chartScope(county) {
   };
 }
 
+function renderCitySplitOptions() {
+  citySplitData = majorCitySplits();
+  if (!citySplitData.length) {
+    els.citySplitSummary.textContent = "No city ward groups were found in the WEC ward-level data.";
+    return;
+  }
+
+  els.citySplitSelect.innerHTML = citySplitData
+    .map((split, index) => `<option value="${index}">${split.city}, ${split.county} County (${formatNumber(split.cityRows.length)} city rows)</option>`)
+    .join("");
+  els.citySplitSelect.value = "0";
+  renderCitySplitGraphs();
+}
+
+function renderCitySplitGraphs() {
+  const split = citySplitData[Number(els.citySplitSelect.value) || 0];
+  if (!split) {
+    return;
+  }
+
+  const cityLabel = `${split.city}, ${split.county} County`;
+  const restLabel = `Rest of ${split.county} County`;
+  els.citySplitSummary.textContent = `${cityLabel}: ${formatNumber(split.cityRows.length)} city ward rows compared with ${formatNumber(split.restRows.length)} rest-of-county ward rows. Uses official WEC ward vote totals.`;
+  els.cityVoteShareTitle.textContent = `${split.city}: vote-share`;
+  els.countyRestVoteShareTitle.textContent = `${restLabel}: vote-share`;
+  els.cityDownBallotTitle.textContent = `${split.city}: down-ballot`;
+  els.countyRestDownBallotTitle.textContent = `${restLabel}: down-ballot`;
+
+  renderVoteShareGraphForRows(els.cityVoteShareGraph, { rows: split.cityRows, label: split.city }, { height: 320 });
+  renderVoteShareGraphForRows(els.countyRestVoteShareGraph, { rows: split.restRows, label: restLabel }, { height: 320 });
+  renderDownBallotGraphForRows(els.cityDownBallotGraph, { rows: split.cityRows, label: split.city }, { height: 300 });
+  renderDownBallotGraphForRows(els.countyRestDownBallotGraph, { rows: split.restRows, label: restLabel }, { height: 300 });
+}
+
+function majorCitySplits() {
+  const rows = window.ETA_WARD_CHARTS?.metadata?.rows || [];
+  const byCity = new Map();
+
+  rows.forEach((row) => {
+    const city = cityNameForWard(row.ward);
+    if (!city) {
+      return;
+    }
+    const key = `${normalizeCounty(row.county)}|${normalizeCounty(city)}`;
+    const current = byCity.get(key) || { city, county: row.county, cityRows: [] };
+    current.cityRows.push(row);
+    byCity.set(key, current);
+  });
+
+  return [...byCity.values()]
+    .filter((split) => split.cityRows.length >= 10)
+    .map((split) => {
+      const cityKeys = new Set(split.cityRows.map((row) => row.ward));
+      return {
+        ...split,
+        restRows: rows.filter((row) => row.county === split.county && !cityKeys.has(row.ward)),
+      };
+    })
+    .filter((split) => split.restRows.length > 0)
+    .sort((a, b) => b.cityRows.length - a.cityRows.length || a.city.localeCompare(b.city));
+}
+
+function cityNameForWard(ward) {
+  const match = String(ward || "").match(/^\s*city of\s+(.+?)\s+wards?\b/i);
+  return match ? titleCase(match[1]) : null;
+}
+
+function titleCase(value) {
+  return String(value)
+    .toLowerCase()
+    .split(/\s+/)
+    .map((part) => (part.length <= 2 ? part.toUpperCase() : `${part[0].toUpperCase()}${part.slice(1)}`))
+    .join(" ");
+}
+
 function renderVoteShareGraph(county) {
+  renderVoteShareGraphForRows(els.voteShareGraph, chartScope(county));
+}
+
+function renderVoteShareGraphForRows(target, scope, options = {}) {
   const width = 760;
-  const height = 360;
+  const height = options.height || 360;
   const margin = { top: 24, right: 24, bottom: 54, left: 58 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
-  const scope = chartScope(county);
   const trump = scope.rows.map((row) => [row.trump, row.trumpShare]);
   const harris = scope.rows.map((row) => [row.harris, row.harrisShare]);
   if (!scope.rows.length) {
-    renderGraphMessage(els.voteShareGraph, `No ward-level chart rows found for ${scope.label}.`);
+    renderGraphMessage(target, `No ward-level chart rows found for ${scope.label}.`);
     return;
   }
   const all = [...trump, ...harris];
@@ -755,7 +847,7 @@ function renderVoteShareGraph(county) {
     regressionLine(harris, x, y, xMax, "#1458a8"),
   ].join("");
 
-  els.voteShareGraph.innerHTML = `
+  target.innerHTML = `
     <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Vote share by vote count scatterplot">
       <rect width="${width}" height="${height}" fill="#fbfcfd"></rect>
       ${grid}
@@ -776,14 +868,17 @@ function renderVoteShareGraph(county) {
 }
 
 function renderDownBallotGraph(county) {
+  renderDownBallotGraphForRows(els.downBallotGraph, chartScope(county));
+}
+
+function renderDownBallotGraphForRows(target, scope, options = {}) {
   const width = 760;
-  const height = 340;
+  const height = options.height || 340;
   const margin = { top: 24, right: 24, bottom: 54, left: 52 };
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
-  const scope = chartScope(county);
   if (!scope.rows.length) {
-    renderGraphMessage(els.downBallotGraph, `No ward-level chart rows found for ${scope.label}.`);
+    renderGraphMessage(target, `No ward-level chart rows found for ${scope.label}.`);
     return;
   }
   const dropoffValues = scope.rows.flatMap((row) => [
@@ -791,7 +886,7 @@ function renderDownBallotGraph(county) {
     ["rep", row.repDropoff],
   ]);
   const bins = buildDropoffBins(dropoffValues, -30, 30, 2);
-  const maxCount = Math.max(...bins.map((bin) => Math.max(bin.dem, bin.rep)));
+  const maxCount = Math.max(...bins.map((bin) => Math.max(bin.dem, bin.rep)), 1);
   const x = (index) => margin.left + (index / bins.length) * plotWidth;
   const y = (value) => margin.top + (1 - value / maxCount) * plotHeight;
   const barWidth = Math.max(3, plotWidth / bins.length - 2);
@@ -817,7 +912,7 @@ function renderDownBallotGraph(county) {
     )
     .join("");
 
-  els.downBallotGraph.innerHTML = `
+  target.innerHTML = `
     <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Down-ballot drop-off histogram">
       <rect width="${width}" height="${height}" fill="#fbfcfd"></rect>
       ${yTicks}
