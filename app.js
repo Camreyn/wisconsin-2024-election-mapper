@@ -418,14 +418,19 @@ function countyReviewSummary(county) {
   }
 
   const rows = window.ETA_WARD_CHARTS?.metadata?.rows?.filter((row) => normalizeCounty(row.county) === key) || [];
+  const result = reviewSummaryForRows(`${county} County`, rows, "all");
+  countyReviewCache.set(key, result);
+  return result;
+}
+
+function reviewSummaryForRows(label, rows, mode = "all") {
+  const rowLabel = mode === "voteShare" ? "vote-share graph" : mode === "downBallot" ? "down-ballot graph" : "review";
   if (rows.length < COUNTY_REVIEW_POLICY.minWardRows) {
-    const result = {
+    return {
       flag: false,
-      title: `${county} County has fewer than ${COUNTY_REVIEW_POLICY.minWardRows} WEC ward rows in this analysis, so the app does not apply a county-level review flag.`,
-      notes: "Not enough ward rows for county-level review flag",
+      title: `${label} has fewer than ${COUNTY_REVIEW_POLICY.minWardRows} WEC ward rows in this analysis, so the app does not apply a ${rowLabel} flag.`,
+      notes: `Not enough ward rows for ${rowLabel} flag`,
     };
-    countyReviewCache.set(key, result);
-    return result;
   }
 
   const trumpCorrelation = pearsonSafe(
@@ -444,30 +449,37 @@ function countyReviewSummary(county) {
 
   const reasons = [];
   if (
-    Math.abs(trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
-    Math.abs(harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold
+    (mode === "all" || mode === "voteShare") &&
+    (Math.abs(trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
+      Math.abs(harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold)
   ) {
     reasons.push(`vote-share correlation crossed threshold: Trump r=${trumpCorrelation.toFixed(3)}, Harris r=${harrisCorrelation.toFixed(3)}`);
   }
   if (
-    Math.abs(demAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
-    Math.abs(repAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct
+    (mode === "all" || mode === "downBallot") &&
+    (Math.abs(demAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
+      Math.abs(repAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct)
   ) {
     reasons.push(`average President-vs-Senate drop-off crossed threshold: DEM ${demAverageDropoff.toFixed(2)}%, REP ${repAverageDropoff.toFixed(2)}%`);
   }
-  if (demOutliers + repOutliers >= outlierTrigger) {
+  if ((mode === "all" || mode === "downBallot") && demOutliers + repOutliers >= outlierTrigger) {
     reasons.push(`drop-off outlier count crossed threshold: DEM ${demOutliers}, REP ${repOutliers}, trigger ${outlierTrigger}`);
   }
 
-  const result = {
+  return {
     flag: reasons.length > 0,
     title: reasons.length
-      ? `Statistical review flag for ${county} County: ${reasons.join("; ")}. This is not proof that tampering occurred; it means the county should be reviewed with records, ballots, or official explanations.`
-      : `${county} County does not cross this app's county-level review flag thresholds. This does not prove the absence of problems.`,
+      ? `Issues identified for review in ${label} (${rowLabel}): ${reasons.join("; ")}. This is not proof that tampering occurred; it means this area should be reviewed with records, ballots, or official explanations.`
+      : `${label} does not cross this app's ${rowLabel} thresholds. This does not prove the absence of problems.`,
     notes: reasons.join(" | "),
   };
-  countyReviewCache.set(key, result);
-  return result;
+}
+
+function reviewFlagIcon(review) {
+  if (!review?.flag) {
+    return "";
+  }
+  return `<span class="review-flag split-review-flag" title="${escapeAttr(review.title)}" aria-label="${escapeAttr(review.title)}">!</span>`;
 }
 
 function renderTiles(rows) {
@@ -748,11 +760,15 @@ function renderCitySplitGraphs() {
 
   const cityLabel = `${split.city}, ${split.county} County`;
   const restLabel = `Rest of ${split.county} County`;
+  const cityVoteReview = reviewSummaryForRows(cityLabel, split.cityRows, "voteShare");
+  const restVoteReview = reviewSummaryForRows(restLabel, split.restRows, "voteShare");
+  const cityDownBallotReview = reviewSummaryForRows(cityLabel, split.cityRows, "downBallot");
+  const restDownBallotReview = reviewSummaryForRows(restLabel, split.restRows, "downBallot");
   els.citySplitSummary.textContent = `${cityLabel}: ${formatNumber(split.cityRows.length)} city ward rows compared with ${formatNumber(split.restRows.length)} rest-of-county ward rows. Uses official WEC ward vote totals.`;
-  els.cityVoteShareTitle.textContent = `${split.city}: vote-share`;
-  els.countyRestVoteShareTitle.textContent = `${restLabel}: vote-share`;
-  els.cityDownBallotTitle.textContent = `${split.city}: down-ballot`;
-  els.countyRestDownBallotTitle.textContent = `${restLabel}: down-ballot`;
+  els.cityVoteShareTitle.innerHTML = `${escapeText(split.city)}: vote-share ${reviewFlagIcon(cityVoteReview)}`;
+  els.countyRestVoteShareTitle.innerHTML = `${escapeText(restLabel)}: vote-share ${reviewFlagIcon(restVoteReview)}`;
+  els.cityDownBallotTitle.innerHTML = `${escapeText(split.city)}: down-ballot ${reviewFlagIcon(cityDownBallotReview)}`;
+  els.countyRestDownBallotTitle.innerHTML = `${escapeText(restLabel)}: down-ballot ${reviewFlagIcon(restDownBallotReview)}`;
 
   renderVoteShareGraphForRows(els.cityVoteShareGraph, { rows: split.cityRows, label: split.city }, { height: 320 });
   renderVoteShareGraphForRows(els.countyRestVoteShareGraph, { rows: split.restRows, label: restLabel }, { height: 320 });
@@ -857,8 +873,19 @@ function renderVoteShareGraphForRows(target, scope, options = {}) {
       ${points}
       ${trendLines}
       <text class="graph-title" x="${margin.left}" y="18">${scope.label}: WEC ward vote-share chart (${formatNumber(scope.rows.length)} wards)</text>
-      <text class="graph-label" x="${width / 2}" y="${height - 8}" text-anchor="middle">Candidate votes in ward</text>
-      <text class="graph-label" transform="translate(16 ${height / 2}) rotate(-90)" text-anchor="middle">Candidate vote share</text>
+      ${axisLabel({
+        x: width / 2,
+        y: height - 8,
+        anchor: "middle",
+        label: "Candidate votes in ward",
+        help: "ELI5: this is how many votes one candidate got in one ward. Example: if Harris got 600 votes in Ward 12, that dot sits at 600 on this axis.",
+      })}
+      ${axisLabel({
+        transform: `translate(16 ${height / 2}) rotate(-90)`,
+        anchor: "middle",
+        label: "Candidate vote share",
+        help: "ELI5: this is the candidate's slice of that ward's vote. Example: 600 Harris votes out of 1,000 total votes is a 60% share.",
+      })}
       <circle cx="${width - 150}" cy="18" r="5" fill="#c84c42"></circle>
       <text class="graph-label" x="${width - 139}" y="22">Trump</text>
       <circle cx="${width - 82}" cy="18" r="5" fill="#3477bd"></circle>
@@ -924,8 +951,19 @@ function renderDownBallotGraphForRows(target, scope, options = {}) {
       <text class="graph-label" x="${margin.left}" y="${height - 24}" text-anchor="start">-30%</text>
       <text class="graph-label" x="${zeroX}" y="${height - 24}" text-anchor="middle">0%</text>
       <text class="graph-label" x="${width - margin.right}" y="${height - 24}" text-anchor="end">+30%</text>
-      <text class="graph-label" x="${width / 2}" y="${height - 8}" text-anchor="middle">Presidential votes minus Senate votes, as % of presidential votes</text>
-      <text class="graph-label" transform="translate(15 ${height / 2}) rotate(-90)" text-anchor="middle">Ward count</text>
+      ${axisLabel({
+        x: width / 2,
+        y: height - 8,
+        anchor: "middle",
+        label: "Presidential votes minus Senate votes, as % of presidential votes",
+        help: "ELI5: this compares votes for the same party's presidential candidate and Senate candidate in one ward. Example: 1,000 Trump votes and 950 Hovde votes means a 50-vote, 5% drop-off.",
+      })}
+      ${axisLabel({
+        transform: `translate(15 ${height / 2}) rotate(-90)`,
+        anchor: "middle",
+        label: "Ward count",
+        help: "ELI5: this is how many wards landed in that drop-off bucket. Example: if the bar reaches 20, then 20 wards had about that level of drop-off.",
+      })}
       <rect x="${width - 160}" y="12" width="12" height="12" fill="#3477bd" opacity="0.72"></rect>
       <text class="graph-label" x="${width - 142}" y="22">DEM</text>
       <rect x="${width - 96}" y="12" width="12" height="12" fill="#c84c42" opacity="0.72"></rect>
@@ -972,8 +1010,19 @@ function renderTurnoutGraph(county) {
         <line class="graph-axis" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
         <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
         <text class="graph-title" x="${margin.left}" y="18">${label}: turnout histogram (${formatNumber(rows.length)} source rows)</text>
-        <text class="graph-label" x="${width / 2}" y="${height - 8}" text-anchor="middle">Turnout percent bins</text>
-        <text class="graph-label" transform="translate(15 ${height / 2}) rotate(-90)" text-anchor="middle">Source row count</text>
+        ${axisLabel({
+          x: width / 2,
+          y: height - 8,
+          anchor: "middle",
+          label: "Turnout percent bins",
+          help: "ELI5: this groups places by turnout rate. Example: 900 ballots out of 1,000 registered voters goes in the 90% bin.",
+        })}
+        ${axisLabel({
+          transform: `translate(15 ${height / 2}) rotate(-90)`,
+          anchor: "middle",
+          label: "Source row count",
+          help: "ELI5: this is how many imported turnout rows landed in each turnout bucket. Example: if the bar is 12, then 12 wards or local rows had turnout in that range.",
+        })}
         <text class="graph-label" x="${margin.left}" y="${height - 64}">0%</text>
         <text class="graph-label" x="${width - margin.right}" y="${height - 64}" text-anchor="end">120%+</text>
       </svg>
@@ -1069,6 +1118,11 @@ function svgTextLines(text, { x, y, maxChars, className, lineHeight }) {
     .slice(0, 3)
     .map((line, index) => `<text class="${className}" x="${x}" y="${y + index * lineHeight}">${line}</text>`)
     .join("");
+}
+
+function axisLabel({ x, y, transform, anchor, label, help }) {
+  const position = transform ? `transform="${escapeAttr(transform)}"` : `x="${x}" y="${y}"`;
+  return `<text class="graph-label axis-help-label" ${position} text-anchor="${anchor}"><title>${escapeText(help)}</title>${escapeText(label)} ?</text>`;
 }
 
 function regressionLine(points, xScale, yScale, xMax, color) {
@@ -1352,6 +1406,13 @@ function escapeAttr(value) {
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+function escapeText(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
 }
