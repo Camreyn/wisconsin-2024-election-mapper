@@ -89,13 +89,15 @@ const CHECKED_NOT_USABLE = [
   },
 ];
 
-const COUNTY_REVIEW_POLICY = {
+const DEFAULT_REVIEW_POLICY = {
   minWardRows: 10,
   voteShareCorrelationThreshold: ETA_ANALYSIS.voteShare.threshold,
   downBallotAverageThresholdPct: 2,
   outlierThresholdPct: ETA_ANALYSIS.downBallot.outlierThresholdPct,
   minCandidateVotes: ETA_ANALYSIS.downBallot.minCandidateVotes,
 };
+
+const COUNTY_REVIEW_POLICY = { ...DEFAULT_REVIEW_POLICY };
 
 const byCounty = new Map(RESULTS.map((row) => [normalizeCounty(row.county), row]));
 const countyReviewCache = new Map();
@@ -127,6 +129,19 @@ const els = {
   exportBtn: document.querySelector("#exportBtn"),
   coverageCsvBtn: document.querySelector("#coverageCsvBtn"),
   sourceCsvBtn: document.querySelector("#sourceCsvBtn"),
+  appTabs: document.querySelectorAll("[data-app-tab]"),
+  tabPanels: document.querySelectorAll(".tab-panel"),
+  reviewScopeSelect: document.querySelector("#reviewScopeSelect"),
+  exportReviewBtn: document.querySelector("#exportReviewBtn"),
+  minWardRowsInput: document.querySelector("#minWardRowsInput"),
+  voteShareThresholdInput: document.querySelector("#voteShareThresholdInput"),
+  dropoffThresholdInput: document.querySelector("#dropoffThresholdInput"),
+  outlierThresholdInput: document.querySelector("#outlierThresholdInput"),
+  minCandidateVotesInput: document.querySelector("#minCandidateVotesInput"),
+  resetSensitivityBtn: document.querySelector("#resetSensitivityBtn"),
+  reviewSummaryGrid: document.querySelector("#reviewSummaryGrid"),
+  recordsRequestText: document.querySelector("#recordsRequestText"),
+  reviewWardRows: document.querySelector("#reviewWardRows"),
   search: document.querySelector("#countySearch"),
   progressBar: document.querySelector("#progressBar"),
   statusText: document.querySelector("#statusText"),
@@ -176,6 +191,8 @@ function init() {
   renderCheckedNotUsable();
   renderEtaGraphs();
   renderCitySplitOptions();
+  setReviewControlValues();
+  renderReviewDrilldown();
   renderCandidateBreakdown();
   renderTable(RESULTS);
   wireControls();
@@ -189,6 +206,19 @@ function wireControls() {
   els.exportBtn.addEventListener("click", exportCsv);
   els.coverageCsvBtn.addEventListener("click", exportCoverageCsv);
   els.sourceCsvBtn.addEventListener("click", exportSourceCsv);
+  els.appTabs.forEach((button) => {
+    button.addEventListener("click", () => setAppTab(button.dataset.appTab));
+  });
+  els.reviewScopeSelect.addEventListener("change", renderReviewDrilldown);
+  els.exportReviewBtn.addEventListener("click", exportCurrentReviewCsv);
+  [
+    els.minWardRowsInput,
+    els.voteShareThresholdInput,
+    els.dropoffThresholdInput,
+    els.outlierThresholdInput,
+    els.minCandidateVotesInput,
+  ].forEach((input) => input.addEventListener("input", updateReviewPolicyFromControls));
+  els.resetSensitivityBtn.addEventListener("click", resetReviewPolicy);
   els.search.addEventListener("input", () => {
     const query = els.search.value.trim().toLowerCase();
     const rows = RESULTS.filter((row) => row.county.toLowerCase().includes(query));
@@ -217,6 +247,20 @@ function wireControls() {
   });
 
   els.citySplitSelect.addEventListener("change", renderCitySplitGraphs);
+}
+
+function setAppTab(tabName) {
+  els.appTabs.forEach((button) => {
+    const isActive = button.dataset.appTab === tabName;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
+  });
+
+  els.tabPanels.forEach((panel) => {
+    const isActive = panel.id === `${tabName}Panel`;
+    panel.classList.toggle("active", isActive);
+    panel.hidden = !isActive;
+  });
 }
 
 function renderSummary() {
@@ -430,6 +474,17 @@ function reviewSummaryForRows(label, rows, mode = "all") {
       flag: false,
       title: `${label} has fewer than ${COUNTY_REVIEW_POLICY.minWardRows} WEC ward rows in this analysis, so the app does not apply a ${rowLabel} flag.`,
       notes: `Not enough ward rows for ${rowLabel} flag`,
+      reasons: [],
+      metrics: {
+        rowCount: rows.length,
+        trumpCorrelation: 0,
+        harrisCorrelation: 0,
+        demAverageDropoff: 0,
+        repAverageDropoff: 0,
+        demOutliers: 0,
+        repOutliers: 0,
+        outlierTrigger: 0,
+      },
     };
   }
 
@@ -453,25 +508,51 @@ function reviewSummaryForRows(label, rows, mode = "all") {
     (Math.abs(trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
       Math.abs(harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold)
   ) {
-    reasons.push(`vote-share correlation crossed threshold: Trump r=${trumpCorrelation.toFixed(3)}, Harris r=${harrisCorrelation.toFixed(3)}`);
+    reasons.push({
+      type: "Vote-share pattern",
+      summary: `vote-share correlation crossed threshold: Trump r=${trumpCorrelation.toFixed(3)}, Harris r=${harrisCorrelation.toFixed(3)}`,
+      plain:
+        "Bigger ward vote totals move with candidate vote share strongly enough to pass the review threshold. This is the ETA-style scatterplot question: do larger reporting units lean differently than smaller ones?",
+    });
   }
   if (
     (mode === "all" || mode === "downBallot") &&
     (Math.abs(demAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
       Math.abs(repAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct)
   ) {
-    reasons.push(`average President-vs-Senate drop-off crossed threshold: DEM ${demAverageDropoff.toFixed(2)}%, REP ${repAverageDropoff.toFixed(2)}%`);
+    reasons.push({
+      type: "Average down-ballot difference",
+      summary: `average President-vs-Senate drop-off crossed threshold: DEM ${demAverageDropoff.toFixed(2)}%, REP ${repAverageDropoff.toFixed(2)}%`,
+      plain:
+        "The average gap between presidential votes and same-party U.S. Senate votes is large enough to review. Split-ticket voting can explain some gap; this flag says the pattern deserves supporting records.",
+    });
   }
   if ((mode === "all" || mode === "downBallot") && demOutliers + repOutliers >= outlierTrigger) {
-    reasons.push(`drop-off outlier count crossed threshold: DEM ${demOutliers}, REP ${repOutliers}, trigger ${outlierTrigger}`);
+    reasons.push({
+      type: "Down-ballot outliers",
+      summary: `drop-off outlier count crossed threshold: DEM ${demOutliers}, REP ${repOutliers}, trigger ${outlierTrigger}`,
+      plain:
+        "Enough ward rows have unusually large President-versus-Senate differences to pass the outlier-count threshold. That does not prove anything by itself, but it identifies rows to inspect first.",
+    });
   }
 
   return {
     flag: reasons.length > 0,
     title: reasons.length
-      ? `Issues identified for review in ${label} (${rowLabel}): ${reasons.join("; ")}. This is not proof that tampering occurred; it means this area should be reviewed with records, ballots, or official explanations.`
+      ? `Issues identified for review in ${label} (${rowLabel}): ${reasons.map((reason) => reason.summary).join("; ")}. This is not proof that tampering occurred; it means this area should be reviewed with records, ballots, or official explanations.`
       : `${label} does not cross this app's ${rowLabel} thresholds. This does not prove the absence of problems.`,
-    notes: reasons.join(" | "),
+    notes: reasons.map((reason) => reason.summary).join(" | "),
+    reasons,
+    metrics: {
+      rowCount: rows.length,
+      trumpCorrelation,
+      harrisCorrelation,
+      demAverageDropoff,
+      repAverageDropoff,
+      demOutliers,
+      repOutliers,
+      outlierTrigger,
+    },
   };
 }
 
@@ -480,6 +561,182 @@ function reviewFlagIcon(review) {
     return "";
   }
   return `<span class="review-flag split-review-flag" title="${escapeAttr(review.title)}" aria-label="${escapeAttr(review.title)}">!</span>`;
+}
+
+function setReviewControlValues() {
+  els.minWardRowsInput.value = COUNTY_REVIEW_POLICY.minWardRows;
+  els.voteShareThresholdInput.value = COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold;
+  els.dropoffThresholdInput.value = COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct;
+  els.outlierThresholdInput.value = COUNTY_REVIEW_POLICY.outlierThresholdPct;
+  els.minCandidateVotesInput.value = COUNTY_REVIEW_POLICY.minCandidateVotes;
+}
+
+function updateReviewPolicyFromControls() {
+  COUNTY_REVIEW_POLICY.minWardRows = Math.max(2, Math.round(readControlNumber(els.minWardRowsInput, DEFAULT_REVIEW_POLICY.minWardRows)));
+  COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold = clamp(readControlNumber(els.voteShareThresholdInput, DEFAULT_REVIEW_POLICY.voteShareCorrelationThreshold), 0, 1);
+  COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct = Math.max(0, readControlNumber(els.dropoffThresholdInput, DEFAULT_REVIEW_POLICY.downBallotAverageThresholdPct));
+  COUNTY_REVIEW_POLICY.outlierThresholdPct = Math.max(0, readControlNumber(els.outlierThresholdInput, DEFAULT_REVIEW_POLICY.outlierThresholdPct));
+  COUNTY_REVIEW_POLICY.minCandidateVotes = Math.max(0, Math.round(readControlNumber(els.minCandidateVotesInput, DEFAULT_REVIEW_POLICY.minCandidateVotes)));
+  countyReviewCache.clear();
+  renderEtaTests();
+  renderTable(filteredRows());
+  renderCitySplitGraphs();
+  renderReviewDrilldown();
+}
+
+function resetReviewPolicy() {
+  Object.assign(COUNTY_REVIEW_POLICY, DEFAULT_REVIEW_POLICY);
+  countyReviewCache.clear();
+  setReviewControlValues();
+  renderEtaTests();
+  renderTable(filteredRows());
+  renderCitySplitGraphs();
+  renderReviewDrilldown();
+}
+
+function readControlNumber(input, fallback) {
+  const value = Number(input.value);
+  return Number.isFinite(value) ? value : fallback;
+}
+
+function reviewScopeData() {
+  const scope = els.reviewScopeSelect.value;
+  const selectedSplit = citySplitData[Number(els.citySplitSelect.value) || 0];
+  const allRows = window.ETA_WARD_CHARTS?.metadata?.rows || [];
+
+  if (scope === "city" && selectedSplit) {
+    return {
+      scope,
+      label: `${selectedSplit.city}, ${selectedSplit.county} County`,
+      county: selectedSplit.county,
+      rows: selectedSplit.cityRows,
+    };
+  }
+
+  if (scope === "rest" && selectedSplit) {
+    return {
+      scope,
+      label: `Rest of ${selectedSplit.county} County`,
+      county: selectedSplit.county,
+      rows: selectedSplit.restRows,
+    };
+  }
+
+  const county = selectedCounty || firstFlaggedCounty() || RESULTS[0].county;
+  return {
+    scope: "county",
+    label: `${county} County`,
+    county,
+    rows: allRows.filter((row) => normalizeCounty(row.county) === normalizeCounty(county)),
+  };
+}
+
+function firstFlaggedCounty() {
+  return RESULTS.find((row) => countyReviewSummary(row.county).flag)?.county;
+}
+
+function renderReviewDrilldown() {
+  if (!els.reviewSummaryGrid || !window.ETA_WARD_CHARTS) {
+    return;
+  }
+
+  const scope = reviewScopeData();
+  const review = reviewSummaryForRows(scope.label, scope.rows, "all");
+  const metrics = review.metrics;
+  const flaggedText = review.flag ? "Flagged for review" : "No current review flag";
+  const flaggedTone = review.flag ? "flag" : "pass";
+  const whyHtml = review.reasons.length
+    ? review.reasons
+        .map(
+          (reason) => `
+            <li>
+              <strong>${escapeText(reason.type)}:</strong>
+              <span>${escapeText(reason.plain)}</span>
+            </li>
+          `,
+        )
+        .join("")
+    : `<li><strong>No threshold crossed:</strong><span>This scope does not cross the current review thresholds. That is not proof there are no problems; it means this screen has no current statistical flag here.</span></li>`;
+
+  els.reviewSummaryGrid.innerHTML = `
+    <article>
+      <span class="eta-badge ${flaggedTone}">${flaggedText}</span>
+      <strong>${escapeText(scope.label)}</strong>
+      <p>${formatNumber(metrics.rowCount)} WEC ward rows under the current scope.</p>
+    </article>
+    <article>
+      <strong>Vote-share pattern</strong>
+      <p>Trump r=${metrics.trumpCorrelation.toFixed(3)}; Harris r=${metrics.harrisCorrelation.toFixed(3)}. Current flag threshold is |r| >= ${COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold.toFixed(2)}.</p>
+    </article>
+    <article>
+      <strong>Down-ballot difference</strong>
+      <p>DEM average ${metrics.demAverageDropoff.toFixed(2)}%; REP average ${metrics.repAverageDropoff.toFixed(2)}%. Current average threshold is ${COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct.toFixed(1)}%.</p>
+    </article>
+    <article>
+      <strong>Outlier rows</strong>
+      <p>DEM ${formatNumber(metrics.demOutliers)}; REP ${formatNumber(metrics.repOutliers)}. Current trigger is ${formatNumber(metrics.outlierTrigger)} rows at ${COUNTY_REVIEW_POLICY.outlierThresholdPct.toFixed(1)}%+ drop-off.</p>
+    </article>
+    <article class="review-why-card">
+      <strong>Plain-English why</strong>
+      <ul>${whyHtml}</ul>
+    </article>
+  `;
+
+  els.recordsRequestText.textContent = recordsRequestText(scope, review);
+  renderReviewWardRows(scope.rows);
+}
+
+function renderReviewWardRows(rows) {
+  const scoredRows = rows
+    .map((row) => ({ row, score: wardReviewScore(row) }))
+    .sort((a, b) => b.score - a.score || b.row.total - a.row.total);
+
+  els.reviewWardRows.innerHTML = scoredRows
+    .map(({ row }) => {
+      const note = wardReviewNote(row);
+      return `
+        <tr>
+          <td>${escapeText(row.ward)}</td>
+          <td>${formatNumber(row.trump)}</td>
+          <td>${formatNumber(row.harris)}</td>
+          <td>${formatNumber(row.total)}</td>
+          <td>${row.trumpShare.toFixed(2)}%</td>
+          <td>${row.harrisShare.toFixed(2)}%</td>
+          <td>${row.demDropoff.toFixed(2)}%</td>
+          <td>${row.repDropoff.toFixed(2)}%</td>
+          <td>${escapeText(note)}</td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function wardReviewScore(row) {
+  const demScore = row.harris >= COUNTY_REVIEW_POLICY.minCandidateVotes ? Math.abs(row.demDropoff) / Math.max(1, COUNTY_REVIEW_POLICY.outlierThresholdPct) : 0;
+  const repScore = row.trump >= COUNTY_REVIEW_POLICY.minCandidateVotes ? Math.abs(row.repDropoff) / Math.max(1, COUNTY_REVIEW_POLICY.outlierThresholdPct) : 0;
+  return Math.max(demScore, repScore) + Math.sqrt(row.total || 0) / 100;
+}
+
+function wardReviewNote(row) {
+  const notes = [];
+  if (row.harris >= COUNTY_REVIEW_POLICY.minCandidateVotes && Math.abs(row.demDropoff) >= COUNTY_REVIEW_POLICY.outlierThresholdPct) {
+    notes.push(`DEM drop-off outlier (${row.demDropoff.toFixed(2)}%)`);
+  }
+  if (row.trump >= COUNTY_REVIEW_POLICY.minCandidateVotes && Math.abs(row.repDropoff) >= COUNTY_REVIEW_POLICY.outlierThresholdPct) {
+    notes.push(`REP drop-off outlier (${row.repDropoff.toFixed(2)}%)`);
+  }
+  if (!notes.length && row.total >= 1000) {
+    notes.push("High-volume ward row; useful for checking large reporting units");
+  }
+  return notes.join("; ") || "Context row for the selected scope";
+}
+
+function recordsRequestText(scope, review) {
+  const base = `${scope.label}: request ward or reporting-unit canvass detail, tabulator tapes or results reports, ballot reconciliation forms, pollbook voter-number totals, absentee/central-count logs where applicable, and any audit hand-count or discrepancy records.`;
+  if (!review.flag) {
+    return `${base} This scope is not currently flagged, but these records are still the right way to verify the public totals.`;
+  }
+  return `${base} Because this scope is flagged, prioritize the ward rows marked as drop-off outliers or high-volume rows in the table below.`;
 }
 
 function renderTiles(rows) {
@@ -512,6 +769,7 @@ function selectCounty(county) {
   els.selectedTotal.textContent = formatNumber(row.total);
   renderCandidateBreakdown(row);
   renderEtaGraphs(row.county);
+  renderReviewDrilldown();
   renderTable(filteredRows());
   refreshMapStyles();
 }
@@ -536,11 +794,11 @@ function renderEtaTests() {
 
 function etaTestResults() {
   const voteShareFlagged =
-    Math.abs(ETA_ANALYSIS.voteShare.trumpCorrelation) >= ETA_ANALYSIS.voteShare.threshold ||
-    Math.abs(ETA_ANALYSIS.voteShare.harrisCorrelation) >= ETA_ANALYSIS.voteShare.threshold;
+    Math.abs(ETA_ANALYSIS.voteShare.trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
+    Math.abs(ETA_ANALYSIS.voteShare.harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold;
   const downBallotFlagged =
-    Math.abs(ETA_ANALYSIS.downBallot.repDropPct) >= 2 ||
-    Math.abs(ETA_ANALYSIS.downBallot.demDropPct) >= 2 ||
+    Math.abs(ETA_ANALYSIS.downBallot.repDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
+    Math.abs(ETA_ANALYSIS.downBallot.demDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
     ETA_ANALYSIS.downBallot.repOutlierWards + ETA_ANALYSIS.downBallot.demOutlierWards > 50;
   const turnoutCoverage = turnoutCoverageRows();
   const turnoutRows = window.WI_TURNOUT_DATA?.metadata?.rows || 0;
@@ -559,7 +817,7 @@ function etaTestResults() {
       name: "Vote share by vote count",
       status: voteShareFlagged ? "Flag" : "Pass",
       statusClass: voteShareFlagged ? "flag" : "pass",
-      detail: `Ward-level check run on ${formatNumber(ETA_ANALYSIS.wardRows)} WEC ward rows. Trump r=${ETA_ANALYSIS.voteShare.trumpCorrelation.toFixed(3)}, Harris r=${ETA_ANALYSIS.voteShare.harrisCorrelation.toFixed(3)} between candidate vote count and candidate vote share; app review threshold is |r| >= ${ETA_ANALYSIS.voteShare.threshold.toFixed(2)}.`,
+      detail: `Ward-level check run on ${formatNumber(ETA_ANALYSIS.wardRows)} WEC ward rows. Trump r=${ETA_ANALYSIS.voteShare.trumpCorrelation.toFixed(3)}, Harris r=${ETA_ANALYSIS.voteShare.harrisCorrelation.toFixed(3)} between candidate vote count and candidate vote share; app review threshold is |r| >= ${COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold.toFixed(2)}.`,
     },
     {
       name: "Turnout analysis",
@@ -774,6 +1032,7 @@ function renderCitySplitGraphs() {
   renderVoteShareGraphForRows(els.countyRestVoteShareGraph, { rows: split.restRows, label: restLabel }, { height: 320 });
   renderDownBallotGraphForRows(els.cityDownBallotGraph, { rows: split.cityRows, label: split.city }, { height: 300 });
   renderDownBallotGraphForRows(els.countyRestDownBallotGraph, { rows: split.restRows, label: restLabel }, { height: 300 });
+  renderReviewDrilldown();
 }
 
 function majorCitySplits() {
@@ -1275,6 +1534,46 @@ function exportCsv() {
   downloadCsv("wisconsin-2024-president-county-results.csv", headers, rows);
 }
 
+function exportCurrentReviewCsv() {
+  const scope = reviewScopeData();
+  const review = reviewSummaryForRows(scope.label, scope.rows, "all");
+  const headers = [
+    "scope",
+    "county",
+    "review_flag",
+    "review_notes",
+    "ward",
+    "trump",
+    "harris",
+    "total",
+    "trump_share",
+    "harris_share",
+    "dem_dropoff",
+    "rep_dropoff",
+    "row_note",
+  ];
+  const rows = scope.rows
+    .map((row) => ({ row, score: wardReviewScore(row) }))
+    .sort((a, b) => b.score - a.score || b.row.total - a.row.total)
+    .map(({ row }) => [
+      scope.label,
+      row.county,
+      review.flag ? "Flagged for review" : "No current review flag",
+      review.notes,
+      row.ward,
+      row.trump,
+      row.harris,
+      row.total,
+      row.trumpShare,
+      row.harrisShare,
+      row.demDropoff,
+      row.repDropoff,
+      wardReviewNote(row),
+    ]);
+  const filename = `wisconsin-2024-review-${slugify(scope.label)}.csv`;
+  downloadCsv(filename, headers, rows);
+}
+
 function exportCoverageCsv() {
   const headers = [
     "county",
@@ -1381,8 +1680,16 @@ function average(values) {
   return valid.reduce((sum, value) => sum + value, 0) / valid.length;
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
 function normalizeCounty(name = "") {
   return name.toLowerCase().replace(/\s+county$/, "").replace(/\./g, "").replace(/\s+/g, " ").trim();
+}
+
+function slugify(value) {
+  return normalizeCounty(value).replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "scope";
 }
 
 function formatNumber(value) {

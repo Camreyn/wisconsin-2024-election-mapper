@@ -8,7 +8,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260529-city-split-frame" />
+    <link rel="stylesheet" href="./styles.css?v=20260530-review-drilldown" />
   </head>
   <body>
     <main class="app-shell">
@@ -173,6 +173,97 @@
       </section>
 
       <section class="map-stage" aria-label="Wisconsin county map and table">
+        <nav class="app-tabs" role="tablist" aria-label="Main app sections">
+          <button class="app-tab-button active" type="button" role="tab" data-app-tab="dashboard" aria-controls="dashboardPanel" aria-selected="true">
+            Dashboard
+          </button>
+          <button class="app-tab-button" type="button" role="tab" data-app-tab="about" aria-controls="aboutPanel" aria-selected="false">
+            About & Contact
+          </button>
+        </nav>
+
+        <section id="aboutPanel" class="tab-panel about-panel" role="tabpanel" aria-label="About and contact" hidden>
+          <div class="about-hero">
+            <p class="eyebrow">About this project</p>
+            <h2>Wisconsin 2024 Election Mapper</h2>
+            <p>
+              This is an independent civic-data app for reviewing Wisconsin 2024 election results,
+              county-by-county and ward-by-ward, using public election records and clearly labeled
+              screening calculations.
+            </p>
+          </div>
+
+          <div class="about-grid">
+            <article>
+              <strong>What it does</strong>
+              <p>
+                Maps certified county presidential results, shows official WEC ward-level graph
+                patterns, compares major cities with the rest of their counties, and tracks which
+                turnout denominator sources have been imported.
+              </p>
+            </article>
+            <article>
+              <strong>What it does not prove</strong>
+              <p>
+                Statistical review flags are not proof of tampering. They mark places where the
+                numbers deserve follow-up with official records, ballot audits, or written
+                explanations from election officials.
+              </p>
+            </article>
+            <article>
+              <strong>Data status</strong>
+              <p>
+                County vote-result coverage is complete for all 72 Wisconsin counties. Ward vote
+                charts use official WEC ward totals. Turnout analysis is partial because registered
+                voter denominator rows must be collected county-by-county from local sources.
+              </p>
+            </article>
+            <article>
+              <strong>Maintainer</strong>
+              <p>
+                Built and maintained by Camreyn ( https://github.com/Camreyn/ ) as an independent public-interest data project.
+                The repository is open so data sources, formulas, and assumptions can be checked.
+              </p>
+            </article>
+          </div>
+
+          <div class="contact-grid">
+            <article>
+              <p class="eyebrow">Contact</p>
+              <h3>Report a data issue</h3>
+              <p>
+                The best way to send corrections is through GitHub Issues so the source, county,
+                and proposed fix are visible and trackable.
+              </p>
+              <a class="contact-link" href="https://github.com/Camreyn/wisconsin-2024-election-mapper/issues" target="_blank" rel="noreferrer">
+                Open GitHub Issues
+              </a>
+            </article>
+            <article>
+              <p class="eyebrow">Project links</p>
+              <h3>Code and live page</h3>
+              <div class="about-link-list">
+                <a href="https://github.com/Camreyn/wisconsin-2024-election-mapper" target="_blank" rel="noreferrer">GitHub repository</a>
+                <a href="https://camreyn.github.io/wisconsin-2024-election-mapper/" target="_blank" rel="noreferrer">GitHub Pages site</a>
+                <a href="https://elections.wi.gov/" target="_blank" rel="noreferrer">Wisconsin Elections Commission</a>
+              </div>
+            </article>
+          </div>
+
+          <section class="about-sources" aria-label="Source summary">
+            <p class="eyebrow">Source summary</p>
+            <h3>What the app relies on</h3>
+            <ul>
+              <li>Official WEC certified county presidential and U.S. Senate reports.</li>
+              <li>Official WEC ward-level federal and state contest spreadsheet.</li>
+              <li>U.S. Census TIGERweb Wisconsin county boundary geometry.</li>
+              <li>Local county or municipal turnout reports where registered-voter denominator rows have been imported.</li>
+              <li>Election Truth Alliance methodology pages for graph type names and screening concepts, not as a source of Wisconsin vote totals.</li>
+            </ul>
+          </section>
+        </section>
+
+        <section id="dashboardPanel" class="tab-panel active" role="tabpanel" aria-label="Election dashboard">
         <div class="toolbar">
           <div>
             <p class="eyebrow">Interactive map</p>
@@ -227,6 +318,76 @@
               <strong>Partial turnout</strong>
               <p>Turnout graphs only run where denominator rows have been imported, and warning-gated denominators need extra care.</p>
             </article>
+          </div>
+        </section>
+
+        <section id="reviewDrilldown" class="review-drilldown" aria-label="Flagged-area review drilldown">
+          <div class="review-drilldown-heading">
+            <div>
+              <p class="eyebrow">Evidence drilldown</p>
+              <h2>Why This Was Flagged</h2>
+            </div>
+            <div class="review-actions">
+              <label>
+                <span>Review scope</span>
+                <select id="reviewScopeSelect">
+                  <option value="county">Selected county</option>
+                  <option value="city">Selected major city</option>
+                  <option value="rest">Rest of selected county</option>
+                </select>
+              </label>
+              <button id="exportReviewBtn" class="secondary-button" type="button">Export Evidence CSV</button>
+            </div>
+          </div>
+
+          <div class="sensitivity-controls" aria-label="Review threshold controls">
+            <label>
+              <span>Min ward rows</span>
+              <input id="minWardRowsInput" type="number" min="2" step="1" />
+            </label>
+            <label>
+              <span>Vote-share r flag</span>
+              <input id="voteShareThresholdInput" type="number" min="0" max="1" step="0.01" />
+            </label>
+            <label>
+              <span>Avg drop-off %</span>
+              <input id="dropoffThresholdInput" type="number" min="0" step="0.1" />
+            </label>
+            <label>
+              <span>Outlier drop-off %</span>
+              <input id="outlierThresholdInput" type="number" min="0" step="0.5" />
+            </label>
+            <label>
+              <span>Min candidate votes</span>
+              <input id="minCandidateVotesInput" type="number" min="0" step="10" />
+            </label>
+            <button id="resetSensitivityBtn" class="secondary-button" type="button">Reset</button>
+          </div>
+
+          <div id="reviewSummaryGrid" class="review-summary-grid"></div>
+
+          <div class="records-request-box">
+            <strong>Records that would help verify this flag</strong>
+            <p id="recordsRequestText">Select a county or city scope to see suggested records.</p>
+          </div>
+
+          <div class="ward-drilldown-table-wrap">
+            <table class="ward-drilldown-table">
+              <thead>
+                <tr>
+                  <th>Ward / reporting unit</th>
+                  <th>Trump</th>
+                  <th>Harris</th>
+                  <th>Total</th>
+                  <th>Trump share</th>
+                  <th>Harris share</th>
+                  <th>DEM drop-off</th>
+                  <th>REP drop-off</th>
+                  <th>Why row matters</th>
+                </tr>
+              </thead>
+              <tbody id="reviewWardRows"></tbody>
+            </table>
           </div>
         </section>
 
@@ -428,16 +589,17 @@
             <tbody id="countyRows"></tbody>
           </table>
         </section>
+        </section>
       </section>
     </main>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
-    <script src="./data/app-data.js?v=20260529-city-split-frame"></script>
-    <script src="./data/eta-data.js?v=20260529-city-split-frame"></script>
-    <script src="./data/wi-counties.js?v=20260529-city-split-frame"></script>
-    <script src="./data/turnout-data.js?v=20260529-city-split-frame"></script>
-    <script src="./app.js?v=20260529-city-split-frame"></script>
+    <script src="./data/app-data.js?v=20260530-review-drilldown"></script>
+    <script src="./data/eta-data.js?v=20260530-review-drilldown"></script>
+    <script src="./data/wi-counties.js?v=20260530-review-drilldown"></script>
+    <script src="./data/turnout-data.js?v=20260530-review-drilldown"></script>
+    <script src="./app.js?v=20260530-review-drilldown"></script>
   </body>
 </html>
