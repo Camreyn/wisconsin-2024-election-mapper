@@ -118,6 +118,7 @@ let geoLayer;
 let colorMode = "winner";
 let selectedCounty = null;
 let citySplitData = [];
+let flaggedAreaSummaryRows = [];
 
 const els = {
   trumpTotal: document.querySelector("#trumpTotal"),
@@ -133,6 +134,9 @@ const els = {
   tabPanels: document.querySelectorAll(".tab-panel"),
   reviewScopeSelect: document.querySelector("#reviewScopeSelect"),
   exportReviewBtn: document.querySelector("#exportReviewBtn"),
+  exportFlaggedAreasBtn: document.querySelector("#exportFlaggedAreasBtn"),
+  flaggedAreasSummary: document.querySelector("#flaggedAreasSummary"),
+  flaggedAreaRows: document.querySelector("#flaggedAreaRows"),
   minWardRowsInput: document.querySelector("#minWardRowsInput"),
   voteShareThresholdInput: document.querySelector("#voteShareThresholdInput"),
   dropoffThresholdInput: document.querySelector("#dropoffThresholdInput"),
@@ -192,6 +196,7 @@ function init() {
   renderEtaGraphs();
   renderCitySplitOptions();
   setReviewControlValues();
+  renderFlaggedAreasSummary();
   renderReviewDrilldown();
   renderCandidateBreakdown();
   renderTable(RESULTS);
@@ -211,6 +216,7 @@ function wireControls() {
   });
   els.reviewScopeSelect.addEventListener("change", renderReviewDrilldown);
   els.exportReviewBtn.addEventListener("click", exportCurrentReviewCsv);
+  els.exportFlaggedAreasBtn.addEventListener("click", exportFlaggedAreasCsv);
   [
     els.minWardRowsInput,
     els.voteShareThresholdInput,
@@ -581,6 +587,7 @@ function updateReviewPolicyFromControls() {
   renderEtaTests();
   renderTable(filteredRows());
   renderCitySplitGraphs();
+  renderFlaggedAreasSummary();
   renderReviewDrilldown();
 }
 
@@ -591,6 +598,7 @@ function resetReviewPolicy() {
   renderEtaTests();
   renderTable(filteredRows());
   renderCitySplitGraphs();
+  renderFlaggedAreasSummary();
   renderReviewDrilldown();
 }
 
@@ -633,6 +641,133 @@ function reviewScopeData() {
 
 function firstFlaggedCounty() {
   return RESULTS.find((row) => countyReviewSummary(row.county).flag)?.county;
+}
+
+function allReviewScopes() {
+  const allRows = window.ETA_WARD_CHARTS?.metadata?.rows || [];
+  const scopes = RESULTS.map((countyRow) => ({
+    scope: "county",
+    typeLabel: "County",
+    label: `${countyRow.county} County`,
+    county: countyRow.county,
+    rows: allRows.filter((row) => normalizeCounty(row.county) === normalizeCounty(countyRow.county)),
+  }));
+
+  citySplitData.forEach((split, citySplitIndex) => {
+    scopes.push({
+      scope: "city",
+      typeLabel: "Major city",
+      label: `${split.city}, ${split.county} County`,
+      county: split.county,
+      city: split.city,
+      citySplitIndex,
+      rows: split.cityRows,
+    });
+    scopes.push({
+      scope: "rest",
+      typeLabel: "Rest of county",
+      label: `Rest of ${split.county} County`,
+      county: split.county,
+      city: split.city,
+      citySplitIndex,
+      rows: split.restRows,
+    });
+  });
+
+  return scopes.map((scope) => {
+    const review = reviewSummaryForRows(scope.label, scope.rows, "all");
+    return {
+      ...scope,
+      review,
+      severity: reviewSeverity(review),
+    };
+  });
+}
+
+function reviewSeverity(review) {
+  const metrics = review.metrics;
+  if (!review.flag || !metrics) {
+    return 0;
+  }
+  const correlationScore =
+    Math.max(Math.abs(metrics.trumpCorrelation), Math.abs(metrics.harrisCorrelation)) /
+    Math.max(0.01, COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold);
+  const averageDropoffScore =
+    Math.max(Math.abs(metrics.demAverageDropoff), Math.abs(metrics.repAverageDropoff)) /
+    Math.max(0.1, COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct);
+  const outlierScore = (metrics.demOutliers + metrics.repOutliers) / Math.max(1, metrics.outlierTrigger);
+  return correlationScore + averageDropoffScore + outlierScore;
+}
+
+function flaggedAreaRows() {
+  return allReviewScopes()
+    .filter((scope) => scope.review.flag)
+    .sort((a, b) => b.severity - a.severity || b.review.metrics.rowCount - a.review.metrics.rowCount || a.label.localeCompare(b.label));
+}
+
+function renderFlaggedAreasSummary() {
+  if (!els.flaggedAreaRows || !window.ETA_WARD_CHARTS) {
+    return;
+  }
+
+  flaggedAreaSummaryRows = flaggedAreaRows();
+  const countyCount = flaggedAreaSummaryRows.filter((row) => row.scope === "county").length;
+  const cityCount = flaggedAreaSummaryRows.filter((row) => row.scope === "city").length;
+  const restCount = flaggedAreaSummaryRows.filter((row) => row.scope === "rest").length;
+  els.flaggedAreasSummary.textContent = `${formatNumber(flaggedAreaSummaryRows.length)} areas currently cross the review thresholds: ${formatNumber(countyCount)} counties, ${formatNumber(cityCount)} major cities, and ${formatNumber(restCount)} rest-of-county areas.`;
+
+  if (!flaggedAreaSummaryRows.length) {
+    els.flaggedAreaRows.innerHTML = `
+      <tr>
+        <td colspan="8">No areas cross the current review thresholds. Lowering thresholds may show sensitivity-test candidates.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  els.flaggedAreaRows.innerHTML = flaggedAreaSummaryRows
+    .map((item, index) => {
+      const metrics = item.review.metrics;
+      return `
+        <tr>
+          <td>
+            <strong>${escapeText(item.label)}</strong>
+            <span>${escapeText(item.review.reasons.map((reason) => reason.type).join(", "))}</span>
+          </td>
+          <td>${escapeText(item.typeLabel)}</td>
+          <td>${escapeText(item.review.reasons.map((reason) => reason.summary).join("; "))}</td>
+          <td>Trump ${metrics.trumpCorrelation.toFixed(3)}<br />Harris ${metrics.harrisCorrelation.toFixed(3)}</td>
+          <td>DEM ${metrics.demAverageDropoff.toFixed(2)}%<br />REP ${metrics.repAverageDropoff.toFixed(2)}%</td>
+          <td>DEM ${formatNumber(metrics.demOutliers)}<br />REP ${formatNumber(metrics.repOutliers)}</td>
+          <td>${formatNumber(metrics.rowCount)}</td>
+          <td><button class="mini-review-button" type="button" data-flagged-area-index="${index}">Review</button></td>
+        </tr>
+      `;
+    })
+    .join("");
+
+  els.flaggedAreaRows.querySelectorAll("[data-flagged-area-index]").forEach((button) => {
+    button.addEventListener("click", () => selectFlaggedArea(Number(button.dataset.flaggedAreaIndex)));
+  });
+}
+
+function selectFlaggedArea(index) {
+  const item = flaggedAreaSummaryRows[index];
+  if (!item) {
+    return;
+  }
+
+  if (item.scope === "county") {
+    els.reviewScopeSelect.value = "county";
+    selectCounty(item.county);
+  } else {
+    selectCounty(item.county);
+    els.citySplitSelect.value = String(item.citySplitIndex);
+    els.reviewScopeSelect.value = item.scope;
+    renderCitySplitGraphs();
+  }
+
+  document.querySelector("#reviewDrilldown")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function renderReviewDrilldown() {
@@ -1572,6 +1707,45 @@ function exportCurrentReviewCsv() {
     ]);
   const filename = `wisconsin-2024-review-${slugify(scope.label)}.csv`;
   downloadCsv(filename, headers, rows);
+}
+
+function exportFlaggedAreasCsv() {
+  const headers = [
+    "area",
+    "type",
+    "county",
+    "ward_rows",
+    "severity_score",
+    "review_reasons",
+    "trump_vote_share_r",
+    "harris_vote_share_r",
+    "dem_average_dropoff_pct",
+    "rep_average_dropoff_pct",
+    "dem_outlier_rows",
+    "rep_outlier_rows",
+    "outlier_trigger_rows",
+    "not_proof_note",
+  ];
+  const rows = flaggedAreaRows().map((item) => {
+    const metrics = item.review.metrics;
+    return [
+      item.label,
+      item.typeLabel,
+      item.county,
+      metrics.rowCount,
+      item.severity.toFixed(3),
+      item.review.notes,
+      metrics.trumpCorrelation,
+      metrics.harrisCorrelation,
+      metrics.demAverageDropoff,
+      metrics.repAverageDropoff,
+      metrics.demOutliers,
+      metrics.repOutliers,
+      metrics.outlierTrigger,
+      "Statistical review flag only; not proof of tampering.",
+    ];
+  });
+  downloadCsv("wisconsin-2024-flagged-areas-summary.csv", headers, rows);
 }
 
 function exportCoverageCsv() {

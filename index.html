@@ -8,7 +8,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260530-review-drilldown" />
+    <link rel="stylesheet" href="./styles.css?v=20260530-flagged-summary" />
   </head>
   <body>
     <main class="app-shell">
@@ -321,6 +321,37 @@
           </div>
         </section>
 
+        <section class="flagged-areas-panel" aria-label="Flagged areas summary">
+          <div class="flagged-areas-heading">
+            <div>
+              <p class="eyebrow">Review priority</p>
+              <h2>Flagged Areas Summary</h2>
+            </div>
+            <button id="exportFlaggedAreasBtn" class="secondary-button" type="button">Export Flagged Areas CSV</button>
+          </div>
+          <p id="flaggedAreasSummary" class="flagged-areas-summary">Building flagged-area list...</p>
+          <div class="flagged-areas-table-wrap">
+            <table class="flagged-areas-table">
+              <thead>
+                <tr>
+                  <th>Area</th>
+                  <th>Type</th>
+                  <th>Flags</th>
+                  <th>Vote-share r</th>
+                  <th>Avg drop-off</th>
+                  <th>Outliers</th>
+                  <th>Rows</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="flaggedAreaRows"></tbody>
+            </table>
+          </div>
+          <p class="flagged-areas-note">
+            These are statistical review flags, not proof of tampering. They are a triage list for deciding where to inspect official records first.
+          </p>
+        </section>
+
         <section id="reviewDrilldown" class="review-drilldown" aria-label="Flagged-area review drilldown">
           <div class="review-drilldown-heading">
             <div>
@@ -596,10 +627,10 @@
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
-    <script src="./data/app-data.js?v=20260530-review-drilldown"></script>
-    <script src="./data/eta-data.js?v=20260530-review-drilldown"></script>
-    <script src="./data/wi-counties.js?v=20260530-review-drilldown"></script>
-    <script src="./data/turnout-data.js?v=20260530-review-drilldown"></script>
-    <script src="./app.js?v=20260530-review-drilldown"></script>
+    <script src="./data/app-data.js?v=20260530-flagged-summary"></script>
+    <script src="./data/eta-data.js?v=20260530-flagged-summary"></script>
+    <script src="./data/wi-counties.js?v=20260530-flagged-summary"></script>
+    <script src="./data/turnout-data.js?v=20260530-flagged-summary"></script>
+    <script src="./app.js?v=20260530-flagged-summary"></script>
   </body>
 </html>

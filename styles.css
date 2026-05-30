@@ -98,6 +98,7 @@ input {
 .coverage-panel,
 .source-note,
 .about-panel,
+.flagged-areas-panel,
 .review-drilldown,
 .details-strip,
 .confidence-panel,
@@ -598,6 +599,78 @@ input {
 
 .about-sources li + li {
   margin-top: 8px;
+}
+
+.flagged-areas-panel {
+  padding: 18px;
+}
+
+.flagged-areas-heading {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.flagged-areas-heading h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2vw, 1.8rem);
+}
+
+.flagged-areas-summary,
+.flagged-areas-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.flagged-areas-table-wrap {
+  max-height: 420px;
+  margin-top: 14px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.flagged-areas-table {
+  min-width: 1120px;
+  box-shadow: none;
+}
+
+.flagged-areas-table th,
+.flagged-areas-table td {
+  padding: 10px 12px;
+  font-size: 0.86rem;
+  vertical-align: top;
+}
+
+.flagged-areas-table td:first-child strong,
+.flagged-areas-table td:first-child span {
+  display: block;
+}
+
+.flagged-areas-table td:first-child span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.mini-review-button {
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: white;
+  background: var(--ink);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.mini-review-button:hover {
+  background: var(--blue-strong);
 }
 
 .review-drilldown {
@@ -1504,6 +1577,7 @@ tbody tr.is-selected {
   .breakdown-heading,
   .table-panel-heading,
   .city-split-heading,
+  .flagged-areas-heading,
   .review-drilldown-heading,
   .review-actions,
   .graph-heading {
