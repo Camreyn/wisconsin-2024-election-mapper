@@ -21,6 +21,7 @@
 html,
 body {
   min-height: 100%;
+  max-width: 100%;
 }
 
 body {
@@ -43,15 +44,20 @@ input {
 
 .app-shell {
   display: grid;
-  grid-template-columns: minmax(320px, 410px) minmax(0, 1fr);
+  grid-template-columns: clamp(300px, 25vw, 360px) minmax(0, 1fr);
+  width: 100%;
+  max-width: 100vw;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  padding: 28px;
+  min-width: 0;
+  padding: clamp(18px, 2vw, 28px);
+  overflow-x: hidden;
   border-right: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.86);
   backdrop-filter: blur(10px);
@@ -66,8 +72,8 @@ input {
 
 .brand-block h1 {
   max-width: 12ch;
-  font-size: clamp(2.2rem, 5vw, 4.35rem);
-  line-height: 0.94;
+  font-size: clamp(2.1rem, 3.6vw, 3.15rem);
+  line-height: 0.98;
 }
 
 .eyebrow {
@@ -507,6 +513,18 @@ input {
   grid-template-rows: auto minmax(360px, 1fr) repeat(6, auto) minmax(180px, 31vh);
   gap: 16px;
   min-width: 0;
+  max-width: 100%;
+}
+
+#dashboardPanel > *,
+.flagged-areas-panel,
+.review-drilldown,
+.coverage-table-panel,
+.table-wrap,
+.graph-card,
+.city-split-panel {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .about-panel {
@@ -626,6 +644,9 @@ input {
 }
 
 .flagged-areas-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   max-height: 420px;
   margin-top: 14px;
   overflow: auto;
@@ -789,6 +810,9 @@ input {
 }
 
 .ward-drilldown-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   max-height: 420px;
   margin-top: 14px;
   overflow: auto;
@@ -1289,6 +1313,9 @@ input {
 }
 
 .coverage-table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   max-height: 380px;
   overflow: auto;
   border: 1px solid var(--line);
@@ -1443,6 +1470,9 @@ input {
 }
 
 .table-wrap {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow: auto;
 }
 
