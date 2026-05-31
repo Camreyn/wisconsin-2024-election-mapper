@@ -135,9 +135,16 @@ const els = {
   openTabButtons: document.querySelectorAll("[data-open-tab]"),
   reviewScopeSelect: document.querySelector("#reviewScopeSelect"),
   exportReviewBtn: document.querySelector("#exportReviewBtn"),
+  copyReviewLinkBtn: document.querySelector("#copyReviewLinkBtn"),
+  copyReviewLinkStatus: document.querySelector("#copyReviewLinkStatus"),
   exportFlaggedAreasBtn: document.querySelector("#exportFlaggedAreasBtn"),
   flaggedAreasSummary: document.querySelector("#flaggedAreasSummary"),
   flaggedAreaRows: document.querySelector("#flaggedAreaRows"),
+  flaggedSearchInput: document.querySelector("#flaggedSearchInput"),
+  flaggedTypeFilter: document.querySelector("#flaggedTypeFilter"),
+  flaggedReasonFilter: document.querySelector("#flaggedReasonFilter"),
+  flaggedMinRowsInput: document.querySelector("#flaggedMinRowsInput"),
+  flaggedSortSelect: document.querySelector("#flaggedSortSelect"),
   minWardRowsInput: document.querySelector("#minWardRowsInput"),
   voteShareThresholdInput: document.querySelector("#voteShareThresholdInput"),
   dropoffThresholdInput: document.querySelector("#dropoffThresholdInput"),
@@ -205,6 +212,7 @@ function init() {
   wireControls();
   setAppTab(initialTabName(), { updateHash: false });
   initMap();
+  applyInitialReviewRoute();
   collectCounties({ quick: true });
 }
 
@@ -220,9 +228,20 @@ function wireControls() {
   els.openTabButtons.forEach((button) => {
     button.addEventListener("click", () => setAppTab(button.dataset.openTab, { scrollTop: true }));
   });
-  els.reviewScopeSelect.addEventListener("change", renderReviewDrilldown);
+  els.reviewScopeSelect.addEventListener("change", () => {
+    renderReviewDrilldown();
+    updateReviewRoute();
+  });
   els.exportReviewBtn.addEventListener("click", exportCurrentReviewCsv);
+  els.copyReviewLinkBtn.addEventListener("click", copyReviewLink);
   els.exportFlaggedAreasBtn.addEventListener("click", exportFlaggedAreasCsv);
+  [
+    els.flaggedSearchInput,
+    els.flaggedTypeFilter,
+    els.flaggedReasonFilter,
+    els.flaggedMinRowsInput,
+    els.flaggedSortSelect,
+  ].forEach((input) => input.addEventListener("input", renderFlaggedAreasSummary));
   [
     els.minWardRowsInput,
     els.voteShareThresholdInput,
@@ -258,7 +277,13 @@ function wireControls() {
     button.addEventListener("click", () => downloadGraph(button.dataset.graph));
   });
 
-  els.citySplitSelect.addEventListener("change", renderCitySplitGraphs);
+  els.citySplitSelect.addEventListener("change", () => {
+    renderCitySplitGraphs();
+    if (["city", "rest"].includes(els.reviewScopeSelect.value)) {
+      renderReviewDrilldown();
+      updateReviewRoute();
+    }
+  });
 }
 
 function organizeWorkspacePanels() {
@@ -290,7 +315,11 @@ function setAppTab(tabName, { scrollTop = false, updateHash = true } = {}) {
     setTimeout(() => map.invalidateSize(), 0);
   }
   if (updateHash && window.history?.replaceState) {
-    window.history.replaceState(null, "", `#${tabName}`);
+    const currentRoute = routeState();
+    const nextHash = tabName === "review" && currentRoute.tabName === "review" && currentRoute.query
+      ? `#review?${currentRoute.query}`
+      : `#${tabName}`;
+    window.history.replaceState(null, "", nextHash);
   }
   if (scrollTop) {
     document.querySelector(".map-stage")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -298,8 +327,53 @@ function setAppTab(tabName, { scrollTop = false, updateHash = true } = {}) {
 }
 
 function initialTabName() {
-  const tabName = window.location.hash.replace(/^#/, "");
-  return ["dashboard", "review", "data", "about"].includes(tabName) ? tabName : "dashboard";
+  return routeState().tabName;
+}
+
+function routeState() {
+  const [hashTab = "", query = ""] = window.location.hash.replace(/^#/, "").split("?");
+  const validTabs = ["dashboard", "review", "data", "methodology", "about"];
+  return {
+    tabName: validTabs.includes(hashTab) ? hashTab : "dashboard",
+    query,
+    params: new URLSearchParams(query),
+  };
+}
+
+function activeTabName() {
+  return Array.from(els.appTabs).find((button) => button.classList.contains("active"))?.dataset.appTab || "dashboard";
+}
+
+function applyInitialReviewRoute() {
+  const route = routeState();
+  if (route.tabName !== "review") {
+    return;
+  }
+
+  const county = route.params.get("county");
+  const scope = route.params.get("scope");
+  if (!county || !["county", "city", "rest"].includes(scope)) {
+    return;
+  }
+
+  selectCounty(county);
+  if (scope === "city" || scope === "rest") {
+    const city = route.params.get("city");
+    const splitIndex = citySplitData.findIndex(
+      (item) =>
+        normalizeCounty(item.county) === normalizeCounty(county) &&
+        (!city || item.city.toLowerCase() === city.toLowerCase()),
+    );
+    if (splitIndex >= 0) {
+      els.citySplitSelect.value = String(splitIndex);
+      renderCitySplitGraphs();
+      els.reviewScopeSelect.value = scope;
+    }
+  } else {
+    els.reviewScopeSelect.value = "county";
+  }
+  renderReviewDrilldown();
+  updateReviewRoute();
 }
 
 function renderSummary() {
@@ -650,6 +724,7 @@ function reviewScopeData() {
       scope,
       label: `${selectedSplit.city}, ${selectedSplit.county} County`,
       county: selectedSplit.county,
+      city: selectedSplit.city,
       rows: selectedSplit.cityRows,
     };
   }
@@ -657,8 +732,9 @@ function reviewScopeData() {
   if (scope === "rest" && selectedSplit) {
     return {
       scope,
-      label: `Rest of ${selectedSplit.county} County`,
+      label: `${selectedSplit.county} County outside ${selectedSplit.city}`,
       county: selectedSplit.county,
+      city: selectedSplit.city,
       rows: selectedSplit.restRows,
     };
   }
@@ -699,7 +775,7 @@ function allReviewScopes() {
     scopes.push({
       scope: "rest",
       typeLabel: "Rest of county",
-      label: `Rest of ${split.county} County`,
+      label: `${split.county} County outside ${split.city}`,
       county: split.county,
       city: split.city,
       citySplitIndex,
@@ -732,10 +808,50 @@ function reviewSeverity(review) {
   return correlationScore + averageDropoffScore + outlierScore;
 }
 
-function flaggedAreaRows() {
-  return allReviewScopes()
-    .filter((scope) => scope.review.flag)
-    .sort((a, b) => b.severity - a.severity || b.review.metrics.rowCount - a.review.metrics.rowCount || a.label.localeCompare(b.label));
+function flaggedAreaRows({ applyFilters = true } = {}) {
+  let rows = allReviewScopes().filter((scope) => scope.review.flag);
+  if (applyFilters) {
+    const query = els.flaggedSearchInput.value.trim().toLowerCase();
+    const type = els.flaggedTypeFilter.value;
+    const reason = els.flaggedReasonFilter.value;
+    const minimumRows = Math.max(0, Number(els.flaggedMinRowsInput.value) || 0);
+    const reasonLabels = {
+      voteShare: "Vote-share pattern",
+      dropoff: "Average down-ballot difference",
+      outliers: "Down-ballot outliers",
+    };
+    rows = rows.filter((item) => {
+      const matchesQuery = !query || item.label.toLowerCase().includes(query);
+      const matchesType = type === "all" || item.scope === type;
+      const matchesReason =
+        reason === "all" || item.review.reasons.some((itemReason) => itemReason.type === reasonLabels[reason]);
+      return matchesQuery && matchesType && matchesReason && item.review.metrics.rowCount >= minimumRows;
+    });
+  }
+
+  const sort = els.flaggedSortSelect.value;
+  const metric = (item, name) => {
+    const metrics = item.review.metrics;
+    if (name === "correlation") {
+      return Math.max(Math.abs(metrics.trumpCorrelation), Math.abs(metrics.harrisCorrelation));
+    }
+    if (name === "dropoff") {
+      return Math.max(Math.abs(metrics.demAverageDropoff), Math.abs(metrics.repAverageDropoff));
+    }
+    if (name === "outliers") {
+      return metrics.demOutliers + metrics.repOutliers;
+    }
+    if (name === "rows") {
+      return metrics.rowCount;
+    }
+    return item.severity;
+  };
+  return rows.sort((a, b) => {
+    if (sort === "name") {
+      return a.label.localeCompare(b.label);
+    }
+    return metric(b, sort) - metric(a, sort) || b.review.metrics.rowCount - a.review.metrics.rowCount || a.label.localeCompare(b.label);
+  });
 }
 
 function renderFlaggedAreasSummary() {
@@ -743,11 +859,12 @@ function renderFlaggedAreasSummary() {
     return;
   }
 
+  const allFlaggedRows = flaggedAreaRows({ applyFilters: false });
   flaggedAreaSummaryRows = flaggedAreaRows();
   const countyCount = flaggedAreaSummaryRows.filter((row) => row.scope === "county").length;
   const cityCount = flaggedAreaSummaryRows.filter((row) => row.scope === "city").length;
   const restCount = flaggedAreaSummaryRows.filter((row) => row.scope === "rest").length;
-  els.flaggedAreasSummary.textContent = `${formatNumber(flaggedAreaSummaryRows.length)} areas currently cross the review thresholds: ${formatNumber(countyCount)} counties, ${formatNumber(cityCount)} major cities, and ${formatNumber(restCount)} rest-of-county areas.`;
+  els.flaggedAreasSummary.textContent = `${formatNumber(flaggedAreaSummaryRows.length)} of ${formatNumber(allFlaggedRows.length)} flagged areas shown: ${formatNumber(countyCount)} counties, ${formatNumber(cityCount)} major cities, and ${formatNumber(restCount)} rest-of-county areas.`;
 
   if (!flaggedAreaSummaryRows.length) {
     els.flaggedAreaRows.innerHTML = `
@@ -800,7 +917,46 @@ function selectFlaggedArea(index) {
     renderCitySplitGraphs();
   }
 
+  renderReviewDrilldown();
+  updateReviewRoute();
   document.querySelector("#reviewDrilldown")?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function updateReviewRoute(scope = reviewScopeData()) {
+  if (!window.history?.replaceState) {
+    return;
+  }
+  const params = new URLSearchParams({
+    scope: scope.scope,
+    county: scope.county,
+  });
+  if (scope.city) {
+    params.set("city", scope.city);
+  }
+  window.history.replaceState(null, "", `#review?${params.toString()}`);
+}
+
+async function copyReviewLink() {
+  updateReviewRoute();
+  const link = window.location.href;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(link);
+    } else {
+      const textarea = document.createElement("textarea");
+      textarea.value = link;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.append(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+    els.copyReviewLinkStatus.textContent = "Review link copied.";
+  } catch (error) {
+    els.copyReviewLinkStatus.textContent = `Copy failed. Use this link: ${link}`;
+  }
 }
 
 function renderReviewDrilldown() {
@@ -940,6 +1096,9 @@ function selectCounty(county) {
   renderReviewDrilldown();
   renderTable(filteredRows());
   refreshMapStyles();
+  if (activeTabName() === "review" && els.reviewScopeSelect.value === "county") {
+    updateReviewRoute();
+  }
 }
 
 function renderEtaTests() {
@@ -1185,7 +1344,7 @@ function renderCitySplitGraphs() {
   }
 
   const cityLabel = `${split.city}, ${split.county} County`;
-  const restLabel = `Rest of ${split.county} County`;
+  const restLabel = `${split.county} County outside ${split.city}`;
   const cityVoteReview = reviewSummaryForRows(cityLabel, split.cityRows, "voteShare");
   const restVoteReview = reviewSummaryForRows(restLabel, split.restRows, "voteShare");
   const cityDownBallotReview = reviewSummaryForRows(cityLabel, split.cityRows, "downBallot");

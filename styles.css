@@ -38,7 +38,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -108,6 +109,8 @@ input {
 .coverage-panel,
 .source-note,
 .about-panel,
+.methodology-thresholds,
+.methodology-links,
 .flagged-areas-panel,
 .review-drilldown,
 .details-strip,
@@ -687,6 +690,128 @@ input {
   gap: 10px;
 }
 
+.review-steps {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.review-steps li {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.review-steps li > span {
+  display: grid;
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: var(--blue-strong);
+  font-weight: 900;
+}
+
+.review-steps strong,
+.review-steps small {
+  display: block;
+}
+
+.review-steps small {
+  margin-top: 3px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.methodology-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.methodology-card {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+}
+
+.methodology-card h3,
+.methodology-thresholds h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.methodology-card dl {
+  display: grid;
+  grid-template-columns: minmax(112px, 0.32fr) minmax(0, 1fr);
+  gap: 9px 12px;
+  margin: 16px 0 0;
+}
+
+.methodology-card dt {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.methodology-card dd,
+.methodology-thresholds p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.methodology-thresholds {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
+  gap: 18px;
+  padding: 18px;
+}
+
+.methodology-thresholds p {
+  margin-top: 10px;
+}
+
+.methodology-table-wrap {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.methodology-table-wrap table {
+  width: 100%;
+  min-width: 460px;
+  box-shadow: none;
+}
+
+.methodology-table-wrap th,
+.methodology-table-wrap td {
+  padding: 9px 10px;
+  font-size: 0.88rem;
+}
+
+.methodology-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  align-items: center;
+  padding: 14px 18px;
+}
+
+.methodology-links a {
+  color: var(--blue-strong);
+  font-weight: 900;
+}
+
 .flagged-areas-panel {
   padding: 18px;
 }
@@ -709,6 +834,42 @@ input {
   color: var(--muted);
   font-weight: 750;
   line-height: 1.5;
+}
+
+.flagged-area-filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1.2fr) repeat(4, minmax(130px, 0.8fr));
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+}
+
+.flagged-area-filters label {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.flagged-area-filters input,
+.flagged-area-filters select {
+  width: 100%;
+  min-height: 38px;
+  min-width: 0;
+  padding: 0 9px;
+  border: 1px solid #cfd8e3;
+  border-radius: 7px;
+  color: var(--ink);
+  background: white;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-transform: none;
 }
 
 .flagged-areas-table-wrap {
@@ -812,6 +973,14 @@ input {
 .review-actions select {
   min-width: 210px;
   padding: 0 10px;
+}
+
+.review-link-status {
+  min-height: 1.25rem;
+  margin: -6px 0 10px;
+  color: var(--green);
+  font-size: 0.84rem;
+  font-weight: 850;
 }
 
 .sensitivity-controls {
@@ -1665,6 +1834,14 @@ tbody tr.is-selected {
   #dashboardPanel {
     grid-template-rows: auto minmax(340px, 58vh) repeat(4, auto);
   }
+
+  .review-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .flagged-area-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -1692,6 +1869,10 @@ tbody tr.is-selected {
   .about-grid,
   .contact-grid,
   #dataPanel .source-list,
+  .methodology-grid,
+  .methodology-thresholds,
+  .review-steps,
+  .flagged-area-filters,
   .review-summary-grid,
   .sensitivity-controls {
     grid-template-columns: 1fr;

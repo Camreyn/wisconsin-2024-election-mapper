@@ -8,7 +8,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260530-workspace-tabs" />
+    <link rel="stylesheet" href="./styles.css?v=20260531-review-ux" />
   </head>
   <body>
     <main class="app-shell">
@@ -83,6 +83,7 @@
         <nav class="sidebar-shortcuts" aria-label="Workspace shortcuts">
           <button type="button" data-open-tab="review">Open Review Center</button>
           <button type="button" data-open-tab="data">Open Data & Sources</button>
+          <button type="button" data-open-tab="methodology">Open Methodology</button>
         </nav>
 
         <section class="status-panel" aria-label="Collection status">
@@ -105,6 +106,9 @@
           <button class="app-tab-button" type="button" role="tab" data-app-tab="data" aria-controls="dataPanel" aria-selected="false">
             Data & Sources
           </button>
+          <button class="app-tab-button" type="button" role="tab" data-app-tab="methodology" aria-controls="methodologyPanel" aria-selected="false">
+            Methodology
+          </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="about" aria-controls="aboutPanel" aria-selected="false">
             About & Contact
           </button>
@@ -116,6 +120,14 @@
             <h2>Review Center</h2>
             <p>Start with the priority list, inspect why an area was flagged, then use the graphs and ward rows to decide which official records to request.</p>
           </header>
+
+          <ol class="review-steps" aria-label="Guided review workflow">
+            <li><span>1</span><div><strong>Pick an area</strong><small>Start with the flagged-area list.</small></div></li>
+            <li><span>2</span><div><strong>Read the flag</strong><small>See which threshold was crossed.</small></div></li>
+            <li><span>3</span><div><strong>Inspect ward rows</strong><small>Review the underlying WEC totals.</small></div></li>
+            <li><span>4</span><div><strong>Export evidence</strong><small>Download a focused CSV for follow-up.</small></div></li>
+            <li><span>5</span><div><strong>Request records</strong><small>Use official records to verify the pattern.</small></div></li>
+          </ol>
 
           <section class="eta-panel" aria-label="Election Truth Alliance test status">
             <div class="panel-heading">
@@ -190,6 +202,104 @@
                 <a href="https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-EL-3-50" target="_blank" rel="noreferrer">Fee rule</a>
               </article>
             </div>
+          </section>
+        </section>
+
+        <section id="methodologyPanel" class="tab-panel workspace-panel" role="tabpanel" aria-label="Methodology" hidden>
+          <header class="workspace-intro">
+            <p class="eyebrow">Plain-language reference</p>
+            <h2>Methodology</h2>
+            <p>These screens are statistical screening tools. A flag means that an area is worth reviewing with official records. It is not proof that tampering occurred.</p>
+          </header>
+
+          <section class="methodology-grid" aria-label="Graph and flag methodology">
+            <article class="methodology-card">
+              <h3>Vote Share by Vote Count</h3>
+              <dl>
+                <dt>Calculates</dt>
+                <dd>Whether candidate vote share rises or falls as ward vote totals get larger.</dd>
+                <dt>Can flag when</dt>
+                <dd>The absolute correlation reaches the selected review threshold.</dd>
+                <dt>Normal explanations</dt>
+                <dd>Neighborhood geography, population density, ward boundaries, and partisan clustering.</dd>
+                <dt>Verify with</dt>
+                <dd>Ward canvass totals, tabulator reports, ballot records, and audit materials.</dd>
+                <dt>Cannot prove</dt>
+                <dd>A correlation alone cannot prove manipulation or identify its cause.</dd>
+              </dl>
+            </article>
+            <article class="methodology-card">
+              <h3>Down-Ballot Difference</h3>
+              <dl>
+                <dt>Calculates</dt>
+                <dd>The difference between presidential and U.S. Senate votes within each WEC ward row.</dd>
+                <dt>Can flag when</dt>
+                <dd>The average difference or the count of larger row-level differences crosses a selected threshold.</dd>
+                <dt>Normal explanations</dt>
+                <dd>Split-ticket voting, undervotes, write-ins, ballot design, and local candidate preferences.</dd>
+                <dt>Verify with</dt>
+                <dd>Ward canvass detail, contest totals, tabulator reports, and hand-count records where available.</dd>
+                <dt>Cannot prove</dt>
+                <dd>A difference alone cannot show whether a voter intentionally skipped or changed a contest.</dd>
+              </dl>
+            </article>
+            <article class="methodology-card">
+              <h3>Turnout Histogram</h3>
+              <dl>
+                <dt>Calculates</dt>
+                <dd>Ballots cast divided by registered-voter denominators for the local rows collected so far.</dd>
+                <dt>Can flag when</dt>
+                <dd>A source row has an unusual turnout value or uses a denominator that needs additional context.</dd>
+                <dt>Normal explanations</dt>
+                <dd>Election Day registration and mismatched reporting levels can make preliminary denominators too low.</dd>
+                <dt>Verify with</dt>
+                <dd>Final local registration totals, pollbook reconciliation, ballots-cast records, and municipal canvass reports.</dd>
+                <dt>Cannot prove</dt>
+                <dd>A turnout value over 100% does not by itself imply excess ballots or fraud.</dd>
+              </dl>
+            </article>
+            <article class="methodology-card">
+              <h3>Statistical Review Flags</h3>
+              <dl>
+                <dt>Calculates</dt>
+                <dd>A triage signal from the vote-share, average drop-off, and row-outlier checks.</dd>
+                <dt>Can flag when</dt>
+                <dd>At least one current threshold is crossed for a county, major city, or rest-of-county area.</dd>
+                <dt>Normal explanations</dt>
+                <dd>Many flagged patterns can have ordinary demographic, geographic, or reporting explanations.</dd>
+                <dt>Verify with</dt>
+                <dd>The official records listed in each Review Center drilldown.</dd>
+                <dt>Cannot prove</dt>
+                <dd>A screening flag is not an accusation, audit finding, or conclusion.</dd>
+              </dl>
+            </article>
+          </section>
+
+          <section class="methodology-thresholds" aria-label="Default review thresholds">
+            <div>
+              <p class="eyebrow">Reproducible defaults</p>
+              <h3>Starting Thresholds</h3>
+              <p>The Review Center sensitivity controls can change these values. Exports include the calculated metrics so another reviewer can reproduce the screening step.</p>
+            </div>
+            <div class="methodology-table-wrap">
+              <table>
+                <thead><tr><th>Setting</th><th>Default</th></tr></thead>
+                <tbody>
+                  <tr><td>Minimum ward rows</td><td>10</td></tr>
+                  <tr><td>Vote-share correlation</td><td>|r| &gt;= 0.35</td></tr>
+                  <tr><td>Average President-vs-Senate difference</td><td>&gt;= 2.0%</td></tr>
+                  <tr><td>Row outlier difference</td><td>&gt;= 15.0%</td></tr>
+                  <tr><td>Minimum candidate votes for outlier rows</td><td>100</td></tr>
+                  <tr><td>Outlier-count trigger</td><td>max(3, 5% of scope rows)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="methodology-links" aria-label="Methodology links">
+            <strong>Reference links</strong>
+            <a href="https://electiontruthalliance.org/our-methodology/" target="_blank" rel="noreferrer">Election Truth Alliance methodology</a>
+            <a href="https://elections.wi.gov/" target="_blank" rel="noreferrer">Wisconsin Elections Commission</a>
           </section>
         </section>
 
@@ -341,6 +451,45 @@
             <button id="exportFlaggedAreasBtn" class="secondary-button" type="button">Export Flagged Areas CSV</button>
           </div>
           <p id="flaggedAreasSummary" class="flagged-areas-summary">Building flagged-area list...</p>
+          <div class="flagged-area-filters" aria-label="Flagged-area filters">
+            <label>
+              <span>Search area</span>
+              <input id="flaggedSearchInput" type="search" placeholder="Try Milwaukee..." autocomplete="off" />
+            </label>
+            <label>
+              <span>Area type</span>
+              <select id="flaggedTypeFilter">
+                <option value="all">All area types</option>
+                <option value="county">Counties</option>
+                <option value="city">Major cities</option>
+                <option value="rest">Rest of county</option>
+              </select>
+            </label>
+            <label>
+              <span>Flag type</span>
+              <select id="flaggedReasonFilter">
+                <option value="all">All flag types</option>
+                <option value="voteShare">Vote-share pattern</option>
+                <option value="dropoff">Average drop-off</option>
+                <option value="outliers">Down-ballot outliers</option>
+              </select>
+            </label>
+            <label>
+              <span>Minimum rows</span>
+              <input id="flaggedMinRowsInput" type="number" min="0" step="1" value="0" />
+            </label>
+            <label>
+              <span>Sort</span>
+              <select id="flaggedSortSelect">
+                <option value="severity">Highest review score</option>
+                <option value="rows">Most rows</option>
+                <option value="correlation">Strongest correlation</option>
+                <option value="dropoff">Largest average drop-off</option>
+                <option value="outliers">Most outliers</option>
+                <option value="name">Area name</option>
+              </select>
+            </label>
+          </div>
           <div class="flagged-areas-table-wrap">
             <table class="flagged-areas-table">
               <thead>
@@ -379,8 +528,10 @@
                 </select>
               </label>
               <button id="exportReviewBtn" class="secondary-button" type="button">Export Evidence CSV</button>
+              <button id="copyReviewLinkBtn" class="secondary-button" type="button">Copy Review Link</button>
             </div>
           </div>
+          <p id="copyReviewLinkStatus" class="review-link-status" role="status" aria-live="polite"></p>
 
           <div class="sensitivity-controls" aria-label="Review threshold controls">
             <label>
@@ -638,10 +789,10 @@
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
-    <script src="./data/app-data.js?v=20260530-workspace-tabs"></script>
-    <script src="./data/eta-data.js?v=20260530-workspace-tabs"></script>
-    <script src="./data/wi-counties.js?v=20260530-workspace-tabs"></script>
-    <script src="./data/turnout-data.js?v=20260530-workspace-tabs"></script>
-    <script src="./app.js?v=20260530-workspace-tabs"></script>
+    <script src="./data/app-data.js?v=20260531-review-ux"></script>
+    <script src="./data/eta-data.js?v=20260531-review-ux"></script>
+    <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
+    <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
+    <script src="./app.js?v=20260531-review-ux"></script>
   </body>
 </html>
