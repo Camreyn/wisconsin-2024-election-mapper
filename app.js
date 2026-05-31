@@ -132,6 +132,7 @@ const els = {
   sourceCsvBtn: document.querySelector("#sourceCsvBtn"),
   appTabs: document.querySelectorAll("[data-app-tab]"),
   tabPanels: document.querySelectorAll(".tab-panel"),
+  openTabButtons: document.querySelectorAll("[data-open-tab]"),
   reviewScopeSelect: document.querySelector("#reviewScopeSelect"),
   exportReviewBtn: document.querySelector("#exportReviewBtn"),
   exportFlaggedAreasBtn: document.querySelector("#exportFlaggedAreasBtn"),
@@ -187,6 +188,7 @@ const els = {
 };
 
 function init() {
+  organizeWorkspacePanels();
   renderSummary();
   renderEtaTests();
   renderCoverageTracker();
@@ -201,6 +203,7 @@ function init() {
   renderCandidateBreakdown();
   renderTable(RESULTS);
   wireControls();
+  setAppTab(initialTabName(), { updateHash: false });
   initMap();
   collectCounties({ quick: true });
 }
@@ -213,6 +216,9 @@ function wireControls() {
   els.sourceCsvBtn.addEventListener("click", exportSourceCsv);
   els.appTabs.forEach((button) => {
     button.addEventListener("click", () => setAppTab(button.dataset.appTab));
+  });
+  els.openTabButtons.forEach((button) => {
+    button.addEventListener("click", () => setAppTab(button.dataset.openTab, { scrollTop: true }));
   });
   els.reviewScopeSelect.addEventListener("change", renderReviewDrilldown);
   els.exportReviewBtn.addEventListener("click", exportCurrentReviewCsv);
@@ -255,7 +261,19 @@ function wireControls() {
   els.citySplitSelect.addEventListener("change", renderCitySplitGraphs);
 }
 
-function setAppTab(tabName) {
+function organizeWorkspacePanels() {
+  const reviewPanel = document.querySelector("#reviewPanel");
+  const dataPanel = document.querySelector("#dataPanel");
+  [
+    ".flagged-areas-panel",
+    ".review-drilldown",
+    ".eta-graphs",
+    ".city-split-panel",
+  ].forEach((selector) => reviewPanel.append(document.querySelector(selector)));
+  dataPanel.insertBefore(document.querySelector(".coverage-table-panel"), dataPanel.querySelector(".source-note"));
+}
+
+function setAppTab(tabName, { scrollTop = false, updateHash = true } = {}) {
   els.appTabs.forEach((button) => {
     const isActive = button.dataset.appTab === tabName;
     button.classList.toggle("active", isActive);
@@ -267,6 +285,21 @@ function setAppTab(tabName) {
     panel.classList.toggle("active", isActive);
     panel.hidden = !isActive;
   });
+
+  if (tabName === "dashboard" && map) {
+    setTimeout(() => map.invalidateSize(), 0);
+  }
+  if (updateHash && window.history?.replaceState) {
+    window.history.replaceState(null, "", `#${tabName}`);
+  }
+  if (scrollTop) {
+    document.querySelector(".map-stage")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+}
+
+function initialTabName() {
+  const tabName = window.location.hash.replace(/^#/, "");
+  return ["dashboard", "review", "data", "about"].includes(tabName) ? tabName : "dashboard";
 }
 
 function renderSummary() {

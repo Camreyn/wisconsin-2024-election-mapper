@@ -8,7 +8,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260530-responsive-fit" />
+    <link rel="stylesheet" href="./styles.css?v=20260530-workspace-tabs" />
   </head>
   <body>
     <main class="app-shell">
@@ -80,6 +80,11 @@
           </button>
         </div>
 
+        <nav class="sidebar-shortcuts" aria-label="Workspace shortcuts">
+          <button type="button" data-open-tab="review">Open Review Center</button>
+          <button type="button" data-open-tab="data">Open Data & Sources</button>
+        </nav>
+
         <section class="status-panel" aria-label="Collection status">
           <div class="progress-track">
             <div id="progressBar" class="progress-fill"></div>
@@ -87,100 +92,106 @@
           <p id="statusText">Ready to collect certified county totals.</p>
           <ol id="collectorLog" class="collector-log"></ol>
         </section>
-
-        <section class="eta-panel" aria-label="Election Truth Alliance test status">
-          <div class="panel-heading">
-            <p class="eyebrow">ETA-style checks</p>
-            <h2>Test Status</h2>
-          </div>
-          <div id="etaTests" class="eta-tests"></div>
-          <p class="eta-note">
-            ETA's published methods rely heavily on precinct-level data. Any
-            turnout source using pre-Election-Day registration counts must be
-            treated as provisional because Wisconsin allows Election Day
-            registration.
-          </p>
-        </section>
-
-        <section class="coverage-panel" aria-label="Turnout coverage tracker">
-          <div class="panel-heading">
-            <p class="eyebrow">Turnout coverage</p>
-            <h2>County Tracker</h2>
-          </div>
-          <p id="coverageSummary" class="coverage-summary">Checking turnout coverage...</p>
-          <div id="coverageList" class="coverage-list"></div>
-        </section>
-
-        <section class="source-note" aria-label="Data sources">
-          <h2>Sources & Provenance</h2>
-          <div class="source-list">
-            <article>
-              <strong>Presidential county results</strong>
-              <p>Used for map shading, county table, statewide totals, candidate breakdown, CSV export, and selected-county details.</p>
-              <span>Local files: data/County by County Report_POTUS.pdf; data/president-county-results.json</span>
-              <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
-            </article>
-            <article>
-              <strong>U.S. Senate county results</strong>
-              <p>Used as a county-level verification source for the down-ballot comparison.</p>
-              <span>Local file: data/County by County Report_US Senate.pdf</span>
-              <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
-            </article>
-            <article>
-              <strong>Ward federal/state results</strong>
-              <p>Used for ETA-style ward scatterplots, down-ballot histograms, and selected-county graph filtering.</p>
-              <span>Local files: data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js</span>
-              <a href="https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx" target="_blank" rel="noreferrer">Archived WEC spreadsheet</a>
-            </article>
-            <article>
-              <strong>County boundaries</strong>
-              <p>Used to draw Wisconsin county polygons. OpenStreetMap tiles were removed so the local app avoids referer-blocked map backgrounds.</p>
-              <span>Local files: data/wi-counties.geojson; data/wi-counties.js</span>
-              <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer" target="_blank" rel="noreferrer">TIGERweb service</a>
-            </article>
-            <article>
-              <strong>Methodology</strong>
-              <p>Used to choose ETA-style check names and graph types: down-ballot difference, vote-share-by-vote-count scatterplots, and turnout histograms.</p>
-              <span>External reference: Election Truth Alliance methodology page</span>
-              <a href="https://electiontruthalliance.org/our-methodology/" target="_blank" rel="noreferrer">ETA methodology</a>
-            </article>
-            <article>
-              <strong>Result-reporting context</strong>
-              <p>Used to explain why Wisconsin election-night results are county-posted and why certified WEC reports are the stable source for this app.</p>
-              <span>External reference: Wisconsin MyVote election results note</span>
-              <a href="https://myvote.wi.gov/en-us/Election-Results" target="_blank" rel="noreferrer">MyVote results note</a>
-            </article>
-            <article>
-              <strong>Turnout denominator warning</strong>
-              <p>Used to explain why pre-Election-Day registered-voter counts can understate final registration in Wisconsin, which allows Election Day registration.</p>
-              <span>Local imported data: data/milwaukee-city-turnout.csv; data/dane-county-turnout.csv; data/jefferson-county-turnout.csv; data/oneida-county-turnout.csv; data/turnout-data.json/js. External references: City of Milwaukee ward-by-ward report; Dane County 2024 General Election canvass page; Jefferson County 2024 results page; Oneida County voter turnout table; MyVote voter deadlines; Votebeat Oak Creek turnout explainer</span>
-              <a href="https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf" target="_blank" rel="noreferrer">City Milwaukee ward report</a>
-              <a href="https://elections.countyofdane.com/Election-Result/172" target="_blank" rel="noreferrer">Dane canvass page</a>
-              <a href="https://apps.jeffersoncountywi.gov/jc/election/results/11052024" target="_blank" rel="noreferrer">Jefferson results page</a>
-              <a href="https://www.oneidacountywi.gov/election-results/" target="_blank" rel="noreferrer">Oneida turnout table</a>
-              <a href="https://myvotemirror.wi.gov/en-us/Voter-Deadlines" target="_blank" rel="noreferrer">Registration deadlines</a>
-              <a href="https://www.votebeat.org/wisconsin/2024/11/07/more-ballots-than-voters-oak-creek-turnout-baldwin-hovde-race/" target="_blank" rel="noreferrer">Votebeat explainer</a>
-            </article>
-            <article>
-              <strong>Voter-file cost context</strong>
-              <p>Used only to decide not to use the statewide Badger Voters file because it is too expensive for this project.</p>
-              <span>External references: Badger Voters FAQ; Wis. Admin. Code EL 3.50</span>
-              <a href="https://badgervoters.wi.gov/faq" target="_blank" rel="noreferrer">Badger Voters FAQ</a>
-              <a href="https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-EL-3-50" target="_blank" rel="noreferrer">Fee rule</a>
-            </article>
-          </div>
-        </section>
       </section>
 
       <section class="map-stage" aria-label="Wisconsin county map and table">
         <nav class="app-tabs" role="tablist" aria-label="Main app sections">
           <button class="app-tab-button active" type="button" role="tab" data-app-tab="dashboard" aria-controls="dashboardPanel" aria-selected="true">
-            Dashboard
+            Map
+          </button>
+          <button class="app-tab-button" type="button" role="tab" data-app-tab="review" aria-controls="reviewPanel" aria-selected="false">
+            Review Center
+          </button>
+          <button class="app-tab-button" type="button" role="tab" data-app-tab="data" aria-controls="dataPanel" aria-selected="false">
+            Data & Sources
           </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="about" aria-controls="aboutPanel" aria-selected="false">
             About & Contact
           </button>
         </nav>
+
+        <section id="reviewPanel" class="tab-panel workspace-panel" role="tabpanel" aria-label="Statistical review center" hidden>
+          <header class="workspace-intro">
+            <p class="eyebrow">Statistical screening workspace</p>
+            <h2>Review Center</h2>
+            <p>Start with the priority list, inspect why an area was flagged, then use the graphs and ward rows to decide which official records to request.</p>
+          </header>
+
+          <section class="eta-panel" aria-label="Election Truth Alliance test status">
+            <div class="panel-heading">
+              <p class="eyebrow">ETA-style checks</p>
+              <h2>Test Status</h2>
+            </div>
+            <div id="etaTests" class="eta-tests"></div>
+            <p class="eta-note">
+              ETA's published methods rely heavily on precinct-level data. Any
+              turnout source using pre-Election-Day registration counts must be
+              treated as provisional because Wisconsin allows Election Day
+              registration.
+            </p>
+          </section>
+        </section>
+
+        <section id="dataPanel" class="tab-panel workspace-panel" role="tabpanel" aria-label="Data coverage and sources" hidden>
+          <header class="workspace-intro">
+            <p class="eyebrow">Coverage, limitations, and provenance</p>
+            <h2>Data & Sources</h2>
+            <p>See what is complete, what is partial, and which official or local records support each part of the app.</p>
+          </header>
+
+          <section class="coverage-panel" aria-label="Turnout coverage tracker">
+            <div class="panel-heading">
+              <p class="eyebrow">Turnout coverage</p>
+              <h2>County Tracker</h2>
+            </div>
+            <p id="coverageSummary" class="coverage-summary">Checking turnout coverage...</p>
+            <div id="coverageList" class="coverage-list"></div>
+          </section>
+
+          <section class="source-note" aria-label="Data sources">
+            <h2>Sources & Provenance</h2>
+            <div class="source-list">
+              <article>
+                <strong>Presidential county results</strong>
+                <p>Used for map shading, county table, statewide totals, candidate breakdown, CSV export, and selected-county details.</p>
+                <span>Local files: data/County by County Report_POTUS.pdf; data/president-county-results.json</span>
+                <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
+              </article>
+              <article>
+                <strong>U.S. Senate and ward results</strong>
+                <p>Used for down-ballot comparisons, ETA-style graphs, selected-county filtering, city splits, and review drilldowns.</p>
+                <span>Local files: data/County by County Report_US Senate.pdf; data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js</span>
+                <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf" target="_blank" rel="noreferrer">WEC Senate PDF</a>
+                <a href="https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx" target="_blank" rel="noreferrer">Archived WEC spreadsheet</a>
+              </article>
+              <article>
+                <strong>County boundaries</strong>
+                <p>Used to draw Wisconsin county polygons.</p>
+                <span>Local files: data/wi-counties.geojson; data/wi-counties.js</span>
+                <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer" target="_blank" rel="noreferrer">TIGERweb service</a>
+              </article>
+              <article>
+                <strong>Turnout denominator sources</strong>
+                <p>Used only for the partial turnout histogram and denominator-warning labels. Wisconsin allows Election Day registration, so pre-Election-Day denominators require warnings.</p>
+                <span>Local imports: Milwaukee city, Dane County, Jefferson County, and Oneida County turnout files.</span>
+                <a href="https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf" target="_blank" rel="noreferrer">Milwaukee report</a>
+                <a href="https://elections.countyofdane.com/Election-Result/172" target="_blank" rel="noreferrer">Dane canvass</a>
+                <a href="https://apps.jeffersoncountywi.gov/jc/election/results/11052024" target="_blank" rel="noreferrer">Jefferson results</a>
+                <a href="https://www.oneidacountywi.gov/election-results/" target="_blank" rel="noreferrer">Oneida results</a>
+              </article>
+              <article>
+                <strong>Methodology and context</strong>
+                <p>Used for ETA-style graph names, reporting context, registration timing, and the voter-file cost decision.</p>
+                <a href="https://electiontruthalliance.org/our-methodology/" target="_blank" rel="noreferrer">ETA methodology</a>
+                <a href="https://myvote.wi.gov/en-us/Election-Results" target="_blank" rel="noreferrer">MyVote results note</a>
+                <a href="https://myvotemirror.wi.gov/en-us/Voter-Deadlines" target="_blank" rel="noreferrer">Registration deadlines</a>
+                <a href="https://www.votebeat.org/wisconsin/2024/11/07/more-ballots-than-voters-oak-creek-turnout-baldwin-hovde-race/" target="_blank" rel="noreferrer">Votebeat turnout explainer</a>
+                <a href="https://badgervoters.wi.gov/faq" target="_blank" rel="noreferrer">Badger Voters FAQ</a>
+                <a href="https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-EL-3-50" target="_blank" rel="noreferrer">Fee rule</a>
+              </article>
+            </div>
+          </section>
+        </section>
 
         <section id="aboutPanel" class="tab-panel about-panel" role="tabpanel" aria-label="About and contact" hidden>
           <div class="about-hero">
@@ -627,10 +638,10 @@
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
-    <script src="./data/app-data.js?v=20260530-flagged-summary"></script>
-    <script src="./data/eta-data.js?v=20260530-flagged-summary"></script>
-    <script src="./data/wi-counties.js?v=20260530-flagged-summary"></script>
-    <script src="./data/turnout-data.js?v=20260530-flagged-summary"></script>
-    <script src="./app.js?v=20260530-flagged-summary"></script>
+    <script src="./data/app-data.js?v=20260530-workspace-tabs"></script>
+    <script src="./data/eta-data.js?v=20260530-workspace-tabs"></script>
+    <script src="./data/wi-counties.js?v=20260530-workspace-tabs"></script>
+    <script src="./data/turnout-data.js?v=20260530-workspace-tabs"></script>
+    <script src="./app.js?v=20260530-workspace-tabs"></script>
   </body>
 </html>
