@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260601-plain-language-terms" />
+    <link rel="stylesheet" href="./styles.css?v=20260601-history-distributions" />
   </head>
   <body>
     <main class="app-shell">
@@ -265,6 +265,23 @@
               <div class="graph-explainer">
                 <strong>How to read this</strong>
                 <p>Each dot is one source row for the selected year. Left-to-right is candidate vote count and up-and-down is candidate share. Compare the shape with the 2024 chart, while keeping the displayed source label in mind.</p>
+              </div>
+            </article>
+
+            <article class="graph-card graph-card-wide">
+              <div class="graph-heading">
+                <div>
+                  <span>ETA-style historical comparison</span>
+                  <strong>Republican Vote-Share Distribution Across Years</strong>
+                </div>
+                <button class="graph-download" type="button" data-graph="historicalDistributionGraph">Download SVG</button>
+              </div>
+              <div id="historicalDistributionGraph" class="graph-surface historical-distribution-surface"></div>
+              <div class="graph-explainer">
+                <strong>How to read this</strong>
+                <p>Each bar counts how many local source rows landed in a Republican presidential vote-share range. Think of sorting result rows into labeled buckets: 0-5%, 5-10%, and so on. The dashed blue line is the average row. The gold line marks the busiest bucket. Compare the overall shapes across election years.</p>
+                <p><strong>Skew</strong> is a simple measure of whether the bars lean more heavily toward one side of the chart. A value near zero is more balanced. A positive or negative value describes the direction of the lean; it does not explain the cause.</p>
+                <p>This is a screening comparison, not proof of a cause. The displayed rows are LTSB harmonized comparison rows placed onto common ward geography. A statewide turnout-versus-vote-share heat map like ETA's Minnesota chart would require reliable row-level turnout denominators for each year, which are not currently available for Wisconsin.</p>
               </div>
             </article>
           </section>
@@ -981,6 +998,6 @@
     <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
     <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
     <script src="./data/historical-data.js?v=20260601-history"></script>
-    <script src="./app.js?v=20260601-history-dark"></script>
+    <script src="./app.js?v=20260601-history-distributions"></script>
   </body>
 </html>

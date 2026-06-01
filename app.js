@@ -230,6 +230,7 @@ const els = {
   historicalTableRows: document.querySelector("#historicalTableRows"),
   historicalTrendGraph: document.querySelector("#historicalTrendGraph"),
   historicalScatterGraph: document.querySelector("#historicalScatterGraph"),
+  historicalDistributionGraph: document.querySelector("#historicalDistributionGraph"),
 };
 
 function init() {
@@ -1315,6 +1316,7 @@ function renderHistoricalComparison() {
   if (!HISTORICAL_BASELINE?.series?.length) {
     renderGraphMessage(els.historicalTrendGraph, "Historical baseline data is not loaded.");
     renderGraphMessage(els.historicalScatterGraph, "Historical baseline data is not loaded.");
+    renderGraphMessage(els.historicalDistributionGraph, "Historical baseline data is not loaded.");
     els.historicalSummary.textContent = "Historical comparison data is unavailable.";
     return;
   }
@@ -1340,6 +1342,7 @@ function renderHistoricalComparison() {
   els.historicalTableRows.innerHTML = primarySeries.map((series) => historicalTableRow(series, county)).join("");
   renderHistoricalTrendGraph(primarySeries, county);
   renderHistoricalScatterGraph(historicalSeriesById(els.historicalSeriesSelect.value), county);
+  renderHistoricalDistributionGraph(primarySeries, county);
 }
 
 function historicalSeriesById(id) {
@@ -1485,6 +1488,114 @@ function renderHistoricalScatterGraph(series, county) {
       ${axisLabel({ transform: `translate(16 ${height / 2}) rotate(-90)`, anchor: "middle", label: "Candidate vote share", help: "The y-axis is the candidate's percent of presidential votes in that source row." })}
     </svg>
   `;
+}
+
+function renderHistoricalDistributionGraph(seriesList, county) {
+  const width = 1000;
+  const height = 650;
+  const panel = { width: 470, height: 265, gapX: 18, gapY: 22 };
+  const margin = { left: 48, right: 14, top: 42, bottom: 48 };
+  const binStep = 5;
+  const plots = seriesList.map((series) => {
+    const values = historicalScopeRows(series, county)
+      .filter((row) => row.total > 0)
+      .map((row) => historicalShare(row.rep, row.total));
+    const bins = buildHistoricalShareBins(values, binStep);
+    const mean = values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
+    const peak = bins.reduce((best, bin) => (bin.count > best.count ? bin : best), bins[0]);
+    return { series, values, bins, mean, peak, skew: historicalSkewness(values) };
+  });
+  const globalMax = Math.max(1, ...plots.flatMap((plot) => plot.bins.map((bin) => bin.count)));
+  const area = county ? `${county} County` : "Statewide";
+  const panels = plots
+    .map((plot, index) => {
+      const originX = 18 + (index % 2) * (panel.width + panel.gapX);
+      const originY = 58 + Math.floor(index / 2) * (panel.height + panel.gapY);
+      const chartLeft = originX + margin.left;
+      const chartRight = originX + panel.width - margin.right;
+      const chartTop = originY + margin.top;
+      const chartBottom = originY + panel.height - margin.bottom;
+      const chartWidth = chartRight - chartLeft;
+      const chartHeight = chartBottom - chartTop;
+      const x = (value) => chartLeft + (value / 100) * chartWidth;
+      const y = (value) => chartBottom - (value / globalMax) * chartHeight;
+      const barWidth = chartWidth / plot.bins.length;
+      const xTicks = [0, 25, 50, 75, 100]
+        .map((tick) => `
+          <line class="graph-grid" x1="${x(tick)}" y1="${chartTop}" x2="${x(tick)}" y2="${chartBottom}"></line>
+          <text class="graph-label" x="${x(tick)}" y="${chartBottom + 18}" text-anchor="middle">${tick}%</text>
+        `)
+        .join("");
+      const yTicks = [0, Math.round(globalMax / 2), globalMax]
+        .map((tick) => `
+          <line class="graph-grid" x1="${chartLeft}" y1="${y(tick)}" x2="${chartRight}" y2="${y(tick)}"></line>
+          <text class="graph-label" x="${chartLeft - 7}" y="${y(tick) + 4}" text-anchor="end">${formatNumber(tick)}</text>
+        `)
+        .join("");
+      const bars = plot.bins
+        .map((bin, binIndex) => {
+          const barX = chartLeft + binIndex * barWidth + 1;
+          const barY = y(bin.count);
+          return `<rect x="${barX}" y="${barY}" width="${Math.max(1, barWidth - 2)}" height="${chartBottom - barY}" fill="#c84c42" opacity="0.62"><title>${bin.start}-${bin.end}% Republican share: ${formatNumber(bin.count)} source rows</title></rect>`;
+        })
+        .join("");
+      const curvePoints = plot.bins
+        .map((bin, binIndex) => `${chartLeft + (binIndex + 0.5) * barWidth},${y(bin.count)}`)
+        .join(" ");
+      const peakMidpoint = plot.peak.start + binStep / 2;
+      return `
+        <g>
+          <text class="graph-title" x="${originX}" y="${originY + 18}">${plot.series.electionYear}: ${formatNumber(plot.values.length)} rows | skew ${plot.skew.toFixed(2)}</text>
+          ${xTicks}
+          ${yTicks}
+          ${bars}
+          <polyline points="${curvePoints}" fill="none" stroke="#17202c" stroke-width="2.5" opacity="0.88"></polyline>
+          <line x1="${x(plot.mean)}" y1="${chartTop}" x2="${x(plot.mean)}" y2="${chartBottom}" stroke="#3477bd" stroke-width="2.5" stroke-dasharray="7 5"><title>Average source-row Republican share: ${plot.mean.toFixed(2)}%</title></line>
+          <line x1="${x(peakMidpoint)}" y1="${chartTop}" x2="${x(peakMidpoint)}" y2="${chartBottom}" stroke="#b7812d" stroke-width="2.5"><title>Most common range: ${plot.peak.start}-${plot.peak.end}% Republican share</title></line>
+          <line class="graph-axis" x1="${chartLeft}" y1="${chartBottom}" x2="${chartRight}" y2="${chartBottom}"></line>
+          <line class="graph-axis" x1="${chartLeft}" y1="${chartTop}" x2="${chartLeft}" y2="${chartBottom}"></line>
+          <text class="graph-label" x="${(chartLeft + chartRight) / 2}" y="${originY + panel.height - 8}" text-anchor="middle">Republican vote share</text>
+        </g>
+      `;
+    })
+    .join("");
+  els.historicalDistributionGraph.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeAttr(area)} Republican presidential vote-share distributions across years">
+      <text class="graph-title" x="18" y="25">${escapeText(area)}: Republican presidential vote-share distributions on LTSB harmonized rows</text>
+      <line x1="${width - 268}" y1="20" x2="${width - 234}" y2="20" stroke="#3477bd" stroke-width="2.5" stroke-dasharray="7 5"></line>
+      <text class="graph-label" x="${width - 226}" y="24">Average row</text>
+      <line x1="${width - 128}" y1="20" x2="${width - 94}" y2="20" stroke="#b7812d" stroke-width="2.5"></line>
+      <text class="graph-label" x="${width - 86}" y="24">Busiest bucket</text>
+      ${panels}
+      ${axisLabel({ transform: "translate(13 335) rotate(-90)", anchor: "middle", label: "Number of source rows", help: "The y-axis counts how many harmonized local result rows fall into each vote-share range." })}
+    </svg>
+  `;
+}
+
+function buildHistoricalShareBins(values, step) {
+  const bins = Array.from({ length: Math.ceil(100 / step) }, (_, index) => ({
+    start: index * step,
+    end: (index + 1) * step,
+    count: 0,
+  }));
+  values.forEach((value) => {
+    const index = Math.min(bins.length - 1, Math.max(0, Math.floor(value / step)));
+    bins[index].count += 1;
+  });
+  return bins;
+}
+
+function historicalSkewness(values) {
+  if (values.length < 3) {
+    return 0;
+  }
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+  const variance = values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
+  const deviation = Math.sqrt(variance);
+  if (!deviation) {
+    return 0;
+  }
+  return values.reduce((sum, value) => sum + ((value - mean) / deviation) ** 3, 0) / values.length;
 }
 
 function confidenceBadge(label, tone) {

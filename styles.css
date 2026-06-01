@@ -1769,6 +1769,10 @@ select {
   height: auto;
 }
 
+.historical-distribution-surface {
+  min-height: 0;
+}
+
 .graph-note {
   margin: 10px 0 0;
   padding: 8px 10px;

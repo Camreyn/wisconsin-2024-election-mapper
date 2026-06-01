@@ -180,6 +180,7 @@ const checks = {
   historicalTableRows: (element("#historicalTableRows").innerHTML.match(/<tr>/g) || []).length,
   trendGraphSvg: element("#historicalTrendGraph").innerHTML.includes("<svg"),
   scatterGraphSvg: element("#historicalScatterGraph").innerHTML.includes("<svg"),
+  distributionGraphSvg: element("#historicalDistributionGraph").innerHTML.includes("<svg"),
 };
 vm.runInContext(`setTheme("dark")`, context);
 checks.darkModeApplied = document.documentElement.dataset.theme === "dark";
@@ -197,6 +198,7 @@ const expected = {
   historicalTableRows: 4,
   trendGraphSvg: true,
   scatterGraphSvg: true,
+  distributionGraphSvg: true,
   darkModeApplied: true,
   darkModeStored: true,
 };
