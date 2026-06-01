@@ -209,6 +209,14 @@ presidential elections. The `2016` native workbook is preserved and
 downloadable. Request the `2012` and `2020` native files from WEC unless another
 official byte-for-byte copy is located.
 
+A third-party supplemental `2020` workbook named
+`WISelectionDAYregistrantsCOLUMNiNOV3rd2020.xlsx` was also recovered and
+preserved under `data/historical/raw/`. It contains registration, voter, and
+ballot fields, but it is not imported into the app analysis because the
+original official bytes or an official hash match have not yet been obtained.
+The third-party presidential under-recount workbook link currently returns an
+HTML `404` page and remains unusable.
+
 Request:
 
 ```text
@@ -232,6 +240,9 @@ later corrections.
       and outcome.
 - [ ] Preserve received files unchanged under `data/historical/raw/`.
 - [ ] Import received native rows separately from LTSB harmonized rows.
+- [x] Preserve the recovered third-party supplemental `2020` registration
+      workbook separately and label it as unverified until WEC provenance is
+      established.
 
 ### Phase 6: Optional Historical Turnout Collection
 

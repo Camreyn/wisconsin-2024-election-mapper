@@ -79,7 +79,7 @@ const downloads = [
     publisher: "Digital Poll Watchers mirror of a WEC workbook",
     title: "Ward by Ward Report - President of the United States (under recount).xlsx",
     sourceUrl:
-      "https://digitalpollwatchers.org/wp-content/uploads/2024/12/Ward-by-Ward-Report-President-of-the-United-States-under-recount-1.xlsx",
+      "https://digitalpollwatchers.org/wp-content/uploads/2021/08/Ward-by-Ward-Report-President-of-the-United-States-under-recount-1.xlsx",
     originalSourceUrl:
       "https://elections.wi.gov/sites/elections.wi.gov/files/Ward%20by%20Ward%20Report%20-%20President%20of%20the%20United%20States%20%28under%20recount%29.xlsx",
     landingPageUrl:
@@ -87,7 +87,22 @@ const downloads = [
     localFile: "raw/2020-president-under-recount-third-party-mirror.xlsx",
     optional: true,
     methodologyNote:
-      "Third-party mirror of a workbook named on the official WEC 2020 landing page. Preserve for reconciliation, but do not treat as verified official bytes unless WEC supplies the original or an official hash match is established.",
+      "Third-party page links to a workbook named on the official WEC 2020 landing page. Preserve only if the linked URL returns workbook bytes. Do not treat as verified official bytes unless WEC supplies the original or an official hash match is established.",
+  },
+  {
+    id: "mirror-2020-election-day-registrants",
+    electionYears: [2020],
+    sourceClass: "thirdPartySupplemental",
+    publisher: "Digital Poll Watchers mirror of data attributed to Wisconsin Elections Commission",
+    title: "WISelectionDAYregistrantsCOLUMNiNOV3rd2020.xlsx",
+    sourceUrl:
+      "https://digitalpollwatchers.org/wp-content/uploads/2021/08/WISelectionDAYregistrantsCOLUMNiNOV3rd2020.xlsx",
+    landingPageUrl:
+      "https://digitalpollwatchers.org/new-wi-2020-election-fingerprints-rev-2-0/",
+    localFile: "raw/2020-election-day-registrants-third-party-mirror.xlsx",
+    optional: true,
+    methodologyNote:
+      "Third-party supplemental mirror containing registration, voter, and ballot fields. Preserve for evaluation only. Do not treat as verified official bytes or import into app analysis unless WEC supplies the original or an official hash match is established.",
   },
 ];
 
@@ -148,6 +163,13 @@ async function ensureDirectory() {
   await fs.mkdir(rawDir, { recursive: true });
 }
 
+function validateDownloadedBytes(source, bytes) {
+  const extension = path.extname(source.localFile).toLowerCase();
+  if ((extension === ".xlsx" || extension === ".zip") && !bytes.subarray(0, 2).equals(Buffer.from("PK"))) {
+    throw new Error(`${source.id}: expected ZIP-based ${extension} bytes`);
+  }
+}
+
 async function download(source) {
   const destination = path.join(historicalDir, source.localFile);
   const response = await fetch(source.sourceUrl, { redirect: "follow" });
@@ -155,6 +177,7 @@ async function download(source) {
     throw new Error(`${source.id}: HTTP ${response.status} ${response.statusText}`);
   }
   const bytes = Buffer.from(await response.arrayBuffer());
+  validateDownloadedBytes(source, bytes);
   await fs.writeFile(destination, bytes);
   return {
     ...source,

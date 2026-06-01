@@ -206,9 +206,22 @@ published:
 The tested live attachment URLs and tested archive snapshots did not return
 spreadsheet bytes.
 
-A third-party page advertised a mirror of the under-recount workbook, but its
-download URL returned `404`. It is recorded as missing in the manifest and was
-not used.
+A third-party page links to a mirror of the under-recount workbook, but its
+download URL currently returns an HTML `404` page rather than spreadsheet
+bytes. It is recorded as missing in the manifest and was not used.
+
+The same third-party page still provides a real XLSX supplemental workbook with
+registration, voter, and ballot fields:
+
+```text
+WISelectionDAYregistrantsCOLUMNiNOV3rd2020.xlsx
+```
+
+That supplemental workbook is preserved as
+`raw/2020-election-day-registrants-third-party-mirror.xlsx`. It is retained for
+evaluation only. It is not treated as verified official bytes and is not
+imported into the app analysis unless WEC supplies the original or an official
+hash match is established.
 
 ## What Is Still Needed
 

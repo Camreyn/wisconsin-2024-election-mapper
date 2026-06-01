@@ -163,6 +163,10 @@ Every source currently used by the app:
   Wards)` plus the archived native WEC `2016` original-and-recount workbook and
   the existing native WEC `2024` workbook. Used for visibly labeled historical
   presidential comparisons.
+- Historical supplemental evaluation source: a recovered third-party mirror of
+  `WISelectionDAYregistrantsCOLUMNiNOV3rd2020.xlsx`. Preserved under
+  `data/historical/raw/` for provenance review only; not imported into app
+  analysis unless an official copy or official hash match is established.
 - County boundaries: U.S. Census TIGERweb State/County layer.
   Powers the county polygon map.
 - ETA methodology: Election Truth Alliance methodology page.
@@ -193,6 +197,8 @@ Links:
   <https://electiontruthalliance.org/our-methodology/>
 - LTSB historical election-data catalog record:
   <https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15>
+- Third-party page preserving the supplemental `2020` registration workbook:
+  <https://digitalpollwatchers.org/new-wi-2020-election-fingerprints-rev-2-0/>
 - City of Milwaukee ward-by-ward 2024 General Election report:
   <https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf>
 - Dane County 2024 General Election canvass page:
