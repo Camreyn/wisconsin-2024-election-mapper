@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260601-sidebar-history" />
+    <link rel="stylesheet" href="./styles.css?v=20260601-plain-language-terms" />
   </head>
   <body>
     <main class="app-shell">
@@ -198,7 +198,7 @@
 
           <section class="history-warning" aria-label="Historical data limitation">
             <strong>Read this before comparing years</strong>
-            <p>The multi-year comparison rows come from Wisconsin Legislative Technology Services Bureau harmonized ward layers. Some source totals were redistributed onto common ward geography using population-based methods. They are useful comparison rows, but they are not exact native ward records. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.</p>
+            <p>The multi-year comparison rows come from Wisconsin Legislative Technology Services Bureau (LTSB) harmonized ward layers. In plain language, LTSB is a nonpartisan legislative service agency whose GIS team publishes mapping layers. Here, <strong>harmonized</strong> means that results from different years were placed onto a common ward map so the years can be compared. Some values were allocated using population-based methods, so these are useful comparison rows, not exact original ward records. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.</p>
           </section>
 
           <section class="history-controls" aria-label="Historical comparison controls">
@@ -360,6 +360,41 @@
             <h2>Methodology</h2>
             <p>These screens are statistical screening tools. A flag means that an area is worth reviewing with official records. It is not proof that tampering occurred.</p>
           </header>
+
+          <section class="terminology-panel" aria-label="Plain-language glossary">
+            <p class="eyebrow">Plain-language glossary</p>
+            <h3>What the technical terms mean</h3>
+            <dl class="terminology-grid">
+              <div>
+                <dt>LTSB</dt>
+                <dd>Wisconsin Legislative Technology Services Bureau. It is a nonpartisan legislative service agency whose GIS team publishes mapping layers used for the historical comparison.</dd>
+              </div>
+              <div>
+                <dt>Harmonized</dt>
+                <dd>Adjusted onto one common map so different election years can be compared. Think of redrawing several old neighborhood maps onto the same modern street map. Some row values are estimates allocated by population, not exact original ward records.</dd>
+              </div>
+              <div>
+                <dt>Native official WEC row</dt>
+                <dd>A result row taken from a Wisconsin Elections Commission election-specific report without converting it onto the shared historical map. This is closer to the original reporting format for that election.</dd>
+              </div>
+              <div>
+                <dt>Reporting unit</dt>
+                <dd>The local result bucket used in an election report. It may be one ward or a group of wards reported together.</dd>
+              </div>
+              <div>
+                <dt>Historical baseline</dt>
+                <dd>Earlier presidential elections used as a reference point. It helps answer: was a visible pattern already present before 2024?</dd>
+              </div>
+              <div>
+                <dt>Turnout denominator</dt>
+                <dd>The bottom number in a turnout calculation. For example, 900 ballots divided by 1,000 registered voters equals 90% turnout.</dd>
+              </div>
+              <div>
+                <dt>Provenance</dt>
+                <dd>The paper trail for the data: where it came from, which file was used, and what transformations or limitations apply.</dd>
+              </div>
+            </dl>
+          </section>
 
           <section class="methodology-grid" aria-label="Graph and flag methodology">
             <article class="methodology-card">

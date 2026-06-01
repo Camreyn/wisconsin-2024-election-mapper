@@ -988,6 +988,44 @@ select {
   gap: 12px;
 }
 
+.terminology-panel {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.terminology-panel h3 {
+  margin: 3px 0 12px;
+  font-size: 1.15rem;
+}
+
+.terminology-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.terminology-grid div {
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--panel-soft);
+}
+
+.terminology-grid dt {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.terminology-grid dd {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .methodology-card {
   padding: 18px;
   border: 1px solid var(--line);
