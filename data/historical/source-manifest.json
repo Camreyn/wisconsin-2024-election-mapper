@@ -1,0 +1,156 @@
+{
+  "generatedAt": "2026-06-01T01:43:35.071Z",
+  "purpose": "Historical presidential-election baseline source inventory",
+  "entries": [
+    {
+      "id": "ltsb-2012-2020-harmonized-wards",
+      "electionYears": [
+        2012,
+        2016,
+        2020
+      ],
+      "sourceClass": "harmonizedLtsb",
+      "publisher": "Wisconsin Legislative Technology Services Bureau",
+      "title": "2012-2020 Election Data (with 2020 Wards)",
+      "sourceUrl": "https://web.s3.wisc.edu/rml-gisdata/WI_20122020_Election_Data_Wards_2020.zip",
+      "catalogUrl": "https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15",
+      "localFile": "raw/WI_20122020_Election_Data_Wards_2020.zip",
+      "methodologyNote": "Harmonized comparison data. LTSB documents that some election totals were disaggregated from reporting units to wards and census blocks using population-based allocation.",
+      "retrievedAt": "2026-06-01T01:43:35.071Z",
+      "retrievalStatus": "collected",
+      "contentType": "application/zip",
+      "bytes": 23442296,
+      "sha256": "2d61638f5439c74ac47105e67e7f5a46d21151485ca2b25f087d6fab06ff08d1"
+    },
+    {
+      "id": "wec-2016-native-president-original-and-recount",
+      "electionYears": [
+        2016
+      ],
+      "sourceClass": "nativeOfficial",
+      "publisher": "Wisconsin Elections Commission",
+      "title": "Ward by Ward Original and Recount President of the United States.xlsx",
+      "sourceUrl": "https://web.archive.org/web/20161214185442id_/http://elections.wi.gov/sites/default/files/Ward%20by%20Ward%20Original%20and%20Recount%20President%20of%20the%20United%20States.xlsx",
+      "landingPageUrl": "https://web.archive.org/web/20161223044005id_/http://elections.wi.gov/elections-voting/results/2016/fall-general",
+      "localFile": "raw/2016-wec-native-president-original-and-recount.xlsx",
+      "methodologyNote": "Native official WEC ward-level presidential workbook containing original and recount results.",
+      "retrievedAt": "2026-06-01T01:43:35.071Z",
+      "retrievalStatus": "collected",
+      "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "bytes": 739628,
+      "sha256": "2fb106636e49ecd95a677499453d5c4cfdcc30028de37b92e229f24dd8b57715"
+    },
+    {
+      "id": "gab-2012-official-results-page",
+      "electionYears": [
+        2012
+      ],
+      "sourceClass": "officialLandingPage",
+      "publisher": "Wisconsin Government Accountability Board",
+      "title": "2012 Fall General Election Results official archived page",
+      "sourceUrl": "https://web.archive.org/web/20121208020848id_/http://gab.wi.gov:80/elections-voting/results/2012/fall-general",
+      "localFile": "raw/2012-gab-official-results-page.html",
+      "methodologyNote": "Official archived landing page. It lists native ward-level presidential spreadsheets whose tested attachment bytes were not retrievable.",
+      "retrievedAt": "2026-06-01T01:43:35.071Z",
+      "retrievalStatus": "collected",
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 28491,
+      "sha256": "a750be40970cea9a579a88e476c4f7a9fd498f00da923c71ef6d60303598683d"
+    },
+    {
+      "id": "wec-2016-official-results-page",
+      "electionYears": [
+        2016
+      ],
+      "sourceClass": "officialLandingPage",
+      "publisher": "Wisconsin Elections Commission",
+      "title": "2016 Fall General Election Results official archived page",
+      "sourceUrl": "https://web.archive.org/web/20161223044005id_/http://elections.wi.gov/elections-voting/results/2016/fall-general",
+      "localFile": "raw/2016-wec-official-results-page.html",
+      "methodologyNote": "Official archived landing page for the native 2016 WEC workbook.",
+      "retrievedAt": "2026-06-01T01:43:35.071Z",
+      "retrievalStatus": "collected",
+      "contentType": "text/html; charset=utf-8",
+      "bytes": 32834,
+      "sha256": "70c9670854a9228fda2543b08c079b24795b90dc67dfff6ed4d462770de9a7b3"
+    },
+    {
+      "id": "wec-2020-official-results-page",
+      "electionYears": [
+        2020
+      ],
+      "sourceClass": "officialLandingPage",
+      "publisher": "Wisconsin Elections Commission",
+      "title": "2020 Fall General Election Results official archived page",
+      "sourceUrl": "https://web.archive.org/web/20201214172750id_/https://elections.wi.gov/elections-voting/results/2020/fall-general",
+      "localFile": "raw/2020-wec-official-results-page.html",
+      "methodologyNote": "Official archived landing page. It lists native presidential spreadsheets whose tested attachment bytes were not retrievable.",
+      "retrievedAt": "2026-06-01T01:43:35.071Z",
+      "retrievalStatus": "collected",
+      "contentType": "text/html; charset=UTF-8",
+      "bytes": 49554,
+      "sha256": "e9f62f9e93538f68402be58b32f37f47f739edb5e8c4abf01e58b7884a202fde"
+    },
+    {
+      "id": "mirror-2020-native-president-under-recount",
+      "electionYears": [
+        2020
+      ],
+      "sourceClass": "thirdPartyMirror",
+      "publisher": "Digital Poll Watchers mirror of a WEC workbook",
+      "title": "Ward by Ward Report - President of the United States (under recount).xlsx",
+      "sourceUrl": "https://digitalpollwatchers.org/wp-content/uploads/2024/12/Ward-by-Ward-Report-President-of-the-United-States-under-recount-1.xlsx",
+      "originalSourceUrl": "https://elections.wi.gov/sites/elections.wi.gov/files/Ward%20by%20Ward%20Report%20-%20President%20of%20the%20United%20States%20%28under%20recount%29.xlsx",
+      "landingPageUrl": "https://web.archive.org/web/20201214172750id_/https://elections.wi.gov/elections-voting/results/2020/fall-general",
+      "localFile": "raw/2020-president-under-recount-third-party-mirror.xlsx",
+      "optional": true,
+      "methodologyNote": "Third-party mirror of a workbook named on the official WEC 2020 landing page. Preserve for reconciliation, but do not treat as verified official bytes unless WEC supplies the original or an official hash match is established.",
+      "retrievedAt": "2026-06-01T01:43:35.071Z",
+      "retrievalStatus": "missing",
+      "retrievalError": "mirror-2020-native-president-under-recount: HTTP 404 Not Found"
+    },
+    {
+      "id": "wec-2024-native-federal-state-ward-report",
+      "electionYears": [
+        2024
+      ],
+      "sourceClass": "nativeOfficial",
+      "publisher": "Wisconsin Elections Commission",
+      "title": "Ward by Ward Report Federal and State Contests.xlsx",
+      "sourceUrl": "https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx",
+      "sourceFile": "data/Ward by Ward Report Federal and State Contests.xlsx",
+      "localFile": "raw/2024-wec-native-ward-federal-state-contests.xlsx",
+      "methodologyNote": "Native official WEC ward/reporting-unit workbook already used by the app. Copied here to freeze the historical reference.",
+      "retrievedAt": "2026-06-01T01:43:35.071Z",
+      "retrievalStatus": "collected",
+      "bytes": 1411774,
+      "sha256": "d23ebca4e718274c3890bfc4db9454573ecb6e2048a58b18b70a57d4c6094c67"
+    },
+    {
+      "id": "gab-2012-native-president-ward-workbook",
+      "electionYears": [
+        2012
+      ],
+      "sourceClass": "nativeOfficial",
+      "publisher": "Wisconsin Government Accountability Board",
+      "title": "CanvassResults_Presidential_by_Assembly_Senate.xls",
+      "originalSourceUrl": "http://gab.wi.gov/sites/default/files/CanvassResults_Presidential_by_Assembly_Senate.xls",
+      "landingPageUrl": "https://web.archive.org/web/20121208020848id_/http://gab.wi.gov:80/elections-voting/results/2012/fall-general",
+      "retrievalStatus": "missing",
+      "methodologyNote": "Official landing page confirms publication, but the tested live URL and tested archive snapshot did not return the spreadsheet bytes. Request from WEC."
+    },
+    {
+      "id": "wec-2020-native-president-after-recount-workbook",
+      "electionYears": [
+        2020
+      ],
+      "sourceClass": "nativeOfficial",
+      "publisher": "Wisconsin Elections Commission",
+      "title": "Ward by Ward Report PRESIDENT OF THE UNITED STATES by State Representive District - After Recount.xlsx",
+      "originalSourceUrl": "https://elections.wi.gov/sites/elections.wi.gov/files/Ward%20by%20Ward%20Report%20PRESIDENT%20OF%20THE%20UNITED%20STATES%20by%20State%20Representive%20District%20-%20After%20Recount.xlsx",
+      "landingPageUrl": "https://web.archive.org/web/20201214172750id_/https://elections.wi.gov/elections-voting/results/2020/fall-general",
+      "retrievalStatus": "missing",
+      "methodologyNote": "Official landing page confirms publication, but the tested live URL and tested archive snapshot did not return the spreadsheet bytes. A third-party mirror of the under-recount workbook was collected separately for reconciliation. Request the final official workbook from WEC."
+    }
+  ]
+}

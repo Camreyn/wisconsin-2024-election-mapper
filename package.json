@@ -5,6 +5,9 @@
   "description": "Static Wisconsin 2024 election county mapper with WEC result data and ETA-style review charts.",
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
-    "validate": "node scripts/validate-data.mjs"
+    "build:history": "node scripts/build-historical-data.mjs",
+    "validate": "node scripts/validate-data.mjs",
+    "validate:history": "python scripts/validate-historical-baseline.py",
+    "validate:ui": "node scripts/validate-ui-static.mjs"
   }
 }

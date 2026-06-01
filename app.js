@@ -1,6 +1,21 @@
 const RESULTS = window.WI_ELECTION_APP_DATA.presidentCountyResults;
 const CANDIDATE_LABELS = window.WI_ELECTION_APP_DATA.candidateLabels;
 const LOCAL_COUNTIES_GEOJSON = window.WI_COUNTIES_GEOJSON;
+const HISTORICAL_BASELINE = window.WI_HISTORICAL_BASELINE;
+const HISTORICAL_PRIMARY_SERIES_IDS = [
+  "ltsb-harmonized-2012-president",
+  "ltsb-harmonized-2016-president",
+  "ltsb-harmonized-2020-president",
+  "wec-native-2024-president",
+];
+const HISTORICAL_SERIES_LABELS = {
+  "ltsb-harmonized-2012-president": "2012 LTSB harmonized wards",
+  "ltsb-harmonized-2016-president": "2016 LTSB harmonized wards",
+  "ltsb-harmonized-2020-president": "2020 LTSB harmonized wards",
+  "wec-native-2016-president-original": "2016 WEC native original canvass",
+  "wec-native-2016-president-recount": "2016 WEC native recount",
+  "wec-native-2024-president": "2024 WEC native reporting units",
+};
 
 const ETA_ANALYSIS = {
   wardRows: 3603,
@@ -39,7 +54,7 @@ const TURNOUT_SOURCE_POLICY = {
   ],
 };
 
-const DATA_VERSION_LABEL = "May 2026 local bundle";
+const DATA_VERSION_LABEL = "June 2026 local bundle";
 
 const SOURCE_INVENTORY = [
   {
@@ -77,6 +92,13 @@ const SOURCE_INVENTORY = [
     sourceUrl: "Multiple local county/municipal sources; see county coverage table.",
     usedFor: "Partial turnout histogram and denominator-warning labels.",
     confidence: "Partial coverage; warning-gated when denominator timing is pre-Election-Day or unknown.",
+  },
+  {
+    category: "Historical presidential baseline",
+    file: "data/historical-data.js; data/historical/generated/historical-presidential-summary.json; data/historical/generated/historical-reconciliation-report.json",
+    sourceUrl: "https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15",
+    usedFor: "Historical Baseline tab: presidential vote-share comparisons across 2012, 2016, 2020, and 2024.",
+    confidence: "Older LTSB rows are harmonized comparison rows; 2024 rows are native official WEC reporting-unit rows.",
   },
 ];
 
@@ -130,6 +152,7 @@ const els = {
   exportBtn: document.querySelector("#exportBtn"),
   coverageCsvBtn: document.querySelector("#coverageCsvBtn"),
   sourceCsvBtn: document.querySelector("#sourceCsvBtn"),
+  darkModeToggle: document.querySelector("#darkModeToggle"),
   appTabs: document.querySelectorAll("[data-app-tab]"),
   tabPanels: document.querySelectorAll(".tab-panel"),
   openTabButtons: document.querySelectorAll("[data-open-tab]"),
@@ -192,9 +215,17 @@ const els = {
   breakdownTitle: document.querySelector("#breakdownTitle"),
   breakdownTotal: document.querySelector("#breakdownTotal"),
   candidateBreakdown: document.querySelector("#candidateBreakdown"),
+  historicalCountySelect: document.querySelector("#historicalCountySelect"),
+  historicalSeriesSelect: document.querySelector("#historicalSeriesSelect"),
+  historicalScopeTitle: document.querySelector("#historicalScopeTitle"),
+  historicalSummary: document.querySelector("#historicalSummary"),
+  historicalTableRows: document.querySelector("#historicalTableRows"),
+  historicalTrendGraph: document.querySelector("#historicalTrendGraph"),
+  historicalScatterGraph: document.querySelector("#historicalScatterGraph"),
 };
 
 function init() {
+  initializeThemeToggle();
   organizeWorkspacePanels();
   renderSummary();
   renderEtaTests();
@@ -208,6 +239,7 @@ function init() {
   renderFlaggedAreasSummary();
   renderReviewDrilldown();
   renderCandidateBreakdown();
+  renderHistoricalComparison();
   renderTable(RESULTS);
   wireControls();
   setAppTab(initialTabName(), { updateHash: false });
@@ -222,6 +254,7 @@ function wireControls() {
   els.exportBtn.addEventListener("click", exportCsv);
   els.coverageCsvBtn.addEventListener("click", exportCoverageCsv);
   els.sourceCsvBtn.addEventListener("click", exportSourceCsv);
+  els.darkModeToggle.addEventListener("change", () => setTheme(els.darkModeToggle.checked ? "dark" : "light"));
   els.appTabs.forEach((button) => {
     button.addEventListener("click", () => setAppTab(button.dataset.appTab));
   });
@@ -284,6 +317,8 @@ function wireControls() {
       updateReviewRoute();
     }
   });
+  els.historicalCountySelect.addEventListener("change", renderHistoricalComparison);
+  els.historicalSeriesSelect.addEventListener("change", renderHistoricalComparison);
 }
 
 function organizeWorkspacePanels() {
@@ -332,7 +367,7 @@ function initialTabName() {
 
 function routeState() {
   const [hashTab = "", query = ""] = window.location.hash.replace(/^#/, "").split("?");
-  const validTabs = ["dashboard", "review", "data", "methodology", "about"];
+  const validTabs = ["dashboard", "review", "history", "data", "methodology", "about"];
   return {
     tabName: validTabs.includes(hashTab) ? hashTab : "dashboard",
     query,
@@ -342,6 +377,19 @@ function routeState() {
 
 function activeTabName() {
   return Array.from(els.appTabs).find((button) => button.classList.contains("active"))?.dataset.appTab || "dashboard";
+}
+
+function initializeThemeToggle() {
+  els.darkModeToggle.checked = document.documentElement.dataset.theme === "dark";
+}
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  try {
+    localStorage.setItem("wi-election-theme", theme);
+  } catch {
+    // The toggle still works when browser storage is unavailable.
+  }
 }
 
 function applyInitialReviewRoute() {
@@ -1093,6 +1141,10 @@ function selectCounty(county) {
   els.selectedTotal.textContent = formatNumber(row.total);
   renderCandidateBreakdown(row);
   renderEtaGraphs(row.county);
+  if (els.historicalCountySelect) {
+    els.historicalCountySelect.value = row.county;
+    renderHistoricalComparison();
+  }
   renderReviewDrilldown();
   renderTable(filteredRows());
   refreshMapStyles();
@@ -1249,6 +1301,182 @@ function renderCheckedNotUsable() {
       </article>
     `,
   ).join("");
+}
+
+function renderHistoricalComparison() {
+  if (!HISTORICAL_BASELINE?.series?.length) {
+    renderGraphMessage(els.historicalTrendGraph, "Historical baseline data is not loaded.");
+    renderGraphMessage(els.historicalScatterGraph, "Historical baseline data is not loaded.");
+    els.historicalSummary.textContent = "Historical comparison data is unavailable.";
+    return;
+  }
+
+  if (!els.historicalCountySelect.options.length) {
+    els.historicalCountySelect.innerHTML = [
+      `<option value="">Statewide</option>`,
+      ...RESULTS.map((row) => `<option value="${escapeAttr(row.county)}">${escapeText(row.county)} County</option>`),
+    ].join("");
+  }
+  if (!els.historicalSeriesSelect.options.length) {
+    els.historicalSeriesSelect.innerHTML = HISTORICAL_BASELINE.series
+      .map((series) => `<option value="${escapeAttr(series.id)}">${escapeText(historicalSeriesLabel(series))}</option>`)
+      .join("");
+    els.historicalSeriesSelect.value = "ltsb-harmonized-2012-president";
+  }
+
+  const county = els.historicalCountySelect.value;
+  const scopeLabel = county ? `${county} County` : "Statewide";
+  const primarySeries = HISTORICAL_PRIMARY_SERIES_IDS.map((id) => historicalSeriesById(id)).filter(Boolean);
+  els.historicalScopeTitle.textContent = `${scopeLabel} comparison`;
+  els.historicalSummary.textContent = `${scopeLabel}: comparing ${primarySeries.length} presidential elections. Older years use visibly labeled LTSB harmonized ward rows; 2024 uses native official WEC reporting-unit rows.`;
+  els.historicalTableRows.innerHTML = primarySeries.map((series) => historicalTableRow(series, county)).join("");
+  renderHistoricalTrendGraph(primarySeries, county);
+  renderHistoricalScatterGraph(historicalSeriesById(els.historicalSeriesSelect.value), county);
+}
+
+function historicalSeriesById(id) {
+  return HISTORICAL_BASELINE?.series?.find((series) => series.id === id);
+}
+
+function historicalSeriesLabel(series) {
+  return HISTORICAL_SERIES_LABELS[series.id] || `${series.electionYear} presidential results`;
+}
+
+function historicalScopeRows(series, county) {
+  if (!series) {
+    return [];
+  }
+  if (!county) {
+    return series.rows;
+  }
+  const normalized = normalizeCounty(county);
+  return series.rows.filter((row) => normalizeCounty(row.county) === normalized);
+}
+
+function historicalScopeTotals(series, county) {
+  return historicalScopeRows(series, county).reduce(
+    (totals, row) => {
+      totals.dem += row.dem;
+      totals.rep += row.rep;
+      totals.other += row.other;
+      totals.total += row.total;
+      totals.rowCount += 1;
+      return totals;
+    },
+    { dem: 0, rep: 0, other: 0, total: 0, rowCount: 0 },
+  );
+}
+
+function historicalShare(value, total) {
+  return total ? (value / total) * 100 : 0;
+}
+
+function historicalTableRow(series, county) {
+  const totals = historicalScopeTotals(series, county);
+  const sourceClass = series.sourceClass === "nativeOfficial" ? "native" : "harmonized";
+  const sourceLabel = sourceClass === "native" ? "Native official WEC" : "LTSB harmonized";
+  return `
+    <tr>
+      <td>${series.electionYear}</td>
+      <td><span class="history-source-pill ${sourceClass}">${sourceLabel}</span></td>
+      <td>${formatNumber(totals.dem)}</td>
+      <td>${formatNumber(totals.rep)}</td>
+      <td>${formatNumber(totals.other)}</td>
+      <td>${formatNumber(totals.total)}</td>
+      <td class="party-d">${historicalShare(totals.dem, totals.total).toFixed(2)}%</td>
+      <td class="party-r">${historicalShare(totals.rep, totals.total).toFixed(2)}%</td>
+    </tr>
+  `;
+}
+
+function renderHistoricalTrendGraph(seriesList, county) {
+  const width = 820;
+  const height = 340;
+  const margin = { left: 58, right: 26, top: 42, bottom: 58 };
+  const points = seriesList.map((series, index) => {
+    const totals = historicalScopeTotals(series, county);
+    return {
+      year: series.electionYear,
+      x: margin.left + (index * (width - margin.left - margin.right)) / Math.max(1, seriesList.length - 1),
+      dem: historicalShare(totals.dem, totals.total),
+      rep: historicalShare(totals.rep, totals.total),
+    };
+  });
+  const y = (value) => height - margin.bottom - (value / 100) * (height - margin.top - margin.bottom);
+  const grid = [0, 25, 50, 75, 100]
+    .map((tick) => `
+      <line class="graph-grid" x1="${margin.left}" y1="${y(tick)}" x2="${width - margin.right}" y2="${y(tick)}"></line>
+      <text class="graph-label" x="${margin.left - 8}" y="${y(tick) + 4}" text-anchor="end">${tick}%</text>
+    `)
+    .join("");
+  const area = county ? `${county} County` : "Statewide";
+  els.historicalTrendGraph.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeAttr(area)} presidential vote share across years">
+      ${grid}
+      <line class="graph-axis" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
+      <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
+      <text class="graph-title" x="${margin.left}" y="22">${escapeText(area)}: presidential share across elections</text>
+      <polyline points="${points.map((point) => `${point.x},${y(point.dem)}`).join(" ")}" fill="none" stroke="#3477bd" stroke-width="4"></polyline>
+      <polyline points="${points.map((point) => `${point.x},${y(point.rep)}`).join(" ")}" fill="none" stroke="#c84c42" stroke-width="4"></polyline>
+      ${points.map((point) => `
+        <circle cx="${point.x}" cy="${y(point.dem)}" r="5" fill="#3477bd"><title>${point.year} Democratic share: ${point.dem.toFixed(2)}%</title></circle>
+        <circle cx="${point.x}" cy="${y(point.rep)}" r="5" fill="#c84c42"><title>${point.year} Republican share: ${point.rep.toFixed(2)}%</title></circle>
+        <text class="graph-label" x="${point.x}" y="${height - 34}" text-anchor="middle">${point.year}</text>
+      `).join("")}
+      <circle cx="${width - 180}" cy="22" r="5" fill="#3477bd"></circle>
+      <text class="graph-label" x="${width - 168}" y="26">Democratic</text>
+      <circle cx="${width - 86}" cy="22" r="5" fill="#c84c42"></circle>
+      <text class="graph-label" x="${width - 74}" y="26">Republican</text>
+      ${axisLabel({ x: width / 2, y: height - 10, anchor: "middle", label: "Presidential election year", help: "Each x-axis value is one Wisconsin presidential general election year." })}
+      ${axisLabel({ transform: `translate(16 ${height / 2}) rotate(-90)`, anchor: "middle", label: "Candidate vote share", help: "The y-axis is the candidate's percent of presidential votes in the selected area." })}
+    </svg>
+  `;
+}
+
+function renderHistoricalScatterGraph(series, county) {
+  const rows = historicalScopeRows(series, county).filter((row) => row.total > 0);
+  if (!series || !rows.length) {
+    renderGraphMessage(els.historicalScatterGraph, "No historical rows found for this area and series.");
+    return;
+  }
+  const width = 820;
+  const height = 340;
+  const margin = { left: 58, right: 26, top: 42, bottom: 58 };
+  const rep = rows.map((row) => [row.rep, historicalShare(row.rep, row.total)]);
+  const dem = rows.map((row) => [row.dem, historicalShare(row.dem, row.total)]);
+  const maxVotes = Math.max(1, ...rep.map((point) => point[0]), ...dem.map((point) => point[0]));
+  const x = (value) => margin.left + (value / maxVotes) * (width - margin.left - margin.right);
+  const y = (value) => height - margin.bottom - (value / 100) * (height - margin.top - margin.bottom);
+  const yGrid = [0, 25, 50, 75, 100]
+    .map((tick) => `
+      <line class="graph-grid" x1="${margin.left}" y1="${y(tick)}" x2="${width - margin.right}" y2="${y(tick)}"></line>
+      <text class="graph-label" x="${margin.left - 8}" y="${y(tick) + 4}" text-anchor="end">${tick}%</text>
+    `)
+    .join("");
+  const xTicks = [0, 0.25, 0.5, 0.75, 1]
+    .map((ratio) => `<text class="graph-label" x="${x(maxVotes * ratio)}" y="${height - 34}" text-anchor="middle">${formatNumber(Math.round(maxVotes * ratio))}</text>`)
+    .join("");
+  const area = county ? `${county} County` : "Statewide";
+  const sourceNote = series.sourceClass === "nativeOfficial" ? "native official WEC rows" : "LTSB harmonized comparison rows";
+  els.historicalScatterGraph.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeAttr(historicalSeriesLabel(series))} vote share by vote count">
+      ${yGrid}
+      ${xTicks}
+      <line class="graph-axis" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
+      <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
+      <text class="graph-title" x="${margin.left}" y="20">${escapeText(`${area}: ${series.electionYear} vote-share chart (${formatNumber(rows.length)} ${sourceNote})`)}</text>
+      ${rep.map((point) => `<circle cx="${x(point[0])}" cy="${y(point[1])}" r="2" fill="#c84c42" opacity="0.34"><title>Republican: ${formatNumber(point[0])} votes, ${point[1].toFixed(2)}%</title></circle>`).join("")}
+      ${dem.map((point) => `<circle cx="${x(point[0])}" cy="${y(point[1])}" r="2" fill="#3477bd" opacity="0.34"><title>Democratic: ${formatNumber(point[0])} votes, ${point[1].toFixed(2)}%</title></circle>`).join("")}
+      ${rep.length > 1 ? regressionLine(rep, x, y, maxVotes, "#b53d34") : ""}
+      ${dem.length > 1 ? regressionLine(dem, x, y, maxVotes, "#2368b4") : ""}
+      <circle cx="${width - 164}" cy="22" r="5" fill="#c84c42"></circle>
+      <text class="graph-label" x="${width - 152}" y="26">Republican</text>
+      <circle cx="${width - 72}" cy="22" r="5" fill="#3477bd"></circle>
+      <text class="graph-label" x="${width - 60}" y="26">Democratic</text>
+      ${axisLabel({ x: width / 2, y: height - 10, anchor: "middle", label: "Candidate votes in source row", help: "The x-axis is how many votes the candidate received in one ward or reporting-unit row." })}
+      ${axisLabel({ transform: `translate(16 ${height / 2}) rotate(-90)`, anchor: "middle", label: "Candidate vote share", help: "The y-axis is the candidate's percent of presidential votes in that source row." })}
+    </svg>
+  `;
 }
 
 function confidenceBadge(label, tone) {

@@ -1,0 +1,710 @@
+{
+  "metadata": {
+    "generatedAt": "2026-06-01T02:11:25.666274+00:00",
+    "sourceId": "ltsb-2012-2020-harmonized-wards",
+    "rows": 70,
+    "reason": "Masked LTSB presidential values are preserved as missing and excluded from graph-ready rows."
+  },
+  "rows": [
+    {
+      "sourceRow": 302,
+      "geoid": "55007032250012",
+      "countyFips": "55007",
+      "county": "Bayfield",
+      "municipality": "Ashland",
+      "reportingUnit": "Ashland - C 0012",
+      "ward": "0012",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 802,
+      "geoid": "55015097250005",
+      "countyFips": "55015",
+      "county": "Calumet",
+      "municipality": "Brillion",
+      "reportingUnit": "Brillion - C 0005",
+      "ward": "0005",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 803,
+      "geoid": "55015395250010",
+      "countyFips": "55015",
+      "county": "Calumet",
+      "municipality": "Kiel",
+      "reportingUnit": "Kiel - C 0010",
+      "ward": "0010",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1298,
+      "geoid": "55025178000004",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Cross Plains",
+      "reportingUnit": "Cross Plains - T 0004",
+      "ward": "0004",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1299,
+      "geoid": "55025480000146",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Madison",
+      "reportingUnit": "Madison - C 0146",
+      "ward": "0146",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1300,
+      "geoid": "55025480000148",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Madison",
+      "reportingUnit": "Madison - C 0148",
+      "ward": "0148",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1301,
+      "geoid": "55025480000151",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Madison",
+      "reportingUnit": "Madison - C 0151",
+      "ward": "0151",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1302,
+      "geoid": "55025515750022",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Middleton",
+      "reportingUnit": "Middleton - C 0022",
+      "ward": "0022",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1303,
+      "geoid": "55025776750016",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Stoughton",
+      "reportingUnit": "Stoughton - C 0016",
+      "ward": "0016",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1304,
+      "geoid": "55025786000027",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Sun Prairie",
+      "reportingUnit": "Sun Prairie - C 0027",
+      "ward": "0027",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1801,
+      "geoid": "55027059000016",
+      "countyFips": "55027",
+      "county": "Dodge",
+      "municipality": "Beaver Dam",
+      "reportingUnit": "Beaver Dam - C 0016",
+      "ward": "0016",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1802,
+      "geoid": "55035223000074",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0074",
+      "ward": "0074",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1803,
+      "geoid": "55035223000075",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0075",
+      "ward": "0075",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1804,
+      "geoid": "55035223000076",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0076",
+      "ward": "0076",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 1805,
+      "geoid": "55035223000077",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0077",
+      "ward": "0077",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2306,
+      "geoid": "55039262750031",
+      "countyFips": "55039",
+      "county": "Fond du Lac",
+      "municipality": "Fond du Lac",
+      "reportingUnit": "Fond du Lac - C 0031",
+      "ward": "0031",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2799,
+      "geoid": "55059392250101",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0101",
+      "ward": "0101",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2800,
+      "geoid": "55059392250102",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0102",
+      "ward": "0102",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2801,
+      "geoid": "55059392250104",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0104",
+      "ward": "0104",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2802,
+      "geoid": "55059392250105",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0105",
+      "ward": "0105",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2803,
+      "geoid": "55059392250106",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0106",
+      "ward": "0106",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2804,
+      "geoid": "55059392250109",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0109",
+      "ward": "0109",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2805,
+      "geoid": "55059392250113",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0113",
+      "ward": "0113",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2806,
+      "geoid": "55059812500009",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Twin Lakes",
+      "reportingUnit": "Twin Lakes - V 0009",
+      "ward": "0009",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 2807,
+      "geoid": "55063354500014",
+      "countyFips": "55063",
+      "county": "La Crosse",
+      "municipality": "Holmen",
+      "reportingUnit": "Holmen - V 0014",
+      "ward": "0014",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 3302,
+      "geoid": "55071395250011",
+      "countyFips": "55071",
+      "county": "Manitowoc",
+      "municipality": "Kiel",
+      "reportingUnit": "Kiel - C 0011",
+      "ward": "0011",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 3303,
+      "geoid": "55071485000030",
+      "countyFips": "55071",
+      "county": "Manitowoc",
+      "municipality": "Manitowoc",
+      "reportingUnit": "Manitowoc - C 0030",
+      "ward": "0030",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 3304,
+      "geoid": "55071485000031",
+      "countyFips": "55071",
+      "county": "Manitowoc",
+      "municipality": "Manitowoc",
+      "reportingUnit": "Manitowoc - C 0031",
+      "ward": "0031",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 3305,
+      "geoid": "55073771500005",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Stettin",
+      "reportingUnit": "Stettin - T 0005",
+      "ward": "0005",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 3306,
+      "geoid": "55073844750038",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Wausau",
+      "reportingUnit": "Wausau - C 0038",
+      "ward": "0038",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 3307,
+      "geoid": "55073844750050",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Wausau",
+      "reportingUnit": "Wausau - C 0050",
+      "ward": "0050",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 3308,
+      "geoid": "55073844750051",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Wausau",
+      "reportingUnit": "Wausau - C 0051",
+      "ward": "0051",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 4305,
+      "geoid": "55081753250022",
+      "countyFips": "55081",
+      "county": "Monroe",
+      "municipality": "Sparta",
+      "reportingUnit": "Sparta - C 0022",
+      "ward": "0022",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 4306,
+      "geoid": "55081753250023",
+      "countyFips": "55081",
+      "county": "Monroe",
+      "municipality": "Sparta",
+      "reportingUnit": "Sparta - C 0023",
+      "ward": "0023",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 4307,
+      "geoid": "55081800750024",
+      "countyFips": "55081",
+      "county": "Monroe",
+      "municipality": "Tomah",
+      "reportingUnit": "Tomah - C 0024",
+      "ward": "0024",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 4308,
+      "geoid": "55087023750061",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "Appleton",
+      "reportingUnit": "Appleton - C 0061",
+      "ward": "0061",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 4309,
+      "geoid": "55087107500010",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "Buchanan",
+      "reportingUnit": "Buchanan - T 0010",
+      "ward": "0010",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 4310,
+      "geoid": "55087388000015",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "Kaukauna",
+      "reportingUnit": "Kaukauna - C 0015",
+      "ward": "0015",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 4811,
+      "geoid": "55097772000047",
+      "countyFips": "55097",
+      "county": "Portage",
+      "municipality": "Stevens Point",
+      "reportingUnit": "Stevens Point - C 0047",
+      "ward": "0047",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5308,
+      "geoid": "55103675750014",
+      "countyFips": "55103",
+      "county": "Richland",
+      "municipality": "Richland",
+      "reportingUnit": "Richland - T 0014",
+      "ward": "0014",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5309,
+      "geoid": "55103676250013",
+      "countyFips": "55103",
+      "county": "Richland",
+      "municipality": "Richland Center",
+      "reportingUnit": "Richland Center - C 0013",
+      "ward": "0013",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5310,
+      "geoid": "55105245500011",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Evansville",
+      "reportingUnit": "Evansville - C 0011",
+      "ward": "0011",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5311,
+      "geoid": "55105378250035",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Janesville",
+      "reportingUnit": "Janesville - C 0035",
+      "ward": "0035",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5312,
+      "geoid": "55105378250036",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Janesville",
+      "reportingUnit": "Janesville - C 0036",
+      "ward": "0036",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5809,
+      "geoid": "55111413000009",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Lake Delton",
+      "reportingUnit": "Lake Delton - V 0009",
+      "ward": "0009",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5810,
+      "geoid": "55111413000010",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Lake Delton",
+      "reportingUnit": "Lake Delton - V 0010",
+      "ward": "0010",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5811,
+      "geoid": "55111668000015",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Reedsburg",
+      "reportingUnit": "Reedsburg - C 0015",
+      "ward": "0015",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5812,
+      "geoid": "55117730250010",
+      "countyFips": "55117",
+      "county": "Sheboygan",
+      "municipality": "Sheboygan Falls",
+      "reportingUnit": "Sheboygan Falls - C 0010",
+      "ward": "0010",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5813,
+      "geoid": "55117730250011",
+      "countyFips": "55117",
+      "county": "Sheboygan",
+      "municipality": "Sheboygan Falls",
+      "reportingUnit": "Sheboygan Falls - C 0011",
+      "ward": "0011",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 5924,
+      "geoid": "55127286759999",
+      "countyFips": "55127",
+      "county": "Walworth",
+      "municipality": "Genoa City",
+      "reportingUnit": "Genoa City \u00e2\u0080\u0093 V 9999",
+      "ward": "9999",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6307,
+      "geoid": "55131330000017",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0017",
+      "ward": "0017",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6308,
+      "geoid": "55131330000034",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0034",
+      "ward": "0034",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6309,
+      "geoid": "55131330000035",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0035",
+      "ward": "0035",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6310,
+      "geoid": "55131674750010",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Richfield",
+      "reportingUnit": "Richfield - V 0010",
+      "ward": "0010",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6311,
+      "geoid": "55131853500034",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "West Bend",
+      "reportingUnit": "West Bend - C 0034",
+      "ward": "0034",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6312,
+      "geoid": "55131853500036",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "West Bend",
+      "reportingUnit": "West Bend - C 0036",
+      "ward": "0036",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6313,
+      "geoid": "55133142250002",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Chenequa",
+      "reportingUnit": "Chenequa - V 0002",
+      "ward": "0002",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6314,
+      "geoid": "55133142250003",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Chenequa",
+      "reportingUnit": "Chenequa - V 0003",
+      "ward": "0003",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6808,
+      "geoid": "55133284870011",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Genesee",
+      "reportingUnit": "Genesee - T 0011",
+      "ward": "0011",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6809,
+      "geoid": "55133331000015",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Hartland",
+      "reportingUnit": "Hartland - V 0015",
+      "ward": "0015",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6810,
+      "geoid": "55133584000004",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "North Prairie",
+      "reportingUnit": "North Prairie - V 0004",
+      "ward": "0004",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6811,
+      "geoid": "55133787500012",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Sussex",
+      "reportingUnit": "Sussex - V 0012",
+      "ward": "0012",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6812,
+      "geoid": "55133842500050",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Waukesha",
+      "reportingUnit": "Waukesha - C 0050",
+      "ward": "0050",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6813,
+      "geoid": "55135699000003",
+      "countyFips": "55135",
+      "county": "Waupaca",
+      "municipality": "Royalton",
+      "reportingUnit": "Royalton - T 0003",
+      "ward": "0003",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6814,
+      "geoid": "55135864000004",
+      "countyFips": "55135",
+      "county": "Waupaca",
+      "municipality": "Weyauwega",
+      "reportingUnit": "Weyauwega - C 0004",
+      "ward": "0004",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 6815,
+      "geoid": "55139269820015",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Fox Crossing",
+      "reportingUnit": "Fox Crossing - V 0015",
+      "ward": "0015",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 7075,
+      "geoid": "55139557500027",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Neenah",
+      "reportingUnit": "Neenah - C 0027",
+      "ward": "0027",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 7076,
+      "geoid": "55139557500028",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Neenah",
+      "reportingUnit": "Neenah - C 0028",
+      "ward": "0028",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 7077,
+      "geoid": "55139598750009",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Omro",
+      "reportingUnit": "Omro - C 0009",
+      "ward": "0009",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    },
+    {
+      "sourceRow": 7078,
+      "geoid": "55139605000043",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Oshkosh",
+      "reportingUnit": "Oshkosh - C 0043",
+      "ward": "0043",
+      "reason": "LTSB DBF stores masked presidential values as **** for this harmonized geography row."
+    }
+  ]
+}

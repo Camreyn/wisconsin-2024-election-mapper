@@ -4,11 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Wisconsin 2024 Election County Mapper</title>
+    <script>
+      const requestedTheme = new URLSearchParams(location.search).get("theme");
+      let storedTheme = null;
+      try {
+        storedTheme = localStorage.getItem("wi-election-theme");
+      } catch {
+        storedTheme = null;
+      }
+      document.documentElement.dataset.theme =
+        requestedTheme === "dark" || (requestedTheme !== "light" && storedTheme === "dark")
+          ? "dark"
+          : "light";
+    </script>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260531-review-ux" />
+    <link rel="stylesheet" href="./styles.css?v=20260601-history-dark" />
   </head>
   <body>
     <main class="app-shell">
@@ -80,8 +93,14 @@
           </button>
         </div>
 
+        <label class="theme-toggle">
+          <input id="darkModeToggle" type="checkbox" />
+          <span>Dark mode</span>
+        </label>
+
         <nav class="sidebar-shortcuts" aria-label="Workspace shortcuts">
           <button type="button" data-open-tab="review">Open Review Center</button>
+          <button type="button" data-open-tab="history">Open Historical Baseline</button>
           <button type="button" data-open-tab="data">Open Data & Sources</button>
           <button type="button" data-open-tab="methodology">Open Methodology</button>
         </nav>
@@ -102,6 +121,9 @@
           </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="review" aria-controls="reviewPanel" aria-selected="false">
             Review Center
+          </button>
+          <button class="app-tab-button" type="button" role="tab" data-app-tab="history" aria-controls="historyPanel" aria-selected="false">
+            Historical Baseline
           </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="data" aria-controls="dataPanel" aria-selected="false">
             Data & Sources
@@ -141,6 +163,100 @@
               treated as provisional because Wisconsin allows Election Day
               registration.
             </p>
+          </section>
+        </section>
+
+        <section id="historyPanel" class="tab-panel workspace-panel" role="tabpanel" aria-label="Historical presidential baseline" hidden>
+          <header class="workspace-intro">
+            <p class="eyebrow">Presidential elections only</p>
+            <h2>Historical Baseline</h2>
+            <p>Compare earlier presidential elections with 2024 before treating a visible pattern as new. These charts help answer whether a shape was already present in earlier data. They do not determine why a pattern exists.</p>
+          </header>
+
+          <section class="history-warning" aria-label="Historical data limitation">
+            <strong>Read this before comparing years</strong>
+            <p>The 2012, 2016, and 2020 comparison rows come from the Wisconsin Legislative Technology Services Bureau harmonized ward layer. Some source totals were redistributed onto common ward geography using population-based methods. They are useful comparison rows, but they are not exact native ward records. The 2024 rows are native official WEC reporting-unit rows.</p>
+          </section>
+
+          <section class="history-controls" aria-label="Historical comparison controls">
+            <label>
+              <span>Area</span>
+              <select id="historicalCountySelect"></select>
+            </label>
+            <label>
+              <span>Vote-share graph series</span>
+              <select id="historicalSeriesSelect"></select>
+            </label>
+          </section>
+
+          <section class="history-summary-panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Across presidential elections</p>
+              <h2 id="historicalScopeTitle">Statewide comparison</h2>
+            </div>
+            <p id="historicalSummary" class="history-summary"></p>
+            <div class="history-table-wrap">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Election</th>
+                    <th>Source row type</th>
+                    <th>Democratic</th>
+                    <th>Republican</th>
+                    <th>Other</th>
+                    <th>Total</th>
+                    <th>DEM share</th>
+                    <th>REP share</th>
+                  </tr>
+                </thead>
+                <tbody id="historicalTableRows"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="history-graphs" aria-label="Historical comparison graphs">
+            <article class="graph-card">
+              <div class="graph-heading">
+                <div>
+                  <span>Historical comparison</span>
+                  <strong>Presidential Vote Share Across Years</strong>
+                </div>
+                <button class="graph-download" type="button" data-graph="historicalTrendGraph">Download SVG</button>
+              </div>
+              <div id="historicalTrendGraph" class="graph-surface"></div>
+              <div class="graph-explainer">
+                <strong>How to read this</strong>
+                <p>Each point is one presidential election for the selected area. Think of it like checking several snapshots instead of one: if a share level was already visible in earlier elections, the line makes that easier to see.</p>
+              </div>
+            </article>
+
+            <article class="graph-card">
+              <div class="graph-heading">
+                <div>
+                  <span>Historical comparison</span>
+                  <strong>Vote Share by Vote Count</strong>
+                </div>
+                <button class="graph-download" type="button" data-graph="historicalScatterGraph">Download SVG</button>
+              </div>
+              <div id="historicalScatterGraph" class="graph-surface"></div>
+              <div class="graph-explainer">
+                <strong>How to read this</strong>
+                <p>Each dot is one source row for the selected year. Left-to-right is candidate vote count and up-and-down is candidate share. Compare the shape with the 2024 chart, while keeping the displayed source label in mind.</p>
+              </div>
+            </article>
+          </section>
+
+          <section class="history-notes">
+            <p class="eyebrow">Coverage and provenance</p>
+            <h3>What is ready, and what is still missing</h3>
+            <ul>
+              <li>Statewide presidential totals reconcile for every displayed year.</li>
+              <li>The native official WEC 2016 recount workbook matches the LTSB 2016 statewide total.</li>
+              <li>The harmonized LTSB 2016 layer shifts seven votes from Buffalo County to Trempealeau County relative to the native WEC recount workbook. The app keeps those row types separate.</li>
+              <li>Seventy LTSB geography rows contain masked presidential values. They are preserved as missing and excluded from the graph-ready rows rather than treated as zero votes.</li>
+              <li>Ward boundaries changed between elections. The older LTSB series use a common harmonized geography so shapes can be compared cautiously; they must not be described as exact election-year native ward rows.</li>
+              <li>Native official 2012 and final 2020 ward-level WEC workbooks are still being requested.</li>
+            </ul>
           </section>
         </section>
 
@@ -190,6 +306,13 @@
                 <a href="https://elections.countyofdane.com/Election-Result/172" target="_blank" rel="noreferrer">Dane canvass</a>
                 <a href="https://apps.jeffersoncountywi.gov/jc/election/results/11052024" target="_blank" rel="noreferrer">Jefferson results</a>
                 <a href="https://www.oneidacountywi.gov/election-results/" target="_blank" rel="noreferrer">Oneida results</a>
+              </article>
+              <article>
+                <strong>Historical presidential baseline</strong>
+                <p>Used for the Historical Baseline tab. Older comparison rows remain visibly labeled as harmonized LTSB rows rather than exact native ward records.</p>
+                <span>Local files: data/historical-data.js; data/historical/generated/historical-presidential-summary.json; data/historical/generated/historical-reconciliation-report.json</span>
+                <a href="https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15" target="_blank" rel="noreferrer">LTSB catalog record</a>
+                <a href="https://web.archive.org/web/20161223044005id_/http://elections.wi.gov/elections-voting/results/2016/fall-general" target="_blank" rel="noreferrer">Archived 2016 WEC results page</a>
               </article>
               <article>
                 <strong>Methodology and context</strong>
@@ -793,6 +916,7 @@
     <script src="./data/eta-data.js?v=20260531-review-ux"></script>
     <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
     <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
-    <script src="./app.js?v=20260531-review-ux"></script>
+    <script src="./data/historical-data.js?v=20260601-history"></script>
+    <script src="./app.js?v=20260601-history-dark"></script>
   </body>
 </html>

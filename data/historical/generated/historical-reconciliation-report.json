@@ -1,0 +1,173 @@
+{
+  "generatedAt": "2026-06-01T02:11:25.666274+00:00",
+  "status": "passed",
+  "checks": [
+    {
+      "id": "ltsb-2012-statewide-official-total",
+      "status": "passed",
+      "actual": {
+        "dem": 1620985,
+        "rep": 1407966,
+        "other": 39483,
+        "total": 3068434,
+        "rowCount": 7008
+      },
+      "expected": {
+        "dem": 1620985,
+        "rep": 1407966,
+        "other": 39483,
+        "total": 3068434
+      }
+    },
+    {
+      "id": "ltsb-2016-statewide-official-total",
+      "status": "passed",
+      "actual": {
+        "dem": 1382536,
+        "rep": 1405284,
+        "other": 188330,
+        "total": 2976150,
+        "rowCount": 7008
+      },
+      "expected": {
+        "dem": 1382536,
+        "rep": 1405284,
+        "other": 188330,
+        "total": 2976150
+      }
+    },
+    {
+      "id": "ltsb-2020-statewide-official-total",
+      "status": "passed",
+      "actual": {
+        "dem": 1630866,
+        "rep": 1610184,
+        "other": 56991,
+        "total": 3298041,
+        "rowCount": 7008
+      },
+      "expected": {
+        "dem": 1630866,
+        "rep": 1610184,
+        "other": 56991,
+        "total": 3298041
+      }
+    },
+    {
+      "id": "native-2016-recount-statewide-official-total",
+      "status": "passed",
+      "actual": {
+        "dem": 1382536,
+        "rep": 1405284,
+        "other": 188330,
+        "total": 2976150,
+        "rowCount": 3636
+      },
+      "expected": {
+        "dem": 1382536,
+        "rep": 1405284,
+        "other": 188330,
+        "total": 2976150
+      }
+    },
+    {
+      "id": "native-2016-recount-matches-ltsb-2016",
+      "status": "passed",
+      "nativeWecRecount": {
+        "dem": 1382536,
+        "rep": 1405284,
+        "other": 188330,
+        "total": 2976150,
+        "rowCount": 3636
+      },
+      "harmonizedLtsb": {
+        "dem": 1382536,
+        "rep": 1405284,
+        "other": 188330,
+        "total": 2976150,
+        "rowCount": 7008
+      }
+    },
+    {
+      "id": "native-2016-recount-county-differences-are-documented",
+      "status": "passed",
+      "countiesCompared": 72,
+      "mismatchedCounties": [
+        {
+          "county": "Buffalo",
+          "nativeWecRecount": {
+            "county": "Buffalo",
+            "dem": 2525,
+            "rep": 4048,
+            "other": 408,
+            "total": 6981,
+            "rowCount": 23
+          },
+          "harmonizedLtsb": {
+            "county": "Buffalo",
+            "dem": 2522,
+            "rep": 4044,
+            "other": 408,
+            "total": 6974,
+            "rowCount": 27
+          },
+          "ltsbMinusNative": {
+            "dem": -3,
+            "rep": -4,
+            "other": 0,
+            "total": -7
+          }
+        },
+        {
+          "county": "Trempealeau",
+          "nativeWecRecount": {
+            "county": "Trempealeau",
+            "dem": 5636,
+            "rep": 7366,
+            "other": 685,
+            "total": 13687,
+            "rowCount": 26
+          },
+          "harmonizedLtsb": {
+            "county": "Trempealeau",
+            "dem": 5639,
+            "rep": 7370,
+            "other": 685,
+            "total": 13694,
+            "rowCount": 54
+          },
+          "ltsbMinusNative": {
+            "dem": 3,
+            "rep": 4,
+            "other": 0,
+            "total": 7
+          }
+        }
+      ],
+      "interpretation": "LTSB harmonization shifts seven votes from Buffalo County to Trempealeau County relative to the native WEC recount workbook. Statewide totals remain identical. Keep native and harmonized county analyses separate."
+    },
+    {
+      "id": "native-2024-statewide-official-total",
+      "status": "passed",
+      "actual": {
+        "dem": 1668229,
+        "rep": 1697626,
+        "other": 57063,
+        "total": 3422918,
+        "rowCount": 3503
+      },
+      "expected": {
+        "dem": 1668229,
+        "rep": 1697626,
+        "other": 57063,
+        "total": 3422918
+      }
+    }
+  ],
+  "notes": [
+    "All statewide presidential totals reconcile for the imported LTSB 2012, 2016, and 2020 series.",
+    "The native WEC 2016 recount totals match the LTSB 2016 statewide totals.",
+    "The existing native WEC 2024 app rows reconcile to the certified statewide presidential totals.",
+    "Seventy LTSB geography rows contain masked presidential values represented as ****. They are listed separately and excluded from chart-ready rows rather than treated as zero-vote rows."
+  ]
+}

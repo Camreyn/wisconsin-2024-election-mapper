@@ -4,7 +4,8 @@ https://camreyn.github.io/wisconsin-2024-election-mapper/
 
 A static web app that collects Wisconsin's 72 county-level 2024 presidential
 results and maps them against Wisconsin county boundaries. It includes the full
-certified candidate/write-in breakdown behind each county's "Other" total.
+certified candidate/write-in breakdown behind each county's "Other" total,
+a historical presidential baseline tab, and a persistent dark-mode toggle.
 
 ![App screenshot](assets/app-screenshot.png)
 
@@ -32,7 +33,10 @@ Or, if you use npm:
 
 ```powershell
 npm.cmd run build:data
+npm.cmd run build:history
 npm.cmd run validate
+npm.cmd run validate:history
+npm.cmd run validate:ui
 ```
 
 Use `npm.cmd` in PowerShell if Windows blocks `npm.ps1`.
@@ -54,6 +58,22 @@ reporting website; MyVote says those are posted by county clerks. For a stable
 Wisconsin Elections Commission's `County by County Report_POTUS`.
 
 The official WEC PDF is saved locally as `data/County by County Report_POTUS.pdf`.
+
+## Historical Baseline
+
+The Historical Baseline tab compares presidential results for `2012`, `2016`,
+`2020`, and `2024`. It is designed to answer a basic interpretation question:
+was a visible shape already present in earlier presidential elections?
+
+The older comparison rows come from the Wisconsin Legislative Technology
+Services Bureau's harmonized ward layer. Some source totals were redistributed
+onto common ward geography using population-based methods. The app labels those
+rows as `LTSB harmonized` and keeps them separate from exact native WEC
+reporting-unit rows. The `2024` series uses native official WEC rows.
+
+The preserved source inventory, normalized CSV, reconciliation report, and
+masked-row list are under `data/historical/`. The generated browser bundle is
+`data/historical-data.js`.
 
 ## Transparency Tools
 
@@ -139,6 +159,10 @@ Every source currently used by the app:
   Contests.xlsx`, converted into `data/eta-data.js`.
   Powers ETA-style ward scatterplots, down-ballot histograms, and selected-county
   graph filtering.
+- Historical presidential baseline: LTSB `2012-2020 Election Data (with 2020
+  Wards)` plus the archived native WEC `2016` original-and-recount workbook and
+  the existing native WEC `2024` workbook. Used for visibly labeled historical
+  presidential comparisons.
 - County boundaries: U.S. Census TIGERweb State/County layer.
   Powers the county polygon map.
 - ETA methodology: Election Truth Alliance methodology page.
@@ -167,6 +191,8 @@ Links:
   <https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer>
 - Election Truth Alliance methodology:
   <https://electiontruthalliance.org/our-methodology/>
+- LTSB historical election-data catalog record:
+  <https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15>
 - City of Milwaukee ward-by-ward 2024 General Election report:
   <https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf>
 - Dane County 2024 General Election canvass page:
