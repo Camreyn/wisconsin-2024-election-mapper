@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Wisconsin 2024 Election County Mapper</title>
+    <title>Wisconsin Presidential Results Explorer</title>
     <script>
       const requestedTheme = new URLSearchParams(location.search).get("theme");
       let storedTheme = null;
@@ -21,21 +21,43 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260601-history-dark" />
+    <link rel="stylesheet" href="./styles.css?v=20260601-sidebar-history" />
   </head>
   <body>
     <main class="app-shell">
       <section class="sidebar" aria-label="Election result controls">
         <div class="brand-block">
-          <p class="eyebrow">Wisconsin county collector</p>
-          <h1>2024 Presidential Results</h1>
+          <p class="eyebrow">Wisconsin election explorer</p>
+          <h1>Presidential Results</h1>
           <p class="subcopy">
-            Certified county totals, collected county-by-county and joined to
-            Wisconsin county boundaries.
+            Review certified 2024 results, then compare presidential baselines
+            across 2012, 2016, 2020, and 2024.
           </p>
         </div>
 
-        <div class="summary-grid" aria-label="Statewide summary">
+        <section class="sidebar-scope" aria-label="Available presidential election records">
+          <div class="sidebar-scope-heading">
+            <span>Current map</span>
+            <strong>2024 certified results</strong>
+          </div>
+          <p>County map, ward screening charts, and partial turnout coverage.</p>
+          <div class="sidebar-year-row" aria-label="Historical baseline election years">
+            <span>2012</span>
+            <span>2016</span>
+            <span>2020</span>
+            <span class="active">2024</span>
+          </div>
+          <div class="sidebar-baseline-row">
+            <div>
+              <span>Historical baseline</span>
+              <strong>4 presidential elections</strong>
+            </div>
+            <button type="button" data-open-tab="history">Compare years</button>
+          </div>
+        </section>
+
+        <p class="sidebar-section-label">2024 statewide totals</p>
+        <div class="summary-grid" aria-label="2024 statewide summary">
           <article>
             <span>Trump</span>
             <strong id="trumpTotal">--</strong>
@@ -54,6 +76,7 @@
           </article>
         </div>
 
+        <p class="sidebar-section-label">2024 map controls</p>
         <div class="control-panel">
           <button id="collectBtn" class="primary-button" type="button">
             Collect Counties
@@ -99,8 +122,8 @@
         </label>
 
         <nav class="sidebar-shortcuts" aria-label="Workspace shortcuts">
+          <span>Explore</span>
           <button type="button" data-open-tab="review">Open Review Center</button>
-          <button type="button" data-open-tab="history">Open Historical Baseline</button>
           <button type="button" data-open-tab="data">Open Data & Sources</button>
           <button type="button" data-open-tab="methodology">Open Methodology</button>
         </nav>
@@ -432,11 +455,12 @@
         <section id="aboutPanel" class="tab-panel about-panel" role="tabpanel" aria-label="About and contact" hidden>
           <div class="about-hero">
             <p class="eyebrow">About this project</p>
-            <h2>Wisconsin 2024 Election Mapper</h2>
+            <h2>Wisconsin Presidential Results Explorer</h2>
             <p>
-              This is an independent civic-data app for reviewing Wisconsin 2024 election results,
-              county-by-county and ward-by-ward, using public election records and clearly labeled
-              screening calculations.
+              This is an independent civic-data app for reviewing Wisconsin 2024 election results
+              county-by-county and ward-by-ward, then comparing presidential baselines across
+              2012, 2016, 2020, and 2024 using public records and clearly labeled screening
+              calculations.
             </p>
           </div>
 
@@ -446,7 +470,8 @@
               <p>
                 Maps certified county presidential results, shows official WEC ward-level graph
                 patterns, compares major cities with the rest of their counties, and tracks which
-                turnout denominator sources have been imported.
+                turnout denominator sources have been imported. A historical tab helps distinguish
+                patterns that were already visible in earlier presidential elections.
               </p>
             </article>
             <article>
@@ -503,6 +528,7 @@
             <ul>
               <li>Official WEC certified county presidential and U.S. Senate reports.</li>
               <li>Official WEC ward-level federal and state contest spreadsheet.</li>
+              <li>Wisconsin Legislative Technology Services Bureau harmonized presidential comparison layers for historical baselines.</li>
               <li>U.S. Census TIGERweb Wisconsin county boundary geometry.</li>
               <li>Local county or municipal turnout reports where registered-voter denominator rows have been imported.</li>
               <li>Election Truth Alliance methodology pages for graph type names and screening concepts, not as a source of Wisconsin vote totals.</li>

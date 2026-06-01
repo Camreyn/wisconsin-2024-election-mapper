@@ -64,7 +64,7 @@ select {
   top: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 14px;
   height: 100vh;
   min-width: 0;
   padding: clamp(18px, 2vw, 28px);
@@ -83,8 +83,8 @@ select {
 }
 
 .brand-block h1 {
-  max-width: 12ch;
-  font-size: clamp(2.1rem, 3.6vw, 3.15rem);
+  max-width: 13ch;
+  font-size: clamp(2rem, 3.3vw, 2.9rem);
   line-height: 0.98;
 }
 
@@ -108,6 +108,103 @@ select {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
+}
+
+.sidebar-scope {
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--gold);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgba(41, 51, 64, 0.07);
+}
+
+.sidebar-scope-heading,
+.sidebar-baseline-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-scope-heading span,
+.sidebar-baseline-row span,
+.sidebar-section-label,
+.sidebar-shortcuts > span {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sidebar-scope-heading strong {
+  color: var(--ink);
+  font-size: 0.92rem;
+}
+
+.sidebar-scope p {
+  margin: 8px 0 10px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.sidebar-year-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.sidebar-year-row span {
+  padding: 5px 4px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--muted);
+  background: var(--panel-soft);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.sidebar-year-row .active {
+  border-color: var(--green);
+  color: white;
+  background: var(--green);
+}
+
+.sidebar-baseline-row {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.sidebar-baseline-row div {
+  display: grid;
+  gap: 2px;
+}
+
+.sidebar-baseline-row strong {
+  font-size: 0.86rem;
+}
+
+.sidebar-baseline-row button {
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid rgba(52, 119, 189, 0.38);
+  border-radius: 6px;
+  color: var(--blue-strong);
+  background: rgba(52, 119, 189, 0.08);
+  font-size: 0.75rem;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.sidebar-baseline-row button:hover {
+  background: rgba(52, 119, 189, 0.15);
+}
+
+.sidebar-section-label {
+  margin: 2px 0 -6px;
 }
 
 .summary-grid article,
@@ -136,6 +233,10 @@ select {
 .sidebar-shortcuts {
   display: grid;
   gap: 8px;
+}
+
+.sidebar-shortcuts > span {
+  margin-bottom: -2px;
 }
 
 .theme-toggle {

@@ -4,6 +4,7 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const indexHtml = fs.readFileSync(path.join(root, "index.html"), "utf8");
 
 class MockClassList {
   constructor(initial = []) {
@@ -168,6 +169,9 @@ for (const file of [
 await new Promise((resolve) => setTimeout(resolve, 400));
 
 const checks = {
+  sidebarExplorerTitle: indexHtml.includes("Wisconsin Presidential Results Explorer"),
+  sidebarCurrentMapScope: indexHtml.includes("2024 certified results"),
+  sidebarHistoricalAction: indexHtml.includes('data-open-tab="history">Compare years</button>'),
   historyTabVisible: tabPanels.find((panel) => panel.id === "historyPanel").hidden === false,
   countyOptions: element("#historicalCountySelect").options.length,
   seriesOptions: element("#historicalSeriesSelect").options.length,
@@ -180,6 +184,9 @@ checks.darkModeApplied = document.documentElement.dataset.theme === "dark";
 checks.darkModeStored = storage.get("wi-election-theme") === "dark";
 
 const expected = {
+  sidebarExplorerTitle: true,
+  sidebarCurrentMapScope: true,
+  sidebarHistoricalAction: true,
   historyTabVisible: true,
   countyOptions: 73,
   seriesOptions: 7,
