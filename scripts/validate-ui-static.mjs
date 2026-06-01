@@ -181,6 +181,8 @@ const checks = {
   trendGraphSvg: element("#historicalTrendGraph").innerHTML.includes("<svg"),
   scatterGraphSvg: element("#historicalScatterGraph").innerHTML.includes("<svg"),
   distributionGraphSvg: element("#historicalDistributionGraph").innerHTML.includes("<svg"),
+  distributionGraphComesFirst: indexHtml.indexOf('id="historicalDistributionGraph"') < indexHtml.indexOf('id="historicalTrendGraph"'),
+  historicalAxisLabelsAreClean: !element("#historicalTrendGraph").innerHTML.includes("year ?") && !element("#historicalScatterGraph").innerHTML.includes("row ?"),
 };
 vm.runInContext(`setTheme("dark")`, context);
 checks.darkModeApplied = document.documentElement.dataset.theme === "dark";
@@ -199,6 +201,8 @@ const expected = {
   trendGraphSvg: true,
   scatterGraphSvg: true,
   distributionGraphSvg: true,
+  distributionGraphComesFirst: true,
+  historicalAxisLabelsAreClean: true,
   darkModeApplied: true,
   darkModeStored: true,
 };

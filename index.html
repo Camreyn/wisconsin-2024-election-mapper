@@ -237,11 +237,38 @@
             </div>
           </section>
 
+          <section class="history-comparison-guide" aria-label="Historical comparison guide">
+            <p class="eyebrow">Start here</p>
+            <h3>Compare all four election years at once</h3>
+            <ol>
+              <li>Begin with the four distribution panels below. They show 2012, 2016, 2020, and 2024 side by side.</li>
+              <li>Compare the shape of the bars, the dashed blue average line, the gold busiest-bucket line, and the skew value.</li>
+              <li>Use the single-year scatter chart afterward when you want to inspect one election in more detail.</li>
+            </ol>
+          </section>
+
           <section class="history-graphs" aria-label="Historical comparison graphs">
+            <article class="graph-card graph-card-wide history-primary-graph">
+              <div class="graph-heading">
+                <div>
+                  <span>ETA-style all-years comparison</span>
+                  <strong>Republican Vote-Share Distribution Across Years</strong>
+                </div>
+                <button class="graph-download" type="button" data-graph="historicalDistributionGraph">Download SVG</button>
+              </div>
+              <div id="historicalDistributionGraph" class="graph-surface historical-distribution-surface"></div>
+              <div class="graph-explainer">
+                <strong>How to read this</strong>
+                <p>Each panel is one election year. Each bar counts how many local source rows landed in a Republican presidential vote-share range. Think of sorting result rows into labeled buckets: 0-5%, 5-10%, and so on. The dashed blue line is the average row. The gold line marks the busiest bucket. Compare the overall shapes across election years.</p>
+                <p><strong>Skew</strong> is a simple measure of whether the bars lean more heavily toward one side of the chart. A value near zero is more balanced. A positive or negative value describes the direction of the lean; it does not explain the cause.</p>
+                <p>This is a screening comparison, not proof of a cause. The displayed rows are LTSB harmonized comparison rows placed onto common ward geography. A statewide turnout-versus-vote-share heat map like ETA's Minnesota chart would require reliable row-level turnout denominators for each year, which are not currently available for Wisconsin.</p>
+              </div>
+            </article>
+
             <article class="graph-card">
               <div class="graph-heading">
                 <div>
-                  <span>Historical comparison</span>
+                  <span>All-years summary</span>
                   <strong>Presidential Vote Share Across Years</strong>
                 </div>
                 <button class="graph-download" type="button" data-graph="historicalTrendGraph">Download SVG</button>
@@ -256,8 +283,8 @@
             <article class="graph-card">
               <div class="graph-heading">
                 <div>
-                  <span>Historical comparison</span>
-                  <strong>Vote Share by Vote Count</strong>
+                  <span>Optional single-year drilldown</span>
+                  <strong>Selected-Year Vote Share by Vote Count</strong>
                 </div>
                 <button class="graph-download" type="button" data-graph="historicalScatterGraph">Download SVG</button>
               </div>
@@ -265,23 +292,6 @@
               <div class="graph-explainer">
                 <strong>How to read this</strong>
                 <p>Each dot is one source row for the selected year. Left-to-right is candidate vote count and up-and-down is candidate share. Compare the shape with the 2024 chart, while keeping the displayed source label in mind.</p>
-              </div>
-            </article>
-
-            <article class="graph-card graph-card-wide">
-              <div class="graph-heading">
-                <div>
-                  <span>ETA-style historical comparison</span>
-                  <strong>Republican Vote-Share Distribution Across Years</strong>
-                </div>
-                <button class="graph-download" type="button" data-graph="historicalDistributionGraph">Download SVG</button>
-              </div>
-              <div id="historicalDistributionGraph" class="graph-surface historical-distribution-surface"></div>
-              <div class="graph-explainer">
-                <strong>How to read this</strong>
-                <p>Each bar counts how many local source rows landed in a Republican presidential vote-share range. Think of sorting result rows into labeled buckets: 0-5%, 5-10%, and so on. The dashed blue line is the average row. The gold line marks the busiest bucket. Compare the overall shapes across election years.</p>
-                <p><strong>Skew</strong> is a simple measure of whether the bars lean more heavily toward one side of the chart. A value near zero is more balanced. A positive or negative value describes the direction of the lean; it does not explain the cause.</p>
-                <p>This is a screening comparison, not proof of a cause. The displayed rows are LTSB harmonized comparison rows placed onto common ward geography. A statewide turnout-versus-vote-share heat map like ETA's Minnesota chart would require reliable row-level turnout denominators for each year, which are not currently available for Wisconsin.</p>
               </div>
             </article>
           </section>

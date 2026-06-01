@@ -789,6 +789,33 @@ select {
   gap: 16px;
 }
 
+.history-comparison-guide {
+  padding: 16px 18px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue-strong);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.history-comparison-guide h3 {
+  margin: 4px 0 8px;
+}
+
+.history-comparison-guide ol {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.history-comparison-guide li + li {
+  margin-top: 4px;
+}
+
+.history-primary-graph {
+  border-top: 4px solid var(--blue-strong);
+}
+
 .history-notes h3 {
   margin: 0;
 }

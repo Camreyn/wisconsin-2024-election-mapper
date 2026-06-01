@@ -2055,7 +2055,7 @@ function svgTextLines(text, { x, y, maxChars, className, lineHeight }) {
 
 function axisLabel({ x, y, transform, anchor, label, help }) {
   const position = transform ? `transform="${escapeAttr(transform)}"` : `x="${x}" y="${y}"`;
-  return `<text class="graph-label axis-help-label" ${position} text-anchor="${anchor}"><title>${escapeText(help)}</title>${escapeText(label)} ?</text>`;
+  return `<text class="graph-label axis-help-label" ${position} text-anchor="${anchor}"><title>${escapeText(help)}</title>${escapeText(label)}</text>`;
 }
 
 function regressionLine(points, xScale, yScale, xMax, color) {
