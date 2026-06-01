@@ -175,7 +175,7 @@
 
           <section class="history-warning" aria-label="Historical data limitation">
             <strong>Read this before comparing years</strong>
-            <p>The 2012, 2016, and 2020 comparison rows come from the Wisconsin Legislative Technology Services Bureau harmonized ward layer. Some source totals were redistributed onto common ward geography using population-based methods. They are useful comparison rows, but they are not exact native ward records. The 2024 rows are native official WEC reporting-unit rows.</p>
+            <p>The multi-year comparison rows come from Wisconsin Legislative Technology Services Bureau harmonized ward layers. Some source totals were redistributed onto common ward geography using population-based methods. They are useful comparison rows, but they are not exact native ward records. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.</p>
           </section>
 
           <section class="history-controls" aria-label="Historical comparison controls">
@@ -253,7 +253,9 @@
               <li>Statewide presidential totals reconcile for every displayed year.</li>
               <li>The native official WEC 2016 recount workbook matches the LTSB 2016 statewide total.</li>
               <li>The harmonized LTSB 2016 layer shifts seven votes from Buffalo County to Trempealeau County relative to the native WEC recount workbook. The app keeps those row types separate.</li>
+              <li>The official LTSB 2024 harmonized layer matches the native WEC 2024 presidential totals statewide and in every county. Its ward values remain labeled as harmonized comparison rows because LTSB documents population-based disaggregation.</li>
               <li>Seventy LTSB geography rows contain masked presidential values. They are preserved as missing and excluded from the graph-ready rows rather than treated as zero votes.</li>
+              <li>One hundred forty January 2025 LTSB ward features contain no 2024 presidential values. They are also preserved as missing and excluded from graph-ready rows rather than treated as zero votes.</li>
               <li>Ward boundaries changed between elections. The older LTSB series use a common harmonized geography so shapes can be compared cautiously; they must not be described as exact election-year native ward rows.</li>
               <li>Native official 2012 and final 2020 ward-level WEC workbooks are still being requested.</li>
             </ul>
@@ -309,9 +311,10 @@
               </article>
               <article>
                 <strong>Historical presidential baseline</strong>
-                <p>Used for the Historical Baseline tab. Older comparison rows remain visibly labeled as harmonized LTSB rows rather than exact native ward records.</p>
+                <p>Used for the Historical Baseline tab. Multi-year trend rows remain visibly labeled as harmonized LTSB rows rather than exact native ward records. Native WEC 2024 rows remain separately selectable.</p>
                 <span>Local files: data/historical-data.js; data/historical/generated/historical-presidential-summary.json; data/historical/generated/historical-reconciliation-report.json</span>
                 <a href="https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15" target="_blank" rel="noreferrer">LTSB catalog record</a>
+                <a href="https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e" target="_blank" rel="noreferrer">Official LTSB 2024 layer</a>
                 <a href="https://web.archive.org/web/20161223044005id_/http://elections.wi.gov/elections-voting/results/2016/fall-general" target="_blank" rel="noreferrer">Archived 2016 WEC results page</a>
               </article>
               <article>

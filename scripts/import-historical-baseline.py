@@ -75,6 +75,11 @@ def read_json(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def read_gzip_json(path: Path):
+    with gzip.open(path, "rt", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
 def write_json(path: Path, payload, *, compact: bool = False) -> None:
     rendered = json.dumps(payload, separators=(",", ":")) if compact else json.dumps(payload, indent=2)
     path.write_text(f"{rendered}\n", encoding="utf-8")
@@ -370,6 +375,67 @@ def import_ltsb(source: dict) -> tuple[list[dict], list[dict], list[dict]]:
     return wide_rows, candidate_rows, masked
 
 
+def import_ltsb_2024(source: dict) -> tuple[list[dict], list[dict], list[dict]]:
+    features = read_gzip_json(source["path"])["features"]
+    wide_rows = []
+    candidate_rows = []
+    missing_rows = []
+    for row_index, feature in enumerate(features, start=1):
+        row = feature["properties"]
+        for field in ("GEOID", "CNTY_FIPS", "CNTY_NAME", "MCD_NAME", "LABEL", "WARDID"):
+            require_text(row.get(field), f"LTSB 2024 row {row_index} {field}")
+        raw_values = [row.get("PRETOT24"), row.get("PREDEM24"), row.get("PREREP24")]
+        if all(value is None for value in raw_values):
+            missing_rows.append(
+                {
+                    "sourceRow": row_index,
+                    "geoid": row["GEOID"],
+                    "countyFips": row["CNTY_FIPS"],
+                    "county": normalize_county(row["CNTY_NAME"]),
+                    "municipality": row["MCD_NAME"],
+                    "reportingUnit": row["LABEL"],
+                    "ward": row["WARDID"],
+                    "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows.",
+                }
+            )
+            continue
+        require(all(isinstance(value, (int, float)) for value in raw_values), f"LTSB 2024 row {row_index} has partial presidential values")
+        require(all(float(value).is_integer() for value in raw_values), f"LTSB 2024 row {row_index} has fractional presidential values")
+        values = vote_values(*(int(value) for value in raw_values))
+        wide_row = {
+            "electionYear": 2024,
+            "contestId": "2024-president-ltsb-harmonized",
+            "sourceId": source["id"],
+            "sourceClass": "harmonizedLtsb",
+            "sourceLevel": "ward",
+            "rowMethod": "ltsbPopulationAllocation",
+            "county": normalize_county(row["CNTY_NAME"]),
+            "countyFips": row["CNTY_FIPS"],
+            "municipality": row["MCD_NAME"],
+            "reportingUnit": row["LABEL"],
+            "ward": row["WARDID"],
+            "geoid": row["GEOID"],
+            **values,
+        }
+        wide_rows.append(wide_row)
+        candidate_rows.extend(
+            make_candidate_rows(
+                wide_row=wide_row,
+                candidates={
+                    "dem": "Kamala Harris / Tim Walz",
+                    "rep": "Donald Trump / JD Vance",
+                    "other": "Other presidential candidates combined",
+                },
+                source=source,
+                notes="Harmonized LTSB comparison row. LTSB documents that 2024 WEC reporting-unit totals were allocated to wards and census blocks using population-based methods, then aggregated to January 2025 wards. Other combines all non-Democratic and non-Republican presidential votes.",
+            )
+        )
+    require(len(features) == 7_086, f"Unexpected LTSB 2024 GeoJSON feature count: {len(features)}")
+    require(len(missing_rows) == 140, f"Unexpected LTSB 2024 missing row count: {len(missing_rows)}")
+    require(len(wide_rows) == 6_946, f"Unexpected LTSB 2024 graph-ready row count: {len(wide_rows)}")
+    return wide_rows, candidate_rows, missing_rows
+
+
 def import_native_2016(source: dict) -> tuple[list[dict], list[dict]]:
     rows = read_xlsx_rows(source["path"], "Sheet1")
     require(len(rows) == 3_638, f"Unexpected native 2016 row count including headers: {len(rows)}")
@@ -474,10 +540,12 @@ def main() -> int:
     GENERATED.mkdir(parents=True, exist_ok=True)
     manifest = read_json(MANIFEST)
     ltsb_source = source_by_id(manifest, "ltsb-2012-2020-harmonized-wards")
+    ltsb_2024_source = source_by_id(manifest, "ltsb-2024-harmonized-wards")
     native_2016_source = source_by_id(manifest, "wec-2016-native-president-original-and-recount")
     native_2024_source = source_by_id(manifest, "wec-2024-native-federal-state-ward-report")
 
     ltsb_rows, ltsb_candidates, masked_rows = import_ltsb(ltsb_source)
+    ltsb_2024_rows, ltsb_2024_candidates, ltsb_2024_missing_rows = import_ltsb_2024(ltsb_2024_source)
     native_2016_rows, native_2016_candidates = import_native_2016(native_2016_source)
     native_2024_rows, native_2024_candidates = import_native_2024(native_2024_source)
 
@@ -493,6 +561,7 @@ def main() -> int:
         summarize_series("ltsb-harmonized-2012-president", ltsb_by_year[2012]),
         summarize_series("ltsb-harmonized-2016-president", ltsb_by_year[2016]),
         summarize_series("ltsb-harmonized-2020-president", ltsb_by_year[2020]),
+        summarize_series("ltsb-harmonized-2024-president", ltsb_2024_rows),
         summarize_series("wec-native-2016-president-original", native_2016_by_stage["original"]),
         summarize_series("wec-native-2016-president-recount", native_2016_by_stage["recount"]),
         summarize_series("wec-native-2024-president", native_2024_rows),
@@ -560,6 +629,42 @@ def main() -> int:
         }
     )
     native_2024_total = statewide(native_2024_rows)
+    ltsb_2024_total = statewide(ltsb_2024_rows)
+    checks.append(
+        {
+            "id": "ltsb-2024-statewide-official-total",
+            "status": "passed" if totals_match(ltsb_2024_total, EXPECTED_STATEWIDE[2024]) else "failed",
+            "actual": ltsb_2024_total,
+            "expected": EXPECTED_STATEWIDE[2024],
+        }
+    )
+    checks.append(
+        {
+            "id": "native-2024-matches-ltsb-2024-statewide",
+            "status": "passed" if totals_match(native_2024_total, ltsb_2024_total) else "failed",
+            "nativeWec": native_2024_total,
+            "harmonizedLtsb": ltsb_2024_total,
+        }
+    )
+    native_2024_counties = keyed_totals(native_2024_rows, "county")
+    ltsb_2024_counties = keyed_totals(ltsb_2024_rows, "county")
+    county_names_2024 = sorted(set(native_2024_counties) | set(ltsb_2024_counties))
+    county_mismatches_2024 = [
+        county
+        for county in county_names_2024
+        if county not in native_2024_counties
+        or county not in ltsb_2024_counties
+        or not totals_match(native_2024_counties[county], ltsb_2024_counties[county])
+    ]
+    checks.append(
+        {
+            "id": "native-2024-matches-ltsb-2024-counties",
+            "status": "passed" if not county_mismatches_2024 else "failed",
+            "countiesCompared": len(county_names_2024),
+            "mismatchedCounties": county_mismatches_2024,
+            "interpretation": "The harmonized LTSB 2024 layer preserves the native WEC presidential totals at county level. Ward values remain comparison rows because LTSB documents population-based disaggregation.",
+        }
+    )
     checks.append(
         {
             "id": "native-2024-statewide-official-total",
@@ -572,7 +677,7 @@ def main() -> int:
     require(not failed, f"Historical reconciliation failed: {[check['id'] for check in failed]}")
 
     generated_at = datetime.now(UTC).isoformat()
-    normalized_rows = ltsb_candidates + native_2016_candidates + native_2024_candidates
+    normalized_rows = ltsb_candidates + ltsb_2024_candidates + native_2016_candidates + native_2024_candidates
     normalized_csv = GENERATED / "historical-presidential-results.csv.gz"
     with gzip.open(normalized_csv, "wt", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=CSV_FIELDS)
@@ -590,6 +695,7 @@ def main() -> int:
             "seriesCount": len(series),
             "normalizedCandidateRows": len(normalized_rows),
             "maskedLtsbRows": len(masked_rows),
+            "missingLtsb2024Rows": len(ltsb_2024_missing_rows),
             "warning": "LTSB rows are harmonized comparison data. Some source totals were redistributed using population-based allocation and must not be labeled as exact native ward totals.",
         },
         "series": series,
@@ -599,10 +705,12 @@ def main() -> int:
         "status": "passed",
         "checks": checks,
         "notes": [
-            "All statewide presidential totals reconcile for the imported LTSB 2012, 2016, and 2020 series.",
+            "All statewide presidential totals reconcile for the imported LTSB 2012, 2016, 2020, and 2024 series.",
             "The native WEC 2016 recount totals match the LTSB 2016 statewide totals.",
             "The existing native WEC 2024 app rows reconcile to the certified statewide presidential totals.",
+            "The harmonized LTSB 2024 statewide totals match the existing native WEC 2024 app totals.",
             "Seventy LTSB geography rows contain masked presidential values represented as ****. They are listed separately and excluded from chart-ready rows rather than treated as zero-vote rows.",
+            "One hundred forty LTSB 2024 ward features contain no presidential values. They are listed separately and excluded from chart-ready rows rather than treated as zero-vote rows.",
         ],
     }
     write_json(GENERATED / "historical-presidential-summary.json", summary, compact=True)
@@ -619,6 +727,18 @@ def main() -> int:
             "rows": masked_rows,
         },
     )
+    write_json(
+        GENERATED / "ltsb-2024-missing-presidential-rows.json",
+        {
+            "metadata": {
+                "generatedAt": generated_at,
+                "sourceId": ltsb_2024_source["id"],
+                "rows": len(ltsb_2024_missing_rows),
+                "reason": "LTSB 2024 features without presidential values are preserved as missing and excluded from graph-ready rows.",
+            },
+            "rows": ltsb_2024_missing_rows,
+        },
+    )
     print(
         json.dumps(
             {
@@ -626,6 +746,7 @@ def main() -> int:
                 "normalizedCandidateRows": len(normalized_rows),
                 "series": [{"id": item["id"], "rows": item["rowCount"], "statewide": item["statewide"]} for item in series],
                 "maskedLtsbRows": len(masked_rows),
+                "missingLtsb2024Rows": len(ltsb_2024_missing_rows),
                 "reconciliationChecks": len(checks),
             },
             indent=2,

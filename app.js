@@ -6,12 +6,13 @@ const HISTORICAL_PRIMARY_SERIES_IDS = [
   "ltsb-harmonized-2012-president",
   "ltsb-harmonized-2016-president",
   "ltsb-harmonized-2020-president",
-  "wec-native-2024-president",
+  "ltsb-harmonized-2024-president",
 ];
 const HISTORICAL_SERIES_LABELS = {
   "ltsb-harmonized-2012-president": "2012 LTSB harmonized wards",
   "ltsb-harmonized-2016-president": "2016 LTSB harmonized wards",
   "ltsb-harmonized-2020-president": "2020 LTSB harmonized wards",
+  "ltsb-harmonized-2024-president": "2024 LTSB harmonized wards",
   "wec-native-2016-president-original": "2016 WEC native original canvass",
   "wec-native-2016-president-recount": "2016 WEC native recount",
   "wec-native-2024-president": "2024 WEC native reporting units",
@@ -98,7 +99,14 @@ const SOURCE_INVENTORY = [
     file: "data/historical-data.js; data/historical/generated/historical-presidential-summary.json; data/historical/generated/historical-reconciliation-report.json",
     sourceUrl: "https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15",
     usedFor: "Historical Baseline tab: presidential vote-share comparisons across 2012, 2016, 2020, and 2024.",
-    confidence: "Older LTSB rows are harmonized comparison rows; 2024 rows are native official WEC reporting-unit rows.",
+    confidence: "The displayed multi-year trend uses LTSB harmonized comparison rows for every year. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.",
+  },
+  {
+    category: "Historical 2024 LTSB comparison layer",
+    file: "data/historical/raw/2024-ltsb-harmonized-wards.geojson.gz; data/historical/raw/ltsb-election-data-schema-definitions.pdf",
+    sourceUrl: "https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e",
+    usedFor: "Apples-to-apples 2024 harmonized ward comparison in the Historical Baseline tab.",
+    confidence: "Official LTSB comparison layer. Statewide and county totals reconcile to native WEC results; ward rows remain visibly labeled as population-allocated harmonized values.",
   },
 ];
 
@@ -1328,7 +1336,7 @@ function renderHistoricalComparison() {
   const scopeLabel = county ? `${county} County` : "Statewide";
   const primarySeries = HISTORICAL_PRIMARY_SERIES_IDS.map((id) => historicalSeriesById(id)).filter(Boolean);
   els.historicalScopeTitle.textContent = `${scopeLabel} comparison`;
-  els.historicalSummary.textContent = `${scopeLabel}: comparing ${primarySeries.length} presidential elections. Older years use visibly labeled LTSB harmonized ward rows; 2024 uses native official WEC reporting-unit rows.`;
+  els.historicalSummary.textContent = `${scopeLabel}: comparing ${primarySeries.length} presidential elections on visibly labeled LTSB harmonized ward rows. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.`;
   els.historicalTableRows.innerHTML = primarySeries.map((series) => historicalTableRow(series, county)).join("");
   renderHistoricalTrendGraph(primarySeries, county);
   renderHistoricalScatterGraph(historicalSeriesById(els.historicalSeriesSelect.value), county);

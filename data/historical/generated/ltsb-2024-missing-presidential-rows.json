@@ -1,0 +1,1410 @@
+{
+  "metadata": {
+    "generatedAt": "2026-06-01T20:46:37.460276+00:00",
+    "sourceId": "ltsb-2024-harmonized-wards",
+    "rows": 140,
+    "reason": "LTSB 2024 features without presidential values are preserved as missing and excluded from graph-ready rows."
+  },
+  "rows": [
+    {
+      "sourceRow": 4916,
+      "geoid": "55005673500016",
+      "countyFips": "55005",
+      "county": "Barron",
+      "municipality": "Rice Lake",
+      "reportingUnit": "Rice Lake - C 0016",
+      "ward": "0016",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4917,
+      "geoid": "55005673500018",
+      "countyFips": "55005",
+      "county": "Barron",
+      "municipality": "Rice Lake",
+      "reportingUnit": "Rice Lake - C 0018",
+      "ward": "0018",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4918,
+      "geoid": "55005673500019",
+      "countyFips": "55005",
+      "county": "Barron",
+      "municipality": "Rice Lake",
+      "reportingUnit": "Rice Lake - C 0019",
+      "ward": "0019",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4919,
+      "geoid": "55005673500020",
+      "countyFips": "55005",
+      "county": "Barron",
+      "municipality": "Rice Lake",
+      "reportingUnit": "Rice Lake - C 0020",
+      "ward": "0020",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4920,
+      "geoid": "55005673500021",
+      "countyFips": "55005",
+      "county": "Barron",
+      "municipality": "Rice Lake",
+      "reportingUnit": "Rice Lake - C 0021",
+      "ward": "0021",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4921,
+      "geoid": "55005673500022",
+      "countyFips": "55005",
+      "county": "Barron",
+      "municipality": "Rice Lake",
+      "reportingUnit": "Rice Lake - C 0022",
+      "ward": "0022",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4922,
+      "geoid": "55015097250005",
+      "countyFips": "55015",
+      "county": "Calumet",
+      "municipality": "Brillion",
+      "reportingUnit": "Brillion - C 0005",
+      "ward": "0005",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4923,
+      "geoid": "55015097250006",
+      "countyFips": "55015",
+      "county": "Calumet",
+      "municipality": "Brillion",
+      "reportingUnit": "Brillion - C 0006",
+      "ward": "0006",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4924,
+      "geoid": "55017145750016",
+      "countyFips": "55017",
+      "county": "Chippewa",
+      "municipality": "Chippewa Falls",
+      "reportingUnit": "Chippewa Falls - C 0016",
+      "ward": "0016",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4925,
+      "geoid": "55017145750017",
+      "countyFips": "55017",
+      "county": "Chippewa",
+      "municipality": "Chippewa Falls",
+      "reportingUnit": "Chippewa Falls - C 0017",
+      "ward": "0017",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4926,
+      "geoid": "5501714575001A",
+      "countyFips": "55017",
+      "county": "Chippewa",
+      "municipality": "Chippewa Falls",
+      "reportingUnit": "Chippewa Falls - C 001A",
+      "ward": "001A",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4927,
+      "geoid": "5501714575010A",
+      "countyFips": "55017",
+      "county": "Chippewa",
+      "municipality": "Chippewa Falls",
+      "reportingUnit": "Chippewa Falls - C 010A",
+      "ward": "010A",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4928,
+      "geoid": "55017223000064",
+      "countyFips": "55017",
+      "county": "Chippewa",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0064",
+      "ward": "0064",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4929,
+      "geoid": "55017563500003",
+      "countyFips": "55017",
+      "county": "Chippewa",
+      "municipality": "New Auburn",
+      "reportingUnit": "New Auburn - V 0003",
+      "ward": "0003",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4930,
+      "geoid": "55017766250009",
+      "countyFips": "55017",
+      "county": "Chippewa",
+      "municipality": "Stanley",
+      "reportingUnit": "Stanley - C 0009",
+      "ward": "0009",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4931,
+      "geoid": "55021611000004",
+      "countyFips": "55021",
+      "county": "Columbia",
+      "municipality": "Pardeeville",
+      "reportingUnit": "Pardeeville - V 0004",
+      "ward": "0004",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4932,
+      "geoid": "55021641000011",
+      "countyFips": "55021",
+      "county": "Columbia",
+      "municipality": "Portage",
+      "reportingUnit": "Portage - C 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4933,
+      "geoid": "55025100750004",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Brooklyn",
+      "reportingUnit": "Brooklyn - V 0004",
+      "ward": "0004",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4934,
+      "geoid": "55025177750007",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Cross Plains",
+      "reportingUnit": "Cross Plains - V 0007",
+      "ward": "0007",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4935,
+      "geoid": "55025193500014",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Deforest",
+      "reportingUnit": "Deforest - V 0014",
+      "ward": "0014",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4936,
+      "geoid": "55025193500015",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Deforest",
+      "reportingUnit": "Deforest - V 0015",
+      "ward": "0015",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4937,
+      "geoid": "55025193500018",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Deforest",
+      "reportingUnit": "Deforest - V 0018",
+      "ward": "0018",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4938,
+      "geoid": "55025468500011",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Mcfarland",
+      "reportingUnit": "Mcfarland - V 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4939,
+      "geoid": "55025480000133",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Madison",
+      "reportingUnit": "Madison - C 0133",
+      "ward": "0133",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4940,
+      "geoid": "55025515750023",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Middleton",
+      "reportingUnit": "Middleton - C 0023",
+      "ward": "0023",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4941,
+      "geoid": "55025547250011",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Mount Horeb",
+      "reportingUnit": "Mount Horeb - V 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4942,
+      "geoid": "55025547250012",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Mount Horeb",
+      "reportingUnit": "Mount Horeb - V 0012",
+      "ward": "0012",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4943,
+      "geoid": "55025602000015",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Oregon",
+      "reportingUnit": "Oregon - V 0015",
+      "ward": "0015",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4944,
+      "geoid": "55025776750009",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Stoughton",
+      "reportingUnit": "Stoughton - C 0009",
+      "ward": "0009",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4945,
+      "geoid": "55025786000028",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Sun Prairie",
+      "reportingUnit": "Sun Prairie - C 0028",
+      "ward": "0028",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4946,
+      "geoid": "55025786000029",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Sun Prairie",
+      "reportingUnit": "Sun Prairie - C 0029",
+      "ward": "0029",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4947,
+      "geoid": "55025786000030",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Sun Prairie",
+      "reportingUnit": "Sun Prairie - C 0030",
+      "ward": "0030",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4948,
+      "geoid": "55025843500013",
+      "countyFips": "55025",
+      "county": "Dane",
+      "municipality": "Waunakee",
+      "reportingUnit": "Waunakee - V 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4949,
+      "geoid": "55027059000025",
+      "countyFips": "55027",
+      "county": "Dodge",
+      "municipality": "Beaver Dam",
+      "reportingUnit": "Beaver Dam - C 0025",
+      "ward": "0025",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4950,
+      "geoid": "55027059000027",
+      "countyFips": "55027",
+      "county": "Dodge",
+      "municipality": "Beaver Dam",
+      "reportingUnit": "Beaver Dam - C 0027",
+      "ward": "0027",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4951,
+      "geoid": "55027844250013",
+      "countyFips": "55027",
+      "county": "Dodge",
+      "municipality": "Waupun",
+      "reportingUnit": "Waupun - C 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4952,
+      "geoid": "55035015500013",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Altoona",
+      "reportingUnit": "Altoona - C 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4953,
+      "geoid": "55035015500015",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Altoona",
+      "reportingUnit": "Altoona - C 0015",
+      "ward": "0015",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4954,
+      "geoid": "55035223000065",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0065",
+      "ward": "0065",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4955,
+      "geoid": "55035223000072",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0072",
+      "ward": "0072",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4956,
+      "geoid": "55035223000075",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0075",
+      "ward": "0075",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4957,
+      "geoid": "55035223000076",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Eau Claire",
+      "reportingUnit": "Eau Claire - C 0076",
+      "ward": "0076",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4958,
+      "geoid": "55035415250011",
+      "countyFips": "55035",
+      "county": "Eau Claire",
+      "municipality": "Lake Hallie",
+      "reportingUnit": "Lake Hallie - V 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4959,
+      "geoid": "55039681750012",
+      "countyFips": "55039",
+      "county": "Fond du Lac",
+      "municipality": "Ripon",
+      "reportingUnit": "Ripon - C 0012",
+      "ward": "0012",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4960,
+      "geoid": "55047313000004",
+      "countyFips": "55047",
+      "county": "Green Lake",
+      "municipality": "Green Lake",
+      "reportingUnit": "Green Lake - C 0004",
+      "ward": "0004",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4961,
+      "geoid": "55047313000005",
+      "countyFips": "55047",
+      "county": "Green Lake",
+      "municipality": "Green Lake",
+      "reportingUnit": "Green Lake - C 0005",
+      "ward": "0005",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4962,
+      "geoid": "55047313000006",
+      "countyFips": "55047",
+      "county": "Green Lake",
+      "municipality": "Green Lake",
+      "reportingUnit": "Green Lake - C 0006",
+      "ward": "0006",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4963,
+      "geoid": "55049531000007",
+      "countyFips": "55049",
+      "county": "Iowa",
+      "municipality": "Mineral Point",
+      "reportingUnit": "Mineral Point - C 0007",
+      "ward": "0007",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4964,
+      "geoid": "55055266750012",
+      "countyFips": "55055",
+      "county": "Jefferson",
+      "municipality": "Fort Atkinson",
+      "reportingUnit": "Fort Atkinson - C 0012",
+      "ward": "0012",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4965,
+      "geoid": "55055266750013",
+      "countyFips": "55055",
+      "county": "Jefferson",
+      "municipality": "Fort Atkinson",
+      "reportingUnit": "Fort Atkinson - C 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4966,
+      "geoid": "55055781750002",
+      "countyFips": "55055",
+      "county": "Jefferson",
+      "municipality": "Sullivan",
+      "reportingUnit": "Sullivan - V 0002",
+      "ward": "0002",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4967,
+      "geoid": "55057238000007",
+      "countyFips": "55057",
+      "county": "Juneau",
+      "municipality": "Elroy",
+      "reportingUnit": "Elroy - C 0007",
+      "ward": "0007",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4968,
+      "geoid": "55059392250063",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0063",
+      "ward": "0063",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4969,
+      "geoid": "55059392250064",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0064",
+      "ward": "0064",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4970,
+      "geoid": "55059392250065",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0065",
+      "ward": "0065",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4971,
+      "geoid": "55059392250075",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0075",
+      "ward": "0075",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4972,
+      "geoid": "55059392250077",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0077",
+      "ward": "0077",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4973,
+      "geoid": "55059392250081",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0081",
+      "ward": "0081",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4974,
+      "geoid": "55059392250084",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0084",
+      "ward": "0084",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4975,
+      "geoid": "55059392250095",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0095",
+      "ward": "0095",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4976,
+      "geoid": "55059392250096",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0096",
+      "ward": "0096",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4977,
+      "geoid": "55059392250097",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Kenosha",
+      "reportingUnit": "Kenosha - C 0097",
+      "ward": "0097",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4978,
+      "geoid": "55059746250013",
+      "countyFips": "55059",
+      "county": "Kenosha",
+      "municipality": "Somers",
+      "reportingUnit": "Somers - V 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4979,
+      "geoid": "55065064250002",
+      "countyFips": "55065",
+      "county": "Lafayette",
+      "municipality": "Belmont",
+      "reportingUnit": "Belmont - V 0002",
+      "ward": "0002",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4980,
+      "geoid": "55065738250003",
+      "countyFips": "55065",
+      "county": "Lafayette",
+      "municipality": "Shullsburg",
+      "reportingUnit": "Shullsburg - C 0003",
+      "ward": "0003",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4981,
+      "geoid": "55071485000021",
+      "countyFips": "55071",
+      "county": "Manitowoc",
+      "municipality": "Manitowoc",
+      "reportingUnit": "Manitowoc - C 0021",
+      "ward": "0021",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4982,
+      "geoid": "55071485000022",
+      "countyFips": "55071",
+      "county": "Manitowoc",
+      "municipality": "Manitowoc",
+      "reportingUnit": "Manitowoc - C 0022",
+      "ward": "0022",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4983,
+      "geoid": "55071485000023",
+      "countyFips": "55071",
+      "county": "Manitowoc",
+      "municipality": "Manitowoc",
+      "reportingUnit": "Manitowoc - C 0023",
+      "ward": "0023",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4984,
+      "geoid": "55073225500003",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Edgar",
+      "reportingUnit": "Edgar - V 0003",
+      "ward": "0003",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4985,
+      "geoid": "55073844750024",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Wausau",
+      "reportingUnit": "Wausau - C 0024",
+      "ward": "0024",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4986,
+      "geoid": "55073844750025",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Wausau",
+      "reportingUnit": "Wausau - C 0025",
+      "ward": "0025",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4987,
+      "geoid": "55073860250010",
+      "countyFips": "55073",
+      "county": "Marathon",
+      "municipality": "Weston",
+      "reportingUnit": "Weston - V 0010",
+      "ward": "0010",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4988,
+      "geoid": "55079530000354",
+      "countyFips": "55079",
+      "county": "Milwaukee",
+      "municipality": "Milwaukee",
+      "reportingUnit": "Milwaukee - C 0354",
+      "ward": "0354",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4989,
+      "geoid": "55081753250013",
+      "countyFips": "55081",
+      "county": "Monroe",
+      "municipality": "Sparta",
+      "reportingUnit": "Sparta - C 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4990,
+      "geoid": "55081753250014",
+      "countyFips": "55081",
+      "county": "Monroe",
+      "municipality": "Sparta",
+      "reportingUnit": "Sparta - C 0014",
+      "ward": "0014",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4991,
+      "geoid": "55081800750017",
+      "countyFips": "55081",
+      "county": "Monroe",
+      "municipality": "Tomah",
+      "reportingUnit": "Tomah - C 0017",
+      "ward": "0017",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4992,
+      "geoid": "55083594000007",
+      "countyFips": "55083",
+      "county": "Oconto",
+      "municipality": "Oconto Falls",
+      "reportingUnit": "Oconto Falls - C 0007",
+      "ward": "0007",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4993,
+      "geoid": "55083594000008",
+      "countyFips": "55083",
+      "county": "Oconto",
+      "municipality": "Oconto Falls",
+      "reportingUnit": "Oconto Falls - C 0008",
+      "ward": "0008",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4994,
+      "geoid": "55087023750058",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "Appleton",
+      "reportingUnit": "Appleton - C 0058",
+      "ward": "0058",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4995,
+      "geoid": "55087388000016",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "Kaukauna",
+      "reportingUnit": "Kaukauna - C 0016",
+      "ward": "0016",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4996,
+      "geoid": "55087449500011",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "Little Chute",
+      "reportingUnit": "Little Chute - V 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4997,
+      "geoid": "55087569250012",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "New London",
+      "reportingUnit": "New London - C 0012",
+      "ward": "0012",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4998,
+      "geoid": "55087727250007",
+      "countyFips": "55087",
+      "county": "Outagamie",
+      "municipality": "Seymour",
+      "reportingUnit": "Seymour - C 0007",
+      "ward": "0007",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 4999,
+      "geoid": "55089644500008",
+      "countyFips": "55089",
+      "county": "Ozaukee",
+      "municipality": "Port Washington",
+      "reportingUnit": "Port Washington - C 0008",
+      "ward": "0008",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 5000,
+      "geoid": "55103676250015",
+      "countyFips": "55103",
+      "county": "Richland",
+      "municipality": "Richland Center",
+      "reportingUnit": "Richland Center - C 0015",
+      "ward": "0015",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 5001,
+      "geoid": "55103676250016",
+      "countyFips": "55103",
+      "county": "Richland",
+      "municipality": "Richland Center",
+      "reportingUnit": "Richland Center - C 0016",
+      "ward": "0016",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7033,
+      "geoid": "55105065000025",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Beloit",
+      "reportingUnit": "Beloit - C 0025",
+      "ward": "0025",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7034,
+      "geoid": "55105065000026",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Beloit",
+      "reportingUnit": "Beloit - C 0026",
+      "ward": "0026",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7035,
+      "geoid": "55105065000029",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Beloit",
+      "reportingUnit": "Beloit - C 0029",
+      "ward": "0029",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7036,
+      "geoid": "55105065000031",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Beloit",
+      "reportingUnit": "Beloit - C 0031",
+      "ward": "0031",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7037,
+      "geoid": "55105065000032",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Beloit",
+      "reportingUnit": "Beloit - C 0032",
+      "ward": "0032",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7038,
+      "geoid": "55105225750008",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Edgerton",
+      "reportingUnit": "Edgerton - C 0008",
+      "ward": "0008",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7039,
+      "geoid": "55105245500011",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Evansville",
+      "reportingUnit": "Evansville - C 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7040,
+      "geoid": "55105264000002",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Footville",
+      "reportingUnit": "Footville - V 0002",
+      "ward": "0002",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7041,
+      "geoid": "55105378250007",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Janesville",
+      "reportingUnit": "Janesville - C 0007",
+      "ward": "0007",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7042,
+      "geoid": "55105378250013",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Janesville",
+      "reportingUnit": "Janesville - C 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7043,
+      "geoid": "55105378250038",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Janesville",
+      "reportingUnit": "Janesville - C 0038",
+      "ward": "0038",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7044,
+      "geoid": "55105522000012",
+      "countyFips": "55105",
+      "county": "Rock",
+      "municipality": "Milton",
+      "reportingUnit": "Milton - C 0012",
+      "ward": "0012",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7045,
+      "geoid": "55111046250016",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Baraboo",
+      "reportingUnit": "Baraboo - C 0016",
+      "ward": "0016",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7046,
+      "geoid": "55111046250017",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Baraboo",
+      "reportingUnit": "Baraboo - C 0017",
+      "ward": "0017",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7047,
+      "geoid": "55111046250018",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Baraboo",
+      "reportingUnit": "Baraboo - C 0018",
+      "ward": "0018",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7048,
+      "geoid": "55111413000006",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Lake Delton",
+      "reportingUnit": "Lake Delton - V 0006",
+      "ward": "0006",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7049,
+      "geoid": "55111668000017",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Reedsburg",
+      "reportingUnit": "Reedsburg - C 0017",
+      "ward": "0017",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7050,
+      "geoid": "55111716500006",
+      "countyFips": "55111",
+      "county": "Sauk",
+      "municipality": "Sauk City",
+      "reportingUnit": "Sauk City - V 0006",
+      "ward": "0006",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7051,
+      "geoid": "55117353750004",
+      "countyFips": "55117",
+      "county": "Sheboygan",
+      "municipality": "HOLLAND",
+      "reportingUnit": "HOLLAND - T 0004",
+      "ward": "0004",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7052,
+      "geoid": "55127194500010",
+      "countyFips": "55127",
+      "county": "Walworth",
+      "municipality": "Delavan",
+      "reportingUnit": "Delavan - C 0010",
+      "ward": "0010",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7053,
+      "geoid": "55127414500011",
+      "countyFips": "55127",
+      "county": "Walworth",
+      "municipality": "Lake Geneva",
+      "reportingUnit": "Lake Geneva - C 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7054,
+      "geoid": "55131330000012",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0012",
+      "ward": "0012",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7055,
+      "geoid": "55131330000014",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0014",
+      "ward": "0014",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7056,
+      "geoid": "55131330000016",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0016",
+      "ward": "0016",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7057,
+      "geoid": "55131330000017",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0017",
+      "ward": "0017",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7058,
+      "geoid": "55131330000018",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0018",
+      "ward": "0018",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7059,
+      "geoid": "55131330000019",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0019",
+      "ward": "0019",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7060,
+      "geoid": "55131330000020",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Hartford",
+      "reportingUnit": "Hartford - C 0020",
+      "ward": "0020",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7061,
+      "geoid": "55131376750012",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Jackson",
+      "reportingUnit": "Jackson - V 0012",
+      "ward": "0012",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7062,
+      "geoid": "55131376750013",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Jackson",
+      "reportingUnit": "Jackson - V 0013",
+      "ward": "0013",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7063,
+      "geoid": "55131376750015",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Jackson",
+      "reportingUnit": "Jackson - V 0015",
+      "ward": "0015",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7064,
+      "geoid": "55131376750016",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Jackson",
+      "reportingUnit": "Jackson - V 0016",
+      "ward": "0016",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7065,
+      "geoid": "55131376750019",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Jackson",
+      "reportingUnit": "Jackson - V 0019",
+      "ward": "0019",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7066,
+      "geoid": "55131376750020",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Jackson",
+      "reportingUnit": "Jackson - V 0020",
+      "ward": "0020",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7067,
+      "geoid": "55131744000010",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Slinger",
+      "reportingUnit": "Slinger - V 0010",
+      "ward": "0010",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7068,
+      "geoid": "55131744000011",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "Slinger",
+      "reportingUnit": "Slinger - V 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7069,
+      "geoid": "55131853500022",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "West Bend",
+      "reportingUnit": "West Bend - C 0022",
+      "ward": "0022",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7070,
+      "geoid": "55131853500027",
+      "countyFips": "55131",
+      "county": "Washington",
+      "municipality": "West Bend",
+      "reportingUnit": "West Bend - C 0027",
+      "ward": "0027",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7071,
+      "geoid": "55133205500007",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Dousman",
+      "reportingUnit": "Dousman - V 0007",
+      "ward": "0007",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7072,
+      "geoid": "55133787500010",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Sussex",
+      "reportingUnit": "Sussex - V 0010",
+      "ward": "0010",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7073,
+      "geoid": "55133787500011",
+      "countyFips": "55133",
+      "county": "Waukesha",
+      "municipality": "Sussex",
+      "reportingUnit": "Sussex - V 0011",
+      "ward": "0011",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7074,
+      "geoid": "55135157250009",
+      "countyFips": "55135",
+      "county": "Waupaca",
+      "municipality": "Clintonville",
+      "reportingUnit": "Clintonville - C 0009",
+      "ward": "0009",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7075,
+      "geoid": "55135278000002",
+      "countyFips": "55135",
+      "county": "Waupaca",
+      "municipality": "Fremont",
+      "reportingUnit": "Fremont - V 0002",
+      "ward": "0002",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7076,
+      "geoid": "55137846250004",
+      "countyFips": "55137",
+      "county": "Waushara",
+      "municipality": "Wautoma",
+      "reportingUnit": "Wautoma - C 0004",
+      "ward": "0004",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7077,
+      "geoid": "55139269820018",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Fox Crossing",
+      "reportingUnit": "Fox Crossing - V 0018",
+      "ward": "0018",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7078,
+      "geoid": "55139269820019",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Fox Crossing",
+      "reportingUnit": "Fox Crossing - V 0019",
+      "ward": "0019",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7079,
+      "geoid": "55139508250018",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Menasha",
+      "reportingUnit": "Menasha - C 0018",
+      "ward": "0018",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7080,
+      "geoid": "55139557500022",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Neenah",
+      "reportingUnit": "Neenah - C 0022",
+      "ward": "0022",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7081,
+      "geoid": "55139557500023",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Neenah",
+      "reportingUnit": "Neenah - C 0023",
+      "ward": "0023",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7082,
+      "geoid": "55139557500024",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Neenah",
+      "reportingUnit": "Neenah - C 0024",
+      "ward": "0024",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7083,
+      "geoid": "55139557500025",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Neenah",
+      "reportingUnit": "Neenah - C 0025",
+      "ward": "0025",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7084,
+      "geoid": "55139557500027",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Neenah",
+      "reportingUnit": "Neenah - C 0027",
+      "ward": "0027",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7085,
+      "geoid": "55139605000004",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Oshkosh",
+      "reportingUnit": "Oshkosh - C 0004",
+      "ward": "0004",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    },
+    {
+      "sourceRow": 7086,
+      "geoid": "55139605000006",
+      "countyFips": "55139",
+      "county": "Winnebago",
+      "municipality": "Oshkosh",
+      "reportingUnit": "Oshkosh - C 0006",
+      "ward": "0006",
+      "reason": "LTSB 2024 feature has no presidential values. Preserve as missing and exclude from graph-ready rows."
+    }
+  ]
+}

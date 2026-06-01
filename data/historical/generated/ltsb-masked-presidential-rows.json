@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "generatedAt": "2026-06-01T02:11:25.666274+00:00",
+    "generatedAt": "2026-06-01T20:46:37.460276+00:00",
     "sourceId": "ltsb-2012-2020-harmonized-wards",
     "rows": 70,
     "reason": "Masked LTSB presidential values are preserved as missing and excluded from graph-ready rows."

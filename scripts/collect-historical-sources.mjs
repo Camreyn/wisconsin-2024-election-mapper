@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
+import zlib from "node:zlib";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -104,6 +105,35 @@ const downloads = [
     methodologyNote:
       "Third-party supplemental mirror containing registration, voter, and ballot fields. Preserve for evaluation only. Do not treat as verified official bytes or import into app analysis unless WEC supplies the original or an official hash match is established.",
   },
+  {
+    id: "ltsb-election-data-schema-definitions",
+    electionYears: [2012, 2016, 2020, 2024],
+    sourceClass: "officialMethodology",
+    publisher: "Wisconsin Legislative Technology Services Bureau",
+    title: "Election Data Attribute Field Definitions",
+    sourceUrl:
+      "https://legis.wisconsin.gov/ltsb/gisdocs/ElectionData/SchemaDefinitions.pdf",
+    localFile: "raw/ltsb-election-data-schema-definitions.pdf",
+    methodologyNote:
+      "Official LTSB field definitions linked from the 2024 ArcGIS feature-service metadata.",
+  },
+];
+
+const arcgisFeatureLayers = [
+  {
+    id: "ltsb-2024-harmonized-wards",
+    electionYears: [2024],
+    sourceClass: "harmonizedLtsb",
+    publisher: "Wisconsin Legislative Technology Services Bureau",
+    title: "2024 Election Data with 2025 Wards",
+    sourceUrl:
+      "https://services1.arcgis.com/FDsAtKBk8Hy4cAH0/arcgis/rest/services/2024_Election_Data_with_2025_Wards/FeatureServer/0",
+    catalogUrl:
+      "https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e",
+    localFile: "raw/2024-ltsb-harmonized-wards.geojson.gz",
+    methodologyNote:
+      "Official LTSB harmonized comparison layer. LTSB documents that 2024 WEC reporting-unit data was disaggregated to wards and census blocks using population-based allocation, then aggregated to January 2025 wards. Preserve separately from native WEC rows.",
+  },
 ];
 
 const localSources = [
@@ -168,6 +198,9 @@ function validateDownloadedBytes(source, bytes) {
   if ((extension === ".xlsx" || extension === ".zip") && !bytes.subarray(0, 2).equals(Buffer.from("PK"))) {
     throw new Error(`${source.id}: expected ZIP-based ${extension} bytes`);
   }
+  if (extension === ".pdf" && !bytes.subarray(0, 4).equals(Buffer.from("%PDF"))) {
+    throw new Error(`${source.id}: expected PDF bytes`);
+  }
 }
 
 async function download(source) {
@@ -202,6 +235,59 @@ async function copyLocalSource(source) {
   };
 }
 
+async function collectArcgisFeatureLayer(source) {
+  const destination = path.join(historicalDir, source.localFile);
+  const countUrl = new URL(`${source.sourceUrl}/query`);
+  countUrl.search = new URLSearchParams({
+    where: "1=1",
+    returnCountOnly: "true",
+    f: "json",
+  });
+  const countResponse = await fetch(countUrl, { redirect: "follow" });
+  if (!countResponse.ok) {
+    throw new Error(`${source.id}: count query HTTP ${countResponse.status} ${countResponse.statusText}`);
+  }
+  const { count } = await countResponse.json();
+  const pageSize = 2000;
+  const features = [];
+  for (let offset = 0; offset < count; offset += pageSize) {
+    console.log(`  ${source.id}: collecting features ${offset + 1}-${Math.min(offset + pageSize, count)}...`);
+    const pageUrl = new URL(`${source.sourceUrl}/query`);
+    pageUrl.search = new URLSearchParams({
+      where: "1=1",
+      outFields: "*",
+      returnGeometry: "true",
+      outSR: "4326",
+      orderByFields: "OBJECTID",
+      resultOffset: String(offset),
+      resultRecordCount: String(pageSize),
+      f: "geojson",
+    });
+    const pageResponse = await fetch(pageUrl, { redirect: "follow" });
+    if (!pageResponse.ok) {
+      throw new Error(`${source.id}: page query HTTP ${pageResponse.status} ${pageResponse.statusText}`);
+    }
+    const page = await pageResponse.json();
+    features.push(...page.features);
+  }
+  if (features.length !== count) {
+    throw new Error(`${source.id}: expected ${count} features, received ${features.length}`);
+  }
+  const uncompressedBytes = Buffer.from(`${JSON.stringify({ type: "FeatureCollection", features })}\n`);
+  const bytes = zlib.gzipSync(uncompressedBytes, { level: 9, mtime: 0 });
+  await fs.writeFile(destination, bytes);
+  return {
+    ...source,
+    retrievedAt: collectedAt,
+    retrievalStatus: "collected",
+    contentType: "application/gzip",
+    featureCount: features.length,
+    uncompressedBytes: uncompressedBytes.length,
+    bytes: bytes.length,
+    sha256: crypto.createHash("sha256").update(bytes).digest("hex"),
+  };
+}
+
 async function main() {
   await ensureDirectory();
   const entries = [];
@@ -221,6 +307,10 @@ async function main() {
         retrievalError: error.message,
       });
     }
+  }
+  for (const source of arcgisFeatureLayers) {
+    console.log(`Collecting ${source.id}...`);
+    entries.push(await collectArcgisFeatureLayer(source));
   }
   for (const source of localSources) {
     console.log(`Freezing ${source.id}...`);

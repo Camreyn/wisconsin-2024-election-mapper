@@ -1,6 +1,6 @@
 # Historical Presidential Baseline Collection Status
 
-Collected on `2026-05-31` Central Time. The machine-readable source inventory is
+Collected on `2026-06-01` Central Time. The machine-readable source inventory is
 in `source-manifest.json`.
 
 ## Ready For Import
@@ -38,6 +38,39 @@ Inspection result:
 - These rows must be labeled as LTSB harmonized comparison data. They are not
   interchangeable with exact native reporting-unit rows because LTSB documents
   population-based allocation for some source totals.
+
+### LTSB Harmonized 2024 Comparison Layer
+
+Collected:
+
+```text
+raw/2024-ltsb-harmonized-wards.geojson.gz
+```
+
+Official ArcGIS item:
+
+<https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e>
+
+SHA-256:
+
+```text
+8d19ea37a4f432c8f2e30fc2f2379d8844b5da85a75d79c8e07410cc8d42eec2
+```
+
+Inspection result:
+
+- The official LTSB feature service contains `7,086` January `2025` ward
+  features with harmonized `2024` election fields.
+- `6,946` features contain presidential values and are graph-ready. The other
+  `140` features contain no presidential values; they are preserved separately
+  and excluded from graphs rather than treated as zero-vote wards.
+- The presidential fields are `PRETOT24`, `PREDEM24`, and `PREREP24`.
+- Statewide and all `72` county presidential totals match the native WEC
+  `2024` totals already used by the app.
+- Ward values remain comparison rows, not exact native reporting-unit values.
+  LTSB documents that reporting-unit totals were disaggregated to wards and
+  census blocks using population-based allocation before aggregation to the
+  January `2025` ward layer.
 
 ### 2016 Native WEC Presidential Workbook
 
@@ -109,6 +142,7 @@ Generated artifacts:
 | `generated/historical-presidential-summary.json` | Graph-ready rows plus statewide, county, and municipality aggregates. Native official and harmonized LTSB series remain separate. |
 | `generated/historical-reconciliation-report.json` | Machine-readable reconciliation checks and documented caveats. |
 | `generated/ltsb-masked-presidential-rows.json` | The `70` LTSB harmonized geography rows whose presidential values are masked as `****`. They are preserved as missing and excluded from graph-ready rows. |
+| `generated/ltsb-2024-missing-presidential-rows.json` | The `140` January `2025` LTSB ward features with no `2024` presidential values. They are preserved as missing and excluded from graph-ready rows. |
 
 Browser-ready app bundle:
 
@@ -125,10 +159,11 @@ Validation result:
 
 ```text
 status: passed
-normalized candidate rows: 95,397
-analysis series: 6
-reconciliation checks: 7
+normalized candidate rows: 116,235
+analysis series: 7
+reconciliation checks: 10
 masked LTSB rows preserved: 70
+missing-value LTSB 2024 rows preserved: 140
 ```
 
 Statewide presidential totals reconcile for:
@@ -139,6 +174,7 @@ Statewide presidential totals reconcile for:
 | `2016` LTSB harmonized | 1,382,536 | 1,405,284 | 188,330 | 2,976,150 |
 | `2016` WEC native recount | 1,382,536 | 1,405,284 | 188,330 | 2,976,150 |
 | `2020` LTSB harmonized | 1,630,866 | 1,610,184 | 56,991 | 3,298,041 |
+| `2024` LTSB harmonized | 1,668,229 | 1,697,626 | 57,063 | 3,422,918 |
 | `2024` WEC native | 1,668,229 | 1,697,626 | 57,063 | 3,422,918 |
 
 The native WEC `2016` recount workbook and the LTSB harmonized `2016` layer
@@ -147,6 +183,10 @@ layer shifts `7` votes from Buffalo County to Trempealeau County relative to
 the native workbook (`3` Democratic and `4` Republican votes). The importer
 expects and reports this difference, and it fails if the observed difference
 changes.
+
+The official LTSB `2024` harmonized layer and native WEC `2024` rows also match
+statewide and in all `72` counties. Their ward-level rows remain separate
+because LTSB documents population-based disaggregation.
 
 ## Official Landing Pages Preserved
 

@@ -21,6 +21,7 @@ EXPECTED_SERIES = {
     "ltsb-harmonized-2012-president": (7_008, 72),
     "ltsb-harmonized-2016-president": (7_008, 72),
     "ltsb-harmonized-2020-president": (7_008, 72),
+    "ltsb-harmonized-2024-president": (6_946, 72),
     "wec-native-2016-president-original": (3_636, 72),
     "wec-native-2016-president-recount": (3_636, 72),
     "wec-native-2024-president": (3_503, 72),
@@ -67,6 +68,7 @@ def main() -> int:
     summary = read_json(GENERATED / "historical-presidential-summary.json")
     reconciliation = read_json(GENERATED / "historical-reconciliation-report.json")
     masked = read_json(GENERATED / "ltsb-masked-presidential-rows.json")
+    ltsb_2024_missing = read_json(GENERATED / "ltsb-2024-missing-presidential-rows.json")
 
     for source in manifest["entries"]:
         if source.get("retrievalStatus") != "collected":
@@ -85,6 +87,8 @@ def main() -> int:
 
     if masked["metadata"].get("rows") != 70 or len(masked.get("rows", [])) != 70:
         errors.append("expected exactly 70 preserved LTSB masked rows")
+    if ltsb_2024_missing["metadata"].get("rows") != 140 or len(ltsb_2024_missing.get("rows", [])) != 140:
+        errors.append("expected exactly 140 preserved LTSB 2024 missing rows")
 
     series_by_id = {series["id"]: series for series in summary["series"]}
     if set(series_by_id) != set(EXPECTED_SERIES):
@@ -156,8 +160,8 @@ def main() -> int:
                 errors.append(f"normalized CSV line {line_number}: duplicate normalized key")
             seen.add(key)
 
-    if csv_rows != summary["metadata"].get("normalizedCandidateRows") or csv_rows != 95_397:
-        errors.append(f"expected 95397 normalized candidate rows, got {csv_rows}")
+    if csv_rows != summary["metadata"].get("normalizedCandidateRows") or csv_rows != 116_235:
+        errors.append(f"expected 116235 normalized candidate rows, got {csv_rows}")
 
     if errors:
         print("Historical validation failed:")
@@ -175,6 +179,7 @@ def main() -> int:
                 "series": len(series_by_id),
                 "normalizedCandidateRows": csv_rows,
                 "maskedLtsbRows": len(masked["rows"]),
+                "missingLtsb2024Rows": len(ltsb_2024_missing["rows"]),
                 "reconciliationChecks": len(reconciliation["checks"]),
             },
             indent=2,

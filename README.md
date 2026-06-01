@@ -65,11 +65,12 @@ The Historical Baseline tab compares presidential results for `2012`, `2016`,
 `2020`, and `2024`. It is designed to answer a basic interpretation question:
 was a visible shape already present in earlier presidential elections?
 
-The older comparison rows come from the Wisconsin Legislative Technology
-Services Bureau's harmonized ward layer. Some source totals were redistributed
+The multi-year comparison rows come from Wisconsin Legislative Technology
+Services Bureau harmonized ward layers. Some source totals were redistributed
 onto common ward geography using population-based methods. The app labels those
 rows as `LTSB harmonized` and keeps them separate from exact native WEC
-reporting-unit rows. The `2024` series uses native official WEC rows.
+reporting-unit rows. Native official WEC `2024` rows remain available as a
+separate selectable series.
 
 The preserved source inventory, normalized CSV, reconciliation report, and
 masked-row list are under `data/historical/`. The generated browser bundle is
@@ -160,9 +161,10 @@ Every source currently used by the app:
   Powers ETA-style ward scatterplots, down-ballot histograms, and selected-county
   graph filtering.
 - Historical presidential baseline: LTSB `2012-2020 Election Data (with 2020
-  Wards)` plus the archived native WEC `2016` original-and-recount workbook and
-  the existing native WEC `2024` workbook. Used for visibly labeled historical
-  presidential comparisons.
+  Wards)`, the official LTSB `2024 Election Data with 2025 Wards` layer, the
+  archived native WEC `2016` original-and-recount workbook, and the existing
+  native WEC `2024` workbook. Used for visibly labeled historical presidential
+  comparisons.
 - Historical supplemental evaluation source: a recovered third-party mirror of
   `WISelectionDAYregistrantsCOLUMNiNOV3rd2020.xlsx`. Preserved under
   `data/historical/raw/` for provenance review only; not imported into app
@@ -197,6 +199,8 @@ Links:
   <https://electiontruthalliance.org/our-methodology/>
 - LTSB historical election-data catalog record:
   <https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15>
+- Official LTSB `2024 Election Data with 2025 Wards` layer:
+  <https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e>
 - Third-party page preserving the supplemental `2020` registration workbook:
   <https://digitalpollwatchers.org/new-wi-2020-election-fingerprints-rev-2-0/>
 - City of Milwaukee ward-by-ward 2024 General Election report:

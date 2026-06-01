@@ -182,7 +182,7 @@ checks.darkModeStored = storage.get("wi-election-theme") === "dark";
 const expected = {
   historyTabVisible: true,
   countyOptions: 73,
-  seriesOptions: 6,
+  seriesOptions: 7,
   historicalTableRows: 4,
   trendGraphSvg: true,
   scatterGraphSvg: true,

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-01T18:34:21.434Z",
+  "generatedAt": "2026-06-01T20:44:02.039Z",
   "purpose": "Historical presidential-election baseline source inventory",
   "entries": [
     {
@@ -16,7 +16,7 @@
       "catalogUrl": "https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15",
       "localFile": "raw/WI_20122020_Election_Data_Wards_2020.zip",
       "methodologyNote": "Harmonized comparison data. LTSB documents that some election totals were disaggregated from reporting units to wards and census blocks using population-based allocation.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "collected",
       "contentType": "application/zip",
       "bytes": 23442296,
@@ -34,7 +34,7 @@
       "landingPageUrl": "https://web.archive.org/web/20161223044005id_/http://elections.wi.gov/elections-voting/results/2016/fall-general",
       "localFile": "raw/2016-wec-native-president-original-and-recount.xlsx",
       "methodologyNote": "Native official WEC ward-level presidential workbook containing original and recount results.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "collected",
       "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "bytes": 739628,
@@ -51,7 +51,7 @@
       "sourceUrl": "https://web.archive.org/web/20121208020848id_/http://gab.wi.gov:80/elections-voting/results/2012/fall-general",
       "localFile": "raw/2012-gab-official-results-page.html",
       "methodologyNote": "Official archived landing page. It lists native ward-level presidential spreadsheets whose tested attachment bytes were not retrievable.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "collected",
       "contentType": "text/html; charset=utf-8",
       "bytes": 28491,
@@ -68,7 +68,7 @@
       "sourceUrl": "https://web.archive.org/web/20161223044005id_/http://elections.wi.gov/elections-voting/results/2016/fall-general",
       "localFile": "raw/2016-wec-official-results-page.html",
       "methodologyNote": "Official archived landing page for the native 2016 WEC workbook.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "collected",
       "contentType": "text/html; charset=utf-8",
       "bytes": 32834,
@@ -85,7 +85,7 @@
       "sourceUrl": "https://web.archive.org/web/20201214172750id_/https://elections.wi.gov/elections-voting/results/2020/fall-general",
       "localFile": "raw/2020-wec-official-results-page.html",
       "methodologyNote": "Official archived landing page. It lists native presidential spreadsheets whose tested attachment bytes were not retrievable.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "collected",
       "contentType": "text/html; charset=UTF-8",
       "bytes": 49554,
@@ -105,7 +105,7 @@
       "localFile": "raw/2020-president-under-recount-third-party-mirror.xlsx",
       "optional": true,
       "methodologyNote": "Third-party page links to a workbook named on the official WEC 2020 landing page. Preserve only if the linked URL returns workbook bytes. Do not treat as verified official bytes unless WEC supplies the original or an official hash match is established.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "missing",
       "retrievalError": "mirror-2020-native-president-under-recount: HTTP 404 Not Found"
     },
@@ -122,11 +122,51 @@
       "localFile": "raw/2020-election-day-registrants-third-party-mirror.xlsx",
       "optional": true,
       "methodologyNote": "Third-party supplemental mirror containing registration, voter, and ballot fields. Preserve for evaluation only. Do not treat as verified official bytes or import into app analysis unless WEC supplies the original or an official hash match is established.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "collected",
       "contentType": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "bytes": 856848,
       "sha256": "45a14d5f1354a644d373af635cacdb77b636b13f86f8a4311952930ebc2e850e"
+    },
+    {
+      "id": "ltsb-election-data-schema-definitions",
+      "electionYears": [
+        2012,
+        2016,
+        2020,
+        2024
+      ],
+      "sourceClass": "officialMethodology",
+      "publisher": "Wisconsin Legislative Technology Services Bureau",
+      "title": "Election Data Attribute Field Definitions",
+      "sourceUrl": "https://legis.wisconsin.gov/ltsb/gisdocs/ElectionData/SchemaDefinitions.pdf",
+      "localFile": "raw/ltsb-election-data-schema-definitions.pdf",
+      "methodologyNote": "Official LTSB field definitions linked from the 2024 ArcGIS feature-service metadata.",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
+      "retrievalStatus": "collected",
+      "contentType": "application/pdf",
+      "bytes": 522489,
+      "sha256": "43f89065df8a40cd82ac064645becabdbab5fe34692169c33ac033b013926e25"
+    },
+    {
+      "id": "ltsb-2024-harmonized-wards",
+      "electionYears": [
+        2024
+      ],
+      "sourceClass": "harmonizedLtsb",
+      "publisher": "Wisconsin Legislative Technology Services Bureau",
+      "title": "2024 Election Data with 2025 Wards",
+      "sourceUrl": "https://services1.arcgis.com/FDsAtKBk8Hy4cAH0/arcgis/rest/services/2024_Election_Data_with_2025_Wards/FeatureServer/0",
+      "catalogUrl": "https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e",
+      "localFile": "raw/2024-ltsb-harmonized-wards.geojson.gz",
+      "methodologyNote": "Official LTSB harmonized comparison layer. LTSB documents that 2024 WEC reporting-unit data was disaggregated to wards and census blocks using population-based allocation, then aggregated to January 2025 wards. Preserve separately from native WEC rows.",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
+      "retrievalStatus": "collected",
+      "contentType": "application/gzip",
+      "featureCount": 7086,
+      "uncompressedBytes": 102654227,
+      "bytes": 31844533,
+      "sha256": "8d19ea37a4f432c8f2e30fc2f2379d8844b5da85a75d79c8e07410cc8d42eec2"
     },
     {
       "id": "wec-2024-native-federal-state-ward-report",
@@ -140,7 +180,7 @@
       "sourceFile": "data/Ward by Ward Report Federal and State Contests.xlsx",
       "localFile": "raw/2024-wec-native-ward-federal-state-contests.xlsx",
       "methodologyNote": "Native official WEC ward/reporting-unit workbook already used by the app. Copied here to freeze the historical reference.",
-      "retrievedAt": "2026-06-01T18:34:21.434Z",
+      "retrievedAt": "2026-06-01T20:44:02.039Z",
       "retrievalStatus": "collected",
       "bytes": 1411774,
       "sha256": "d23ebca4e718274c3890bfc4db9454573ecb6e2048a58b18b70a57d4c6094c67"
