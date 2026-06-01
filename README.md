@@ -89,11 +89,10 @@ reviewed but lacked turnout denominator fields. The county table can show a
 `!` review flag when county-level screening thresholds are crossed; this means
 "review further," not proof of tampering.
 
-## ETA-Style Test Panel
+## Statistical Screening Test Panel
 
-The app includes a status panel based on the Election Truth Alliance's published
-methodology categories: down-ballot difference, vote-share-by-vote-count, and
-turnout analysis.
+The app includes a status panel for down-ballot difference,
+vote-share-by-vote-count, and turnout analysis.
 
 The down-ballot and vote-share checks are run from the WEC ward-level federal
 and state contest spreadsheet using the President and U.S. Senate reports. The
@@ -118,7 +117,7 @@ above 100%. The app requires any imported turnout row to track the timing of the
 registration denominator and displays a warning whenever pre-Election-Day
 registration counts are used.
 
-The app also renders ETA-style graph types:
+The app also renders statistical screening graph types:
 
 - Vote-share-by-vote-count scatterplot with ward-level Trump/Harris points and
   trend lines.
@@ -128,7 +127,7 @@ The app also renders ETA-style graph types:
   denominator data is imported; imported county-level totals are labeled as
   county-level source rows.
 
-Selecting a county from the map or table filters the ETA-style graphs to that
+Selecting a county from the map or table filters the statistical screening graphs to that
 county's ward rows; no selection shows the statewide ward dataset.
 
 See `docs/methodology.md` for interpretation notes and limitations.
@@ -159,7 +158,8 @@ Every source currently used by the app:
   Used as county-level verification context for the down-ballot comparison.
 - Ward federal/state results: WEC `data/Ward by Ward Report Federal and State
   Contests.xlsx`, converted into `data/eta-data.js`.
-  Powers ETA-style ward scatterplots, down-ballot histograms, and selected-county
+  Powers vote-share by vote-count scatterplots, presidential-versus-Senate
+  drop-off histograms, and selected-county
   graph filtering.
 - Historical presidential baseline: LTSB `2012-2020 Election Data (with 2020
   Wards)`, the official LTSB `2024 Election Data with 2025 Wards` layer, the
@@ -172,7 +172,7 @@ Every source currently used by the app:
   analysis unless an official copy or official hash match is established.
 - County boundaries: U.S. Census TIGERweb State/County layer.
   Powers the county polygon map.
-- ETA methodology: Election Truth Alliance methodology page.
+- Methodology reference: Election Truth Alliance methodology page.
   Used for analysis categories and graph-type choices.
 - Wisconsin result-reporting context: Wisconsin MyVote election results note.
   Used to explain county-posted election-night results and certified WEC source

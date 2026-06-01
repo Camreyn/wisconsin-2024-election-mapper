@@ -77,7 +77,7 @@ const SOURCE_INVENTORY = [
     file: "data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js",
     sourceUrl:
       "https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx",
-    usedFor: "ETA-style ward scatterplots, down-ballot histograms, selected-county graph filtering.",
+    usedFor: "Vote-share by vote-count scatterplots, presidential-versus-Senate drop-off histograms, selected-county graph filtering.",
     confidence: "Official WEC ward-level vote totals; graph interpretation remains a screening tool.",
   },
   {
@@ -682,7 +682,7 @@ function reviewSummaryForRows(label, rows, mode = "all") {
       type: "Vote-share pattern",
       summary: `vote-share correlation crossed threshold: Trump r=${trumpCorrelation.toFixed(3)}, Harris r=${harrisCorrelation.toFixed(3)}`,
       plain:
-        "Bigger ward vote totals move with candidate vote share strongly enough to pass the review threshold. This is the ETA-style scatterplot question: do larger reporting units lean differently than smaller ones?",
+        "Bigger ward vote totals move with candidate vote share strongly enough to pass the review threshold. This is the vote-share by vote-count scatterplot question: do larger reporting units lean differently than smaller ones?",
     });
   }
   if (
@@ -1170,7 +1170,7 @@ function renderEtaTests() {
         <article class="eta-test">
           <span class="eta-badge ${test.statusClass}">${test.status}</span>
           <div>
-            <strong>${test.name}</strong>
+            <strong>${technicalTerm(test.name, test.definition)}</strong>
             <p>${test.detail}</p>
             ${test.warning ? `<p class="eta-warning">${test.warning}</p>` : ""}
           </div>
@@ -1197,18 +1197,21 @@ function etaTestResults() {
   return [
     {
       name: "Down-ballot difference",
+      definition: "Compares presidential votes with same-party U.S. Senate votes in each ward row. A larger gap can be reviewed, but normal split-ticket voting can also create differences.",
       status: downBallotFlagged ? "Flag" : "Pass",
       statusClass: downBallotFlagged ? "flag" : "pass",
       detail: `Ward-level President vs U.S. Senate check run on ${formatNumber(ETA_ANALYSIS.wardRows)} matched WEC ward rows. DEM presidential-vs-Senate drop-off: ${formatSigned(ETA_ANALYSIS.downBallot.demDropVotes)} votes (${ETA_ANALYSIS.downBallot.demDropPct.toFixed(2)}%). REP presidential-vs-Senate drop-off: ${formatSigned(ETA_ANALYSIS.downBallot.repDropVotes)} votes (${ETA_ANALYSIS.downBallot.repDropPct.toFixed(2)}%). Outlier wards over ${ETA_ANALYSIS.downBallot.outlierThresholdPct}% drop-off with at least ${ETA_ANALYSIS.downBallot.minCandidateVotes} presidential votes: DEM ${ETA_ANALYSIS.downBallot.demOutlierWards}, REP ${ETA_ANALYSIS.downBallot.repOutlierWards}.`,
     },
     {
       name: "Vote share by vote count",
+      definition: "Checks whether a candidate's vote share changes as ward or reporting-unit vote totals get larger. The correlation value describes the strength and direction of that relationship.",
       status: voteShareFlagged ? "Flag" : "Pass",
       statusClass: voteShareFlagged ? "flag" : "pass",
       detail: `Ward-level check run on ${formatNumber(ETA_ANALYSIS.wardRows)} WEC ward rows. Trump r=${ETA_ANALYSIS.voteShare.trumpCorrelation.toFixed(3)}, Harris r=${ETA_ANALYSIS.voteShare.harrisCorrelation.toFixed(3)} between candidate vote count and candidate vote share; app review threshold is |r| >= ${COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold.toFixed(2)}.`,
     },
     {
       name: "Turnout analysis",
+      definition: "Compares ballots cast with a registered-voter or eligible-voter denominator. Turnout results remain partial when those denominators are missing or provisional.",
       status: turnoutRows ? "Partial" : TURNOUT_SOURCE_POLICY.status,
       statusClass: turnoutRows ? "partial" : "needs-data",
       detail: turnoutRows
@@ -1220,6 +1223,7 @@ function etaTestResults() {
     },
     {
       name: "Official-result completeness",
+      definition: "Checks whether the expected counties are present and whether the app's summed totals reconcile with the official Wisconsin Elections Commission report.",
       status: "Pass",
       statusClass: "pass",
       detail:
@@ -2056,6 +2060,10 @@ function svgTextLines(text, { x, y, maxChars, className, lineHeight }) {
 function axisLabel({ x, y, transform, anchor, label, help }) {
   const position = transform ? `transform="${escapeAttr(transform)}"` : `x="${x}" y="${y}"`;
   return `<text class="graph-label axis-help-label" ${position} text-anchor="${anchor}"><title>${escapeText(help)}</title>${escapeText(label)}</text>`;
+}
+
+function technicalTerm(label, definition) {
+  return `<span class="technical-term" tabindex="0" data-definition="${escapeAttr(definition)}">${escapeText(label)}</span>`;
 }
 
 function regressionLine(points, xScale, yScale, xMax, color) {

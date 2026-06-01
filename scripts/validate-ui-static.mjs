@@ -5,6 +5,12 @@ import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const indexHtml = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const publicCopy = [
+  indexHtml,
+  fs.readFileSync(path.join(root, "app.js"), "utf8"),
+  fs.readFileSync(path.join(root, "README.md"), "utf8"),
+  fs.readFileSync(path.join(root, "package.json"), "utf8"),
+].join("\n");
 
 class MockClassList {
   constructor(initial = []) {
@@ -174,6 +180,8 @@ const checks = {
   sidebarHistoricalAction: indexHtml.includes('data-open-tab="history">Compare years</button>'),
   plainLanguageGlossary: indexHtml.includes("What the technical terms mean"),
   harmonizedDefinition: indexHtml.includes("Adjusted onto one common map so different election years can be compared."),
+  technicalTermTooltips: indexHtml.includes('class="technical-term"') && indexHtml.includes('data-definition='),
+  noEtaStyleLabels: !publicCopy.toLowerCase().includes("eta-style"),
   historyTabVisible: tabPanels.find((panel) => panel.id === "historyPanel").hidden === false,
   countyOptions: element("#historicalCountySelect").options.length,
   seriesOptions: element("#historicalSeriesSelect").options.length,
@@ -194,6 +202,8 @@ const expected = {
   sidebarHistoricalAction: true,
   plainLanguageGlossary: true,
   harmonizedDefinition: true,
+  technicalTermTooltips: true,
+  noEtaStyleLabels: true,
   historyTabVisible: true,
   countyOptions: 73,
   seriesOptions: 7,

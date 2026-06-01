@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260601-history-distributions" />
+    <link rel="stylesheet" href="./styles.css?v=20260601-technical-tooltips" />
   </head>
   <body>
     <main class="app-shell">
@@ -174,17 +174,17 @@
             <li><span>5</span><div><strong>Request records</strong><small>Use official records to verify the pattern.</small></div></li>
           </ol>
 
-          <section class="eta-panel" aria-label="Election Truth Alliance test status">
+          <section class="eta-panel" aria-label="Statistical screening test status">
             <div class="panel-heading">
-              <p class="eyebrow">ETA-style checks</p>
+              <p class="eyebrow">Statistical screening checks</p>
               <h2>Test Status</h2>
             </div>
             <div id="etaTests" class="eta-tests"></div>
             <p class="eta-note">
-              ETA's published methods rely heavily on precinct-level data. Any
-              turnout source using pre-Election-Day registration counts must be
-              treated as provisional because Wisconsin allows Election Day
-              registration.
+              Several screening methods rely heavily on precinct-level data.
+              Any turnout source using pre-Election-Day registration counts
+              must be treated as provisional because Wisconsin allows Election
+              Day registration.
             </p>
           </section>
         </section>
@@ -251,7 +251,7 @@
             <article class="graph-card graph-card-wide history-primary-graph">
               <div class="graph-heading">
                 <div>
-                  <span>ETA-style all-years comparison</span>
+                  <span><span class="technical-term" tabindex="0" data-definition="A histogram groups local result rows into vote-share ranges and counts how many rows land in each range. The shape can be compared across election years.">Vote-share distribution histogram</span></span>
                   <strong>Republican Vote-Share Distribution Across Years</strong>
                 </div>
                 <button class="graph-download" type="button" data-graph="historicalDistributionGraph">Download SVG</button>
@@ -261,7 +261,7 @@
                 <strong>How to read this</strong>
                 <p>Each panel is one election year. Each bar counts how many local source rows landed in a Republican presidential vote-share range. Think of sorting result rows into labeled buckets: 0-5%, 5-10%, and so on. The dashed blue line is the average row. The gold line marks the busiest bucket. Compare the overall shapes across election years.</p>
                 <p><strong>Skew</strong> is a simple measure of whether the bars lean more heavily toward one side of the chart. A value near zero is more balanced. A positive or negative value describes the direction of the lean; it does not explain the cause.</p>
-                <p>This is a screening comparison, not proof of a cause. The displayed rows are LTSB harmonized comparison rows placed onto common ward geography. A statewide turnout-versus-vote-share heat map like ETA's Minnesota chart would require reliable row-level turnout denominators for each year, which are not currently available for Wisconsin.</p>
+                <p>This is a screening comparison, not proof of a cause. The displayed rows are LTSB harmonized comparison rows placed onto common ward geography. A statewide turnout-versus-vote-share heat map would require reliable row-level turnout denominators for each year, which are not currently available for Wisconsin.</p>
               </div>
             </article>
 
@@ -284,7 +284,7 @@
               <div class="graph-heading">
                 <div>
                   <span>Optional single-year drilldown</span>
-                  <strong>Selected-Year Vote Share by Vote Count</strong>
+                  <strong><span class="technical-term" tabindex="0" data-definition="A scatterplot that asks whether candidate vote share changes as local reporting-unit vote totals get larger. Each dot is one local source row for the selected year.">Selected-Year Vote-Share by Vote-Count Scatterplot</span></strong>
                 </div>
                 <button class="graph-download" type="button" data-graph="historicalScatterGraph">Download SVG</button>
               </div>
@@ -339,7 +339,7 @@
               </article>
               <article>
                 <strong>U.S. Senate and ward results</strong>
-                <p>Used for down-ballot comparisons, ETA-style graphs, selected-county filtering, city splits, and review drilldowns.</p>
+                <p>Used for vote-share by vote-count scatterplots, presidential-versus-Senate drop-off histograms, selected-county filtering, city splits, and review drilldowns.</p>
                 <span>Local files: data/County by County Report_US Senate.pdf; data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js</span>
                 <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf" target="_blank" rel="noreferrer">WEC Senate PDF</a>
                 <a href="https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx" target="_blank" rel="noreferrer">Archived WEC spreadsheet</a>
@@ -369,8 +369,8 @@
               </article>
               <article>
                 <strong>Methodology and context</strong>
-                <p>Used for ETA-style graph names, reporting context, registration timing, and the voter-file cost decision.</p>
-                <a href="https://electiontruthalliance.org/our-methodology/" target="_blank" rel="noreferrer">ETA methodology</a>
+                <p>Used for graph-category references, reporting context, registration timing, and the voter-file cost decision.</p>
+                <a href="https://electiontruthalliance.org/our-methodology/" target="_blank" rel="noreferrer">Election Truth Alliance methodology reference</a>
                 <a href="https://myvote.wi.gov/en-us/Election-Results" target="_blank" rel="noreferrer">MyVote results note</a>
                 <a href="https://myvotemirror.wi.gov/en-us/Voter-Deadlines" target="_blank" rel="noreferrer">Registration deadlines</a>
                 <a href="https://www.votebeat.org/wisconsin/2024/11/07/more-ballots-than-voters-oak-creek-turnout-baldwin-hovde-race/" target="_blank" rel="noreferrer">Votebeat turnout explainer</a>
@@ -425,7 +425,7 @@
 
           <section class="methodology-grid" aria-label="Graph and flag methodology">
             <article class="methodology-card">
-              <h3>Vote Share by Vote Count</h3>
+              <h3><span class="technical-term" tabindex="0" data-definition="A scatterplot that asks whether candidate vote share changes as local reporting-unit vote totals get larger. Each dot is one ward or reporting-unit row.">Vote-Share by Vote-Count Scatterplot</span></h3>
               <dl>
                 <dt>Calculates</dt>
                 <dd>Whether candidate vote share rises or falls as ward vote totals get larger.</dd>
@@ -440,7 +440,7 @@
               </dl>
             </article>
             <article class="methodology-card">
-              <h3>Down-Ballot Difference</h3>
+              <h3><span class="technical-term" tabindex="0" data-definition="A histogram that groups the difference between presidential votes and same-party U.S. Senate votes in each ward row.">Presidential-versus-Senate Drop-Off Histogram</span></h3>
               <dl>
                 <dt>Calculates</dt>
                 <dd>The difference between presidential and U.S. Senate votes within each WEC ward row.</dd>
@@ -455,7 +455,7 @@
               </dl>
             </article>
             <article class="methodology-card">
-              <h3>Turnout Histogram</h3>
+              <h3><span class="technical-term" tabindex="0" data-definition="A bar chart that groups local rows by turnout percentage. Example: a row with 900 ballots and 1,000 registered voters goes in the 90% turnout bucket.">Turnout Histogram</span></h3>
               <dl>
                 <dt>Calculates</dt>
                 <dd>Ballots cast divided by registered-voter denominators for the local rows collected so far.</dd>
@@ -470,7 +470,7 @@
               </dl>
             </article>
             <article class="methodology-card">
-              <h3>Statistical Review Flags</h3>
+              <h3><span class="technical-term" tabindex="0" data-definition="A triage marker that appears when a screening calculation crosses a chosen threshold. A flag means review the records more closely, not that a cause has been proven.">Statistical Review Flags</span></h3>
               <dl>
                 <dt>Calculates</dt>
                 <dd>A triage signal from the vote-share, average drop-off, and row-outlier checks.</dd>
@@ -497,7 +497,7 @@
                 <thead><tr><th>Setting</th><th>Default</th></tr></thead>
                 <tbody>
                   <tr><td>Minimum ward rows</td><td>10</td></tr>
-                  <tr><td>Vote-share correlation</td><td>|r| &gt;= 0.35</td></tr>
+                  <tr><td><span class="technical-term" tabindex="0" data-definition="Correlation measures how strongly two values move together. Here it checks whether candidate vote share changes as local vote totals get larger. Values closer to -1 or 1 indicate a stronger relationship; values near 0 indicate a weaker one.">Vote-share correlation</span></td><td>|r| &gt;= 0.35</td></tr>
                   <tr><td>Average President-vs-Senate difference</td><td>&gt;= 2.0%</td></tr>
                   <tr><td>Row outlier difference</td><td>&gt;= 15.0%</td></tr>
                   <tr><td>Minimum candidate votes for outlier rows</td><td>100</td></tr>
@@ -809,13 +809,13 @@
           <div id="candidateBreakdown" class="breakdown-grid"></div>
         </section>
 
-        <section class="eta-graphs" aria-label="ETA-style analysis graphs">
+        <section class="eta-graphs" aria-label="Statistical screening graphs">
           <div class="graph-card">
             <div class="graph-heading">
               <div>
-                <span>ETA-style graph</span>
+                <span>Statistical screening graph</span>
                 <div class="graph-title-row">
-                  <strong>Vote Share by Vote Count</strong>
+                  <strong><span class="technical-term" tabindex="0" data-definition="A scatterplot that asks whether candidate vote share changes as local reporting-unit vote totals get larger. Each dot is one ward or reporting-unit row.">Vote-Share by Vote-Count Scatterplot</span></strong>
                   <button
                     class="graph-info"
                     type="button"
@@ -848,9 +848,9 @@
           <div class="graph-card">
             <div class="graph-heading">
               <div>
-                <span>ETA-style graph</span>
+                <span>Statistical screening graph</span>
                 <div class="graph-title-row">
-                  <strong>Down-Ballot Difference</strong>
+                  <strong><span class="technical-term" tabindex="0" data-definition="A histogram that groups the difference between presidential votes and same-party U.S. Senate votes in the same ward row. It can show whether larger gaps cluster together.">Presidential-versus-Senate Drop-Off Histogram</span></strong>
                   <button
                     class="graph-info"
                     type="button"
@@ -882,9 +882,9 @@
           <div class="graph-card graph-card-wide">
             <div class="graph-heading">
               <div>
-                <span>ETA-style graph</span>
+                <span>Statistical screening graph</span>
                 <div class="graph-title-row">
-                  <strong>Turnout Histogram</strong>
+                  <strong><span class="technical-term" tabindex="0" data-definition="A bar chart that groups local rows by turnout percentage. Example: a row with 900 ballots and 1,000 registered voters goes in the 90% turnout bucket.">Turnout Histogram</span></strong>
                   <button
                     class="graph-info graph-info-warning"
                     type="button"
@@ -1008,6 +1008,6 @@
     <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
     <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
     <script src="./data/historical-data.js?v=20260601-history"></script>
-    <script src="./app.js?v=20260601-history-distributions"></script>
+    <script src="./app.js?v=20260601-technical-tooltips"></script>
   </body>
 </html>
