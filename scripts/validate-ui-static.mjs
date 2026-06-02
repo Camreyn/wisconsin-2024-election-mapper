@@ -193,9 +193,10 @@ const checks = {
   historicalAxisLabelsAreClean: !element("#historicalTrendGraph").innerHTML.includes("year ?") && !element("#historicalScatterGraph").innerHTML.includes("row ?"),
   auditTabPresent: indexHtml.includes('data-app-tab="audit"') && indexHtml.includes('id="auditPanel"'),
   auditSidebarAction: indexHtml.includes('data-open-tab="audit">Open Audit Simulator</button>'),
+  auditStatewidePreset: indexHtml.includes('<option value="statewide2024">Wisconsin 2024 statewide WEC configuration</option>'),
   auditMissProbability: element("#auditMissProbability").textContent,
   auditGridUnits: (element("#auditUnitGrid").innerHTML.match(/class="audit-unit/g) || []).length,
-  auditVoteComparison: element("#auditVoteComparison").innerHTML.includes("80,000") && element("#auditVoteComparison").innerHTML.includes("Illustrative margin movement"),
+  auditVoteComparison: element("#auditVoteComparison").innerHTML.includes("3,271,210") && element("#auditVoteComparison").innerHTML.includes("Illustrative margin movement"),
 };
 vm.runInContext(`setTheme("dark")`, context);
 checks.darkModeApplied = document.documentElement.dataset.theme === "dark";
@@ -220,8 +221,9 @@ const expected = {
   historicalAxisLabelsAreClean: true,
   auditTabPresent: true,
   auditSidebarAction: true,
-  auditMissProbability: "71.26%",
-  auditGridUnits: 100,
+  auditStatewidePreset: true,
+  auditMissProbability: "4.18%",
+  auditGridUnits: 3730,
   auditVoteComparison: true,
   darkModeApplied: true,
   darkModeStored: true,

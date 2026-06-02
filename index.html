@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260602-audit-simulator" />
+    <link rel="stylesheet" href="./styles.css?v=20260602-statewide-audit-simulator" />
   </head>
   <body>
     <main class="app-shell">
@@ -520,19 +520,20 @@
 
         <section id="auditPanel" class="tab-panel workspace-panel audit-panel" role="tabpanel" aria-label="Audit coverage simulator" hidden>
           <header class="workspace-intro">
-            <p class="eyebrow">Educational hypothetical</p>
-            <h2>2024 Equipment-Audit Coverage Simulator</h2>
-            <p>This tab explains what Wisconsin's published 2024 post-election voting-equipment audit checked and models one narrow question: how often would a random sample touch a hypothetical discrepancy concentrated in a limited number of reporting units?</p>
+            <p class="eyebrow">Official configuration with hypothetical scenarios</p>
+            <h2>2024 Wisconsin Equipment-Audit Coverage Simulator</h2>
+            <p>This tab starts with Wisconsin's published statewide 2024 post-election voting-equipment audit configuration and models one narrow question: how often would a sample touch a hypothetical discrepancy concentrated in a limited number of reporting units?</p>
           </header>
 
           <section class="audit-caution" aria-label="Audit simulator limitation">
             <strong>Read this first</strong>
-            <p>This is not evidence that tampering occurred, not a reconstruction of Wisconsin's actual selected reporting units, and not a conclusion that another safeguard failed. It is a sampling-coverage illustration. A simulated miss means only that the illustrative audit sample did not intersect the hypothetical affected units.</p>
+            <p>This is not evidence that tampering occurred, not a reconstruction of the actual selected-unit list, and not a conclusion that another safeguard failed. The statewide default uses the WEC-reported sample size. Its probability calculation remains a simplified random-sample illustration because the real selection tool also applied county, equipment-type, central-count, and municipality-size constraints. A simulated miss means only that the illustrative sample did not intersect the hypothetical affected units.</p>
           </section>
 
           <section class="audit-facts" aria-label="Published 2024 Wisconsin audit facts">
             <article><strong>373</strong><span>reporting units selected by the WEC tool</span></article>
             <article><strong>336</strong><span>municipalities selected to participate</span></article>
+            <article><strong>12</strong><span>selected no-voter units excused</span></article>
             <article><strong>327,230</strong><span>ballots counted by hand</span></article>
             <article><strong>9.6%</strong><span>of statewide ballots counted by hand</span></article>
           </section>
@@ -548,7 +549,7 @@
               <p class="eyebrow">What this model asks</p>
               <h3>Sample-intersection question</h3>
               <p>If a hypothetical discrepancy were concentrated in certain reporting units, how often would a random sample include at least one affected unit? If the sample touches an affected unit, the model marks the scenario as detected. If it touches none, the model marks the scenario as missed.</p>
-              <p>The real audit included statewide, county, equipment-type, central-count, and municipality-size rules. This simplified model isolates one local-area sampling question so it can be understood clearly.</p>
+              <p>The statewide default uses the report's 373-unit selection and a derived 3,730-unit denominator based on the adopted 10% rule. The real selection tool included county, equipment-type, central-count, and municipality-size rules. The probability shown here is therefore a simplified intersection calculation, not WEC's own detection-probability estimate.</p>
             </article>
           </section>
 
@@ -559,8 +560,9 @@
                 <h3>Change the hypothetical scenario</h3>
               </div>
               <label>
-                <span>Illustrative preset</span>
+                <span>Audit configuration</span>
                 <select id="auditPreset">
+                  <option value="statewide2024">Wisconsin 2024 statewide WEC configuration</option>
                   <option value="largest">Largest-municipality tier example</option>
                   <option value="next20">Next-20-largest tier example</option>
                   <option value="other">Other-municipality tier example</option>
@@ -568,20 +570,20 @@
               </label>
               <p id="auditPresetNote" class="audit-preset-note"></p>
               <label>
-                <span><span class="technical-term" tabindex="0" data-definition="A reporting unit is the local result bucket used for election totals. It may be one ward, a combination of wards, or another district by which votes are tallied.">Reporting units in illustrative area</span> <output id="auditAreaUnitsValue"></output></span>
-                <input id="auditAreaUnits" type="range" min="4" max="120" step="1" />
+                <span><span class="technical-term" tabindex="0" data-definition="A reporting unit is the local result bucket used for election totals. It may be one ward, a combination of wards, or another district by which votes are tallied. The statewide default of 3,730 is a derived approximation: WEC selected 373 units under its adopted 10% rule.">Reporting units in modeled area</span> <output id="auditAreaUnitsValue"></output></span>
+                <input id="auditAreaUnits" type="range" min="4" max="4000" step="1" />
               </label>
               <label>
-                <span><span class="technical-term" tabindex="0" data-definition="These are the illustrative local reporting units selected for hand counting. The simulator models a random sample within the displayed area.">Units sampled for audit</span> <output id="auditSampleUnitsValue"></output></span>
-                <input id="auditSampleUnits" type="range" min="1" max="12" step="1" />
+                <span><span class="technical-term" tabindex="0" data-definition="These are reporting units selected for hand counting. The statewide 2024 default uses WEC's reported selection of 373 units. Twelve selected no-voter units were excused.">Units selected for audit</span> <output id="auditSampleUnitsValue"></output></span>
+                <input id="auditSampleUnits" type="range" min="1" max="500" step="1" />
               </label>
               <label>
                 <span><span class="technical-term" tabindex="0" data-definition="These are hypothetical units where an illustrative discrepancy is concentrated. This is a user-controlled assumption, not a statement about an actual Wisconsin reporting unit.">Hypothetical affected units</span> <output id="auditAffectedUnitsValue"></output></span>
-                <input id="auditAffectedUnits" type="range" min="1" max="30" step="1" />
+                <input id="auditAffectedUnits" type="range" min="1" max="500" step="1" />
               </label>
               <label>
                 <span>Illustrative ballots per unit <output id="auditBallotsPerUnitValue"></output></span>
-                <input id="auditBallotsPerUnit" type="range" min="100" max="2000" step="50" />
+                <input id="auditBallotsPerUnit" type="range" min="100" max="2000" step="1" />
               </label>
               <label>
                 <span>Baseline Candidate A share <output id="auditCandidateShareValue"></output></span>
@@ -1139,6 +1141,6 @@
     <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
     <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
     <script src="./data/historical-data.js?v=20260601-history"></script>
-    <script src="./app.js?v=20260602-audit-simulator"></script>
+    <script src="./app.js?v=20260602-statewide-audit-simulator"></script>
   </body>
 </html>

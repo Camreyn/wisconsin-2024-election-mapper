@@ -137,6 +137,15 @@ const DEFAULT_REVIEW_POLICY = {
 const COUNTY_REVIEW_POLICY = { ...DEFAULT_REVIEW_POLICY };
 
 const AUDIT_SIMULATOR_PRESETS = {
+  statewide2024: {
+    areaUnits: 3730,
+    sampleUnits: 373,
+    affectedUnits: 30,
+    ballotsPerUnit: 877,
+    candidateShare: 50,
+    shiftPerUnit: 100,
+    note: "Statewide 2024 WEC-reported configuration. WEC selected 373 reporting units under its adopted 10% rule; 12 selected no-voter units were excused. The displayed 3,730-unit statewide denominator and 877-ballot average are derived approximations. Affected units and shifted votes remain hypothetical assumptions.",
+  },
   largest: {
     areaUnits: 100,
     sampleUnits: 4,
@@ -309,7 +318,7 @@ function init() {
   renderReviewDrilldown();
   renderCandidateBreakdown();
   renderHistoricalComparison();
-  applyAuditPreset("largest");
+  applyAuditPreset("statewide2024");
   renderTable(RESULTS);
   wireControls();
   setAppTab(initialTabName(), { updateHash: false });
@@ -2136,8 +2145,8 @@ function technicalTerm(label, definition) {
 }
 
 function applyAuditPreset(presetName) {
-  const preset = AUDIT_SIMULATOR_PRESETS[presetName] || AUDIT_SIMULATOR_PRESETS.largest;
-  els.auditPreset.value = presetName in AUDIT_SIMULATOR_PRESETS ? presetName : "largest";
+  const preset = AUDIT_SIMULATOR_PRESETS[presetName] || AUDIT_SIMULATOR_PRESETS.statewide2024;
+  els.auditPreset.value = presetName in AUDIT_SIMULATOR_PRESETS ? presetName : "statewide2024";
   els.auditAreaUnits.value = String(preset.areaUnits);
   els.auditSampleUnits.value = String(preset.sampleUnits);
   els.auditAffectedUnits.value = String(preset.affectedUnits);
@@ -2150,9 +2159,9 @@ function applyAuditPreset(presetName) {
 }
 
 function renderAuditSimulator() {
-  const areaUnits = clamp(Math.round(Number(els.auditAreaUnits.value) || 4), 4, 120);
-  const sampleUnits = clamp(Math.round(Number(els.auditSampleUnits.value) || 1), 1, Math.min(12, areaUnits));
-  const affectedUnits = clamp(Math.round(Number(els.auditAffectedUnits.value) || 1), 1, Math.min(30, areaUnits));
+  const areaUnits = clamp(Math.round(Number(els.auditAreaUnits.value) || 4), 4, 4000);
+  const sampleUnits = clamp(Math.round(Number(els.auditSampleUnits.value) || 1), 1, Math.min(500, areaUnits));
+  const affectedUnits = clamp(Math.round(Number(els.auditAffectedUnits.value) || 1), 1, Math.min(500, areaUnits));
   const ballotsPerUnit = clamp(Math.round(Number(els.auditBallotsPerUnit.value) || 100), 100, 2000);
   const candidateShare = clamp(Math.round(Number(els.auditCandidateShare.value) || 50), 35, 65);
   const shiftPerUnit = clamp(Math.round(Number(els.auditShiftPerUnit.value) || 0), 0, 500);
@@ -2186,6 +2195,7 @@ function renderAuditSimulator() {
   els.auditShiftedVotes.textContent = formatNumber(shiftedVotes);
   els.auditDrawResult.textContent = missed ? "Missed cluster" : "Touched cluster";
   els.auditDrawResult.className = missed ? "audit-missed" : "audit-touched";
+  els.auditUnitGrid.classList.toggle("dense", areaUnits > 500);
   els.auditUnitGrid.innerHTML = Array.from({ length: areaUnits }, (_, index) => {
     const isSampled = sampled.has(index);
     const isAffected = affected.has(index);

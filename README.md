@@ -135,11 +135,14 @@ See `docs/methodology.md` for interpretation notes and limitations.
 ## Audit Coverage Simulator
 
 The Audit Simulator tab summarizes official WEC 2024 post-election
-voting-equipment audit facts and provides an educational sampling model. The
-interactive grid asks whether a random local reporting-unit sample intersects a
-user-controlled hypothetical cluster. It is not evidence that tampering
-occurred, not a reconstruction of Wisconsin's actual selected reporting units,
-and not a conclusion about safeguards outside the simplified model.
+voting-equipment audit facts and provides an educational sampling model. Its
+default statewide configuration uses WEC's reported 373-unit selection and an
+approximately 3,730-unit statewide denominator derived from the adopted 10%
+selection rule. The interactive grid asks whether a random reporting-unit
+sample intersects a user-controlled hypothetical cluster. It is not evidence
+that tampering occurred, not a reconstruction of Wisconsin's actual selected
+reporting-unit list, and not a conclusion about safeguards outside the
+simplified model.
 
 Official references:
 

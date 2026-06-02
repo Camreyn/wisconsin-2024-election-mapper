@@ -2195,12 +2195,21 @@ select {
   gap: 4px;
 }
 
+.audit-unit-grid.dense {
+  grid-template-columns: repeat(auto-fill, minmax(8px, 1fr));
+  gap: 2px;
+}
+
 .audit-unit {
   display: inline-block;
   min-height: 18px;
   border: 1px solid var(--line);
   border-radius: 3px;
   background: var(--panel-soft);
+}
+
+.audit-unit-grid.dense .audit-unit {
+  min-height: 8px;
 }
 
 .audit-unit.sampled {
