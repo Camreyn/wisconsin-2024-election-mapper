@@ -196,6 +196,13 @@ const checks = {
   auditSidebarAction: indexHtml.includes('data-open-tab="audit">Open Audit Simulator</button>'),
   auditStatewidePreset: indexHtml.includes('<option value="statewide2024">Wisconsin 2024 statewide WEC configuration</option>'),
   auditTrialsButton: indexHtml.includes('id="auditRunTrialsBtn"') && indexHtml.includes("Run 1,000 simplified trials"),
+  auditDistributionControl: indexHtml.includes('id="auditAffectedDistribution"')
+    && indexHtml.includes('<option value="concentrated">')
+    && indexHtml.includes('<option value="spread">')
+    && indexHtml.includes('<option value="highVolume">'),
+  auditDistributionNote: element("#auditDistributionNote").textContent.includes("grid is not a geographic map"),
+  auditSpreadPattern: vm.runInContext(`auditAffectedIndices(100, 8, 17, "spread").join(",") !== auditAffectedIndices(100, 8, 17, "concentrated").join(",")`, context),
+  auditHighVolumeDisclaimer: vm.runInContext(`AUDIT_DISTRIBUTION_NOTES.highVolume.includes("cannot identify real high-volume audit units")`, context),
   auditMissProbability: element("#auditMissProbability").textContent,
   auditTrialMissRate: /^\d+\.\d%$/.test(element("#auditTrialMissRate").textContent),
   auditTrialProgress: element("#auditTrialProgress").value,
@@ -229,6 +236,10 @@ const expected = {
   auditSidebarAction: true,
   auditStatewidePreset: true,
   auditTrialsButton: true,
+  auditDistributionControl: true,
+  auditDistributionNote: true,
+  auditSpreadPattern: true,
+  auditHighVolumeDisclaimer: true,
   auditMissProbability: "4.18%",
   auditTrialMissRate: true,
   auditTrialProgress: 1000,

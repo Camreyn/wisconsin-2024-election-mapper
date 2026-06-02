@@ -578,9 +578,18 @@
                 <input id="auditSampleUnits" type="range" min="1" max="500" step="1" />
               </label>
               <label>
-                <span><span class="technical-term" tabindex="0" data-definition="These are hypothetical units where an illustrative discrepancy is concentrated. This is a user-controlled assumption, not a statement about an actual Wisconsin reporting unit.">Hypothetical affected units</span> <output id="auditAffectedUnitsValue"></output></span>
+                <span><span class="technical-term" tabindex="0" data-definition="These are hypothetical units where an illustrative discrepancy appears. This is a user-controlled assumption, not a statement about an actual Wisconsin reporting unit.">Hypothetical affected units</span> <output id="auditAffectedUnitsValue"></output></span>
                 <input id="auditAffectedUnits" type="range" min="1" max="500" step="1" />
               </label>
+              <label>
+                <span><span class="technical-term" tabindex="0" data-definition="This changes where the yellow hypothetical affected units appear in the illustrative grid. Under a uniform random sample, placement does not change the exact miss probability. Wisconsin's real constrained selection rules could make placement matter.">Affected-unit distribution</span></span>
+                <select id="auditAffectedDistribution">
+                  <option value="concentrated">Concentrated in one area</option>
+                  <option value="spread">Spread through modeled area</option>
+                  <option value="highVolume">Highest-volume targeting concept</option>
+                </select>
+              </label>
+              <p id="auditDistributionNote" class="audit-distribution-note"></p>
               <label>
                 <span>Illustrative ballots per unit <output id="auditBallotsPerUnitValue"></output></span>
                 <input id="auditBallotsPerUnit" type="range" min="100" max="2000" step="1" />
@@ -600,7 +609,7 @@
             <div class="audit-visual">
               <div class="audit-result-grid">
                 <article>
-                  <span><span class="technical-term" tabindex="0" data-definition="The exact probability that a random sample includes none of the hypothetical affected units. It describes this simplified model, not the real audit's overall effectiveness.">Sample-miss probability</span></span>
+                  <span><span class="technical-term" tabindex="0" data-definition="The exact probability that a uniform random sample includes none of the hypothetical affected units. For this simplified model, placement does not change the probability. It does not describe the real audit's overall effectiveness.">Sample-miss probability</span></span>
                   <strong id="auditMissProbability">--</strong>
                 </article>
                 <article>
@@ -626,7 +635,7 @@
                   <progress id="auditTrialProgress" max="1000" value="0"></progress>
                   <span id="auditTrialProgressText" role="status" aria-live="polite">Ready</span>
                 </div>
-                <p id="auditTrialSummary">Press "Run 1,000 simplified trials" to repeatedly draw an illustrative audit sample against the current hypothetical affected-unit cluster. This is a simplified model, not a reproduction of WEC's constrained selection software.</p>
+                <p id="auditTrialSummary">Press "Run 1,000 simplified trials" to repeatedly draw an illustrative audit sample against the current hypothetical affected-unit pattern. This is a simplified model, not a reproduction of WEC's constrained selection software.</p>
               </section>
               <div class="audit-grid-legend" aria-label="Simulator grid legend">
                 <span><i class="audit-unit"></i>Not sampled</span>

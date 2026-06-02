@@ -136,6 +136,18 @@ const DEFAULT_REVIEW_POLICY = {
 
 const COUNTY_REVIEW_POLICY = { ...DEFAULT_REVIEW_POLICY };
 
+const AUDIT_DISTRIBUTION_NOTES = {
+  concentrated: "Yellow units are grouped together for an illustrative concentrated-area scenario. The grid is not a geographic map.",
+  spread: "Yellow units are spaced across the modeled area. Under this simplified uniform sample, the exact miss probability depends on the number of affected units, not their spacing.",
+  highVolume: "Concept only: yellow units represent hypothetical targeting of higher-volume locations. This static model does not contain WEC's exact reporting-unit volume metadata, so it cannot identify real high-volume audit units or calculate a volume-specific WEC detection rate.",
+};
+
+const AUDIT_DISTRIBUTION_LABELS = {
+  concentrated: "concentrated-area",
+  spread: "statewide-spread",
+  highVolume: "high-volume-targeting concept",
+};
+
 const AUDIT_SIMULATOR_PRESETS = {
   statewide2024: {
     areaUnits: 3730,
@@ -288,6 +300,8 @@ const els = {
   auditSampleUnitsValue: document.querySelector("#auditSampleUnitsValue"),
   auditAffectedUnits: document.querySelector("#auditAffectedUnits"),
   auditAffectedUnitsValue: document.querySelector("#auditAffectedUnitsValue"),
+  auditAffectedDistribution: document.querySelector("#auditAffectedDistribution"),
+  auditDistributionNote: document.querySelector("#auditDistributionNote"),
   auditBallotsPerUnit: document.querySelector("#auditBallotsPerUnit"),
   auditBallotsPerUnitValue: document.querySelector("#auditBallotsPerUnitValue"),
   auditCandidateShare: document.querySelector("#auditCandidateShare"),
@@ -412,6 +426,10 @@ function wireControls() {
       resetAuditTrials();
       renderAuditSimulator();
     });
+  });
+  els.auditAffectedDistribution.addEventListener("change", () => {
+    resetAuditTrials();
+    renderAuditSimulator();
   });
   els.auditRerollBtn.addEventListener("click", () => {
     auditSimulationSeed += 41;
@@ -2179,15 +2197,14 @@ function resetAuditTrials() {
   els.auditTrialProgress.value = 0;
   els.auditTrialProgressWrap.hidden = true;
   els.auditTrialProgressText.textContent = "Ready";
-  els.auditTrialSummary.textContent = 'Press "Run 1,000 simplified trials" to repeatedly draw an illustrative audit sample against the current hypothetical affected-unit cluster. This is a simplified model, not a reproduction of WEC\'s constrained selection software.';
+  els.auditTrialSummary.textContent = 'Press "Run 1,000 simplified trials" to repeatedly draw an illustrative audit sample against the current hypothetical affected-unit pattern. This is a simplified model, not a reproduction of WEC\'s constrained selection software.';
 }
 
 function runAuditTrials() {
   const areaUnits = clamp(Math.round(Number(els.auditAreaUnits.value) || 4), 4, 4000);
   const sampleUnits = clamp(Math.round(Number(els.auditSampleUnits.value) || 1), 1, Math.min(500, areaUnits));
   const affectedUnits = clamp(Math.round(Number(els.auditAffectedUnits.value) || 1), 1, Math.min(500, areaUnits));
-  const clusterStart = Math.floor(auditSeededValue(auditSimulationSeed + 97) * areaUnits);
-  const affected = new Set(Array.from({ length: affectedUnits }, (_, index) => (clusterStart + index) % areaUnits));
+  const affected = new Set(auditAffectedIndices(areaUnits, affectedUnits, auditSimulationSeed, els.auditAffectedDistribution.value));
   const trialCount = 1000;
   let missedTrials = 0;
   let completedTrials = 0;
@@ -2251,11 +2268,13 @@ function renderAuditSimulator() {
   els.auditBallotsPerUnitValue.textContent = formatNumber(ballotsPerUnit);
   els.auditCandidateShareValue.textContent = `${candidateShare}%`;
   els.auditShiftValue.textContent = formatNumber(shiftPerUnit);
+  const distribution = els.auditAffectedDistribution.value in AUDIT_DISTRIBUTION_NOTES ? els.auditAffectedDistribution.value : "concentrated";
+  els.auditAffectedDistribution.value = distribution;
+  els.auditDistributionNote.textContent = AUDIT_DISTRIBUTION_NOTES[distribution];
 
   const missProbability = auditSampleMissProbability(areaUnits, sampleUnits, affectedUnits);
   const sampled = new Set(auditSampleIndices(areaUnits, sampleUnits, auditSimulationSeed));
-  const clusterStart = Math.floor(auditSeededValue(auditSimulationSeed + 97) * areaUnits);
-  const affected = new Set(Array.from({ length: affectedUnits }, (_, index) => (clusterStart + index) % areaUnits));
+  const affected = new Set(auditAffectedIndices(areaUnits, affectedUnits, auditSimulationSeed, distribution));
   const overlap = [...affected].filter((index) => sampled.has(index));
   const missed = overlap.length === 0;
   els.auditMissProbability.textContent = `${(missProbability * 100).toFixed(2)}%`;
@@ -2267,7 +2286,7 @@ function renderAuditSimulator() {
   const candidateAAltered = candidateABaseline - shiftedVotes;
   const candidateBAltered = candidateBBaseline + shiftedVotes;
   els.auditShiftedVotes.textContent = formatNumber(shiftedVotes);
-  els.auditDrawResult.textContent = missed ? "Missed cluster" : "Touched cluster";
+  els.auditDrawResult.textContent = missed ? "Missed pattern" : "Touched pattern";
   els.auditDrawResult.className = missed ? "audit-missed" : "audit-touched";
   els.auditUnitGrid.classList.toggle("dense", areaUnits > 500);
   els.auditUnitGrid.innerHTML = Array.from({ length: areaUnits }, (_, index) => {
@@ -2283,9 +2302,10 @@ function renderAuditSimulator() {
           : "Unit not sampled";
     return `<span class="audit-unit ${state}" title="${label}" aria-label="${label}"></span>`;
   }).join("");
+  const distributionLabel = AUDIT_DISTRIBUTION_LABELS[distribution];
   els.auditScenarioSummary.textContent = missed
-    ? `In this one rerolled illustration, none of the ${formatNumber(sampleUnits)} sampled units intersect the ${formatNumber(affectedUnits)} hypothetical affected units. The simplified model therefore marks this draw as missed.`
-    : `In this one rerolled illustration, ${formatNumber(overlap.length)} sampled unit${overlap.length === 1 ? "" : "s"} intersect the ${formatNumber(affectedUnits)} hypothetical affected units. The simplified model therefore marks this draw as detected for follow-up.`;
+    ? `In this one rerolled ${distributionLabel} illustration, none of the ${formatNumber(sampleUnits)} sampled units intersect the ${formatNumber(affectedUnits)} hypothetical affected units. The simplified model therefore marks this draw as missed.`
+    : `In this one rerolled ${distributionLabel} illustration, ${formatNumber(overlap.length)} sampled unit${overlap.length === 1 ? "" : "s"} intersect the ${formatNumber(affectedUnits)} hypothetical affected units. The simplified model therefore marks this draw as detected for follow-up.`;
   els.auditVoteComparison.innerHTML = `
     <article>
       <span>Illustrative area ballots</span>
@@ -2318,6 +2338,16 @@ function auditSampleMissProbability(areaUnits, sampleUnits, affectedUnits) {
     probability *= (areaUnits - affectedUnits - index) / (areaUnits - index);
   }
   return probability;
+}
+
+function auditAffectedIndices(areaUnits, affectedUnits, seed, distribution) {
+  const offset = Math.floor(auditSeededValue(seed + 97) * areaUnits);
+  if (distribution === "spread" || distribution === "highVolume") {
+    return Array.from({ length: affectedUnits }, (_, index) =>
+      Math.floor((offset + index * (areaUnits / affectedUnits)) % areaUnits),
+    );
+  }
+  return Array.from({ length: affectedUnits }, (_, index) => (offset + index) % areaUnits);
 }
 
 function auditSampleIndices(areaUnits, sampleUnits, seed) {

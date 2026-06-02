@@ -2065,6 +2065,7 @@ select {
 .audit-caution p,
 .audit-explainer-grid p,
 .audit-preset-note,
+.audit-distribution-note,
 .audit-scenario-summary {
   margin: 7px 0 0;
   color: var(--muted);
