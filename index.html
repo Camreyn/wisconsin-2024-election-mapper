@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260601-technical-tooltips" />
+    <link rel="stylesheet" href="./styles.css?v=20260602-audit-simulator" />
   </head>
   <body>
     <main class="app-shell">
@@ -124,6 +124,7 @@
         <nav class="sidebar-shortcuts" aria-label="Workspace shortcuts">
           <span>Explore</span>
           <button type="button" data-open-tab="review">Open Review Center</button>
+          <button type="button" data-open-tab="audit">Open Audit Simulator</button>
           <button type="button" data-open-tab="data">Open Data & Sources</button>
           <button type="button" data-open-tab="methodology">Open Methodology</button>
         </nav>
@@ -153,6 +154,9 @@
           </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="methodology" aria-controls="methodologyPanel" aria-selected="false">
             Methodology
+          </button>
+          <button class="app-tab-button" type="button" role="tab" data-app-tab="audit" aria-controls="auditPanel" aria-selected="false">
+            Audit Simulator
           </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="about" aria-controls="aboutPanel" aria-selected="false">
             About & Contact
@@ -514,6 +518,130 @@
           </section>
         </section>
 
+        <section id="auditPanel" class="tab-panel workspace-panel audit-panel" role="tabpanel" aria-label="Audit coverage simulator" hidden>
+          <header class="workspace-intro">
+            <p class="eyebrow">Educational hypothetical</p>
+            <h2>2024 Equipment-Audit Coverage Simulator</h2>
+            <p>This tab explains what Wisconsin's published 2024 post-election voting-equipment audit checked and models one narrow question: how often would a random sample touch a hypothetical discrepancy concentrated in a limited number of reporting units?</p>
+          </header>
+
+          <section class="audit-caution" aria-label="Audit simulator limitation">
+            <strong>Read this first</strong>
+            <p>This is not evidence that tampering occurred, not a reconstruction of Wisconsin's actual selected reporting units, and not a conclusion that another safeguard failed. It is a sampling-coverage illustration. A simulated miss means only that the illustrative audit sample did not intersect the hypothetical affected units.</p>
+          </section>
+
+          <section class="audit-facts" aria-label="Published 2024 Wisconsin audit facts">
+            <article><strong>373</strong><span>reporting units selected by the WEC tool</span></article>
+            <article><strong>336</strong><span>municipalities selected to participate</span></article>
+            <article><strong>327,230</strong><span>ballots counted by hand</span></article>
+            <article><strong>9.6%</strong><span>of statewide ballots counted by hand</span></article>
+          </section>
+
+          <section class="audit-explainer-grid">
+            <article>
+              <p class="eyebrow">What the report says</p>
+              <h3>Selected-unit equipment audit</h3>
+              <p>WEC reported that a public dice-derived seed was used on November 6, 2024. The selection tool returned 373 reporting units. Twelve selected units had no registered voters and were excused because no ballots were cast there.</p>
+              <p>For selected units, auditors hand tallied four contests, including President and Vice President by default, and compared those hand tallies with voting-equipment totals. WEC reported no errors solely attributable to the electronic voting system in the audited submissions.</p>
+            </article>
+            <article>
+              <p class="eyebrow">What this model asks</p>
+              <h3>Sample-intersection question</h3>
+              <p>If a hypothetical discrepancy were concentrated in certain reporting units, how often would a random sample include at least one affected unit? If the sample touches an affected unit, the model marks the scenario as detected. If it touches none, the model marks the scenario as missed.</p>
+              <p>The real audit included statewide, county, equipment-type, central-count, and municipality-size rules. This simplified model isolates one local-area sampling question so it can be understood clearly.</p>
+            </article>
+          </section>
+
+          <section class="audit-simulator" aria-label="Interactive hypothetical sampling model">
+            <div class="audit-controls">
+              <div>
+                <p class="eyebrow">Interactive model</p>
+                <h3>Change the hypothetical scenario</h3>
+              </div>
+              <label>
+                <span>Illustrative preset</span>
+                <select id="auditPreset">
+                  <option value="largest">Largest-municipality tier example</option>
+                  <option value="next20">Next-20-largest tier example</option>
+                  <option value="other">Other-municipality tier example</option>
+                </select>
+              </label>
+              <p id="auditPresetNote" class="audit-preset-note"></p>
+              <label>
+                <span><span class="technical-term" tabindex="0" data-definition="A reporting unit is the local result bucket used for election totals. It may be one ward, a combination of wards, or another district by which votes are tallied.">Reporting units in illustrative area</span> <output id="auditAreaUnitsValue"></output></span>
+                <input id="auditAreaUnits" type="range" min="4" max="120" step="1" />
+              </label>
+              <label>
+                <span><span class="technical-term" tabindex="0" data-definition="These are the illustrative local reporting units selected for hand counting. The simulator models a random sample within the displayed area.">Units sampled for audit</span> <output id="auditSampleUnitsValue"></output></span>
+                <input id="auditSampleUnits" type="range" min="1" max="12" step="1" />
+              </label>
+              <label>
+                <span><span class="technical-term" tabindex="0" data-definition="These are hypothetical units where an illustrative discrepancy is concentrated. This is a user-controlled assumption, not a statement about an actual Wisconsin reporting unit.">Hypothetical affected units</span> <output id="auditAffectedUnitsValue"></output></span>
+                <input id="auditAffectedUnits" type="range" min="1" max="30" step="1" />
+              </label>
+              <label>
+                <span>Illustrative ballots per unit <output id="auditBallotsPerUnitValue"></output></span>
+                <input id="auditBallotsPerUnit" type="range" min="100" max="2000" step="50" />
+              </label>
+              <label>
+                <span>Baseline Candidate A share <output id="auditCandidateShareValue"></output></span>
+                <input id="auditCandidateShare" type="range" min="35" max="65" step="1" />
+              </label>
+              <label>
+                <span>Illustrative votes shifted per affected unit <output id="auditShiftValue"></output></span>
+                <input id="auditShiftPerUnit" type="range" min="0" max="500" step="25" />
+              </label>
+              <button id="auditRerollBtn" class="secondary-button" type="button">Reroll illustrative sample</button>
+            </div>
+
+            <div class="audit-visual">
+              <div class="audit-result-grid">
+                <article>
+                  <span><span class="technical-term" tabindex="0" data-definition="The exact probability that a random sample includes none of the hypothetical affected units. It describes this simplified model, not the real audit's overall effectiveness.">Sample-miss probability</span></span>
+                  <strong id="auditMissProbability">--</strong>
+                </article>
+                <article>
+                  <span>Sample-touch probability</span>
+                  <strong id="auditTouchProbability">--</strong>
+                </article>
+                <article>
+                  <span>Illustrative shifted votes</span>
+                  <strong id="auditShiftedVotes">--</strong>
+                </article>
+                <article>
+                  <span>This rerolled draw</span>
+                  <strong id="auditDrawResult">--</strong>
+                </article>
+              </div>
+              <div class="audit-grid-legend" aria-label="Simulator grid legend">
+                <span><i class="audit-unit"></i>Not sampled</span>
+                <span><i class="audit-unit sampled"></i>Sampled</span>
+                <span><i class="audit-unit affected"></i>Hypothetical affected</span>
+                <span><i class="audit-unit overlap"></i>Sample intersects affected</span>
+              </div>
+              <div id="auditUnitGrid" class="audit-unit-grid" aria-label="Illustrative reporting units"></div>
+              <p id="auditScenarioSummary" class="audit-scenario-summary"></p>
+              <section class="audit-vote-comparison" aria-label="Illustrative area vote totals">
+                <div>
+                  <p class="eyebrow">Illustrative area vote totals</p>
+                  <h4>Paper-baseline scenario vs hypothetical altered report</h4>
+                </div>
+                <div id="auditVoteComparison" class="audit-vote-comparison-grid"></div>
+              </section>
+            </div>
+          </section>
+
+          <section class="audit-sources" aria-label="Audit simulator sources">
+            <p class="eyebrow">Official references</p>
+            <h3>What this tab is based on</h3>
+            <ul>
+              <li><a href="https://elections.wi.gov/sites/default/files/documents/OPEN%20Session%20Materials%20-March%207_FINAL%20for%20Web%20Posting_0.pdf#page=51" target="_blank" rel="noreferrer">WEC March 7, 2025 meeting materials: 2024 Post-Election Voting Equipment Audit Final Report</a></li>
+              <li><a href="https://publicmeetings.wi.gov/download-attachment/eba1bcae-bd3b-41e4-9177-fcf538c1b045" target="_blank" rel="noreferrer">WEC October 4, 2024 meeting materials: adopted audit parameters and procedures</a></li>
+              <li><a href="https://docs.legis.wisconsin.gov/statutes/statutes/7/i/08/6" target="_blank" rel="noreferrer">Wis. Stat. § 7.08(6): voting-system audit statute</a></li>
+            </ul>
+          </section>
+        </section>
+
         <section id="aboutPanel" class="tab-panel about-panel" role="tabpanel" aria-label="About and contact" hidden>
           <div class="about-hero">
             <p class="eyebrow">About this project</p>
@@ -533,7 +661,9 @@
                 Maps certified county presidential results, shows official WEC ward-level graph
                 patterns, compares major cities with the rest of their counties, and tracks which
                 turnout denominator sources have been imported. A historical tab helps distinguish
-                patterns that were already visible in earlier presidential elections.
+                patterns that were already visible in earlier presidential elections. An educational
+                audit-coverage simulator illustrates how hypothetical concentrated discrepancies
+                interact with a random reporting-unit sample.
               </p>
             </article>
             <article>
@@ -593,6 +723,7 @@
               <li>Wisconsin Legislative Technology Services Bureau harmonized presidential comparison layers for historical baselines.</li>
               <li>U.S. Census TIGERweb Wisconsin county boundary geometry.</li>
               <li>Local county or municipal turnout reports where registered-voter denominator rows have been imported.</li>
+              <li>Official WEC 2024 post-election voting-equipment audit report and adopted procedures.</li>
               <li>Election Truth Alliance methodology pages for graph type names and screening concepts, not as a source of Wisconsin vote totals.</li>
             </ul>
           </section>
@@ -1008,6 +1139,6 @@
     <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
     <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
     <script src="./data/historical-data.js?v=20260601-history"></script>
-    <script src="./app.js?v=20260601-technical-tooltips"></script>
+    <script src="./app.js?v=20260602-audit-simulator"></script>
   </body>
 </html>

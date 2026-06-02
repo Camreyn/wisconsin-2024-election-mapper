@@ -112,13 +112,13 @@ function element(selector) {
   return elements.get(selector);
 }
 
-const appTabs = ["dashboard", "review", "history", "data", "methodology", "about"].map((name) => {
+const appTabs = ["dashboard", "review", "history", "data", "methodology", "audit", "about"].map((name) => {
   const tab = new MockElement();
   tab.dataset.appTab = name;
   if (name === "dashboard") tab.classList.add("active");
   return tab;
 });
-const tabPanels = ["dashboard", "review", "history", "data", "methodology", "about"].map((name) => {
+const tabPanels = ["dashboard", "review", "history", "data", "methodology", "audit", "about"].map((name) => {
   const panel = new MockElement(`${name}Panel`);
   panel.hidden = name !== "dashboard";
   return panel;
@@ -191,6 +191,11 @@ const checks = {
   distributionGraphSvg: element("#historicalDistributionGraph").innerHTML.includes("<svg"),
   distributionGraphComesFirst: indexHtml.indexOf('id="historicalDistributionGraph"') < indexHtml.indexOf('id="historicalTrendGraph"'),
   historicalAxisLabelsAreClean: !element("#historicalTrendGraph").innerHTML.includes("year ?") && !element("#historicalScatterGraph").innerHTML.includes("row ?"),
+  auditTabPresent: indexHtml.includes('data-app-tab="audit"') && indexHtml.includes('id="auditPanel"'),
+  auditSidebarAction: indexHtml.includes('data-open-tab="audit">Open Audit Simulator</button>'),
+  auditMissProbability: element("#auditMissProbability").textContent,
+  auditGridUnits: (element("#auditUnitGrid").innerHTML.match(/class="audit-unit/g) || []).length,
+  auditVoteComparison: element("#auditVoteComparison").innerHTML.includes("80,000") && element("#auditVoteComparison").innerHTML.includes("Illustrative margin movement"),
 };
 vm.runInContext(`setTheme("dark")`, context);
 checks.darkModeApplied = document.documentElement.dataset.theme === "dark";
@@ -213,6 +218,11 @@ const expected = {
   distributionGraphSvg: true,
   distributionGraphComesFirst: true,
   historicalAxisLabelsAreClean: true,
+  auditTabPresent: true,
+  auditSidebarAction: true,
+  auditMissProbability: "71.26%",
+  auditGridUnits: 100,
+  auditVoteComparison: true,
   darkModeApplied: true,
   darkModeStored: true,
 };

@@ -132,6 +132,23 @@ county's ward rows; no selection shows the statewide ward dataset.
 
 See `docs/methodology.md` for interpretation notes and limitations.
 
+## Audit Coverage Simulator
+
+The Audit Simulator tab summarizes official WEC 2024 post-election
+voting-equipment audit facts and provides an educational sampling model. The
+interactive grid asks whether a random local reporting-unit sample intersects a
+user-controlled hypothetical cluster. It is not evidence that tampering
+occurred, not a reconstruction of Wisconsin's actual selected reporting units,
+and not a conclusion about safeguards outside the simplified model.
+
+Official references:
+
+- WEC March 7, 2025 meeting materials: `2024 Post-Election Voting Equipment
+  Audit Final Report`.
+- WEC October 4, 2024 meeting materials: adopted audit parameters and
+  procedures.
+- Wis. Stat. § 7.08(6).
+
 Downloaded verification files:
 
 - `data/County by County Report_POTUS.pdf`

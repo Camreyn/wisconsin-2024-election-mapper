@@ -108,6 +108,13 @@ const SOURCE_INVENTORY = [
     usedFor: "Apples-to-apples 2024 harmonized ward comparison in the Historical Baseline tab.",
     confidence: "Official LTSB comparison layer. Statewide and county totals reconcile to native WEC results; ward rows remain visibly labeled as population-allocated harmonized values.",
   },
+  {
+    category: "2024 post-election voting-equipment audit",
+    file: "Official WEC March 7, 2025 meeting materials and October 4, 2024 adopted procedures",
+    sourceUrl: "https://elections.wi.gov/sites/default/files/documents/OPEN%20Session%20Materials%20-March%207_FINAL%20for%20Web%20Posting_0.pdf#page=51",
+    usedFor: "Audit Simulator report summary, municipality-tier presets, and educational sampling-coverage model.",
+    confidence: "Official WEC materials. Simulator scenarios are illustrative hypotheticals, not findings and not reconstructions of the actual audit sample.",
+  },
 ];
 
 const CHECKED_NOT_USABLE = [
@@ -129,6 +136,36 @@ const DEFAULT_REVIEW_POLICY = {
 
 const COUNTY_REVIEW_POLICY = { ...DEFAULT_REVIEW_POLICY };
 
+const AUDIT_SIMULATOR_PRESETS = {
+  largest: {
+    areaUnits: 100,
+    sampleUnits: 4,
+    affectedUnits: 8,
+    ballotsPerUnit: 800,
+    candidateShare: 50,
+    shiftPerUnit: 100,
+    note: "Illustrative largest-municipality tier. The adopted procedures allow Milwaukee and Madison to have up to four reporting units selected. This does not reconstruct either city's actual audit sample.",
+  },
+  next20: {
+    areaUnits: 60,
+    sampleUnits: 3,
+    affectedUnits: 6,
+    ballotsPerUnit: 800,
+    candidateShare: 50,
+    shiftPerUnit: 100,
+    note: "Illustrative next-20-largest municipality tier. The adopted procedures allow up to three reporting units to be selected. This is not a reconstruction of any municipality's actual audit sample.",
+  },
+  other: {
+    areaUnits: 20,
+    sampleUnits: 1,
+    affectedUnits: 3,
+    ballotsPerUnit: 800,
+    candidateShare: 50,
+    shiftPerUnit: 100,
+    note: "Illustrative other-municipality tier. The adopted procedures allow up to one reporting unit to be selected. This is not a reconstruction of any municipality's actual audit sample.",
+  },
+};
+
 const byCounty = new Map(RESULTS.map((row) => [normalizeCounty(row.county), row]));
 const countyReviewCache = new Map();
 const stateTotals = RESULTS.reduce(
@@ -149,6 +186,7 @@ let colorMode = "winner";
 let selectedCounty = null;
 let citySplitData = [];
 let flaggedAreaSummaryRows = [];
+let auditSimulationSeed = 17;
 
 const els = {
   trumpTotal: document.querySelector("#trumpTotal"),
@@ -231,6 +269,28 @@ const els = {
   historicalTrendGraph: document.querySelector("#historicalTrendGraph"),
   historicalScatterGraph: document.querySelector("#historicalScatterGraph"),
   historicalDistributionGraph: document.querySelector("#historicalDistributionGraph"),
+  auditPreset: document.querySelector("#auditPreset"),
+  auditPresetNote: document.querySelector("#auditPresetNote"),
+  auditAreaUnits: document.querySelector("#auditAreaUnits"),
+  auditAreaUnitsValue: document.querySelector("#auditAreaUnitsValue"),
+  auditSampleUnits: document.querySelector("#auditSampleUnits"),
+  auditSampleUnitsValue: document.querySelector("#auditSampleUnitsValue"),
+  auditAffectedUnits: document.querySelector("#auditAffectedUnits"),
+  auditAffectedUnitsValue: document.querySelector("#auditAffectedUnitsValue"),
+  auditBallotsPerUnit: document.querySelector("#auditBallotsPerUnit"),
+  auditBallotsPerUnitValue: document.querySelector("#auditBallotsPerUnitValue"),
+  auditCandidateShare: document.querySelector("#auditCandidateShare"),
+  auditCandidateShareValue: document.querySelector("#auditCandidateShareValue"),
+  auditShiftPerUnit: document.querySelector("#auditShiftPerUnit"),
+  auditShiftValue: document.querySelector("#auditShiftValue"),
+  auditRerollBtn: document.querySelector("#auditRerollBtn"),
+  auditMissProbability: document.querySelector("#auditMissProbability"),
+  auditTouchProbability: document.querySelector("#auditTouchProbability"),
+  auditShiftedVotes: document.querySelector("#auditShiftedVotes"),
+  auditDrawResult: document.querySelector("#auditDrawResult"),
+  auditUnitGrid: document.querySelector("#auditUnitGrid"),
+  auditScenarioSummary: document.querySelector("#auditScenarioSummary"),
+  auditVoteComparison: document.querySelector("#auditVoteComparison"),
 };
 
 function init() {
@@ -249,6 +309,7 @@ function init() {
   renderReviewDrilldown();
   renderCandidateBreakdown();
   renderHistoricalComparison();
+  applyAuditPreset("largest");
   renderTable(RESULTS);
   wireControls();
   setAppTab(initialTabName(), { updateHash: false });
@@ -328,6 +389,14 @@ function wireControls() {
   });
   els.historicalCountySelect.addEventListener("change", renderHistoricalComparison);
   els.historicalSeriesSelect.addEventListener("change", renderHistoricalComparison);
+  els.auditPreset.addEventListener("change", () => applyAuditPreset(els.auditPreset.value));
+  [els.auditAreaUnits, els.auditSampleUnits, els.auditAffectedUnits, els.auditBallotsPerUnit, els.auditCandidateShare, els.auditShiftPerUnit].forEach((input) => {
+    input.addEventListener("input", renderAuditSimulator);
+  });
+  els.auditRerollBtn.addEventListener("click", () => {
+    auditSimulationSeed += 41;
+    renderAuditSimulator();
+  });
 }
 
 function organizeWorkspacePanels() {
@@ -376,7 +445,7 @@ function initialTabName() {
 
 function routeState() {
   const [hashTab = "", query = ""] = window.location.hash.replace(/^#/, "").split("?");
-  const validTabs = ["dashboard", "review", "history", "data", "methodology", "about"];
+  const validTabs = ["dashboard", "review", "history", "data", "methodology", "audit", "about"];
   return {
     tabName: validTabs.includes(hashTab) ? hashTab : "dashboard",
     query,
@@ -2064,6 +2133,121 @@ function axisLabel({ x, y, transform, anchor, label, help }) {
 
 function technicalTerm(label, definition) {
   return `<span class="technical-term" tabindex="0" data-definition="${escapeAttr(definition)}">${escapeText(label)}</span>`;
+}
+
+function applyAuditPreset(presetName) {
+  const preset = AUDIT_SIMULATOR_PRESETS[presetName] || AUDIT_SIMULATOR_PRESETS.largest;
+  els.auditPreset.value = presetName in AUDIT_SIMULATOR_PRESETS ? presetName : "largest";
+  els.auditAreaUnits.value = String(preset.areaUnits);
+  els.auditSampleUnits.value = String(preset.sampleUnits);
+  els.auditAffectedUnits.value = String(preset.affectedUnits);
+  els.auditBallotsPerUnit.value = String(preset.ballotsPerUnit);
+  els.auditCandidateShare.value = String(preset.candidateShare);
+  els.auditShiftPerUnit.value = String(preset.shiftPerUnit);
+  els.auditPresetNote.textContent = preset.note;
+  auditSimulationSeed += 7;
+  renderAuditSimulator();
+}
+
+function renderAuditSimulator() {
+  const areaUnits = clamp(Math.round(Number(els.auditAreaUnits.value) || 4), 4, 120);
+  const sampleUnits = clamp(Math.round(Number(els.auditSampleUnits.value) || 1), 1, Math.min(12, areaUnits));
+  const affectedUnits = clamp(Math.round(Number(els.auditAffectedUnits.value) || 1), 1, Math.min(30, areaUnits));
+  const ballotsPerUnit = clamp(Math.round(Number(els.auditBallotsPerUnit.value) || 100), 100, 2000);
+  const candidateShare = clamp(Math.round(Number(els.auditCandidateShare.value) || 50), 35, 65);
+  const shiftPerUnit = clamp(Math.round(Number(els.auditShiftPerUnit.value) || 0), 0, 500);
+  els.auditAreaUnits.value = String(areaUnits);
+  els.auditSampleUnits.value = String(sampleUnits);
+  els.auditAffectedUnits.value = String(affectedUnits);
+  els.auditBallotsPerUnit.value = String(ballotsPerUnit);
+  els.auditCandidateShare.value = String(candidateShare);
+  els.auditShiftPerUnit.value = String(shiftPerUnit);
+  els.auditAreaUnitsValue.textContent = formatNumber(areaUnits);
+  els.auditSampleUnitsValue.textContent = formatNumber(sampleUnits);
+  els.auditAffectedUnitsValue.textContent = formatNumber(affectedUnits);
+  els.auditBallotsPerUnitValue.textContent = formatNumber(ballotsPerUnit);
+  els.auditCandidateShareValue.textContent = `${candidateShare}%`;
+  els.auditShiftValue.textContent = formatNumber(shiftPerUnit);
+
+  const missProbability = auditSampleMissProbability(areaUnits, sampleUnits, affectedUnits);
+  const sampled = new Set(auditSampleIndices(areaUnits, sampleUnits, auditSimulationSeed));
+  const clusterStart = Math.floor(auditSeededValue(auditSimulationSeed + 97) * areaUnits);
+  const affected = new Set(Array.from({ length: affectedUnits }, (_, index) => (clusterStart + index) % areaUnits));
+  const overlap = [...affected].filter((index) => sampled.has(index));
+  const missed = overlap.length === 0;
+  els.auditMissProbability.textContent = `${(missProbability * 100).toFixed(2)}%`;
+  els.auditTouchProbability.textContent = `${((1 - missProbability) * 100).toFixed(2)}%`;
+  const areaBallots = areaUnits * ballotsPerUnit;
+  const candidateABaseline = Math.round(areaBallots * (candidateShare / 100));
+  const candidateBBaseline = areaBallots - candidateABaseline;
+  const shiftedVotes = Math.min(affectedUnits * shiftPerUnit, candidateABaseline);
+  const candidateAAltered = candidateABaseline - shiftedVotes;
+  const candidateBAltered = candidateBBaseline + shiftedVotes;
+  els.auditShiftedVotes.textContent = formatNumber(shiftedVotes);
+  els.auditDrawResult.textContent = missed ? "Missed cluster" : "Touched cluster";
+  els.auditDrawResult.className = missed ? "audit-missed" : "audit-touched";
+  els.auditUnitGrid.innerHTML = Array.from({ length: areaUnits }, (_, index) => {
+    const isSampled = sampled.has(index);
+    const isAffected = affected.has(index);
+    const state = isSampled && isAffected ? "overlap" : isAffected ? "affected" : isSampled ? "sampled" : "";
+    const label = isSampled && isAffected
+      ? "Sampled and hypothetical affected unit"
+      : isAffected
+        ? "Hypothetical affected unit, not sampled"
+        : isSampled
+          ? "Sampled unit"
+          : "Unit not sampled";
+    return `<span class="audit-unit ${state}" title="${label}" aria-label="${label}"></span>`;
+  }).join("");
+  els.auditScenarioSummary.textContent = missed
+    ? `In this one rerolled illustration, none of the ${formatNumber(sampleUnits)} sampled units intersect the ${formatNumber(affectedUnits)} hypothetical affected units. The simplified model therefore marks this draw as missed.`
+    : `In this one rerolled illustration, ${formatNumber(overlap.length)} sampled unit${overlap.length === 1 ? "" : "s"} intersect the ${formatNumber(affectedUnits)} hypothetical affected units. The simplified model therefore marks this draw as detected for follow-up.`;
+  els.auditVoteComparison.innerHTML = `
+    <article>
+      <span>Illustrative area ballots</span>
+      <strong>${formatNumber(areaBallots)}</strong>
+    </article>
+    <article>
+      <span>Paper-baseline Candidate A</span>
+      <strong>${formatNumber(candidateABaseline)}</strong>
+      <small>Candidate B: ${formatNumber(candidateBBaseline)}</small>
+    </article>
+    <article>
+      <span>Hypothetical altered-report Candidate A</span>
+      <strong>${formatNumber(candidateAAltered)}</strong>
+      <small>Candidate B: ${formatNumber(candidateBAltered)}</small>
+    </article>
+    <article>
+      <span>Illustrative margin movement</span>
+      <strong>${formatNumber(shiftedVotes * 2)}</strong>
+      <small>Each shifted vote changes the two-candidate margin by two votes.</small>
+    </article>
+  `;
+}
+
+function auditSampleMissProbability(areaUnits, sampleUnits, affectedUnits) {
+  if (sampleUnits > areaUnits - affectedUnits) {
+    return 0;
+  }
+  let probability = 1;
+  for (let index = 0; index < sampleUnits; index += 1) {
+    probability *= (areaUnits - affectedUnits - index) / (areaUnits - index);
+  }
+  return probability;
+}
+
+function auditSampleIndices(areaUnits, sampleUnits, seed) {
+  const indices = Array.from({ length: areaUnits }, (_, index) => index);
+  for (let index = indices.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(auditSeededValue(seed + index * 13) * (index + 1));
+    [indices[index], indices[swapIndex]] = [indices[swapIndex], indices[index]];
+  }
+  return indices.slice(0, sampleUnits);
+}
+
+function auditSeededValue(seed) {
+  const value = Math.sin(seed * 999.91) * 10000;
+  return value - Math.floor(value);
 }
 
 function regressionLine(points, xScale, yScale, xMax, color) {
