@@ -203,6 +203,7 @@ const checks = {
   auditDistributionNote: element("#auditDistributionNote").textContent.includes("grid is not a geographic map"),
   auditSpreadPattern: vm.runInContext(`auditAffectedIndices(100, 8, 17, "spread").join(",") !== auditAffectedIndices(100, 8, 17, "concentrated").join(",")`, context),
   auditHighVolumeDisclaimer: vm.runInContext(`AUDIT_DISTRIBUTION_NOTES.highVolume.includes("cannot identify real high-volume audit units")`, context),
+  auditMinimumMarginControl: indexHtml.includes('id="auditMinimumMarginMode"') && indexHtml.includes("Use minimum needed to move Wisconsin margin"),
   auditMissProbability: element("#auditMissProbability").textContent,
   auditTrialMissRate: /^\d+\.\d%$/.test(element("#auditTrialMissRate").textContent),
   auditTrialProgress: element("#auditTrialProgress").value,
@@ -211,6 +212,12 @@ const checks = {
   auditGridUnits: (element("#auditUnitGrid").innerHTML.match(/class="audit-unit/g) || []).length,
   auditVoteComparison: element("#auditVoteComparison").innerHTML.includes("3,271,210") && element("#auditVoteComparison").innerHTML.includes("Illustrative margin movement"),
 };
+vm.runInContext(`els.auditMinimumMarginMode.checked = true; renderAuditSimulator();`, context);
+checks.auditMinimumMarginShift = element("#auditShiftValue").textContent === "490 needed";
+checks.auditMinimumMarginNote = element("#auditMinimumMarginNote").textContent.includes("29,397")
+  && element("#auditMinimumMarginNote").textContent.includes("14,699")
+  && element("#auditMinimumMarginNote").textContent.includes("only has about 439");
+checks.auditMinimumMarginTotal = element("#auditShiftedVotes").textContent === "13,170";
 vm.runInContext(`setTheme("dark")`, context);
 checks.darkModeApplied = document.documentElement.dataset.theme === "dark";
 checks.darkModeStored = storage.get("wi-election-theme") === "dark";
@@ -240,6 +247,7 @@ const expected = {
   auditDistributionNote: true,
   auditSpreadPattern: true,
   auditHighVolumeDisclaimer: true,
+  auditMinimumMarginControl: true,
   auditMissProbability: "4.18%",
   auditTrialMissRate: true,
   auditTrialProgress: 1000,
@@ -247,6 +255,9 @@ const expected = {
   auditTrialSummary: true,
   auditGridUnits: 3730,
   auditVoteComparison: true,
+  auditMinimumMarginShift: true,
+  auditMinimumMarginNote: true,
+  auditMinimumMarginTotal: true,
   darkModeApplied: true,
   darkModeStored: true,
 };

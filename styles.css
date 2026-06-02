@@ -2066,6 +2066,7 @@ select {
 .audit-explainer-grid p,
 .audit-preset-note,
 .audit-distribution-note,
+.audit-minimum-margin-note,
 .audit-scenario-summary {
   margin: 7px 0 0;
   color: var(--muted);
@@ -2141,6 +2142,17 @@ select {
   display: flex;
   justify-content: space-between;
   gap: 12px;
+}
+
+.audit-controls .audit-checkbox-control {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  color: var(--ink);
+}
+
+.audit-checkbox-control input {
+  margin-top: 3px;
 }
 
 .audit-controls select {

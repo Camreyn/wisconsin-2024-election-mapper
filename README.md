@@ -152,6 +152,12 @@ probability. The reported trial miss rate is an educational repeated-sampling
 illustration, not a reproduction of WEC's constrained selection software or an
 estimate published by WEC.
 
+An optional minimum-threshold mode calculates the smallest equal number of
+switched votes per hypothetical affected unit needed to move Wisconsin's
+certified 2024 presidential margin. The app warns when that per-unit threshold
+exceeds the Candidate A votes available under the current ballots-per-unit and
+baseline-share assumptions.
+
 Official references:
 
 - WEC March 7, 2025 meeting materials: `2024 Post-Election Voting Equipment

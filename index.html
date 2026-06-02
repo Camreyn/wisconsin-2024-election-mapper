@@ -602,6 +602,11 @@
                 <span>Illustrative votes shifted per affected unit <output id="auditShiftValue"></output></span>
                 <input id="auditShiftPerUnit" type="range" min="0" max="500" step="25" />
               </label>
+              <label class="audit-checkbox-control">
+                <input id="auditMinimumMarginMode" type="checkbox" />
+                <span><span class="technical-term" tabindex="0" data-definition="This calculates the smallest equal number of switched votes per hypothetical affected reporting unit needed to move Wisconsin's certified 2024 presidential margin. It is a threshold model, not evidence that switching occurred.">Use minimum needed to move Wisconsin margin</span></span>
+              </label>
+              <p id="auditMinimumMarginNote" class="audit-minimum-margin-note"></p>
               <button id="auditRerollBtn" class="secondary-button" type="button">Reroll illustrative sample</button>
               <button id="auditRunTrialsBtn" class="primary-button" type="button">Run 1,000 simplified trials</button>
             </div>

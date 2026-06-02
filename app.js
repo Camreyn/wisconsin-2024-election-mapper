@@ -199,6 +199,8 @@ const stateTotals = RESULTS.reduce(
   },
   { trump: 0, harris: 0, other: 0, total: 0 },
 );
+const STATEWIDE_2024_PRESIDENTIAL_MARGIN = Math.abs(stateTotals.trump - stateTotals.harris);
+const MIN_SWITCHES_TO_MOVE_STATEWIDE_MARGIN = Math.floor(STATEWIDE_2024_PRESIDENTIAL_MARGIN / 2) + 1;
 
 let collected = [];
 let map;
@@ -308,6 +310,8 @@ const els = {
   auditCandidateShareValue: document.querySelector("#auditCandidateShareValue"),
   auditShiftPerUnit: document.querySelector("#auditShiftPerUnit"),
   auditShiftValue: document.querySelector("#auditShiftValue"),
+  auditMinimumMarginMode: document.querySelector("#auditMinimumMarginMode"),
+  auditMinimumMarginNote: document.querySelector("#auditMinimumMarginNote"),
   auditRerollBtn: document.querySelector("#auditRerollBtn"),
   auditRunTrialsBtn: document.querySelector("#auditRunTrialsBtn"),
   auditMissProbability: document.querySelector("#auditMissProbability"),
@@ -428,6 +432,10 @@ function wireControls() {
     });
   });
   els.auditAffectedDistribution.addEventListener("change", () => {
+    resetAuditTrials();
+    renderAuditSimulator();
+  });
+  els.auditMinimumMarginMode.addEventListener("change", () => {
     resetAuditTrials();
     renderAuditSimulator();
   });
@@ -2183,6 +2191,7 @@ function applyAuditPreset(presetName) {
   els.auditBallotsPerUnit.value = String(preset.ballotsPerUnit);
   els.auditCandidateShare.value = String(preset.candidateShare);
   els.auditShiftPerUnit.value = String(preset.shiftPerUnit);
+  els.auditMinimumMarginMode.checked = false;
   els.auditPresetNote.textContent = preset.note;
   auditSimulationSeed += 7;
   resetAuditTrials();
@@ -2255,19 +2264,35 @@ function renderAuditSimulator() {
   const affectedUnits = clamp(Math.round(Number(els.auditAffectedUnits.value) || 1), 1, Math.min(500, areaUnits));
   const ballotsPerUnit = clamp(Math.round(Number(els.auditBallotsPerUnit.value) || 100), 100, 2000);
   const candidateShare = clamp(Math.round(Number(els.auditCandidateShare.value) || 50), 35, 65);
-  const shiftPerUnit = clamp(Math.round(Number(els.auditShiftPerUnit.value) || 0), 0, 500);
+  const sliderShiftPerUnit = clamp(Math.round(Number(els.auditShiftPerUnit.value) || 0), 0, 500);
+  const minimumShiftPerUnit = Math.ceil(MIN_SWITCHES_TO_MOVE_STATEWIDE_MARGIN / affectedUnits);
+  const shiftPerUnit = els.auditMinimumMarginMode.checked ? minimumShiftPerUnit : sliderShiftPerUnit;
+  const areaBallots = areaUnits * ballotsPerUnit;
+  const candidateABaseline = Math.round(areaBallots * (candidateShare / 100));
+  const candidateBBaseline = areaBallots - candidateABaseline;
+  const candidateABaselinePerAffectedUnit = Math.round(ballotsPerUnit * (candidateShare / 100));
+  const feasibleShiftPerUnit = Math.min(shiftPerUnit, candidateABaselinePerAffectedUnit);
   els.auditAreaUnits.value = String(areaUnits);
   els.auditSampleUnits.value = String(sampleUnits);
   els.auditAffectedUnits.value = String(affectedUnits);
   els.auditBallotsPerUnit.value = String(ballotsPerUnit);
   els.auditCandidateShare.value = String(candidateShare);
-  els.auditShiftPerUnit.value = String(shiftPerUnit);
+  els.auditShiftPerUnit.value = String(sliderShiftPerUnit);
+  els.auditShiftPerUnit.disabled = els.auditMinimumMarginMode.checked;
   els.auditAreaUnitsValue.textContent = formatNumber(areaUnits);
   els.auditSampleUnitsValue.textContent = formatNumber(sampleUnits);
   els.auditAffectedUnitsValue.textContent = formatNumber(affectedUnits);
   els.auditBallotsPerUnitValue.textContent = formatNumber(ballotsPerUnit);
   els.auditCandidateShareValue.textContent = `${candidateShare}%`;
-  els.auditShiftValue.textContent = formatNumber(shiftPerUnit);
+  els.auditShiftValue.textContent = els.auditMinimumMarginMode.checked
+    ? `${formatNumber(shiftPerUnit)} needed`
+    : formatNumber(shiftPerUnit);
+  const minimumFeasibilityNote = shiftPerUnit > candidateABaselinePerAffectedUnit
+    ? ` With the current ${formatNumber(ballotsPerUnit)} ballots per unit and ${candidateShare}% Candidate A baseline, each affected unit only has about ${formatNumber(candidateABaselinePerAffectedUnit)} Candidate A votes available to switch. Increase affected units, ballots per unit, or Candidate A baseline share to make this switch model feasible.`
+    : "";
+  els.auditMinimumMarginNote.textContent = els.auditMinimumMarginMode.checked
+    ? `Minimum threshold mode is on: Wisconsin's certified Trump margin was ${formatNumber(STATEWIDE_2024_PRESIDENTIAL_MARGIN)} votes. Switching ${formatNumber(MIN_SWITCHES_TO_MOVE_STATEWIDE_MARGIN)} votes from Candidate A to Candidate B would move that margin by ${formatNumber(MIN_SWITCHES_TO_MOVE_STATEWIDE_MARGIN * 2)} votes. Spread equally across ${formatNumber(affectedUnits)} hypothetical affected units, that is ${formatNumber(shiftPerUnit)} switched vote${shiftPerUnit === 1 ? "" : "s"} per unit.${minimumFeasibilityNote}`
+    : `Manual mode: use the slider to choose the hypothetical switched votes per affected unit. Turning on minimum threshold mode calculates the smallest equal per-unit amount needed to move the certified statewide margin.`;
   const distribution = els.auditAffectedDistribution.value in AUDIT_DISTRIBUTION_NOTES ? els.auditAffectedDistribution.value : "concentrated";
   els.auditAffectedDistribution.value = distribution;
   els.auditDistributionNote.textContent = AUDIT_DISTRIBUTION_NOTES[distribution];
@@ -2279,10 +2304,7 @@ function renderAuditSimulator() {
   const missed = overlap.length === 0;
   els.auditMissProbability.textContent = `${(missProbability * 100).toFixed(2)}%`;
   els.auditTouchProbability.textContent = `${((1 - missProbability) * 100).toFixed(2)}%`;
-  const areaBallots = areaUnits * ballotsPerUnit;
-  const candidateABaseline = Math.round(areaBallots * (candidateShare / 100));
-  const candidateBBaseline = areaBallots - candidateABaseline;
-  const shiftedVotes = Math.min(affectedUnits * shiftPerUnit, candidateABaseline);
+  const shiftedVotes = Math.min(affectedUnits * feasibleShiftPerUnit, candidateABaseline);
   const candidateAAltered = candidateABaseline - shiftedVotes;
   const candidateBAltered = candidateBBaseline + shiftedVotes;
   els.auditShiftedVotes.textContent = formatNumber(shiftedVotes);
