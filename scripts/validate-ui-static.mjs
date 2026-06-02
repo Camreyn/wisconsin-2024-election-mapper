@@ -173,7 +173,7 @@ for (const file of [
 }
 
 await new Promise((resolve) => setTimeout(resolve, 400));
-vm.runInContext(`runAuditTrials()`, context);
+await vm.runInContext(`runAuditTrials()`, context);
 
 const checks = {
   sidebarExplorerTitle: indexHtml.includes("Wisconsin Presidential Results Explorer"),
@@ -198,6 +198,8 @@ const checks = {
   auditTrialsButton: indexHtml.includes('id="auditRunTrialsBtn"') && indexHtml.includes("Run 1,000 simplified trials"),
   auditMissProbability: element("#auditMissProbability").textContent,
   auditTrialMissRate: /^\d+\.\d%$/.test(element("#auditTrialMissRate").textContent),
+  auditTrialProgress: element("#auditTrialProgress").value,
+  auditTrialProgressText: element("#auditTrialProgressText").textContent,
   auditTrialSummary: element("#auditTrialSummary").textContent.includes("of 1,000 simplified audit draws missed every one"),
   auditGridUnits: (element("#auditUnitGrid").innerHTML.match(/class="audit-unit/g) || []).length,
   auditVoteComparison: element("#auditVoteComparison").innerHTML.includes("3,271,210") && element("#auditVoteComparison").innerHTML.includes("Illustrative margin movement"),
@@ -229,6 +231,8 @@ const expected = {
   auditTrialsButton: true,
   auditMissProbability: "4.18%",
   auditTrialMissRate: true,
+  auditTrialProgress: 1000,
+  auditTrialProgressText: "1,000 of 1,000 trials complete",
   auditTrialSummary: true,
   auditGridUnits: 3730,
   auditVoteComparison: true,

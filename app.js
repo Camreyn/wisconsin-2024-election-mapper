@@ -193,6 +193,7 @@ let map;
 let geoLayer;
 let colorMode = "winner";
 let auditTrialBatchSeed = 20241106;
+let auditTrialRunToken = 0;
 let selectedCounty = null;
 let citySplitData = [];
 let flaggedAreaSummaryRows = [];
@@ -300,6 +301,9 @@ const els = {
   auditShiftedVotes: document.querySelector("#auditShiftedVotes"),
   auditDrawResult: document.querySelector("#auditDrawResult"),
   auditTrialMissRate: document.querySelector("#auditTrialMissRate"),
+  auditTrialProgressWrap: document.querySelector("#auditTrialProgressWrap"),
+  auditTrialProgress: document.querySelector("#auditTrialProgress"),
+  auditTrialProgressText: document.querySelector("#auditTrialProgressText"),
   auditTrialSummary: document.querySelector("#auditTrialSummary"),
   auditUnitGrid: document.querySelector("#auditUnitGrid"),
   auditScenarioSummary: document.querySelector("#auditScenarioSummary"),
@@ -2168,7 +2172,13 @@ function applyAuditPreset(presetName) {
 }
 
 function resetAuditTrials() {
+  auditTrialRunToken += 1;
+  els.auditRunTrialsBtn.disabled = false;
+  els.auditRunTrialsBtn.textContent = "Run 1,000 simplified trials";
   els.auditTrialMissRate.textContent = "Not run yet";
+  els.auditTrialProgress.value = 0;
+  els.auditTrialProgressWrap.hidden = true;
+  els.auditTrialProgressText.textContent = "Ready";
   els.auditTrialSummary.textContent = 'Press "Run 1,000 simplified trials" to repeatedly draw an illustrative audit sample against the current hypothetical affected-unit cluster. This is a simplified model, not a reproduction of WEC\'s constrained selection software.';
 }
 
@@ -2180,16 +2190,46 @@ function runAuditTrials() {
   const affected = new Set(Array.from({ length: affectedUnits }, (_, index) => (clusterStart + index) % areaUnits));
   const trialCount = 1000;
   let missedTrials = 0;
+  let completedTrials = 0;
   auditTrialBatchSeed += 1009;
-  for (let trial = 0; trial < trialCount; trial += 1) {
-    const sampled = auditSampleIndices(areaUnits, sampleUnits, auditTrialBatchSeed + trial * 7919);
-    if (!sampled.some((index) => affected.has(index))) {
-      missedTrials += 1;
-    }
-  }
-  const missRate = (missedTrials / trialCount) * 100;
-  els.auditTrialMissRate.textContent = `${missRate.toFixed(1)}%`;
-  els.auditTrialSummary.textContent = `${formatNumber(missedTrials)} of ${formatNumber(trialCount)} simplified audit draws missed every one of the ${formatNumber(affectedUnits)} hypothetical affected units. ${formatNumber(trialCount - missedTrials)} draws touched at least one affected unit and would be marked for follow-up in this model.`;
+  auditTrialRunToken += 1;
+  const runToken = auditTrialRunToken;
+  els.auditRunTrialsBtn.disabled = true;
+  els.auditRunTrialsBtn.textContent = "Running 1,000 trials...";
+  els.auditTrialMissRate.textContent = "Running...";
+  els.auditTrialProgress.value = 0;
+  els.auditTrialProgressWrap.hidden = false;
+  els.auditTrialProgressText.textContent = "0 of 1,000 trials complete";
+
+  return new Promise((resolve) => {
+    const runBatch = () => {
+      if (runToken !== auditTrialRunToken) {
+        resolve();
+        return;
+      }
+      const batchEnd = Math.min(completedTrials + 20, trialCount);
+      for (let trial = completedTrials; trial < batchEnd; trial += 1) {
+        const sampled = auditSampleIndices(areaUnits, sampleUnits, auditTrialBatchSeed + trial * 7919);
+        if (!sampled.some((index) => affected.has(index))) {
+          missedTrials += 1;
+        }
+      }
+      completedTrials = batchEnd;
+      els.auditTrialProgress.value = completedTrials;
+      els.auditTrialProgressText.textContent = `${formatNumber(completedTrials)} of ${formatNumber(trialCount)} trials complete`;
+      if (completedTrials < trialCount) {
+        setTimeout(runBatch, 0);
+        return;
+      }
+      const missRate = (missedTrials / trialCount) * 100;
+      els.auditTrialMissRate.textContent = `${missRate.toFixed(1)}%`;
+      els.auditTrialSummary.textContent = `${formatNumber(missedTrials)} of ${formatNumber(trialCount)} simplified audit draws missed every one of the ${formatNumber(affectedUnits)} hypothetical affected units. ${formatNumber(trialCount - missedTrials)} draws touched at least one affected unit and would be marked for follow-up in this model.`;
+      els.auditRunTrialsBtn.disabled = false;
+      els.auditRunTrialsBtn.textContent = "Run 1,000 simplified trials";
+      resolve();
+    };
+    setTimeout(runBatch, 0);
+  });
 }
 
 function renderAuditSimulator() {

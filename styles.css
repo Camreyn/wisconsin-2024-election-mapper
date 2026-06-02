@@ -2188,6 +2188,30 @@ select {
   font-size: 1.35rem;
 }
 
+.audit-trial-progress {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+.audit-trial-progress[hidden] {
+  display: none;
+}
+
+.audit-trial-progress progress {
+  width: 100%;
+  height: 12px;
+  accent-color: var(--blue-strong);
+}
+
+.audit-trial-progress span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
 .audit-trial-panel > p {
   grid-column: 1 / -1;
   color: var(--muted);
