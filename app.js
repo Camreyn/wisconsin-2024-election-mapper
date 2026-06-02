@@ -192,6 +192,7 @@ let collected = [];
 let map;
 let geoLayer;
 let colorMode = "winner";
+let auditTrialBatchSeed = 20241106;
 let selectedCounty = null;
 let citySplitData = [];
 let flaggedAreaSummaryRows = [];
@@ -293,10 +294,13 @@ const els = {
   auditShiftPerUnit: document.querySelector("#auditShiftPerUnit"),
   auditShiftValue: document.querySelector("#auditShiftValue"),
   auditRerollBtn: document.querySelector("#auditRerollBtn"),
+  auditRunTrialsBtn: document.querySelector("#auditRunTrialsBtn"),
   auditMissProbability: document.querySelector("#auditMissProbability"),
   auditTouchProbability: document.querySelector("#auditTouchProbability"),
   auditShiftedVotes: document.querySelector("#auditShiftedVotes"),
   auditDrawResult: document.querySelector("#auditDrawResult"),
+  auditTrialMissRate: document.querySelector("#auditTrialMissRate"),
+  auditTrialSummary: document.querySelector("#auditTrialSummary"),
   auditUnitGrid: document.querySelector("#auditUnitGrid"),
   auditScenarioSummary: document.querySelector("#auditScenarioSummary"),
   auditVoteComparison: document.querySelector("#auditVoteComparison"),
@@ -400,12 +404,16 @@ function wireControls() {
   els.historicalSeriesSelect.addEventListener("change", renderHistoricalComparison);
   els.auditPreset.addEventListener("change", () => applyAuditPreset(els.auditPreset.value));
   [els.auditAreaUnits, els.auditSampleUnits, els.auditAffectedUnits, els.auditBallotsPerUnit, els.auditCandidateShare, els.auditShiftPerUnit].forEach((input) => {
-    input.addEventListener("input", renderAuditSimulator);
+    input.addEventListener("input", () => {
+      resetAuditTrials();
+      renderAuditSimulator();
+    });
   });
   els.auditRerollBtn.addEventListener("click", () => {
     auditSimulationSeed += 41;
     renderAuditSimulator();
   });
+  els.auditRunTrialsBtn.addEventListener("click", runAuditTrials);
 }
 
 function organizeWorkspacePanels() {
@@ -2155,7 +2163,33 @@ function applyAuditPreset(presetName) {
   els.auditShiftPerUnit.value = String(preset.shiftPerUnit);
   els.auditPresetNote.textContent = preset.note;
   auditSimulationSeed += 7;
+  resetAuditTrials();
   renderAuditSimulator();
+}
+
+function resetAuditTrials() {
+  els.auditTrialMissRate.textContent = "Not run yet";
+  els.auditTrialSummary.textContent = 'Press "Run 1,000 simplified trials" to repeatedly draw an illustrative audit sample against the current hypothetical affected-unit cluster. This is a simplified model, not a reproduction of WEC\'s constrained selection software.';
+}
+
+function runAuditTrials() {
+  const areaUnits = clamp(Math.round(Number(els.auditAreaUnits.value) || 4), 4, 4000);
+  const sampleUnits = clamp(Math.round(Number(els.auditSampleUnits.value) || 1), 1, Math.min(500, areaUnits));
+  const affectedUnits = clamp(Math.round(Number(els.auditAffectedUnits.value) || 1), 1, Math.min(500, areaUnits));
+  const clusterStart = Math.floor(auditSeededValue(auditSimulationSeed + 97) * areaUnits);
+  const affected = new Set(Array.from({ length: affectedUnits }, (_, index) => (clusterStart + index) % areaUnits));
+  const trialCount = 1000;
+  let missedTrials = 0;
+  auditTrialBatchSeed += 1009;
+  for (let trial = 0; trial < trialCount; trial += 1) {
+    const sampled = auditSampleIndices(areaUnits, sampleUnits, auditTrialBatchSeed + trial * 7919);
+    if (!sampled.some((index) => affected.has(index))) {
+      missedTrials += 1;
+    }
+  }
+  const missRate = (missedTrials / trialCount) * 100;
+  els.auditTrialMissRate.textContent = `${missRate.toFixed(1)}%`;
+  els.auditTrialSummary.textContent = `${formatNumber(missedTrials)} of ${formatNumber(trialCount)} simplified audit draws missed every one of the ${formatNumber(affectedUnits)} hypothetical affected units. ${formatNumber(trialCount - missedTrials)} draws touched at least one affected unit and would be marked for follow-up in this model.`;
 }
 
 function renderAuditSimulator() {
@@ -2248,16 +2282,27 @@ function auditSampleMissProbability(areaUnits, sampleUnits, affectedUnits) {
 
 function auditSampleIndices(areaUnits, sampleUnits, seed) {
   const indices = Array.from({ length: areaUnits }, (_, index) => index);
+  const random = auditSeededRandom(seed);
   for (let index = indices.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(auditSeededValue(seed + index * 13) * (index + 1));
+    const swapIndex = Math.floor(random() * (index + 1));
     [indices[index], indices[swapIndex]] = [indices[swapIndex], indices[index]];
   }
   return indices.slice(0, sampleUnits);
 }
 
 function auditSeededValue(seed) {
-  const value = Math.sin(seed * 999.91) * 10000;
-  return value - Math.floor(value);
+  return auditSeededRandom(seed)();
+}
+
+function auditSeededRandom(seed) {
+  let value = seed >>> 0;
+  return () => {
+    value += 0x6d2b79f5;
+    let mixed = value;
+    mixed = Math.imul(mixed ^ (mixed >>> 15), mixed | 1);
+    mixed ^= mixed + Math.imul(mixed ^ (mixed >>> 7), mixed | 61);
+    return ((mixed ^ (mixed >>> 14)) >>> 0) / 4294967296;
+  };
 }
 
 function regressionLine(points, xScale, yScale, xMax, color) {

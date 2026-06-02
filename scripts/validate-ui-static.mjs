@@ -173,6 +173,7 @@ for (const file of [
 }
 
 await new Promise((resolve) => setTimeout(resolve, 400));
+vm.runInContext(`runAuditTrials()`, context);
 
 const checks = {
   sidebarExplorerTitle: indexHtml.includes("Wisconsin Presidential Results Explorer"),
@@ -194,7 +195,10 @@ const checks = {
   auditTabPresent: indexHtml.includes('data-app-tab="audit"') && indexHtml.includes('id="auditPanel"'),
   auditSidebarAction: indexHtml.includes('data-open-tab="audit">Open Audit Simulator</button>'),
   auditStatewidePreset: indexHtml.includes('<option value="statewide2024">Wisconsin 2024 statewide WEC configuration</option>'),
+  auditTrialsButton: indexHtml.includes('id="auditRunTrialsBtn"') && indexHtml.includes("Run 1,000 simplified trials"),
   auditMissProbability: element("#auditMissProbability").textContent,
+  auditTrialMissRate: /^\d+\.\d%$/.test(element("#auditTrialMissRate").textContent),
+  auditTrialSummary: element("#auditTrialSummary").textContent.includes("of 1,000 simplified audit draws missed every one"),
   auditGridUnits: (element("#auditUnitGrid").innerHTML.match(/class="audit-unit/g) || []).length,
   auditVoteComparison: element("#auditVoteComparison").innerHTML.includes("3,271,210") && element("#auditVoteComparison").innerHTML.includes("Illustrative margin movement"),
 };
@@ -222,7 +226,10 @@ const expected = {
   auditTabPresent: true,
   auditSidebarAction: true,
   auditStatewidePreset: true,
+  auditTrialsButton: true,
   auditMissProbability: "4.18%",
+  auditTrialMissRate: true,
+  auditTrialSummary: true,
   auditGridUnits: 3730,
   auditVoteComparison: true,
   darkModeApplied: true,

@@ -144,6 +144,11 @@ that tampering occurred, not a reconstruction of Wisconsin's actual selected
 reporting-unit list, and not a conclusion about safeguards outside the
 simplified model.
 
+The tab also includes a button that runs 1,000 simplified draws against the
+current hypothetical affected-unit cluster. The reported trial miss rate is an
+educational repeated-sampling illustration, not a reproduction of WEC's
+constrained selection software or an estimate published by WEC.
+
 Official references:
 
 - WEC March 7, 2025 meeting materials: `2024 Post-Election Voting Equipment

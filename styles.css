@@ -2165,6 +2165,36 @@ select {
   font-size: 1.12rem;
 }
 
+.audit-trial-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 18px;
+  align-items: center;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--blue-strong);
+  border-radius: 7px;
+  background: var(--panel-soft);
+}
+
+.audit-trial-panel h4,
+.audit-trial-panel p {
+  margin: 3px 0 0;
+}
+
+.audit-trial-panel > strong {
+  color: var(--blue-strong);
+  font-size: 1.35rem;
+}
+
+.audit-trial-panel > p {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
 .audit-missed {
   color: var(--gold) !important;
 }
@@ -2552,6 +2582,7 @@ html[data-theme="dark"] .leaflet-tile-pane {
   .audit-explainer-grid,
   .audit-simulator,
   .audit-result-grid,
+  .audit-trial-panel,
   .audit-vote-comparison-grid,
   .review-steps,
   .flagged-area-filters,

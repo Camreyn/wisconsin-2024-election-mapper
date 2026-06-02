@@ -594,6 +594,7 @@
                 <input id="auditShiftPerUnit" type="range" min="0" max="500" step="25" />
               </label>
               <button id="auditRerollBtn" class="secondary-button" type="button">Reroll illustrative sample</button>
+              <button id="auditRunTrialsBtn" class="primary-button" type="button">Run 1,000 simplified trials</button>
             </div>
 
             <div class="audit-visual">
@@ -615,6 +616,14 @@
                   <strong id="auditDrawResult">--</strong>
                 </article>
               </div>
+              <section class="audit-trial-panel" aria-label="Repeated simplified audit trials">
+                <div>
+                  <p class="eyebrow">Repeated-trial simulation</p>
+                  <h4>How often did the sample miss every hypothetical affected unit?</h4>
+                </div>
+                <strong id="auditTrialMissRate">Not run yet</strong>
+                <p id="auditTrialSummary">Press "Run 1,000 simplified trials" to repeatedly draw an illustrative audit sample against the current hypothetical affected-unit cluster. This is a simplified model, not a reproduction of WEC's constrained selection software.</p>
+              </section>
               <div class="audit-grid-legend" aria-label="Simulator grid legend">
                 <span><i class="audit-unit"></i>Not sampled</span>
                 <span><i class="audit-unit sampled"></i>Sampled</span>
