@@ -112,13 +112,13 @@ function element(selector) {
   return elements.get(selector);
 }
 
-const appTabs = ["dashboard", "review", "history", "data", "methodology", "audit", "about"].map((name) => {
+const appTabs = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"].map((name) => {
   const tab = new MockElement();
   tab.dataset.appTab = name;
   if (name === "dashboard") tab.classList.add("active");
   return tab;
 });
-const tabPanels = ["dashboard", "review", "history", "data", "methodology", "audit", "about"].map((name) => {
+const tabPanels = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"].map((name) => {
   const panel = new MockElement(`${name}Panel`);
   panel.hidden = name !== "dashboard";
   return panel;
@@ -200,6 +200,13 @@ const checks = {
     && indexHtml.includes('<option value="concentrated">')
     && indexHtml.includes('<option value="spread">')
     && indexHtml.includes('<option value="highVolume">'),
+  sourcePlannerTabPresent: indexHtml.includes('data-app-tab="sources"') && indexHtml.includes('id="sourcesPanel"'),
+  sourcePlannerSidebarAction: indexHtml.includes('data-open-tab="sources">Open Source Planner</button>'),
+  sourcePlannerStateOptions: element("#sourceStateSelect").options.length,
+  sourcePlannerWisconsinTitle: element("#sourceStateTitle").textContent === "Wisconsin 2024 President",
+  sourcePlannerCountyRows: (element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length,
+  sourcePlannerWaukeshaChecked: element("#sourceCountyRows").innerHTML.includes("Checked but not imported")
+    && element("#sourceCountyRows").innerHTML.includes("Waukesha"),
   auditDistributionNote: element("#auditDistributionNote").textContent.includes("grid is not a geographic map"),
   auditSpreadPattern: vm.runInContext(`auditAffectedIndices(100, 8, 17, "spread").join(",") !== auditAffectedIndices(100, 8, 17, "concentrated").join(",")`, context),
   auditHighVolumeDisclaimer: vm.runInContext(`AUDIT_DISTRIBUTION_NOTES.highVolume.includes("cannot identify real high-volume audit units")`, context),
@@ -244,6 +251,12 @@ const expected = {
   auditStatewidePreset: true,
   auditTrialsButton: true,
   auditDistributionControl: true,
+  sourcePlannerTabPresent: true,
+  sourcePlannerSidebarAction: true,
+  sourcePlannerStateOptions: 1,
+  sourcePlannerWisconsinTitle: true,
+  sourcePlannerCountyRows: 72,
+  sourcePlannerWaukeshaChecked: true,
   auditDistributionNote: true,
   auditSpreadPattern: true,
   auditHighVolumeDisclaimer: true,

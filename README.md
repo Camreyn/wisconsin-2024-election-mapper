@@ -84,10 +84,16 @@ sections separate accurate calculations from stronger conclusions: the
 vote-share and down-ballot graphs use official WEC ward vote totals, while
 turnout remains partial because denominator rows are only imported for some
 counties. The app also has download buttons for a coverage CSV and a source
-inventory CSV, plus a "checked but not imported" log for sources that were
-reviewed but lacked turnout denominator fields. The county table can show a
-`!` review flag when county-level screening thresholds are crossed; this means
-"review further," not proof of tampering.
+inventory CSV, plus a Source Planner tab that tracks 2024 election-number
+sources by state and county. Wisconsin is the first loaded state: every county
+row points to the statewide certified WEC county result report, the WEC ward
+detail spreadsheet, and the county/municipal turnout denominator source status
+where those rows have been collected. The same planner is structured around a
+state source registry so additional states can be added without changing the
+county table UI. The app also keeps a "checked but not imported" log for sources
+that were reviewed but lacked turnout denominator fields. The county table can
+show a `!` review flag when county-level screening thresholds are crossed; this
+means "review further," not proof of tampering.
 
 ## Statistical Screening Test Panel
 

@@ -126,6 +126,43 @@ const CHECKED_NOT_USABLE = [
   },
 ];
 
+const STATE_SOURCE_PLANS = {
+  WI: {
+    code: "WI",
+    state: "Wisconsin",
+    electionYear: 2024,
+    office: "President",
+    stateAuthority: "Wisconsin Elections Commission",
+    countyLabel: "County",
+    resultRows: RESULTS,
+    certifiedResults: {
+      title: "WEC certified county result report",
+      detail:
+        "Presidential county totals are imported from the Wisconsin Elections Commission certified County by County Report_POTUS PDF and reconciled into the app's county result bundle.",
+      sourceUrl: "https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf",
+      localFile: "data/County by County Report_POTUS.pdf; data/president-county-results.json",
+      status: "Loaded",
+    },
+    wardDetail: {
+      title: "WEC ward federal/state contest spreadsheet",
+      detail:
+        "Ward and reporting-unit presidential and U.S. Senate rows come from the WEC federal/state contest spreadsheet, with app-ready analysis rows stored in ward-analysis and eta-data bundles.",
+      sourceUrl:
+        "https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx",
+      localFile: "data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js",
+      status: "Loaded",
+    },
+    turnout: {
+      title: "County and municipal turnout denominator records",
+      detail:
+        "Turnout rows are imported only where local county or municipal sources include ballots-cast and registered-voter denominator fields. Wisconsin rows keep denominator timing warnings because Election Day registration can make preliminary denominators too low.",
+      sourceUrl: "Multiple county and municipal sources; see county rows.",
+      localFile: "data/turnout-data.json; data/turnout-data.js",
+      status: "Partial",
+    },
+  },
+};
+
 const DEFAULT_REVIEW_POLICY = {
   minWardRows: 10,
   voteShareCorrelationThreshold: ETA_ANALYSIS.voteShare.threshold,
@@ -260,6 +297,24 @@ const els = {
   coverageTableSummary: document.querySelector("#coverageTableSummary"),
   coverageTableRows: document.querySelector("#coverageTableRows"),
   checkedNotUsableList: document.querySelector("#checkedNotUsableList"),
+  sourceStateSelect: document.querySelector("#sourceStateSelect"),
+  sourceCountySearch: document.querySelector("#sourceCountySearch"),
+  sourceStatusFilter: document.querySelector("#sourceStatusFilter"),
+  sourcePlanCsvBtn: document.querySelector("#sourcePlanCsvBtn"),
+  sourceStateTitle: document.querySelector("#sourceStateTitle"),
+  sourceStateSummary: document.querySelector("#sourceStateSummary"),
+  sourcePlanBadges: document.querySelector("#sourcePlanBadges"),
+  sourceCertifiedTitle: document.querySelector("#sourceCertifiedTitle"),
+  sourceCertifiedDetail: document.querySelector("#sourceCertifiedDetail"),
+  sourceCertifiedLinks: document.querySelector("#sourceCertifiedLinks"),
+  sourceWardTitle: document.querySelector("#sourceWardTitle"),
+  sourceWardDetail: document.querySelector("#sourceWardDetail"),
+  sourceWardLinks: document.querySelector("#sourceWardLinks"),
+  sourceTurnoutTitle: document.querySelector("#sourceTurnoutTitle"),
+  sourceTurnoutDetail: document.querySelector("#sourceTurnoutDetail"),
+  sourceTurnoutLinks: document.querySelector("#sourceTurnoutLinks"),
+  sourceCountySummary: document.querySelector("#sourceCountySummary"),
+  sourceCountyRows: document.querySelector("#sourceCountyRows"),
   reviewFlagSummary: document.querySelector("#reviewFlagSummary"),
   voteShareGraph: document.querySelector("#voteShareGraph"),
   downBallotGraph: document.querySelector("#downBallotGraph"),
@@ -337,6 +392,7 @@ function init() {
   renderConfidenceSummary();
   renderCoverageTable();
   renderCheckedNotUsable();
+  renderSourcePlanner();
   renderEtaGraphs();
   renderCitySplitOptions();
   setReviewControlValues();
@@ -359,6 +415,10 @@ function wireControls() {
   els.exportBtn.addEventListener("click", exportCsv);
   els.coverageCsvBtn.addEventListener("click", exportCoverageCsv);
   els.sourceCsvBtn.addEventListener("click", exportSourceCsv);
+  els.sourceStateSelect.addEventListener("change", renderSourcePlanner);
+  els.sourceCountySearch.addEventListener("input", renderSourceCountyRows);
+  els.sourceStatusFilter.addEventListener("change", renderSourceCountyRows);
+  els.sourcePlanCsvBtn.addEventListener("click", exportSourcePlanCsv);
   els.darkModeToggle.addEventListener("change", () => setTheme(els.darkModeToggle.checked ? "dark" : "light"));
   els.appTabs.forEach((button) => {
     button.addEventListener("click", () => setAppTab(button.dataset.appTab));
@@ -492,7 +552,7 @@ function initialTabName() {
 
 function routeState() {
   const [hashTab = "", query = ""] = window.location.hash.replace(/^#/, "").split("?");
-  const validTabs = ["dashboard", "review", "history", "data", "methodology", "audit", "about"];
+  const validTabs = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"];
   return {
     tabName: validTabs.includes(hashTab) ? hashTab : "dashboard",
     query,
@@ -1430,6 +1490,161 @@ function renderCheckedNotUsable() {
       </article>
     `,
   ).join("");
+}
+
+function renderSourcePlanner() {
+  if (!els.sourceStateSelect.options.length) {
+    els.sourceStateSelect.innerHTML = Object.values(STATE_SOURCE_PLANS)
+      .map((plan) => `<option value="${escapeAttr(plan.code)}">${escapeText(plan.state)} ${plan.electionYear}</option>`)
+      .join("");
+  }
+
+  const plan = selectedSourcePlan();
+  if (!plan) {
+    els.sourceStateTitle.textContent = "State not loaded";
+    els.sourceStateSummary.textContent = "No source plan is available for the selected state.";
+    els.sourcePlanBadges.innerHTML = confidenceBadge("Not loaded", "missing");
+    els.sourceCountyRows.innerHTML = "";
+    return;
+  }
+
+  const rows = sourceCountyRows(plan);
+  const imported = rows.filter((row) => row.turnoutStatus !== "missing").length;
+  const checked = rows.filter((row) => row.checkedNotImported).length;
+  const missing = rows.length - imported;
+
+  els.sourceStateTitle.textContent = `${plan.state} ${plan.electionYear} ${plan.office}`;
+  els.sourceStateSummary.textContent =
+    `${plan.stateAuthority}: ${formatNumber(rows.length)} ${plan.countyLabel.toLowerCase()} result rows loaded. Certified county results and ward detail are statewide; turnout denominator imports are partial with ${formatNumber(imported)} counties imported, ${formatNumber(missing)} missing, and ${formatNumber(checked)} checked but not imported.`;
+  els.sourcePlanBadges.innerHTML = [
+    confidenceBadge(`${formatNumber(rows.length)} county result rows`, "strong"),
+    confidenceBadge("Certified statewide source", "strong"),
+    confidenceBadge("Ward detail loaded", "strong"),
+    confidenceBadge(`${formatNumber(imported)} turnout counties imported`, imported ? "partial" : "missing"),
+    confidenceBadge(`${formatNumber(missing)} turnout counties missing`, missing ? "missing" : "strong"),
+  ].join("");
+
+  renderSourceCategory("Certified", plan.certifiedResults);
+  renderSourceCategory("Ward", plan.wardDetail);
+  renderSourceCategory("Turnout", plan.turnout);
+  renderSourceCountyRows();
+}
+
+function renderSourceCategory(kind, category) {
+  const title = els[`source${kind}Title`];
+  const detail = els[`source${kind}Detail`];
+  const links = els[`source${kind}Links`];
+  title.textContent = category.title;
+  detail.textContent = category.detail;
+  links.innerHTML = sourceCategoryLinks(category);
+}
+
+function renderSourceCountyRows() {
+  const plan = selectedSourcePlan();
+  if (!plan) {
+    return;
+  }
+
+  const query = els.sourceCountySearch.value.trim().toLowerCase();
+  const filter = els.sourceStatusFilter.value || "all";
+  const allRows = sourceCountyRows(plan);
+  const rows = allRows.filter((row) => {
+    const matchesQuery = !query || row.county.toLowerCase().includes(query);
+    const matchesStatus =
+      filter === "all" ||
+      (filter === "imported" && row.turnoutStatus !== "missing") ||
+      (filter === "missing" && row.turnoutStatus === "missing") ||
+      (filter === "checked" && row.checkedNotImported);
+    return matchesQuery && matchesStatus;
+  });
+
+  const imported = allRows.filter((row) => row.turnoutStatus !== "missing").length;
+  const missing = allRows.length - imported;
+  els.sourceCountySummary.textContent =
+    `${formatNumber(rows.length)} of ${formatNumber(allRows.length)} counties shown. Turnout denominator status: ${formatNumber(imported)} imported, ${formatNumber(missing)} missing.`;
+  els.sourceCountyRows.innerHTML = rows.map(sourceCountyRowHtml).join("");
+}
+
+function sourceCountyRowHtml(row) {
+  const turnoutClass = row.turnoutStatus === "missing" ? "missing" : "partial";
+  const turnoutLabel = row.turnoutStatus === "missing" ? "Missing" : "Imported";
+  const followUp = row.checkedNotImported
+    ? `Checked but not imported: ${row.checkedNotImported.reason}`
+    : row.turnoutStatus === "missing"
+      ? "Collect county or municipal canvass rows with ballots cast, registered voters, denominator timing, and source URL."
+      : row.turnoutWarnings
+        ? `${formatNumber(row.turnoutWarnings)} imported denominator warning row${row.turnoutWarnings === 1 ? "" : "s"} need timing review.`
+        : "No immediate turnout source follow-up logged.";
+
+  return `
+    <tr>
+      <td><strong>${escapeText(row.county)}</strong></td>
+      <td>
+        <span class="confidence-pill strong">Loaded</span>
+        <p class="coverage-cell-note">${escapeText(row.certifiedSource.title)}</p>
+        <div class="coverage-table-sources">${sourceCategoryLinks(row.certifiedSource)}</div>
+      </td>
+      <td>
+        <span class="confidence-pill strong">Loaded</span>
+        <p class="coverage-cell-note">${escapeText(row.wardSource.title)}</p>
+        <div class="coverage-table-sources">${sourceCategoryLinks(row.wardSource)}</div>
+      </td>
+      <td>
+        <span class="confidence-pill ${turnoutClass}">${turnoutLabel}</span>
+        <p class="coverage-cell-note">${escapeText(row.turnoutDetail)}</p>
+        <div class="coverage-table-sources">${sourceLinks(row.turnoutSources, "Turnout")}</div>
+      </td>
+      <td>${escapeText(followUp)}</td>
+    </tr>
+  `;
+}
+
+function sourceCountyRows(plan = selectedSourcePlan()) {
+  if (!plan) {
+    return [];
+  }
+  const coverageByCounty = new Map(turnoutCoverageRows().map((row) => [normalizeCounty(row.county), row]));
+  const checkedByCounty = new Map(CHECKED_NOT_USABLE.map((row) => [normalizeCounty(row.county), row]));
+
+  return plan.resultRows.map((countyRow) => {
+    const coverage = coverageByCounty.get(normalizeCounty(countyRow.county));
+    const checkedNotImported = checkedByCounty.get(normalizeCounty(countyRow.county));
+    return {
+      county: countyRow.county,
+      certifiedSource: plan.certifiedResults,
+      wardSource: plan.wardDetail,
+      turnoutStatus: coverage?.status || "missing",
+      turnoutDetail: coverage?.status === "missing" ? "No turnout denominator source imported." : coverage.detail,
+      turnoutWarnings: coverage?.warnings || 0,
+      turnoutSources: coverage?.sources || [],
+      checkedNotImported,
+    };
+  });
+}
+
+function selectedSourcePlan() {
+  const code = els.sourceStateSelect.value || Object.keys(STATE_SOURCE_PLANS)[0];
+  return STATE_SOURCE_PLANS[code];
+}
+
+function sourceCategoryLinks(category) {
+  const links = [];
+  if (category.sourceUrl && !category.sourceUrl.startsWith("Multiple ")) {
+    links.push(`<a href="${escapeAttr(category.sourceUrl)}" target="_blank" rel="noreferrer">${escapeText(formatSourceHost(category.sourceUrl))}</a>`);
+  }
+  if (category.localFile) {
+    links.push(`<span>${escapeText(category.localFile)}</span>`);
+  }
+  return links.join("");
+}
+
+function sourceLinks(sources, label) {
+  if (!sources?.length) {
+    return "<span>No source imported</span>";
+  }
+  return sources
+    .map((source, index) => `<a href="${escapeAttr(source)}" target="_blank" rel="noreferrer">${escapeText(label)} ${index + 1}: ${escapeText(formatSourceHost(source))}</a>`)
+    .join("");
 }
 
 function renderHistoricalComparison() {
@@ -2669,6 +2884,46 @@ function exportSourceCsv() {
     item.reason,
   ]);
   downloadCsv("wisconsin-2024-source-inventory.csv", headers, [...sourceRows, ...checkedRows]);
+}
+
+function exportSourcePlanCsv() {
+  const plan = selectedSourcePlan();
+  if (!plan) {
+    return;
+  }
+  const headers = [
+    "state",
+    "election_year",
+    "office",
+    "county",
+    "certified_result_source",
+    "certified_result_url",
+    "ward_detail_source",
+    "ward_detail_url",
+    "turnout_status",
+    "turnout_sources",
+    "turnout_warning_rows",
+    "follow_up",
+  ];
+  const rows = sourceCountyRows(plan).map((row) => [
+    plan.state,
+    plan.electionYear,
+    plan.office,
+    row.county,
+    row.certifiedSource.title,
+    row.certifiedSource.sourceUrl,
+    row.wardSource.title,
+    row.wardSource.sourceUrl,
+    row.turnoutStatus,
+    row.turnoutSources.join(" "),
+    row.turnoutWarnings,
+    row.checkedNotImported
+      ? `Checked but not imported: ${row.checkedNotImported.reason}`
+      : row.turnoutStatus === "missing"
+        ? "Needs county or municipal turnout denominator source"
+        : "Imported",
+  ]);
+  downloadCsv(`${plan.code.toLowerCase()}-${plan.electionYear}-source-plan.csv`, headers, rows);
 }
 
 function downloadCsv(filename, headers, rows) {

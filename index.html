@@ -21,7 +21,7 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260602-statewide-audit-simulator" />
+    <link rel="stylesheet" href="./styles.css?v=20260603-source-planner" />
   </head>
   <body>
     <main class="app-shell">
@@ -125,6 +125,7 @@
           <span>Explore</span>
           <button type="button" data-open-tab="review">Open Review Center</button>
           <button type="button" data-open-tab="audit">Open Audit Simulator</button>
+          <button type="button" data-open-tab="sources">Open Source Planner</button>
           <button type="button" data-open-tab="data">Open Data & Sources</button>
           <button type="button" data-open-tab="methodology">Open Methodology</button>
         </nav>
@@ -151,6 +152,9 @@
           </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="data" aria-controls="dataPanel" aria-selected="false">
             Data & Sources
+          </button>
+          <button class="app-tab-button" type="button" role="tab" data-app-tab="sources" aria-controls="sourcesPanel" aria-selected="false">
+            Source Planner
           </button>
           <button class="app-tab-button" type="button" role="tab" data-app-tab="methodology" aria-controls="methodologyPanel" aria-selected="false">
             Methodology
@@ -381,6 +385,89 @@
                 <a href="https://badgervoters.wi.gov/faq" target="_blank" rel="noreferrer">Badger Voters FAQ</a>
                 <a href="https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-EL-3-50" target="_blank" rel="noreferrer">Fee rule</a>
               </article>
+            </div>
+          </section>
+        </section>
+
+        <section id="sourcesPanel" class="tab-panel workspace-panel" role="tabpanel" aria-label="State and county source planner" hidden>
+          <header class="workspace-intro">
+            <p class="eyebrow">State expansion workspace</p>
+            <h2>Source Planner</h2>
+            <p>Track the official result sources behind the app by state and county, with Wisconsin loaded first for 2024.</p>
+          </header>
+
+          <section class="source-planner-controls" aria-label="Source planner controls">
+            <label>
+              <span>State</span>
+              <select id="sourceStateSelect"></select>
+            </label>
+            <label>
+              <span>County search</span>
+              <input id="sourceCountySearch" type="search" placeholder="Try Milwaukee, Dane, Waukesha..." autocomplete="off" />
+            </label>
+            <label>
+              <span>Turnout status</span>
+              <select id="sourceStatusFilter">
+                <option value="all">All counties</option>
+                <option value="imported">Imported turnout rows</option>
+                <option value="missing">Missing turnout rows</option>
+                <option value="checked">Checked but not imported</option>
+              </select>
+            </label>
+            <button id="sourcePlanCsvBtn" class="secondary-button" type="button">Export Source Plan CSV</button>
+          </section>
+
+          <section class="source-planner-summary" aria-label="Selected state source summary">
+            <div class="panel-heading">
+              <p class="eyebrow">Selected state</p>
+              <h2 id="sourceStateTitle">Wisconsin 2024</h2>
+            </div>
+            <p id="sourceStateSummary" class="source-state-summary">Building source summary...</p>
+            <div id="sourcePlanBadges" class="confidence-badges"></div>
+          </section>
+
+          <section class="source-map-grid" aria-label="State source categories">
+            <article>
+              <span>Certified county results</span>
+              <strong id="sourceCertifiedTitle">Official county totals</strong>
+              <p id="sourceCertifiedDetail"></p>
+              <div id="sourceCertifiedLinks" class="source-category-links"></div>
+            </article>
+            <article>
+              <span>Local detail rows</span>
+              <strong id="sourceWardTitle">Ward/reporting-unit detail</strong>
+              <p id="sourceWardDetail"></p>
+              <div id="sourceWardLinks" class="source-category-links"></div>
+            </article>
+            <article>
+              <span>Turnout denominators</span>
+              <strong id="sourceTurnoutTitle">County/municipal sources</strong>
+              <p id="sourceTurnoutDetail"></p>
+              <div id="sourceTurnoutLinks" class="source-category-links"></div>
+            </article>
+          </section>
+
+          <section class="source-county-panel" aria-label="County source table">
+            <div class="table-panel-heading">
+              <div>
+                <p class="eyebrow">County breakdown</p>
+                <h2>Election Number Sources</h2>
+              </div>
+              <p id="sourceCountySummary">Building county source rows...</p>
+            </div>
+            <div class="source-table-wrap">
+              <table class="source-table">
+                <thead>
+                  <tr>
+                    <th>County</th>
+                    <th>Certified Result Source</th>
+                    <th>Ward Detail Source</th>
+                    <th>Turnout Denominator Source</th>
+                    <th>Follow-up</th>
+                  </tr>
+                </thead>
+                <tbody id="sourceCountyRows"></tbody>
+              </table>
             </div>
           </section>
         </section>
@@ -1168,6 +1255,6 @@
     <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
     <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
     <script src="./data/historical-data.js?v=20260601-history"></script>
-    <script src="./app.js?v=20260602-statewide-audit-simulator"></script>
+    <script src="./app.js?v=20260603-source-planner"></script>
   </body>
 </html>
