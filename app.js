@@ -3699,7 +3699,13 @@ function clamp(value, min, max) {
 }
 
 function normalizeCounty(name = "") {
-  return name.toLowerCase().replace(/\s+county$/, "").replace(/\./g, "").replace(/\s+/g, " ").trim();
+  return name
+    .toLowerCase()
+    .replace(/\s+county$/, "")
+    .replace(/\./g, "")
+    .replace(/^saint\s+/, "st ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function slugify(value) {

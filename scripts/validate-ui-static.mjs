@@ -292,6 +292,8 @@ checks.minnesotaDownBallotGraph = element("#downBallotGraph").innerHTML.includes
 checks.minnesotaTurnoutLoaded = element("#etaTests").innerHTML.includes("4,103 imported source rows")
   && element("#turnoutGraph").innerHTML.includes("turnout histogram");
 checks.minnesotaStaticSourceTimestampVisible = indexHtml.includes("Minnesota SOS workbook Last-Modified header: 2025-02-14T17:22:26Z");
+checks.minnesotaSaintLouisGeometryMatchesResults =
+  vm.runInContext(`normalizeCounty("Saint Louis") === normalizeCounty("St. Louis")`, context);
 
 const mnQueryHarness = createAppHarness({ search: "?state=MN" });
 const ndQueryHarness = createAppHarness({ search: "?state=ND" });
@@ -419,6 +421,7 @@ const expected = {
   minnesotaDownBallotGraph: true,
   minnesotaTurnoutLoaded: true,
   minnesotaStaticSourceTimestampVisible: true,
+  minnesotaSaintLouisGeometryMatchesResults: true,
   directMinnesotaQuerySelected: true,
   directMinnesotaQuerySummary: true,
   directMinnesotaHashSelected: true,
