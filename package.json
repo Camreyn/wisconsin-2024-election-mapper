@@ -8,6 +8,7 @@
     "build:states": "py -3 scripts/build-state-data.py",
     "build:states:download": "py -3 scripts/build-state-data.py --download",
     "build:minnesota": "py -3 scripts/build-state-data.py data/state-configs/mn.json",
+    "scaffold:state": "py -3 scripts/scaffold-state.py",
     "build:history": "node scripts/build-historical-data.mjs",
     "validate": "node scripts/validate-data.mjs",
     "validate:history": "py -3 scripts/validate-historical-baseline.py",

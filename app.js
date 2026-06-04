@@ -11,6 +11,7 @@ const MN_ETA_ANALYSIS = MN_ELECTION_APP_DATA.etaAnalysis || null;
 const MN_TURNOUT_DATA = MN_ELECTION_APP_DATA.turnoutData || { metadata: {}, rows: [] };
 const MN_HISTORICAL_BASELINE = MN_ELECTION_APP_DATA.historicalBaseline || null;
 const MN_COUNTIES_GEOJSON = window.MN_COUNTIES_GEOJSON || null;
+const STATE_APP_REGISTRY = window.STATE_APP_REGISTRY?.states || [];
 let activeStateCode = "WI";
 let RESULTS = WI_RESULTS;
 let CANDIDATE_LABELS = WI_CANDIDATE_LABELS;
@@ -388,6 +389,120 @@ const APP_STATES = {
     noGeometryText: "Minnesota county geometry is not loaded yet; showing the county tile fallback.",
   },
 };
+
+function configuredStateGlobalsReady(entry) {
+  const hasData = Boolean(entry.appDataGlobal && window[entry.appDataGlobal]);
+  const needsGeometry = Boolean(entry.geometryGlobal);
+  return hasData && (!needsGeometry || Boolean(window[entry.geometryGlobal]));
+}
+
+function loadScriptOnce(src) {
+  if (!src || document.querySelector(`script[src="${src}"], script[src="./${src}"]`)) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = () => reject(new Error(`Unable to load configured state script: ${src}`));
+    document.body.append(script);
+  });
+}
+
+function loadConfiguredStateScripts() {
+  const scripts = [];
+  for (const entry of STATE_APP_REGISTRY) {
+    if (entry.appDataFile && !window[entry.appDataGlobal]) {
+      scripts.push(entry.appDataFile);
+    }
+    if (entry.geometryFile && entry.geometryGlobal && !window[entry.geometryGlobal]) {
+      scripts.push(entry.geometryFile);
+    }
+  }
+  return Promise.all([...new Set(scripts)].map(loadScriptOnce));
+}
+
+function capabilityReady(declared, ready) {
+  if (declared === false) {
+    return false;
+  }
+  return Boolean(ready);
+}
+
+function configuredSourcePlan(entry, payload) {
+  return {
+    code: entry.code,
+    state: entry.name,
+    electionYear: entry.electionYear,
+    office: entry.office,
+    stateAuthority: entry.authority,
+    countyLabel: entry.countyLabel || "County",
+    exportsSlug: entry.exportsSlug,
+    resultRows: payload.presidentCountyResults || [],
+    ...entry.sourcePlan,
+  };
+}
+
+function configuredStateFromRegistry(entry) {
+  if (!configuredStateGlobalsReady(entry)) {
+    return null;
+  }
+  const payload = window[entry.appDataGlobal];
+  const geometry = entry.geometryGlobal ? window[entry.geometryGlobal] : null;
+  const resultRows = payload.presidentCountyResults || [];
+  const reviewCharts = payload.reviewCharts || null;
+  const historicalBaseline = payload.historicalBaseline || null;
+  const turnoutData = payload.turnoutData || { metadata: {}, rows: [] };
+  const historicalPrimarySeriesIds = historicalBaseline?.series?.map((series) => series.id) || [];
+  for (const series of historicalBaseline?.series || []) {
+    HISTORICAL_SERIES_LABELS[series.id] ||= `${series.electionYear} ${entry.name} ${series.sourceLevel || "official"} rows`;
+  }
+  return {
+    code: entry.code,
+    name: entry.name,
+    electionYear: entry.electionYear,
+    office: entry.office,
+    authority: entry.authority,
+    countyLabel: entry.countyLabel || "County",
+    expectedCountyCount: entry.expectedCountyCount || resultRows.length,
+    exportsSlug: entry.exportsSlug,
+    capabilities: {
+      sourcePlanner: Boolean(entry.sourcePlan),
+      certifiedResults: capabilityReady(entry.capabilities?.certifiedResults, resultRows.length),
+      map: capabilityReady(entry.capabilities?.map, geometry),
+      reviewGraphs: capabilityReady(entry.capabilities?.reviewGraphs, reviewCharts),
+      turnout: capabilityReady(entry.capabilities?.turnout, turnoutData?.rows?.length),
+      historicalBaseline: capabilityReady(entry.capabilities?.historicalBaseline, historicalBaseline?.series?.length),
+    },
+    resultRows,
+    candidateLabels: payload.candidateLabels || [],
+    countyGeometry: geometry,
+    turnoutData,
+    turnoutPolicy: entry.turnoutPolicy || {},
+    etaAnalysis: payload.etaAnalysis || null,
+    wardCharts: reviewCharts,
+    historicalBaseline,
+    historicalPrimarySeriesIds,
+    historicalSummary: entry.historicalSummary,
+    sourcePlan: configuredSourcePlan(entry, payload),
+    sourceInventory: entry.sourceInventory || [],
+    checkedNotUsable: entry.checkedNotUsable || [],
+    reviewRowLabel: entry.reviewRowLabel,
+    reviewRowLabelPlural: entry.reviewRowLabelPlural,
+    reviewGraphTitlePrefix: entry.reviewGraphTitlePrefix,
+    mapLoadingText: entry.mapLoadingText,
+    noGeometryText: entry.noGeometryText,
+  };
+}
+
+function registerConfiguredStates() {
+  for (const entry of STATE_APP_REGISTRY) {
+    const state = configuredStateFromRegistry(entry);
+    if (state) {
+      APP_STATES[state.code] = state;
+    }
+  }
+}
 
 const DEFAULT_REVIEW_POLICY = {
   minWardRows: 10,
@@ -3620,4 +3735,13 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-init();
+loadConfiguredStateScripts()
+  .then(() => {
+    registerConfiguredStates();
+    init();
+  })
+  .catch((error) => {
+    console.error(error);
+    registerConfiguredStates();
+    init();
+  });

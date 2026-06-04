@@ -11,6 +11,7 @@ from xml.etree import ElementTree
 
 
 ROOT = Path(__file__).resolve().parents[1]
+CONFIG_DIR = ROOT / "data" / "state-configs"
 
 NS = {
     "main": "http://schemas.openxmlformats.org/spreadsheetml/2006/main",
@@ -106,6 +107,10 @@ def project_path(value):
 
 def source_map(config):
     return {source["id"]: source for source in config["sources"]}
+
+
+def slugify(value):
+    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
 
 
 def local_source(config, source_id):
@@ -524,10 +529,76 @@ def build_state(config, *, download=False, force_download=False):
     return assert_expected(config, payload, geometry_features)
 
 
+def registry_entry(config):
+    app = config.get("app", {})
+    geometry = config.get("geometry", {})
+    output = config["output"]
+    return {
+        "code": config["code"],
+        "name": config["name"],
+        "authority": config["authority"],
+        "electionYear": config["electionYear"],
+        "office": config["office"],
+        "countyLabel": app.get("countyLabel", "County"),
+        "expectedCountyCount": config.get("expected", {}).get("countyRows"),
+        "exportsSlug": app.get("exportsSlug", f"{slugify(config['name'])}-{config['electionYear']}"),
+        "appDataFile": output["appDataFile"],
+        "appDataGlobal": output["appDataGlobal"],
+        "geometryFile": geometry.get("outputFile"),
+        "geometryGlobal": geometry.get("outputGlobal"),
+        "capabilities": app.get("capabilities", {}),
+        "sourcePlan": app.get("sourcePlan", {}),
+        "sourceInventory": app.get("sourceInventory", []),
+        "checkedNotUsable": app.get("checkedNotUsable", []),
+        "turnoutPolicy": app.get("turnoutPolicy", {}),
+        "historicalSummary": app.get("historicalSummary", ""),
+        "reviewRowLabel": app.get("reviewRowLabel", "local result row"),
+        "reviewRowLabelPlural": app.get("reviewRowLabelPlural", "local result rows"),
+        "reviewGraphTitlePrefix": app.get("reviewGraphTitlePrefix", "Local result"),
+        "mapLoadingText": app.get(
+            "mapLoadingText",
+            f"Loading local {config['name']} county boundaries...",
+        ),
+        "noGeometryText": app.get(
+            "noGeometryText",
+            f"No local county geometry is loaded for {config['name']} yet; showing the county tile fallback.",
+        ),
+    }
+
+
+def registry_ready(config):
+    output_ready = project_path(config["output"]["appDataFile"]).exists()
+    geometry_file = config.get("geometry", {}).get("outputFile")
+    geometry_ready = not geometry_file or project_path(geometry_file).exists()
+    return output_ready and geometry_ready
+
+
+def write_state_registry(configs):
+    entries = [
+        registry_entry(config)
+        for config in sorted(configs, key=lambda item: item["code"])
+        if registry_ready(config)
+    ]
+    output = ROOT / "data" / "state-registry.js"
+    output.write_text(
+        f"window.STATE_APP_REGISTRY = {json.dumps({'states': entries}, separators=(',', ':'))};\n",
+        encoding="utf-8",
+    )
+
+
 def config_paths(args):
     if args.config:
         return [Path(item) for item in args.config]
-    return sorted((ROOT / "data" / "state-configs").glob("*.json"))
+    return sorted(path for path in CONFIG_DIR.glob("*.json") if not path.name.startswith("_"))
+
+
+def read_config(config_path):
+    path = config_path if config_path.is_absolute() else project_path(config_path)
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def all_real_configs():
+    return [read_config(path) for path in sorted(CONFIG_DIR.glob("*.json")) if not path.name.startswith("_")]
 
 
 def main():
@@ -538,13 +609,16 @@ def main():
     args = parser.parse_args()
 
     summaries = {}
+    configs = []
     for config_path in config_paths(args):
-        config = json.loads(project_path(config_path).read_text(encoding="utf-8") if not config_path.is_absolute() else config_path.read_text(encoding="utf-8"))
+        config = read_config(config_path)
+        configs.append(config)
         summaries[config["code"]] = build_state(
             config,
             download=args.download,
             force_download=args.force_download,
         )
+    write_state_registry(all_real_configs())
     print(json.dumps({"status": "passed", "states": summaries}, indent=2))
 
 

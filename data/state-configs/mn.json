@@ -144,6 +144,93 @@
       }
     ]
   },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "minnesota-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": true,
+      "turnout": true,
+      "historicalBaseline": true
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Minnesota SOS official federal/state precinct spreadsheet",
+        "detail": "Presidential county totals are aggregated from the official Minnesota Secretary of State 2024 general federal/state precinct results spreadsheet. The source workbook also includes precinct-level voter-stat fields and down-ballot columns for future review work.",
+        "sourceUrl": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+        "localFile": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+        "sourceLastModifiedUtc": "2025-02-14T17:22:26Z",
+        "sourceTimestampBasis": "HTTP Last-Modified response header from the live Minnesota Secretary of State file URL on a GET response; this confirms the file object timestamp, not necessarily the first public link date.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Minnesota SOS precinct federal/state spreadsheet",
+        "detail": "The official spreadsheet contains precinct-level presidential and U.S. Senate columns. These rows are converted into the app's review graph schema for vote-share and President-vs-Senate same-party comparison.",
+        "sourceUrl": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+        "localFile": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+        "sourceLastModifiedUtc": "2025-02-14T17:22:26Z",
+        "sourceTimestampBasis": "HTTP Last-Modified response header from the live Minnesota Secretary of State file URL on a GET response; this confirms the file object timestamp, not necessarily the first public link date.",
+        "status": "Loaded"
+      },
+      "turnout": {
+        "title": "Minnesota SOS precinct voter-stat fields",
+        "detail": "The official spreadsheet includes REG7AM, EDR, SIGNATURES, AB_MB, and TOTVOTING fields. Minnesota turnout rows use TOTVOTING divided by REG7AM plus EDR.",
+        "sourceUrl": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+        "localFile": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+        "sourceLastModifiedUtc": "2025-02-14T17:22:26Z",
+        "sourceTimestampBasis": "HTTP Last-Modified response header from the live Minnesota Secretary of State file URL on a GET response; this confirms the file object timestamp, not necessarily the first public link date.",
+        "status": "Loaded"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Presidential county results",
+        "file": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+        "sourceUrl": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+        "sourceLastModifiedUtc": "2025-02-14T17:22:26Z",
+        "sourceTimestampBasis": "HTTP Last-Modified response header from the live Minnesota Secretary of State file URL on a GET response; this confirms the file object timestamp, not necessarily the first public link date.",
+        "usedFor": "Minnesota county table, statewide totals, candidate breakdown, review graphs, turnout graph, CSV export, and Source Planner readiness rows.",
+        "confidence": "Official Minnesota Secretary of State federal/state precinct results spreadsheet, aggregated to county totals by the local importer."
+      },
+      {
+        "category": "Historical presidential baseline",
+        "file": "data/mn-2012-us-president-by-county.txt; data/mn-2016-us-president-by-county.txt; data/mn-2020-us-president-by-county.txt; data/mn-2024-us-president-by-county.txt; data/mn-app-data.js",
+        "sourceUrl": "https://www.sos.mn.gov/elections-voting/election-results/",
+        "usedFor": "Minnesota Historical Baseline tab: native SOS county presidential comparison rows for 2012, 2016, 2020, and 2024.",
+        "confidence": "Official Minnesota Secretary of State President-by-County text files."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/mn-counties.geojson; data/mn-counties.js",
+        "sourceUrl": "https://feat.gisdata.mn.gov/arcgis/rest/services/MnGeo/mn_counties/FeatureServer/0",
+        "usedFor": "Minnesota county polygon map.",
+        "confidence": "MnGeo county boundary feature service, transformed to app-ready GeoJSON."
+      }
+    ],
+    "checkedNotUsable": [],
+    "turnoutPolicy": {
+      "route": "statePrecinctSpreadsheet",
+      "status": "Loaded",
+      "acceptedSource": "The Minnesota SOS precinct spreadsheet includes REG7AM, EDR, signatures, absentee/mail ballots, and total voting fields. The app uses REG7AM plus EDR as the registered-voter denominator for Minnesota turnout rows.",
+      "warning": "Minnesota turnout rows use SOS REG7AM plus EDR as the denominator. Compare with county records before treating any single precinct's turnout rate as a finding.",
+      "requiredFields": [
+        "county",
+        "precinct",
+        "registeredVoters",
+        "ballotsCast",
+        "registrationDenominatorTiming",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Native official Minnesota Secretary of State county rows are shown for each election year.",
+    "reviewRowLabel": "Minnesota SOS precinct row",
+    "reviewRowLabelPlural": "Minnesota SOS precinct rows",
+    "reviewGraphTitlePrefix": "Minnesota SOS precinct",
+    "mapLoadingText": "Loading local Minnesota county boundaries...",
+    "noGeometryText": "Minnesota county geometry is not loaded yet; showing the county tile fallback."
+  },
   "expected": {
     "countyRows": 87,
     "precinctRows": 4103,

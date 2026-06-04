@@ -1,0 +1,168 @@
+{
+  "code": "{{STATE_CODE}}",
+  "name": "{{STATE_NAME}}",
+  "authority": "{{STATE_AUTHORITY}}",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/{{state_slug}}-app-data.js",
+    "appDataGlobal": "{{STATE_CODE}}_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "{{state_slug}}-2024-precinct-results",
+      "url": "TODO",
+      "localFile": "data/{{state_slug}}-2024-general-results.xlsx"
+    },
+    {
+      "id": "{{state_slug}}-county-geometry",
+      "url": "TODO",
+      "localFile": "data/{{state_slug}}-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "{{state_slug}}-county-geometry",
+    "outputFile": "data/{{state_slug}}-counties.js",
+    "outputGlobal": "{{STATE_CODE}}_COUNTIES_GEOJSON",
+    "nameProperty": "TODO",
+    "codeProperty": "TODO",
+    "expectedFeatures": 0
+  },
+  "certifiedResults": {
+    "sourceId": "{{state_slug}}-2024-precinct-results",
+    "sheet": "TODO",
+    "columns": {
+      "county": "TODO",
+      "total": "TODO",
+      "trump": "TODO",
+      "harris": "TODO"
+    },
+    "otherCandidates": [],
+    "aggregateFields": {}
+  },
+  "reviewCharts": {
+    "sourceId": "{{state_slug}}-2024-precinct-results",
+    "sheet": "TODO",
+    "rowLabelColumns": {
+      "municipality": "TODO",
+      "precinct": "TODO"
+    },
+    "columns": {
+      "county": "TODO",
+      "presidentTotal": "TODO",
+      "trump": "TODO",
+      "harris": "TODO",
+      "senateR": "TODO",
+      "senateDem": "TODO"
+    },
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "sourceId": "{{state_slug}}-2024-precinct-results",
+    "sheet": "TODO",
+    "rowLabelColumns": {
+      "municipality": "TODO",
+      "precinct": "TODO"
+    },
+    "columns": {
+      "county": "TODO",
+      "municipality": "TODO",
+      "ballotsCast": "TODO",
+      "registered7Am": "TODO",
+      "electionDayRegistrations": "TODO"
+    },
+    "registrationDenominatorTiming": "TODO",
+    "sourceLevel": "precinct",
+    "notes": "TODO",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "officialCountyResultText",
+    "partyCodes": {
+      "dem": "TODO",
+      "rep": "TODO"
+    },
+    "contestName": "TODO",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "{{state_slug}}-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": false,
+      "map": false,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "TODO official certified result source",
+        "detail": "TODO",
+        "sourceUrl": "TODO",
+        "localFile": "data/{{state_slug}}-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "TODO",
+        "status": "Needs data"
+      },
+      "wardDetail": {
+        "title": "TODO precinct or ward detail source",
+        "detail": "TODO",
+        "sourceUrl": "TODO",
+        "localFile": "data/{{state_slug}}-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "TODO",
+        "status": "Needs data"
+      },
+      "turnout": {
+        "title": "TODO turnout denominator source",
+        "detail": "TODO",
+        "sourceUrl": "TODO",
+        "localFile": "data/{{state_slug}}-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "TODO",
+        "status": "Needs data"
+      }
+    },
+    "sourceInventory": [],
+    "checkedNotUsable": [],
+    "turnoutPolicy": {
+      "route": "TODO",
+      "status": "Needs data",
+      "acceptedSource": "TODO",
+      "warning": "TODO",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "local result row",
+    "reviewRowLabelPlural": "local result rows",
+    "reviewGraphTitlePrefix": "Local result",
+    "mapLoadingText": "Loading local {{STATE_NAME}} county boundaries...",
+    "noGeometryText": "No local county geometry is loaded for {{STATE_NAME}} yet; showing the county tile fallback."
+  },
+  "expected": {
+    "countyRows": 0,
+    "precinctRows": 0,
+    "stateTotal": 0,
+    "trump": 0,
+    "harris": 0,
+    "other": 0,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 0
+  }
+}

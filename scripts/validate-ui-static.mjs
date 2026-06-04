@@ -185,6 +185,7 @@ function createAppHarness({ hash = "", search = "" } = {}) {
     "data/mn-counties.js",
     "data/turnout-data.js",
     "data/historical-data.js",
+    "data/state-registry.js",
     "app.js",
   ]) {
     vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });

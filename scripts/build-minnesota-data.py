@@ -13,6 +13,7 @@ def main():
     spec.loader.exec_module(state_builder)
     config = state_builder.json.loads(MINNESOTA_CONFIG.read_text(encoding="utf-8"))
     summary = state_builder.build_state(config)
+    state_builder.write_state_registry(state_builder.all_real_configs())
     print(state_builder.json.dumps(summary, indent=2))
 
 

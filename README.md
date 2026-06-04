@@ -85,16 +85,23 @@ capability flags for Source Planner, certified results, map, review graphs,
 turnout, and historical baseline readiness so partially collected states can be
 shown without implying that every Wisconsin feature is available.
 
-State data imports are now config-driven. Add a state config under
-`data/state-configs/`, then run `npm.cmd run build:states` to generate its app
-data bundle and geometry bundle. The generic builder in
+State data imports are now config-driven. Start a new state with
+`npm.cmd run scaffold:state -- MI --name Michigan --authority "Michigan Secretary of State"`,
+then fill the generated config under `data/state-configs/`. The template lives
+at `data/state-configs/_template.json`; underscore-prefixed templates are not
+loaded as real states. Run `npm.cmd run build:states` to generate each configured
+state's app data bundle, geometry bundle, and `data/state-registry.js`. The app
+reads that generated registry and registers configured states automatically, so
+new states should not require hand-editing `app.js` for labels, Source Planner
+rows, capabilities, or export slugs. The generic builder in
 `scripts/build-state-data.py` supports configured source downloads, XLSX sheet
 parsing, certified county aggregation, precinct review graph rows, turnout rows,
 President-by-County historical text files, GeoJSON county geometry
-normalization, and expected-count validation. Minnesota is the first complete
-config example in `data/state-configs/mn.json`; `npm.cmd run build:minnesota`
-uses that config directly. Future states should require config changes first,
-with parser code changes only when an official source format is genuinely new.
+normalization, app registry generation, and expected-count validation.
+Minnesota is the first complete config example in `data/state-configs/mn.json`;
+`npm.cmd run build:minnesota` uses that config directly. Future states should
+require config changes first, with parser code changes only when an official
+source format is genuinely new.
 
 The Minnesota pilot now includes certified county results, Source Planner rows,
 precinct-level review graphs, precinct turnout rows, county map geometry from
