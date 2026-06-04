@@ -1,7 +1,22 @@
-const RESULTS = window.WI_ELECTION_APP_DATA.presidentCountyResults;
-const CANDIDATE_LABELS = window.WI_ELECTION_APP_DATA.candidateLabels;
-const LOCAL_COUNTIES_GEOJSON = window.WI_COUNTIES_GEOJSON;
-const HISTORICAL_BASELINE = window.WI_HISTORICAL_BASELINE;
+const WI_RESULTS = window.WI_ELECTION_APP_DATA.presidentCountyResults;
+const WI_CANDIDATE_LABELS = window.WI_ELECTION_APP_DATA.candidateLabels;
+const WI_COUNTIES_GEOJSON = window.WI_COUNTIES_GEOJSON;
+const WI_HISTORICAL_BASELINE = window.WI_HISTORICAL_BASELINE;
+const WI_TURNOUT_DATA = window.WI_TURNOUT_DATA;
+const MN_ELECTION_APP_DATA = window.MN_ELECTION_APP_DATA || { presidentCountyResults: [], candidateLabels: [] };
+const MN_RESULTS = MN_ELECTION_APP_DATA.presidentCountyResults || [];
+const MN_CANDIDATE_LABELS = MN_ELECTION_APP_DATA.candidateLabels || [];
+const MN_REVIEW_CHARTS = MN_ELECTION_APP_DATA.reviewCharts || null;
+const MN_ETA_ANALYSIS = MN_ELECTION_APP_DATA.etaAnalysis || null;
+const MN_TURNOUT_DATA = MN_ELECTION_APP_DATA.turnoutData || { metadata: {}, rows: [] };
+const MN_HISTORICAL_BASELINE = MN_ELECTION_APP_DATA.historicalBaseline || null;
+const MN_COUNTIES_GEOJSON = window.MN_COUNTIES_GEOJSON || null;
+let activeStateCode = "WI";
+let RESULTS = WI_RESULTS;
+let CANDIDATE_LABELS = WI_CANDIDATE_LABELS;
+let LOCAL_COUNTIES_GEOJSON = WI_COUNTIES_GEOJSON;
+let HISTORICAL_BASELINE = WI_HISTORICAL_BASELINE;
+let TURNOUT_DATA = WI_TURNOUT_DATA;
 const HISTORICAL_PRIMARY_SERIES_IDS = [
   "ltsb-harmonized-2012-president",
   "ltsb-harmonized-2016-president",
@@ -16,7 +31,18 @@ const HISTORICAL_SERIES_LABELS = {
   "wec-native-2016-president-original": "2016 WEC native original canvass",
   "wec-native-2016-president-recount": "2016 WEC native recount",
   "wec-native-2024-president": "2024 WEC native reporting units",
+  "mn-sos-native-2012-president": "2012 Minnesota SOS native precincts",
+  "mn-sos-native-2016-president": "2016 Minnesota SOS native precincts",
+  "mn-sos-native-2020-president": "2020 Minnesota SOS native precincts",
+  "mn-sos-native-2024-president": "2024 Minnesota SOS native precincts",
 };
+
+const MN_HISTORICAL_PRIMARY_SERIES_IDS = [
+  "mn-sos-native-2012-president",
+  "mn-sos-native-2016-president",
+  "mn-sos-native-2020-president",
+  "mn-sos-native-2024-president",
+];
 
 const ETA_ANALYSIS = {
   wardRows: 3603,
@@ -57,11 +83,34 @@ const TURNOUT_SOURCE_POLICY = {
 
 const DATA_VERSION_LABEL = "June 2026 local bundle";
 
+const WEC_2024_SOURCE_TIMESTAMPS = {
+  countyPresidentLastModifiedUtc: "2024-11-27T21:31:27Z",
+  countySenateLastModifiedUtc: "2024-11-27T21:31:28Z",
+  wardFederalStateLastModifiedUtc: "2024-11-27T21:35:53Z",
+  auditSelectionLastModifiedUtc: "2024-11-07T15:25:08Z",
+  auditMarchMaterialsLastModifiedUtc: "2025-02-28T14:41:12Z",
+  basis: "HTTP Last-Modified response header from the live WEC file URL; this confirms the file object timestamp, not necessarily the first public link date.",
+};
+
+const WEC_2024_WARD_SOURCE_URL =
+  "https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx";
+
+const MN_2024_SOURCE_TIMESTAMPS = {
+  precinctFederalStateLastModifiedUtc: "2025-02-14T17:22:26Z",
+  basis:
+    "HTTP Last-Modified response header from the live Minnesota Secretary of State file URL on a GET response; this confirms the file object timestamp, not necessarily the first public link date.",
+};
+
+const MN_2024_PRECINCT_SOURCE_URL =
+  "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx";
+
 const SOURCE_INVENTORY = [
   {
     category: "Presidential county results",
     file: "data/County by County Report_POTUS.pdf; data/president-county-results.json",
     sourceUrl: "https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf",
+    sourceLastModifiedUtc: WEC_2024_SOURCE_TIMESTAMPS.countyPresidentLastModifiedUtc,
+    sourceTimestampBasis: WEC_2024_SOURCE_TIMESTAMPS.basis,
     usedFor: "Map shading, county table, statewide totals, candidate breakdown, CSV export, selected-county details.",
     confidence: "Official WEC certified county result report.",
   },
@@ -69,6 +118,8 @@ const SOURCE_INVENTORY = [
     category: "U.S. Senate county results",
     file: "data/County by County Report_US Senate.pdf",
     sourceUrl: "https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf",
+    sourceLastModifiedUtc: WEC_2024_SOURCE_TIMESTAMPS.countySenateLastModifiedUtc,
+    sourceTimestampBasis: WEC_2024_SOURCE_TIMESTAMPS.basis,
     usedFor: "County-level verification context for down-ballot comparison.",
     confidence: "Official WEC certified county result report.",
   },
@@ -77,6 +128,8 @@ const SOURCE_INVENTORY = [
     file: "data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js",
     sourceUrl:
       "https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx",
+    sourceLastModifiedUtc: WEC_2024_SOURCE_TIMESTAMPS.wardFederalStateLastModifiedUtc,
+    sourceTimestampBasis: `Original WEC file URL HTTP Last-Modified response header: ${WEC_2024_WARD_SOURCE_URL}. The app links the archived copy for durability.`,
     usedFor: "Vote-share by vote-count scatterplots, presidential-versus-Senate drop-off histograms, selected-county graph filtering.",
     confidence: "Official WEC ward-level vote totals; graph interpretation remains a screening tool.",
   },
@@ -112,6 +165,8 @@ const SOURCE_INVENTORY = [
     category: "2024 post-election voting-equipment audit",
     file: "Official WEC March 7, 2025 meeting materials and October 4, 2024 adopted procedures",
     sourceUrl: "https://elections.wi.gov/sites/default/files/documents/OPEN%20Session%20Materials%20-March%207_FINAL%20for%20Web%20Posting_0.pdf#page=51",
+    sourceLastModifiedUtc: WEC_2024_SOURCE_TIMESTAMPS.auditMarchMaterialsLastModifiedUtc,
+    sourceTimestampBasis: WEC_2024_SOURCE_TIMESTAMPS.basis,
     usedFor: "Audit Simulator report summary, municipality-tier presets, and educational sampling-coverage model.",
     confidence: "Official WEC materials. Simulator scenarios are illustrative hypotheticals, not findings and not reconstructions of the actual audit sample.",
   },
@@ -126,6 +181,51 @@ const CHECKED_NOT_USABLE = [
   },
 ];
 
+const MN_SOURCE_INVENTORY = [
+  {
+    category: "Presidential county results",
+    file: "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+    sourceUrl: MN_2024_PRECINCT_SOURCE_URL,
+    sourceLastModifiedUtc: MN_2024_SOURCE_TIMESTAMPS.precinctFederalStateLastModifiedUtc,
+    sourceTimestampBasis: MN_2024_SOURCE_TIMESTAMPS.basis,
+    usedFor: "Minnesota county table, statewide totals, candidate breakdown, review graphs, turnout graph, CSV export, and Source Planner readiness rows.",
+    confidence: "Official Minnesota Secretary of State federal/state precinct results spreadsheet, aggregated to county totals by the local importer.",
+  },
+  {
+    category: "Historical presidential baseline",
+    file: "data/mn-2012-us-president-by-county.txt; data/mn-2016-us-president-by-county.txt; data/mn-2020-us-president-by-county.txt; data/mn-2024-us-president-by-county.txt; data/mn-app-data.js",
+    sourceUrl: "https://www.sos.mn.gov/elections-voting/election-results/",
+    usedFor: "Minnesota Historical Baseline tab: native SOS county presidential comparison rows for 2012, 2016, 2020, and 2024.",
+    confidence: "Official Minnesota Secretary of State President-by-County text files.",
+  },
+  {
+    category: "County boundaries",
+    file: "data/mn-counties.geojson; data/mn-counties.js",
+    sourceUrl: "https://feat.gisdata.mn.gov/arcgis/rest/services/MnGeo/mn_counties/FeatureServer/0",
+    usedFor: "Minnesota county polygon map.",
+    confidence: "MnGeo county boundary feature service, transformed to app-ready GeoJSON.",
+  },
+];
+
+const MN_CHECKED_NOT_USABLE = [];
+
+const MN_TURNOUT_SOURCE_POLICY = {
+  route: "statePrecinctSpreadsheet",
+  status: "Loaded",
+  acceptedSource:
+    "The Minnesota SOS precinct spreadsheet includes REG7AM, EDR, signatures, absentee/mail ballots, and total voting fields. The app uses REG7AM plus EDR as the registered-voter denominator for Minnesota turnout rows.",
+  warning:
+    "Minnesota turnout rows use SOS REG7AM plus EDR as the denominator. Compare with county records before treating any single precinct's turnout rate as a finding.",
+  requiredFields: [
+    "county",
+    "precinct",
+    "registeredVoters",
+    "ballotsCast",
+    "registrationDenominatorTiming",
+    "sourceUrl",
+  ],
+};
+
 const STATE_SOURCE_PLANS = {
   WI: {
     code: "WI",
@@ -134,13 +234,16 @@ const STATE_SOURCE_PLANS = {
     office: "President",
     stateAuthority: "Wisconsin Elections Commission",
     countyLabel: "County",
-    resultRows: RESULTS,
+    exportsSlug: "wisconsin-2024",
+    resultRows: WI_RESULTS,
     certifiedResults: {
       title: "WEC certified county result report",
       detail:
         "Presidential county totals are imported from the Wisconsin Elections Commission certified County by County Report_POTUS PDF and reconciled into the app's county result bundle.",
       sourceUrl: "https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf",
       localFile: "data/County by County Report_POTUS.pdf; data/president-county-results.json",
+      sourceLastModifiedUtc: WEC_2024_SOURCE_TIMESTAMPS.countyPresidentLastModifiedUtc,
+      sourceTimestampBasis: WEC_2024_SOURCE_TIMESTAMPS.basis,
       status: "Loaded",
     },
     wardDetail: {
@@ -150,6 +253,8 @@ const STATE_SOURCE_PLANS = {
       sourceUrl:
         "https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx",
       localFile: "data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js",
+      sourceLastModifiedUtc: WEC_2024_SOURCE_TIMESTAMPS.wardFederalStateLastModifiedUtc,
+      sourceTimestampBasis: `Original WEC file URL HTTP Last-Modified response header: ${WEC_2024_WARD_SOURCE_URL}. The app links the archived copy for durability.`,
       status: "Loaded",
     },
     turnout: {
@@ -158,8 +263,129 @@ const STATE_SOURCE_PLANS = {
         "Turnout rows are imported only where local county or municipal sources include ballots-cast and registered-voter denominator fields. Wisconsin rows keep denominator timing warnings because Election Day registration can make preliminary denominators too low.",
       sourceUrl: "Multiple county and municipal sources; see county rows.",
       localFile: "data/turnout-data.json; data/turnout-data.js",
+      sourceLastModifiedUtc: "",
+      sourceTimestampBasis: "County and municipal turnout source timestamps are tracked per imported source when collected; not all local rows expose comparable HTTP metadata yet.",
       status: "Partial",
     },
+  },
+  MN: {
+    code: "MN",
+    state: "Minnesota",
+    electionYear: 2024,
+    office: "President",
+    stateAuthority: "Minnesota Secretary of State",
+    countyLabel: "County",
+    exportsSlug: "minnesota-2024",
+    resultRows: MN_RESULTS,
+    certifiedResults: {
+      title: "Minnesota SOS official federal/state precinct spreadsheet",
+      detail:
+        "Presidential county totals are aggregated from the official Minnesota Secretary of State 2024 general federal/state precinct results spreadsheet. The source workbook also includes precinct-level voter-stat fields and down-ballot columns for future review work.",
+      sourceUrl: MN_2024_PRECINCT_SOURCE_URL,
+      localFile: "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+      sourceLastModifiedUtc: MN_2024_SOURCE_TIMESTAMPS.precinctFederalStateLastModifiedUtc,
+      sourceTimestampBasis: MN_2024_SOURCE_TIMESTAMPS.basis,
+      status: MN_RESULTS.length ? "Loaded" : "Needs data",
+    },
+    wardDetail: {
+      title: "Minnesota SOS precinct federal/state spreadsheet",
+      detail:
+        "The official spreadsheet contains precinct-level presidential and U.S. Senate columns. These rows are converted into the app's review graph schema for vote-share and President-vs-Senate same-party comparison.",
+      sourceUrl: MN_2024_PRECINCT_SOURCE_URL,
+      localFile: "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+      sourceLastModifiedUtc: MN_2024_SOURCE_TIMESTAMPS.precinctFederalStateLastModifiedUtc,
+      sourceTimestampBasis: MN_2024_SOURCE_TIMESTAMPS.basis,
+      status: MN_REVIEW_CHARTS ? "Loaded" : "Needs data",
+    },
+    turnout: {
+      title: "Minnesota SOS precinct voter-stat fields",
+      detail:
+        "The official spreadsheet includes REG7AM, EDR, SIGNATURES, AB_MB, and TOTVOTING fields. Minnesota turnout rows use TOTVOTING divided by REG7AM plus EDR.",
+      sourceUrl: MN_2024_PRECINCT_SOURCE_URL,
+      localFile: "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js",
+      sourceLastModifiedUtc: MN_2024_SOURCE_TIMESTAMPS.precinctFederalStateLastModifiedUtc,
+      sourceTimestampBasis: MN_2024_SOURCE_TIMESTAMPS.basis,
+      status: MN_TURNOUT_DATA?.rows?.length ? "Loaded" : "Needs data",
+    },
+  },
+};
+let ACTIVE_ETA_ANALYSIS = ETA_ANALYSIS;
+let WARD_CHARTS = window.ETA_WARD_CHARTS;
+
+const APP_STATES = {
+  WI: {
+    code: "WI",
+    name: "Wisconsin",
+    electionYear: 2024,
+    office: "President",
+    authority: "Wisconsin Elections Commission",
+    countyLabel: "County",
+    expectedCountyCount: 72,
+    exportsSlug: "wisconsin-2024",
+    capabilities: {
+      sourcePlanner: true,
+      certifiedResults: true,
+      map: true,
+      reviewGraphs: true,
+      turnout: true,
+      historicalBaseline: true,
+    },
+    resultRows: WI_RESULTS,
+    candidateLabels: WI_CANDIDATE_LABELS,
+    countyGeometry: WI_COUNTIES_GEOJSON,
+    turnoutData: WI_TURNOUT_DATA,
+    turnoutPolicy: TURNOUT_SOURCE_POLICY,
+    etaAnalysis: ETA_ANALYSIS,
+    wardCharts: window.ETA_WARD_CHARTS,
+    historicalBaseline: WI_HISTORICAL_BASELINE,
+    historicalPrimarySeriesIds: HISTORICAL_PRIMARY_SERIES_IDS,
+    historicalSummary:
+      "The multi-year comparison rows come from Wisconsin LTSB harmonized ward layers. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.",
+    sourcePlan: STATE_SOURCE_PLANS.WI,
+    sourceInventory: SOURCE_INVENTORY,
+    checkedNotUsable: CHECKED_NOT_USABLE,
+    reviewRowLabel: "WEC ward row",
+    reviewRowLabelPlural: "WEC ward rows",
+    reviewGraphTitlePrefix: "WEC ward",
+    mapLoadingText: "Loading local Wisconsin county boundaries...",
+    noGeometryText: "No local county geometry is loaded for this state yet; showing the county tile fallback.",
+  },
+  MN: {
+    code: "MN",
+    name: "Minnesota",
+    electionYear: 2024,
+    office: "President",
+    authority: "Minnesota Secretary of State",
+    countyLabel: "County",
+    expectedCountyCount: 87,
+    exportsSlug: "minnesota-2024",
+    capabilities: {
+      sourcePlanner: true,
+      certifiedResults: true,
+      map: true,
+      reviewGraphs: true,
+      turnout: true,
+      historicalBaseline: true,
+    },
+    resultRows: MN_RESULTS,
+    candidateLabels: MN_CANDIDATE_LABELS,
+    countyGeometry: MN_COUNTIES_GEOJSON,
+    turnoutData: MN_TURNOUT_DATA,
+    turnoutPolicy: MN_TURNOUT_SOURCE_POLICY,
+    etaAnalysis: MN_ETA_ANALYSIS,
+    wardCharts: MN_REVIEW_CHARTS,
+    historicalBaseline: MN_HISTORICAL_BASELINE,
+    historicalPrimarySeriesIds: MN_HISTORICAL_PRIMARY_SERIES_IDS,
+    historicalSummary:
+      "Native official Minnesota Secretary of State county rows are shown for each election year.",
+    sourcePlan: STATE_SOURCE_PLANS.MN,
+    sourceInventory: MN_SOURCE_INVENTORY,
+    checkedNotUsable: MN_CHECKED_NOT_USABLE,
+    reviewRowLabel: "Minnesota SOS precinct row",
+    reviewRowLabelPlural: "Minnesota SOS precinct rows",
+    reviewGraphTitlePrefix: "Minnesota SOS precinct",
+    mapLoadingText: "Loading local Minnesota county boundaries...",
+    noGeometryText: "Minnesota county geometry is not loaded yet; showing the county tile fallback.",
   },
 };
 
@@ -224,20 +450,11 @@ const AUDIT_SIMULATOR_PRESETS = {
   },
 };
 
-const byCounty = new Map(RESULTS.map((row) => [normalizeCounty(row.county), row]));
+let byCounty = new Map(RESULTS.map((row) => [normalizeCounty(row.county), row]));
 const countyReviewCache = new Map();
-const stateTotals = RESULTS.reduce(
-  (acc, row) => {
-    acc.trump += row.trump;
-    acc.harris += row.harris;
-    acc.other += row.other;
-    acc.total += row.total;
-    return acc;
-  },
-  { trump: 0, harris: 0, other: 0, total: 0 },
-);
-const STATEWIDE_2024_PRESIDENTIAL_MARGIN = Math.abs(stateTotals.trump - stateTotals.harris);
-const MIN_SWITCHES_TO_MOVE_STATEWIDE_MARGIN = Math.floor(STATEWIDE_2024_PRESIDENTIAL_MARGIN / 2) + 1;
+let stateTotals = calculateStateTotals(RESULTS);
+let STATEWIDE_2024_PRESIDENTIAL_MARGIN = Math.abs(stateTotals.trump - stateTotals.harris);
+let MIN_SWITCHES_TO_MOVE_STATEWIDE_MARGIN = Math.floor(STATEWIDE_2024_PRESIDENTIAL_MARGIN / 2) + 1;
 
 let collected = [];
 let map;
@@ -251,6 +468,7 @@ let flaggedAreaSummaryRows = [];
 let auditSimulationSeed = 17;
 
 const els = {
+  appStateSelect: document.querySelector("#appStateSelect"),
   trumpTotal: document.querySelector("#trumpTotal"),
   harrisTotal: document.querySelector("#harrisTotal"),
   stateMargin: document.querySelector("#stateMargin"),
@@ -316,6 +534,8 @@ const els = {
   sourceCountySummary: document.querySelector("#sourceCountySummary"),
   sourceCountyRows: document.querySelector("#sourceCountyRows"),
   reviewFlagSummary: document.querySelector("#reviewFlagSummary"),
+  voteShareGraphInfo: document.querySelector("#voteShareGraphInfo"),
+  downBallotGraphInfo: document.querySelector("#downBallotGraphInfo"),
   voteShareGraph: document.querySelector("#voteShareGraph"),
   downBallotGraph: document.querySelector("#downBallotGraph"),
   turnoutGraph: document.querySelector("#turnoutGraph"),
@@ -385,6 +605,7 @@ const els = {
 
 function init() {
   initializeThemeToggle();
+  initializeStateSelectors();
   organizeWorkspacePanels();
   renderSummary();
   renderEtaTests();
@@ -393,6 +614,7 @@ function init() {
   renderCoverageTable();
   renderCheckedNotUsable();
   renderSourcePlanner();
+  renderReviewSourceCopy();
   renderEtaGraphs();
   renderCitySplitOptions();
   setReviewControlValues();
@@ -410,12 +632,13 @@ function init() {
 }
 
 function wireControls() {
+  els.appStateSelect.addEventListener("change", () => switchActiveState(els.appStateSelect.value));
   els.collectBtn.addEventListener("click", () => collectCounties({ quick: false }));
   els.mapBtn.addEventListener("click", loadCountyBoundaries);
   els.exportBtn.addEventListener("click", exportCsv);
   els.coverageCsvBtn.addEventListener("click", exportCoverageCsv);
   els.sourceCsvBtn.addEventListener("click", exportSourceCsv);
-  els.sourceStateSelect.addEventListener("change", renderSourcePlanner);
+  els.sourceStateSelect.addEventListener("change", () => switchActiveState(els.sourceStateSelect.value));
   els.sourceCountySearch.addEventListener("input", renderSourceCountyRows);
   els.sourceStatusFilter.addEventListener("change", renderSourceCountyRows);
   els.sourcePlanCsvBtn.addEventListener("click", exportSourcePlanCsv);
@@ -536,10 +759,10 @@ function setAppTab(tabName, { scrollTop = false, updateHash = true } = {}) {
   }
   if (updateHash && window.history?.replaceState) {
     const currentRoute = routeState();
-    const nextHash = tabName === "review" && currentRoute.tabName === "review" && currentRoute.query
-      ? `#review?${currentRoute.query}`
-      : `#${tabName}`;
-    window.history.replaceState(null, "", nextHash);
+    const params = tabName === "review" && currentRoute.tabName === "review"
+      ? reviewRouteParamsFromCurrentRoute(currentRoute)
+      : new URLSearchParams();
+    replaceRoute(tabName, params);
   }
   if (scrollTop) {
     document.querySelector(".map-stage")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -553,15 +776,219 @@ function initialTabName() {
 function routeState() {
   const [hashTab = "", query = ""] = window.location.hash.replace(/^#/, "").split("?");
   const validTabs = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"];
+  const pageParams = new URLSearchParams(window.location.search || "");
+  const hashParams = new URLSearchParams(query);
+  const params = new URLSearchParams(pageParams);
+  for (const [key, value] of hashParams.entries()) {
+    params.set(key, value);
+  }
   return {
     tabName: validTabs.includes(hashTab) ? hashTab : "dashboard",
     query,
-    params: new URLSearchParams(query),
+    params,
+    hashParams,
   };
+}
+
+function normalizedStateCode(code) {
+  const normalized = String(code || "").trim().toUpperCase();
+  return APP_STATES[normalized] ? normalized : "";
+}
+
+function initialStateCode() {
+  return normalizedStateCode(routeState().params.get("state")) || "WI";
+}
+
+function setRouteStateParam(params) {
+  const code = normalizedStateCode(activeStateCode);
+  if (code && code !== "WI") {
+    params.set("state", code);
+  } else {
+    params.delete("state");
+  }
+}
+
+function routeHash(tabName, params = new URLSearchParams()) {
+  const query = params.toString();
+  return `#${tabName}${query ? `?${query}` : ""}`;
+}
+
+function replaceRoute(tabName = activeTabName(), params = new URLSearchParams()) {
+  if (!window.history?.replaceState) {
+    return;
+  }
+  setRouteStateParam(params);
+  const nextUrl = new URL(window.location.href);
+  nextUrl.searchParams.delete("state");
+  nextUrl.hash = routeHash(tabName, params);
+  window.history.replaceState(null, "", nextUrl.toString());
+}
+
+function reviewRouteParamsFromCurrentRoute(route = routeState()) {
+  const params = new URLSearchParams();
+  for (const key of ["scope", "county", "city"]) {
+    const value = route.params.get(key);
+    if (value) {
+      params.set(key, value);
+    }
+  }
+  return params;
 }
 
 function activeTabName() {
   return Array.from(els.appTabs).find((button) => button.classList.contains("active"))?.dataset.appTab || "dashboard";
+}
+
+function initializeStateSelectors() {
+  const options = Object.values(APP_STATES)
+    .map((state) => `<option value="${escapeAttr(state.code)}">${escapeText(state.name)} ${state.electionYear}</option>`)
+    .join("");
+  els.appStateSelect.innerHTML = options;
+  els.sourceStateSelect.innerHTML = options;
+  setActiveState(initialStateCode(), { updateControls: true });
+}
+
+function switchActiveState(code, { updateRoute = true } = {}) {
+  if (!APP_STATES[code] || code === activeStateCode) {
+    setActiveState(activeStateCode, { updateControls: true });
+    renderSourcePlanner();
+    if (updateRoute) {
+      replaceRoute(activeTabName(), activeTabName() === "review" ? reviewRouteParamsFromCurrentRoute() : new URLSearchParams());
+    }
+    return;
+  }
+
+  setActiveState(code, { updateControls: true });
+  selectedCounty = null;
+  collected = [];
+  citySplitData = [];
+  flaggedAreaSummaryRows = [];
+  auditTrialRunToken += 1;
+  renderSummary();
+  renderEtaTests();
+  renderCoverageTracker();
+  renderConfidenceSummary();
+  renderCoverageTable();
+  renderCheckedNotUsable();
+  renderSourcePlanner();
+  renderReviewSourceCopy();
+  renderEtaGraphs();
+  renderCitySplitOptions();
+  renderFlaggedAreasSummary();
+  renderReviewDrilldown();
+  renderCandidateBreakdown();
+  renderHistoricalComparison();
+  renderTable(RESULTS);
+  renderTiles(RESULTS);
+  loadCountyBoundaries();
+  collectCounties({ quick: true });
+  if (updateRoute) {
+    replaceRoute(activeTabName(), activeTabName() === "review" ? reviewRouteParamsFromCurrentRoute() : new URLSearchParams());
+  }
+}
+
+function setActiveState(code, { updateControls = false } = {}) {
+  const state = APP_STATES[code] || APP_STATES.WI;
+  activeStateCode = state.code;
+  RESULTS = state.resultRows || [];
+  CANDIDATE_LABELS = state.candidateLabels || [];
+  LOCAL_COUNTIES_GEOJSON = state.countyGeometry || null;
+  HISTORICAL_BASELINE = state.historicalBaseline || null;
+  TURNOUT_DATA = state.turnoutData || { metadata: {}, rows: [] };
+  ACTIVE_ETA_ANALYSIS = state.etaAnalysis || null;
+  WARD_CHARTS = state.wardCharts || null;
+  els.historicalCountySelect.innerHTML = "";
+  els.historicalSeriesSelect.innerHTML = "";
+  if (!HISTORICAL_BASELINE?.series?.length) {
+    els.historicalTableRows.innerHTML = "";
+    els.historicalScopeTitle.textContent = `${state.name} comparison`;
+  }
+  byCounty = new Map(RESULTS.map((row) => [normalizeCounty(row.county), row]));
+  stateTotals = calculateStateTotals(RESULTS);
+  STATEWIDE_2024_PRESIDENTIAL_MARGIN = Math.abs(stateTotals.trump - stateTotals.harris);
+  MIN_SWITCHES_TO_MOVE_STATEWIDE_MARGIN = Math.floor(STATEWIDE_2024_PRESIDENTIAL_MARGIN / 2) + 1;
+  countyReviewCache.clear();
+
+  if (updateControls) {
+    els.appStateSelect.value = state.code;
+    els.sourceStateSelect.value = state.code;
+  }
+}
+
+function activeStateConfig() {
+  return APP_STATES[activeStateCode] || APP_STATES.WI;
+}
+
+function activeSourcePlan() {
+  return activeStateConfig().sourcePlan;
+}
+
+function activeSourceInventory() {
+  return activeStateConfig().sourceInventory || [];
+}
+
+function activeCheckedNotUsable() {
+  return activeStateConfig().checkedNotUsable || [];
+}
+
+function activeTurnoutPolicy() {
+  return activeStateConfig().turnoutPolicy || TURNOUT_SOURCE_POLICY;
+}
+
+function activeReviewRowLabel({ plural = false } = {}) {
+  const state = activeStateConfig();
+  return plural
+    ? state.reviewRowLabelPlural || `${state.countyLabel.toLowerCase()} local result rows`
+    : state.reviewRowLabel || `${state.countyLabel.toLowerCase()} local result row`;
+}
+
+function activeReviewGraphTitlePrefix() {
+  return activeStateConfig().reviewGraphTitlePrefix || activeReviewRowLabel();
+}
+
+function renderReviewSourceCopy() {
+  const reviewSource = `Uses official ${activeReviewGraphTitlePrefix()} vote totals.`;
+  if (els.voteShareGraphInfo) {
+    const text = `${reviewSource} The calculation is accurate for the data shown, but a pattern or flagged result means review further, not proof by itself.`;
+    els.voteShareGraphInfo.setAttribute("aria-label", `Vote share graph note: ${text}`);
+    els.voteShareGraphInfo.setAttribute("title", text);
+  }
+  if (els.downBallotGraphInfo) {
+    const text = `${reviewSource} The calculation is accurate for the data shown, but differences can come from normal split-ticket voting.`;
+    els.downBallotGraphInfo.setAttribute("aria-label", `Down-ballot graph note: ${text}`);
+    els.downBallotGraphInfo.setAttribute("title", text);
+  }
+}
+
+function stateCapabilityLabel(capability) {
+  const state = activeStateConfig();
+  const labels = {
+    map: state.capabilities?.map ? "Map ready" : "Map not ready",
+    reviewGraphs: state.capabilities?.reviewGraphs ? "Review graphs ready" : "Review graphs need local detail",
+    historicalBaseline: state.capabilities?.historicalBaseline ? "Historical baseline ready" : "Historical baseline not loaded",
+  };
+  return labels[capability] || capability;
+}
+
+function stateCapabilityTone(capability) {
+  return activeStateConfig().capabilities?.[capability] ? "strong" : "missing";
+}
+
+function activeExportSlug() {
+  return activeStateConfig().exportsSlug || `${activeStateCode.toLowerCase()}-${activeStateConfig().electionYear}`;
+}
+
+function calculateStateTotals(rows) {
+  return rows.reduce(
+    (acc, row) => {
+      acc.trump += row.trump || 0;
+      acc.harris += row.harris || 0;
+      acc.other += row.other || 0;
+      acc.total += row.total || 0;
+      return acc;
+    },
+    { trump: 0, harris: 0, other: 0, total: 0 },
+  );
 }
 
 function initializeThemeToggle() {
@@ -679,7 +1106,15 @@ async function loadCountyBoundaries() {
     return;
   }
 
-  els.statusText.textContent = "Loading local Wisconsin county boundaries...";
+  const state = activeStateConfig();
+  els.statusText.textContent = state.mapLoadingText || `Loading local ${state.name} ${state.countyLabel.toLowerCase()} boundaries...`;
+  if (!LOCAL_COUNTIES_GEOJSON) {
+    els.map.hidden = true;
+    els.tileFallback.hidden = false;
+    renderTiles(filteredRows());
+    els.statusText.textContent = state.noGeometryText || "No local geometry is loaded for this state, so the tile map is active.";
+    return;
+  }
   try {
     drawGeoJson(LOCAL_COUNTIES_GEOJSON);
     els.map.hidden = false;
@@ -807,7 +1242,7 @@ function countyReviewSummary(county) {
     return countyReviewCache.get(key);
   }
 
-  const rows = window.ETA_WARD_CHARTS?.metadata?.rows?.filter((row) => normalizeCounty(row.county) === key) || [];
+  const rows = WARD_CHARTS?.metadata?.rows?.filter((row) => normalizeCounty(row.county) === key) || [];
   const result = reviewSummaryForRows(`${county} County`, rows, "all");
   countyReviewCache.set(key, result);
   return result;
@@ -818,8 +1253,8 @@ function reviewSummaryForRows(label, rows, mode = "all") {
   if (rows.length < COUNTY_REVIEW_POLICY.minWardRows) {
     return {
       flag: false,
-      title: `${label} has fewer than ${COUNTY_REVIEW_POLICY.minWardRows} WEC ward rows in this analysis, so the app does not apply a ${rowLabel} flag.`,
-      notes: `Not enough ward rows for ${rowLabel} flag`,
+      title: `${label} has fewer than ${COUNTY_REVIEW_POLICY.minWardRows} ${activeReviewRowLabel({ plural: true })} in this analysis, so the app does not apply a ${rowLabel} flag.`,
+      notes: `Not enough ${activeReviewRowLabel({ plural: true })} for ${rowLabel} flag`,
       reasons: [],
       metrics: {
         rowCount: rows.length,
@@ -878,7 +1313,7 @@ function reviewSummaryForRows(label, rows, mode = "all") {
       type: "Down-ballot outliers",
       summary: `drop-off outlier count crossed threshold: DEM ${demOutliers}, REP ${repOutliers}, trigger ${outlierTrigger}`,
       plain:
-        "Enough ward rows have unusually large President-versus-Senate differences to pass the outlier-count threshold. That does not prove anything by itself, but it identifies rows to inspect first.",
+        "Enough local result rows have unusually large President-versus-Senate differences to pass the outlier-count threshold. That does not prove anything by itself, but it identifies rows to inspect first.",
     });
   }
 
@@ -950,7 +1385,7 @@ function readControlNumber(input, fallback) {
 function reviewScopeData() {
   const scope = els.reviewScopeSelect.value;
   const selectedSplit = citySplitData[Number(els.citySplitSelect.value) || 0];
-  const allRows = window.ETA_WARD_CHARTS?.metadata?.rows || [];
+  const allRows = WARD_CHARTS?.metadata?.rows || [];
 
   if (scope === "city" && selectedSplit) {
     return {
@@ -986,7 +1421,7 @@ function firstFlaggedCounty() {
 }
 
 function allReviewScopes() {
-  const allRows = window.ETA_WARD_CHARTS?.metadata?.rows || [];
+  const allRows = WARD_CHARTS?.metadata?.rows || [];
   const scopes = RESULTS.map((countyRow) => ({
     scope: "county",
     typeLabel: "County",
@@ -1088,7 +1523,18 @@ function flaggedAreaRows({ applyFilters = true } = {}) {
 }
 
 function renderFlaggedAreasSummary() {
-  if (!els.flaggedAreaRows || !window.ETA_WARD_CHARTS) {
+  if (!els.flaggedAreaRows || !WARD_CHARTS) {
+    flaggedAreaSummaryRows = [];
+    if (els.flaggedAreasSummary) {
+      els.flaggedAreasSummary.textContent = `No review rows are registered for ${activeStateConfig().name} yet.`;
+    }
+    if (els.flaggedAreaRows) {
+      els.flaggedAreaRows.innerHTML = `
+        <tr>
+          <td colspan="8">Review graph data is not loaded for this state yet.</td>
+        </tr>
+      `;
+    }
     return;
   }
 
@@ -1166,7 +1612,7 @@ function updateReviewRoute(scope = reviewScopeData()) {
   if (scope.city) {
     params.set("city", scope.city);
   }
-  window.history.replaceState(null, "", `#review?${params.toString()}`);
+  replaceRoute("review", params);
 }
 
 async function copyReviewLink() {
@@ -1193,7 +1639,23 @@ async function copyReviewLink() {
 }
 
 function renderReviewDrilldown() {
-  if (!els.reviewSummaryGrid || !window.ETA_WARD_CHARTS) {
+  if (!els.reviewSummaryGrid || !WARD_CHARTS) {
+    if (els.reviewSummaryGrid) {
+      els.reviewSummaryGrid.innerHTML = `
+        <article>
+          <span class="eta-badge needs-data">Needs data</span>
+          <strong>${escapeText(activeStateConfig().name)} review drilldown</strong>
+          <p>Ward, precinct, or reporting-unit review rows are not registered for this state yet.</p>
+        </article>
+      `;
+    }
+    if (els.recordsRequestText) {
+      els.recordsRequestText.textContent =
+        "Review records request text will populate after this state has local result rows in the review graph schema.";
+    }
+    if (els.reviewWardRows) {
+      els.reviewWardRows.innerHTML = "";
+    }
     return;
   }
 
@@ -1219,7 +1681,7 @@ function renderReviewDrilldown() {
     <article>
       <span class="eta-badge ${flaggedTone}">${flaggedText}</span>
       <strong>${escapeText(scope.label)}</strong>
-      <p>${formatNumber(metrics.rowCount)} WEC ward rows under the current scope.</p>
+      <p>${formatNumber(metrics.rowCount)} ${escapeText(activeReviewRowLabel({ plural: true }))} under the current scope.</p>
     </article>
     <article>
       <strong>Vote-share pattern</strong>
@@ -1357,16 +1819,21 @@ function renderEtaTests() {
 }
 
 function etaTestResults() {
+  const analysis = ACTIVE_ETA_ANALYSIS;
+  const turnoutPolicy = activeTurnoutPolicy();
+  const hasReviewAnalysis = Boolean(analysis);
   const voteShareFlagged =
-    Math.abs(ETA_ANALYSIS.voteShare.trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
-    Math.abs(ETA_ANALYSIS.voteShare.harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold;
+    hasReviewAnalysis &&
+    (Math.abs(analysis.voteShare.trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
+      Math.abs(analysis.voteShare.harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold);
   const downBallotFlagged =
-    Math.abs(ETA_ANALYSIS.downBallot.repDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
-    Math.abs(ETA_ANALYSIS.downBallot.demDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
-    ETA_ANALYSIS.downBallot.repOutlierWards + ETA_ANALYSIS.downBallot.demOutlierWards > 50;
+    hasReviewAnalysis &&
+    (Math.abs(analysis.downBallot.repDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
+      Math.abs(analysis.downBallot.demDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
+      analysis.downBallot.repOutlierWards + analysis.downBallot.demOutlierWards > 50);
   const turnoutCoverage = turnoutCoverageRows();
-  const turnoutRows = window.WI_TURNOUT_DATA?.metadata?.rows || 0;
-  const turnoutWarningRows = window.WI_TURNOUT_DATA?.metadata?.warningRows || 0;
+  const turnoutRows = TURNOUT_DATA?.metadata?.rows || 0;
+  const turnoutWarningRows = TURNOUT_DATA?.metadata?.warningRows || 0;
   const partialCount = turnoutCoverage.filter((row) => row.status === "partial").length;
   const missingCount = turnoutCoverage.filter((row) => row.status === "missing").length;
 
@@ -1374,36 +1841,40 @@ function etaTestResults() {
     {
       name: "Down-ballot difference",
       definition: "Compares presidential votes with same-party U.S. Senate votes in each ward row. A larger gap can be reviewed, but normal split-ticket voting can also create differences.",
-      status: downBallotFlagged ? "Flag" : "Pass",
-      statusClass: downBallotFlagged ? "flag" : "pass",
-      detail: `Ward-level President vs U.S. Senate check run on ${formatNumber(ETA_ANALYSIS.wardRows)} matched WEC ward rows. DEM presidential-vs-Senate drop-off: ${formatSigned(ETA_ANALYSIS.downBallot.demDropVotes)} votes (${ETA_ANALYSIS.downBallot.demDropPct.toFixed(2)}%). REP presidential-vs-Senate drop-off: ${formatSigned(ETA_ANALYSIS.downBallot.repDropVotes)} votes (${ETA_ANALYSIS.downBallot.repDropPct.toFixed(2)}%). Outlier wards over ${ETA_ANALYSIS.downBallot.outlierThresholdPct}% drop-off with at least ${ETA_ANALYSIS.downBallot.minCandidateVotes} presidential votes: DEM ${ETA_ANALYSIS.downBallot.demOutlierWards}, REP ${ETA_ANALYSIS.downBallot.repOutlierWards}.`,
+      status: hasReviewAnalysis ? (downBallotFlagged ? "Flag" : "Pass") : "Needs data",
+      statusClass: hasReviewAnalysis ? (downBallotFlagged ? "flag" : "pass") : "needs-data",
+      detail: hasReviewAnalysis
+        ? `President vs U.S. Senate check run on ${formatNumber(analysis.wardRows)} matched ${activeReviewRowLabel({ plural: true })}. DEM presidential-vs-Senate drop-off: ${formatSigned(analysis.downBallot.demDropVotes)} votes (${analysis.downBallot.demDropPct.toFixed(2)}%). REP presidential-vs-Senate drop-off: ${formatSigned(analysis.downBallot.repDropVotes)} votes (${analysis.downBallot.repDropPct.toFixed(2)}%). Outlier rows over ${analysis.downBallot.outlierThresholdPct}% drop-off with at least ${analysis.downBallot.minCandidateVotes} presidential votes: DEM ${analysis.downBallot.demOutlierWards}, REP ${analysis.downBallot.repOutlierWards}.`
+        : "Not run for this state because no usable ward, precinct, or reporting-unit comparison rows are registered yet.",
     },
     {
       name: "Vote share by vote count",
       definition: "Checks whether a candidate's vote share changes as ward or reporting-unit vote totals get larger. The correlation value describes the strength and direction of that relationship.",
-      status: voteShareFlagged ? "Flag" : "Pass",
-      statusClass: voteShareFlagged ? "flag" : "pass",
-      detail: `Ward-level check run on ${formatNumber(ETA_ANALYSIS.wardRows)} WEC ward rows. Trump r=${ETA_ANALYSIS.voteShare.trumpCorrelation.toFixed(3)}, Harris r=${ETA_ANALYSIS.voteShare.harrisCorrelation.toFixed(3)} between candidate vote count and candidate vote share; app review threshold is |r| >= ${COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold.toFixed(2)}.`,
+      status: hasReviewAnalysis ? (voteShareFlagged ? "Flag" : "Pass") : "Needs data",
+      statusClass: hasReviewAnalysis ? (voteShareFlagged ? "flag" : "pass") : "needs-data",
+      detail: hasReviewAnalysis
+        ? `Vote-share check run on ${formatNumber(analysis.wardRows)} ${activeReviewRowLabel({ plural: true })}. Trump r=${analysis.voteShare.trumpCorrelation.toFixed(3)}, Harris r=${analysis.voteShare.harrisCorrelation.toFixed(3)} between candidate vote count and candidate vote share; app review threshold is |r| >= ${COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold.toFixed(2)}.`
+        : "Not run for this state because no usable ward, precinct, or reporting-unit comparison rows are registered yet.",
     },
     {
       name: "Turnout analysis",
       definition: "Compares ballots cast with a registered-voter or eligible-voter denominator. Turnout results remain partial when those denominators are missing or provisional.",
-      status: turnoutRows ? "Partial" : TURNOUT_SOURCE_POLICY.status,
+      status: turnoutRows ? "Partial" : turnoutPolicy.status,
       statusClass: turnoutRows ? "partial" : "needs-data",
       detail: turnoutRows
-        ? `Partial turnout analysis is running for ${formatNumber(turnoutRows)} imported source rows from county/municipal reports. Coverage: ${partialCount} partial ${partialCount === 1 ? "county" : "counties"}, ${missingCount} counties still missing. Required fields for more imports: ${TURNOUT_SOURCE_POLICY.requiredFields.join(", ")}.`
-        : `Not run. The app has official ward vote totals, but it does not yet have registered-voter or eligible-voter counts needed to calculate turnout. County/municipal canvass PDFs are the planned free source for those denominators. Required fields: ${TURNOUT_SOURCE_POLICY.requiredFields.join(", ")}.`,
+        ? `Partial turnout analysis is running for ${formatNumber(turnoutRows)} imported source rows from county/municipal reports. Coverage: ${partialCount} partial ${partialCount === 1 ? "county" : "counties"}, ${missingCount} counties still missing. Required fields for more imports: ${turnoutPolicy.requiredFields.join(", ")}.`
+        : `Not run. ${turnoutPolicy.acceptedSource} Required fields: ${turnoutPolicy.requiredFields.join(", ")}.`,
       warning: turnoutWarningRows
-        ? `${formatNumber(turnoutWarningRows)} imported turnout rows use pre-Election-Day or unknown registration denominators. ${TURNOUT_SOURCE_POLICY.warning}`
-        : TURNOUT_SOURCE_POLICY.warning,
+        ? `${formatNumber(turnoutWarningRows)} imported turnout rows use pre-Election-Day or unknown registration denominators. ${turnoutPolicy.warning}`
+        : turnoutPolicy.warning,
     },
     {
       name: "Official-result completeness",
-      definition: "Checks whether the expected counties are present and whether the app's summed totals reconcile with the official Wisconsin Elections Commission report.",
+      definition: `Checks whether the expected ${activeStateConfig().countyLabel.toLowerCase()} rows are present and whether the app's summed totals reconcile with the official ${activeStateConfig().authority} report.`,
       status: "Pass",
       statusClass: "pass",
       detail:
-        "All 72 counties are present, detailed candidate/write-in totals sum to each county's Other total, and statewide totals match the WEC report.",
+        `All ${formatNumber(RESULTS.length)} ${activeStateConfig().countyLabel.toLowerCase()} result rows are present, detailed candidate/write-in totals sum to each row's Other total, and statewide totals match the registered official source.`,
     },
   ];
 }
@@ -1413,8 +1884,8 @@ function renderCoverageTracker() {
   const partial = rows.filter((row) => row.status === "partial").length;
   const complete = rows.filter((row) => row.status === "complete").length;
   const missing = rows.filter((row) => row.status === "missing").length;
-  const turnoutRows = window.WI_TURNOUT_DATA?.metadata?.rows || 0;
-  const warningRows = window.WI_TURNOUT_DATA?.metadata?.warningRows || 0;
+  const turnoutRows = TURNOUT_DATA?.metadata?.rows || 0;
+  const warningRows = TURNOUT_DATA?.metadata?.warningRows || 0;
 
   els.coverageSummary.textContent = `${formatNumber(turnoutRows)} turnout source rows imported. ${complete} complete counties, ${partial} partial counties, ${missing} missing counties. ${warningRows ? `${formatNumber(warningRows)} rows carry denominator warnings.` : ""}`;
   els.coverageList.innerHTML = rows
@@ -1435,15 +1906,16 @@ function renderCoverageTracker() {
 
 function renderConfidenceSummary() {
   const rows = turnoutCoverageRows();
-  const turnoutRows = window.WI_TURNOUT_DATA?.metadata?.rows || 0;
-  const warningRows = window.WI_TURNOUT_DATA?.metadata?.warningRows || 0;
+  const turnoutRows = TURNOUT_DATA?.metadata?.rows || 0;
+  const warningRows = TURNOUT_DATA?.metadata?.warningRows || 0;
   const partial = rows.filter((row) => row.status === "partial").length;
   const missing = rows.filter((row) => row.status === "missing").length;
 
-  els.dataVersionSummary.textContent = `Data version: ${DATA_VERSION_LABEL}. Current bundle has ${formatNumber(RESULTS.length)} WEC county result rows, ${formatNumber(ETA_ANALYSIS.wardRows)} WEC ward-analysis rows, and ${formatNumber(turnoutRows)} imported turnout rows across ${partial} counties. ${missing} counties still need turnout denominators.`;
+  const wardRows = ACTIVE_ETA_ANALYSIS?.wardRows || 0;
+  els.dataVersionSummary.textContent = `Data version: ${DATA_VERSION_LABEL}. Current bundle has ${formatNumber(RESULTS.length)} certified county result rows, ${formatNumber(wardRows)} ward-analysis rows, and ${formatNumber(turnoutRows)} imported turnout rows across ${partial} counties. ${missing} counties still need turnout denominators.`;
   els.confidenceBadges.innerHTML = [
-    confidenceBadge("Official WEC county totals", "strong"),
-    confidenceBadge("Official WEC ward vote graphs", "strong"),
+    confidenceBadge(`Official ${activeStateConfig().authority} county totals`, "strong"),
+    confidenceBadge(`Official ${activeReviewGraphTitlePrefix()} vote graphs`, "strong"),
     confidenceBadge("Accurate calculations, limited conclusions", "review"),
     confidenceBadge(`${formatNumber(turnoutRows)} partial turnout rows`, "partial"),
     confidenceBadge(`${formatNumber(warningRows)} denominator-warning rows`, warningRows ? "warning" : "strong"),
@@ -1466,13 +1938,13 @@ function renderCoverageTable() {
       return `
         <tr>
           <td>${row.county}</td>
-          <td><span class="confidence-pill strong">Official WEC</span></td>
+          <td><span class="confidence-pill strong">Official</span></td>
           <td>
             <span class="confidence-pill ${row.status === "missing" ? "missing" : "partial"}">${row.status === "missing" ? "Missing" : "Partial"}</span>
             <p class="coverage-cell-note">${row.status === "missing" ? "No turnout denominator rows imported" : row.detail}</p>
           </td>
           <td>${warning}</td>
-          <td class="coverage-table-sources"><span>WEC vote files</span>${sourceLinks}</td>
+          <td class="coverage-table-sources"><span>${escapeText(activeStateConfig().authority)} vote files</span>${sourceLinks}</td>
         </tr>
       `;
     })
@@ -1480,7 +1952,7 @@ function renderCoverageTable() {
 }
 
 function renderCheckedNotUsable() {
-  els.checkedNotUsableList.innerHTML = CHECKED_NOT_USABLE.map(
+  els.checkedNotUsableList.innerHTML = activeCheckedNotUsable().map(
     (item) => `
       <article>
         <strong>${item.county} County</strong>
@@ -1519,7 +1991,9 @@ function renderSourcePlanner() {
   els.sourcePlanBadges.innerHTML = [
     confidenceBadge(`${formatNumber(rows.length)} county result rows`, "strong"),
     confidenceBadge("Certified statewide source", "strong"),
-    confidenceBadge("Ward detail loaded", "strong"),
+    confidenceBadge(stateCapabilityLabel("map"), stateCapabilityTone("map")),
+    confidenceBadge(stateCapabilityLabel("reviewGraphs"), stateCapabilityTone("reviewGraphs")),
+    confidenceBadge(stateCapabilityLabel("historicalBaseline"), stateCapabilityTone("historicalBaseline")),
     confidenceBadge(`${formatNumber(imported)} turnout counties imported`, imported ? "partial" : "missing"),
     confidenceBadge(`${formatNumber(missing)} turnout counties missing`, missing ? "missing" : "strong"),
   ].join("");
@@ -1568,6 +2042,8 @@ function renderSourceCountyRows() {
 function sourceCountyRowHtml(row) {
   const turnoutClass = row.turnoutStatus === "missing" ? "missing" : "partial";
   const turnoutLabel = row.turnoutStatus === "missing" ? "Missing" : "Imported";
+  const certifiedStatus = row.certifiedSource.status || "Needs data";
+  const wardStatus = row.wardSource.status || "Needs data";
   const followUp = row.checkedNotImported
     ? `Checked but not imported: ${row.checkedNotImported.reason}`
     : row.turnoutStatus === "missing"
@@ -1580,12 +2056,12 @@ function sourceCountyRowHtml(row) {
     <tr>
       <td><strong>${escapeText(row.county)}</strong></td>
       <td>
-        <span class="confidence-pill strong">Loaded</span>
+        <span class="confidence-pill ${sourceStatusTone(certifiedStatus)}">${escapeText(certifiedStatus)}</span>
         <p class="coverage-cell-note">${escapeText(row.certifiedSource.title)}</p>
         <div class="coverage-table-sources">${sourceCategoryLinks(row.certifiedSource)}</div>
       </td>
       <td>
-        <span class="confidence-pill strong">Loaded</span>
+        <span class="confidence-pill ${sourceStatusTone(wardStatus)}">${escapeText(wardStatus)}</span>
         <p class="coverage-cell-note">${escapeText(row.wardSource.title)}</p>
         <div class="coverage-table-sources">${sourceCategoryLinks(row.wardSource)}</div>
       </td>
@@ -1599,12 +2075,23 @@ function sourceCountyRowHtml(row) {
   `;
 }
 
+function sourceStatusTone(status = "") {
+  const normalized = status.toLowerCase();
+  if (normalized === "loaded") {
+    return "strong";
+  }
+  if (normalized.includes("partial") || normalized.includes("ready")) {
+    return "partial";
+  }
+  return "missing";
+}
+
 function sourceCountyRows(plan = selectedSourcePlan()) {
   if (!plan) {
     return [];
   }
   const coverageByCounty = new Map(turnoutCoverageRows().map((row) => [normalizeCounty(row.county), row]));
-  const checkedByCounty = new Map(CHECKED_NOT_USABLE.map((row) => [normalizeCounty(row.county), row]));
+  const checkedByCounty = new Map(activeCheckedNotUsable().map((row) => [normalizeCounty(row.county), row]));
 
   return plan.resultRows.map((countyRow) => {
     const coverage = coverageByCounty.get(normalizeCounty(countyRow.county));
@@ -1623,14 +2110,17 @@ function sourceCountyRows(plan = selectedSourcePlan()) {
 }
 
 function selectedSourcePlan() {
-  const code = els.sourceStateSelect.value || Object.keys(STATE_SOURCE_PLANS)[0];
-  return STATE_SOURCE_PLANS[code];
+  const code = els.sourceStateSelect.value || activeStateCode;
+  return APP_STATES[code]?.sourcePlan || STATE_SOURCE_PLANS[code];
 }
 
 function sourceCategoryLinks(category) {
   const links = [];
   if (category.sourceUrl && !category.sourceUrl.startsWith("Multiple ")) {
     links.push(`<a href="${escapeAttr(category.sourceUrl)}" target="_blank" rel="noreferrer">${escapeText(formatSourceHost(category.sourceUrl))}</a>`);
+  }
+  if (category.sourceLastModifiedUtc) {
+    links.push(`<span>Last modified: ${escapeText(formatTimestampForDisplay(category.sourceLastModifiedUtc))}</span>`);
   }
   if (category.localFile) {
     links.push(`<span>${escapeText(category.localFile)}</span>`);
@@ -1647,11 +2137,26 @@ function sourceLinks(sources, label) {
     .join("");
 }
 
+function formatTimestampForDisplay(value) {
+  if (!value) {
+    return "Not captured";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return `${date.toISOString().replace(".000Z", "Z")} (server Last-Modified)`;
+}
+
 function renderHistoricalComparison() {
   if (!HISTORICAL_BASELINE?.series?.length) {
     renderGraphMessage(els.historicalTrendGraph, "Historical baseline data is not loaded.");
     renderGraphMessage(els.historicalScatterGraph, "Historical baseline data is not loaded.");
     renderGraphMessage(els.historicalDistributionGraph, "Historical baseline data is not loaded.");
+    els.historicalCountySelect.innerHTML = "";
+    els.historicalSeriesSelect.innerHTML = "";
+    els.historicalTableRows.innerHTML = "";
+    els.historicalScopeTitle.textContent = `${activeStateConfig().name} comparison`;
     els.historicalSummary.textContent = "Historical comparison data is unavailable.";
     return;
   }
@@ -1666,18 +2171,22 @@ function renderHistoricalComparison() {
     els.historicalSeriesSelect.innerHTML = HISTORICAL_BASELINE.series
       .map((series) => `<option value="${escapeAttr(series.id)}">${escapeText(historicalSeriesLabel(series))}</option>`)
       .join("");
-    els.historicalSeriesSelect.value = "ltsb-harmonized-2012-president";
+    els.historicalSeriesSelect.value = activeHistoricalPrimarySeriesIds()[0] || HISTORICAL_BASELINE.series[0]?.id || "";
   }
 
   const county = els.historicalCountySelect.value;
   const scopeLabel = county ? `${county} County` : "Statewide";
-  const primarySeries = HISTORICAL_PRIMARY_SERIES_IDS.map((id) => historicalSeriesById(id)).filter(Boolean);
+  const primarySeries = activeHistoricalPrimarySeriesIds().map((id) => historicalSeriesById(id)).filter(Boolean);
   els.historicalScopeTitle.textContent = `${scopeLabel} comparison`;
-  els.historicalSummary.textContent = `${scopeLabel}: comparing ${primarySeries.length} presidential elections on visibly labeled LTSB harmonized ward rows. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.`;
+  els.historicalSummary.textContent = `${scopeLabel}: comparing ${primarySeries.length} presidential elections. ${activeStateConfig().historicalSummary || "Rows are visibly labeled by source type."}`;
   els.historicalTableRows.innerHTML = primarySeries.map((series) => historicalTableRow(series, county)).join("");
   renderHistoricalTrendGraph(primarySeries, county);
   renderHistoricalScatterGraph(historicalSeriesById(els.historicalSeriesSelect.value), county);
   renderHistoricalDistributionGraph(primarySeries, county);
+}
+
+function activeHistoricalPrimarySeriesIds() {
+  return activeStateConfig().historicalPrimarySeriesIds || HISTORICAL_PRIMARY_SERIES_IDS;
 }
 
 function historicalSeriesById(id) {
@@ -1719,8 +2228,8 @@ function historicalShare(value, total) {
 
 function historicalTableRow(series, county) {
   const totals = historicalScopeTotals(series, county);
-  const sourceClass = series.sourceClass === "nativeOfficial" ? "native" : "harmonized";
-  const sourceLabel = sourceClass === "native" ? "Native official WEC" : "LTSB harmonized";
+  const sourceClass = historicalSourceClassTone(series);
+  const sourceLabel = historicalSourceLabel(series);
   return `
     <tr>
       <td>${series.electionYear}</td>
@@ -1733,6 +2242,20 @@ function historicalTableRow(series, county) {
       <td class="party-r">${historicalShare(totals.rep, totals.total).toFixed(2)}%</td>
     </tr>
   `;
+}
+
+function historicalSourceClassTone(series) {
+  return series.sourceClass === "nativeOfficial" ? "native" : "harmonized";
+}
+
+function historicalSourceLabel(series) {
+  if (series.sourceClass !== "nativeOfficial") {
+    return "LTSB harmonized";
+  }
+  if (series.sourceId?.startsWith("mn-sos-")) {
+    return "Native official SOS";
+  }
+  return "Native official WEC";
 }
 
 function renderHistoricalTrendGraph(seriesList, county) {
@@ -1773,7 +2296,7 @@ function renderHistoricalTrendGraph(seriesList, county) {
       <text class="graph-label" x="${width - 168}" y="26">Democratic</text>
       <circle cx="${width - 86}" cy="22" r="5" fill="#c84c42"></circle>
       <text class="graph-label" x="${width - 74}" y="26">Republican</text>
-      ${axisLabel({ x: width / 2, y: height - 10, anchor: "middle", label: "Presidential election year", help: "Each x-axis value is one Wisconsin presidential general election year." })}
+      ${axisLabel({ x: width / 2, y: height - 10, anchor: "middle", label: "Presidential election year", help: `Each x-axis value is one ${activeStateConfig().name} presidential general election year.` })}
       ${axisLabel({ transform: `translate(16 ${height / 2}) rotate(-90)`, anchor: "middle", label: "Candidate vote share", help: "The y-axis is the candidate's percent of presidential votes in the selected area." })}
     </svg>
   `;
@@ -1803,7 +2326,9 @@ function renderHistoricalScatterGraph(series, county) {
     .map((ratio) => `<text class="graph-label" x="${x(maxVotes * ratio)}" y="${height - 34}" text-anchor="middle">${formatNumber(Math.round(maxVotes * ratio))}</text>`)
     .join("");
   const area = county ? `${county} County` : "Statewide";
-  const sourceNote = series.sourceClass === "nativeOfficial" ? "native official WEC rows" : "LTSB harmonized comparison rows";
+  const sourceNote = series.sourceClass === "nativeOfficial"
+    ? historicalSourceLabel(series).toLowerCase().replace("native official", "native official") + " rows"
+    : "LTSB harmonized comparison rows";
   els.historicalScatterGraph.innerHTML = `
     <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeAttr(historicalSeriesLabel(series))} vote share by vote count">
       ${yGrid}
@@ -1842,6 +2367,7 @@ function renderHistoricalDistributionGraph(seriesList, county) {
   });
   const globalMax = Math.max(1, ...plots.flatMap((plot) => plot.bins.map((bin) => bin.count)));
   const area = county ? `${county} County` : "Statewide";
+  const distributionSourceLabel = activeStateCode === "WI" ? "LTSB harmonized rows" : "native official county rows";
   const panels = plots
     .map((plot, index) => {
       const originX = 18 + (index % 2) * (panel.width + panel.gapX);
@@ -1896,7 +2422,7 @@ function renderHistoricalDistributionGraph(seriesList, county) {
     .join("");
   els.historicalDistributionGraph.innerHTML = `
     <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeAttr(area)} Republican presidential vote-share distributions across years">
-      <text class="graph-title" x="18" y="25">${escapeText(area)}: Republican presidential vote-share distributions on LTSB harmonized rows</text>
+      <text class="graph-title" x="18" y="25">${escapeText(area)}: Republican presidential vote-share distributions on ${escapeText(distributionSourceLabel)}</text>
       <line x1="${width - 268}" y1="20" x2="${width - 234}" y2="20" stroke="#3477bd" stroke-width="2.5" stroke-dasharray="7 5"></line>
       <text class="graph-label" x="${width - 226}" y="24">Average row</text>
       <line x1="${width - 128}" y1="20" x2="${width - 94}" y2="20" stroke="#b7812d" stroke-width="2.5"></line>
@@ -1938,7 +2464,7 @@ function confidenceBadge(label, tone) {
 }
 
 function turnoutCoverageRows() {
-  const rows = window.WI_TURNOUT_DATA?.rows || [];
+  const rows = TURNOUT_DATA?.rows || [];
   const byCounty = new Map();
   rows.forEach((row) => {
     const key = normalizeCounty(row.county);
@@ -1980,10 +2506,10 @@ function turnoutCoverageRows() {
 }
 
 function renderEtaGraphs(county = selectedCounty) {
-  if (!window.ETA_WARD_CHARTS) {
-    renderGraphMessage(els.voteShareGraph, "Ward-level chart data is not loaded.");
-    renderGraphMessage(els.downBallotGraph, "Ward-level chart data is not loaded.");
-    renderGraphMessage(els.turnoutGraph, TURNOUT_SOURCE_POLICY.warning);
+  if (!WARD_CHARTS) {
+    renderGraphMessage(els.voteShareGraph, "Review chart data is not loaded.");
+    renderGraphMessage(els.downBallotGraph, "Review chart data is not loaded.");
+    renderGraphMessage(els.turnoutGraph, activeTurnoutPolicy().warning);
     return;
   }
 
@@ -1994,7 +2520,7 @@ function renderEtaGraphs(county = selectedCounty) {
 
 function chartScope(county) {
   const normalized = normalizeCounty(county || "");
-  const metadata = window.ETA_WARD_CHARTS?.metadata || {};
+  const metadata = WARD_CHARTS?.metadata || {};
   const rows = county
     ? metadata.rows.filter((row) => normalizeCounty(row.county) === normalized)
     : metadata.rows;
@@ -2008,7 +2534,12 @@ function chartScope(county) {
 function renderCitySplitOptions() {
   citySplitData = majorCitySplits();
   if (!citySplitData.length) {
-    els.citySplitSummary.textContent = "No city ward groups were found in the WEC ward-level data.";
+    els.citySplitSelect.innerHTML = "";
+    els.citySplitSummary.textContent = `No city ward groups were found for ${activeStateConfig().name}.`;
+    renderGraphMessage(els.cityVoteShareGraph, "City split review data is not loaded.");
+    renderGraphMessage(els.countyRestVoteShareGraph, "City split review data is not loaded.");
+    renderGraphMessage(els.cityDownBallotGraph, "City split review data is not loaded.");
+    renderGraphMessage(els.countyRestDownBallotGraph, "City split review data is not loaded.");
     return;
   }
 
@@ -2031,7 +2562,7 @@ function renderCitySplitGraphs() {
   const restVoteReview = reviewSummaryForRows(restLabel, split.restRows, "voteShare");
   const cityDownBallotReview = reviewSummaryForRows(cityLabel, split.cityRows, "downBallot");
   const restDownBallotReview = reviewSummaryForRows(restLabel, split.restRows, "downBallot");
-  els.citySplitSummary.textContent = `${cityLabel}: ${formatNumber(split.cityRows.length)} city ward rows compared with ${formatNumber(split.restRows.length)} rest-of-county ward rows. Uses official WEC ward vote totals.`;
+  els.citySplitSummary.textContent = `${cityLabel}: ${formatNumber(split.cityRows.length)} city rows compared with ${formatNumber(split.restRows.length)} rest-of-county rows. Uses official ${activeReviewGraphTitlePrefix()} vote totals.`;
   els.cityVoteShareTitle.innerHTML = `${escapeText(split.city)}: vote-share ${reviewFlagIcon(cityVoteReview)}`;
   els.countyRestVoteShareTitle.innerHTML = `${escapeText(restLabel)}: vote-share ${reviewFlagIcon(restVoteReview)}`;
   els.cityDownBallotTitle.innerHTML = `${escapeText(split.city)}: down-ballot ${reviewFlagIcon(cityDownBallotReview)}`;
@@ -2045,7 +2576,7 @@ function renderCitySplitGraphs() {
 }
 
 function majorCitySplits() {
-  const rows = window.ETA_WARD_CHARTS?.metadata?.rows || [];
+  const rows = WARD_CHARTS?.metadata?.rows || [];
   const byCity = new Map();
 
   rows.forEach((row) => {
@@ -2098,7 +2629,7 @@ function renderVoteShareGraphForRows(target, scope, options = {}) {
   const trump = scope.rows.map((row) => [row.trump, row.trumpShare]);
   const harris = scope.rows.map((row) => [row.harris, row.harrisShare]);
   if (!scope.rows.length) {
-    renderGraphMessage(target, `No ward-level chart rows found for ${scope.label}.`);
+    renderGraphMessage(target, `No review chart rows found for ${scope.label}.`);
     return;
   }
   const all = [...trump, ...harris];
@@ -2140,7 +2671,7 @@ function renderVoteShareGraphForRows(target, scope, options = {}) {
       <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
       ${points}
       ${trendLines}
-      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: WEC ward vote-share chart (${formatNumber(scope.rows.length)} wards)</text>
+      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: ${escapeText(activeReviewGraphTitlePrefix())} vote-share chart (${formatNumber(scope.rows.length)} rows)</text>
       ${axisLabel({
         x: width / 2,
         y: height - 8,
@@ -2173,7 +2704,7 @@ function renderDownBallotGraphForRows(target, scope, options = {}) {
   const plotWidth = width - margin.left - margin.right;
   const plotHeight = height - margin.top - margin.bottom;
   if (!scope.rows.length) {
-    renderGraphMessage(target, `No ward-level chart rows found for ${scope.label}.`);
+    renderGraphMessage(target, `No review chart rows found for ${scope.label}.`);
     return;
   }
   const dropoffValues = scope.rows.flatMap((row) => [
@@ -2215,7 +2746,7 @@ function renderDownBallotGraphForRows(target, scope, options = {}) {
       ${bars}
       <line class="graph-axis" x1="${margin.left}" y1="${height - margin.bottom}" x2="${width - margin.right}" y2="${height - margin.bottom}"></line>
       <line class="graph-axis" x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${height - margin.bottom}"></line>
-      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: WEC ward President vs Senate drop-off rates</text>
+      <text class="graph-title" x="${margin.left}" y="18">${scope.label}: ${escapeText(activeReviewGraphTitlePrefix())} President vs Senate drop-off rates</text>
       <text class="graph-label" x="${margin.left}" y="${height - 24}" text-anchor="start">-30%</text>
       <text class="graph-label" x="${zeroX}" y="${height - 24}" text-anchor="middle">0%</text>
       <text class="graph-label" x="${width - margin.right}" y="${height - 24}" text-anchor="end">+30%</text>
@@ -2315,7 +2846,7 @@ function renderTurnoutGraph(county) {
 }
 
 function turnoutRowsForCounty(county) {
-  const data = window.WI_TURNOUT_DATA;
+  const data = TURNOUT_DATA;
   if (!data?.rows?.length) {
     return [];
   }
@@ -2725,6 +3256,7 @@ function popupHtml(row) {
 }
 
 function exportCsv() {
+  const sourcePlan = activeSourcePlan();
   const candidateHeaders = CANDIDATE_LABELS.map((candidate) => candidate.label);
   const headers = [
     "County",
@@ -2740,6 +3272,9 @@ function exportCsv() {
     "Margin",
     "Margin %",
     "Total",
+    "Source URL",
+    "Source Last Modified UTC",
+    "Source Timestamp Basis",
   ];
   const rows = RESULTS.map((row) => {
     const review = countyReviewSummary(row.county);
@@ -2757,12 +3292,16 @@ function exportCsv() {
       row.margin,
       row.marginPct,
       row.total,
+      sourcePlan.certifiedResults.sourceUrl,
+      sourcePlan.certifiedResults.sourceLastModifiedUtc,
+      sourcePlan.certifiedResults.sourceTimestampBasis,
     ];
   });
-  downloadCsv("wisconsin-2024-president-county-results.csv", headers, rows);
+  downloadCsv(`${activeExportSlug()}-president-county-results.csv`, headers, rows);
 }
 
 function exportCurrentReviewCsv() {
+  const sourcePlan = activeSourcePlan();
   const scope = reviewScopeData();
   const review = reviewSummaryForRows(scope.label, scope.rows, "all");
   const headers = [
@@ -2779,6 +3318,9 @@ function exportCurrentReviewCsv() {
     "dem_dropoff",
     "rep_dropoff",
     "row_note",
+    "ward_detail_source_url",
+    "ward_detail_source_last_modified_utc",
+    "ward_detail_source_timestamp_basis",
   ];
   const rows = scope.rows
     .map((row) => ({ row, score: wardReviewScore(row) }))
@@ -2797,12 +3339,16 @@ function exportCurrentReviewCsv() {
       row.demDropoff,
       row.repDropoff,
       wardReviewNote(row),
+      sourcePlan.wardDetail.sourceUrl,
+      sourcePlan.wardDetail.sourceLastModifiedUtc,
+      sourcePlan.wardDetail.sourceTimestampBasis,
     ]);
-  const filename = `wisconsin-2024-review-${slugify(scope.label)}.csv`;
+  const filename = `${activeExportSlug()}-review-${slugify(scope.label)}.csv`;
   downloadCsv(filename, headers, rows);
 }
 
 function exportFlaggedAreasCsv() {
+  const sourcePlan = activeSourcePlan();
   const headers = [
     "area",
     "type",
@@ -2818,6 +3364,9 @@ function exportFlaggedAreasCsv() {
     "rep_outlier_rows",
     "outlier_trigger_rows",
     "not_proof_note",
+    "ward_detail_source_url",
+    "ward_detail_source_last_modified_utc",
+    "ward_detail_source_timestamp_basis",
   ];
   const rows = flaggedAreaRows().map((item) => {
     const metrics = item.review.metrics;
@@ -2836,12 +3385,16 @@ function exportFlaggedAreasCsv() {
       metrics.repOutliers,
       metrics.outlierTrigger,
       "Statistical review flag only; not proof of tampering.",
+      sourcePlan.wardDetail.sourceUrl,
+      sourcePlan.wardDetail.sourceLastModifiedUtc,
+      sourcePlan.wardDetail.sourceTimestampBasis,
     ];
   });
-  downloadCsv("wisconsin-2024-flagged-areas-summary.csv", headers, rows);
+  downloadCsv(`${activeExportSlug()}-flagged-areas-summary.csv`, headers, rows);
 }
 
 function exportCoverageCsv() {
+  const sourcePlan = activeSourcePlan();
   const headers = [
     "county",
     "vote_results",
@@ -2851,39 +3404,61 @@ function exportCoverageCsv() {
     "county_level_rows",
     "warning_rows",
     "turnout_sources",
+    "certified_result_source_url",
+    "certified_result_last_modified_utc",
+    "ward_detail_source_url",
+    "ward_detail_last_modified_utc",
+    "source_timestamp_basis",
     "notes",
   ];
   const rows = turnoutCoverageRows().map((row) => [
     row.county,
-    "Official WEC county and ward vote totals present",
+    `Official ${activeStateConfig().authority} county and local vote totals present`,
     row.status,
     row.rows || 0,
     row.localAreaCount || 0,
     row.countyLevelRows || 0,
     row.warnings || 0,
     (row.sources || []).join(" "),
+    sourcePlan.certifiedResults.sourceUrl,
+    sourcePlan.certifiedResults.sourceLastModifiedUtc,
+    sourcePlan.wardDetail.sourceUrl,
+    sourcePlan.wardDetail.sourceLastModifiedUtc,
+    sourcePlan.certifiedResults.sourceTimestampBasis,
     row.status === "missing" ? "No turnout denominator rows imported" : row.detail,
   ]);
-  downloadCsv("wisconsin-2024-data-coverage.csv", headers, rows);
+  downloadCsv(`${activeExportSlug()}-data-coverage.csv`, headers, rows);
 }
 
 function exportSourceCsv() {
-  const headers = ["category", "file_or_local_data", "source_url", "used_for", "confidence_or_status"];
-  const sourceRows = SOURCE_INVENTORY.map((source) => [
+  const headers = [
+    "category",
+    "file_or_local_data",
+    "source_url",
+    "source_last_modified_utc",
+    "source_timestamp_basis",
+    "used_for",
+    "confidence_or_status",
+  ];
+  const sourceRows = activeSourceInventory().map((source) => [
     source.category,
     source.file,
     source.sourceUrl,
+    source.sourceLastModifiedUtc || "",
+    source.sourceTimestampBasis || "",
     source.usedFor,
     source.confidence,
   ]);
-  const checkedRows = CHECKED_NOT_USABLE.map((item) => [
+  const checkedRows = activeCheckedNotUsable().map((item) => [
     `Checked but not imported - ${item.county}`,
     item.missingFields,
     item.sourceUrl,
+    "",
+    "Not captured",
     "Reviewed for turnout analysis but not imported.",
     item.reason,
   ]);
-  downloadCsv("wisconsin-2024-source-inventory.csv", headers, [...sourceRows, ...checkedRows]);
+  downloadCsv(`${activeExportSlug()}-source-inventory.csv`, headers, [...sourceRows, ...checkedRows]);
 }
 
 function exportSourcePlanCsv() {
@@ -2898,10 +3473,15 @@ function exportSourcePlanCsv() {
     "county",
     "certified_result_source",
     "certified_result_url",
+    "certified_result_last_modified_utc",
+    "certified_result_timestamp_basis",
     "ward_detail_source",
     "ward_detail_url",
+    "ward_detail_last_modified_utc",
+    "ward_detail_timestamp_basis",
     "turnout_status",
     "turnout_sources",
+    "turnout_source_timestamp_basis",
     "turnout_warning_rows",
     "follow_up",
   ];
@@ -2912,10 +3492,15 @@ function exportSourcePlanCsv() {
     row.county,
     row.certifiedSource.title,
     row.certifiedSource.sourceUrl,
+    row.certifiedSource.sourceLastModifiedUtc,
+    row.certifiedSource.sourceTimestampBasis,
     row.wardSource.title,
     row.wardSource.sourceUrl,
+    row.wardSource.sourceLastModifiedUtc,
+    row.wardSource.sourceTimestampBasis,
     row.turnoutStatus,
     row.turnoutSources.join(" "),
+    plan.turnout.sourceTimestampBasis,
     row.turnoutWarnings,
     row.checkedNotImported
       ? `Checked but not imported: ${row.checkedNotImported.reason}`

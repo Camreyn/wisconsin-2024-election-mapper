@@ -5,9 +5,10 @@
   "description": "Static Wisconsin presidential results explorer with certified 2024 data, historical baselines, and statistical screening charts.",
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
+    "build:minnesota": "py -3 scripts/build-minnesota-data.py",
     "build:history": "node scripts/build-historical-data.mjs",
     "validate": "node scripts/validate-data.mjs",
-    "validate:history": "python scripts/validate-historical-baseline.py",
+    "validate:history": "py -3 scripts/validate-historical-baseline.py",
     "validate:ui": "node scripts/validate-ui-static.mjs"
   }
 }

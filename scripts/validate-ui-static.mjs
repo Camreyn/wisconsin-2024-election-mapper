@@ -35,6 +35,8 @@ class MockClassList {
   }
 }
 
+let currentElementLookup = null;
+
 class MockElement {
   constructor(id = "") {
     this.id = id;
@@ -86,7 +88,7 @@ class MockElement {
   }
 
   querySelector(selector) {
-    return element(selector);
+    return currentElementLookup ? currentElementLookup(selector) : new MockElement(selector.replace(/^#/, ""));
   }
 
   querySelectorAll() {
@@ -104,79 +106,101 @@ class MockElement {
   remove() {}
 }
 
-const elements = new Map();
-function element(selector) {
-  if (!elements.has(selector)) {
-    elements.set(selector, new MockElement(selector.replace(/^#/, "")));
+function createAppHarness({ hash = "", search = "" } = {}) {
+  const elements = new Map();
+  function element(selector) {
+    if (!elements.has(selector)) {
+      elements.set(selector, new MockElement(selector.replace(/^#/, "")));
+    }
+    return elements.get(selector);
   }
-  return elements.get(selector);
+
+  const appTabs = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"].map((name) => {
+    const tab = new MockElement();
+    tab.dataset.appTab = name;
+    if (name === "dashboard") tab.classList.add("active");
+    return tab;
+  });
+  const tabPanels = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"].map((name) => {
+    const panel = new MockElement(`${name}Panel`);
+    panel.hidden = name !== "dashboard";
+    return panel;
+  });
+  const modeButtons = ["winner", "margin", "turnout"].map((mode) => {
+    const button = new MockElement();
+    button.dataset.mode = mode;
+    return button;
+  });
+  const document = {
+    body: new MockElement("body"),
+    documentElement: { dataset: { theme: "light" } },
+    createElement: () => new MockElement(),
+    querySelector: element,
+    querySelectorAll: (selector) => {
+      if (selector === "[data-app-tab]") return appTabs;
+      if (selector === ".tab-panel") return tabPanels;
+      if (selector === ".mode-button") return modeButtons;
+      return [];
+    },
+  };
+  currentElementLookup = element;
+  const storage = new Map();
+  const location = {
+    hash,
+    search,
+    href: `file:///index.html${search}${hash}`,
+  };
+  const context = {
+    Blob,
+    URL,
+    URLSearchParams,
+    console,
+    document,
+    Intl,
+    localStorage: {
+      getItem: (key) => storage.get(key) || null,
+      setItem: (key, value) => storage.set(key, value),
+    },
+    navigator: {},
+    setTimeout,
+    clearTimeout,
+  };
+  context.window = context;
+  context.window.location = location;
+  context.window.history = {
+    replaceState: (_state, _title, url) => {
+      const nextUrl = new URL(String(url), location.href);
+      location.href = nextUrl.href;
+      location.search = nextUrl.search;
+      location.hash = nextUrl.hash;
+    },
+  };
+  vm.createContext(context);
+
+  for (const file of [
+    "data/app-data.js",
+    "data/mn-app-data.js",
+    "data/eta-data.js",
+    "data/wi-counties.js",
+    "data/mn-counties.js",
+    "data/turnout-data.js",
+    "data/historical-data.js",
+    "app.js",
+  ]) {
+    vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
+  }
+
+  return { context, element, document, storage, appTabs, tabPanels };
 }
 
-const appTabs = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"].map((name) => {
-  const tab = new MockElement();
-  tab.dataset.appTab = name;
-  if (name === "dashboard") tab.classList.add("active");
-  return tab;
-});
-const tabPanels = ["dashboard", "review", "history", "data", "sources", "methodology", "audit", "about"].map((name) => {
-  const panel = new MockElement(`${name}Panel`);
-  panel.hidden = name !== "dashboard";
-  return panel;
-});
-const modeButtons = ["winner", "margin", "turnout"].map((mode) => {
-  const button = new MockElement();
-  button.dataset.mode = mode;
-  return button;
-});
-const document = {
-  body: new MockElement("body"),
-  documentElement: { dataset: { theme: "light" } },
-  createElement: () => new MockElement(),
-  querySelector: element,
-  querySelectorAll: (selector) => {
-    if (selector === "[data-app-tab]") return appTabs;
-    if (selector === ".tab-panel") return tabPanels;
-    if (selector === ".mode-button") return modeButtons;
-    return [];
-  },
-};
-const storage = new Map();
-const context = {
-  Blob,
-  URL,
-  URLSearchParams,
-  console,
-  document,
-  Intl,
-  localStorage: {
-    getItem: (key) => storage.get(key) || null,
-    setItem: (key, value) => storage.set(key, value),
-  },
-  navigator: {},
-  setTimeout,
-  clearTimeout,
-};
-context.window = context;
-context.window.location = { hash: "#history", href: "file:///index.html#history" };
-context.window.history = { replaceState: () => {} };
-vm.createContext(context);
-
-for (const file of [
-  "data/app-data.js",
-  "data/eta-data.js",
-  "data/wi-counties.js",
-  "data/turnout-data.js",
-  "data/historical-data.js",
-  "app.js",
-]) {
-  vm.runInContext(fs.readFileSync(path.join(root, file), "utf8"), context, { filename: file });
-}
+const wiHarness = createAppHarness({ hash: "#history" });
+const { context, element, document, storage, tabPanels } = wiHarness;
 
 await new Promise((resolve) => setTimeout(resolve, 400));
 await vm.runInContext(`runAuditTrials()`, context);
 
 const checks = {
-  sidebarExplorerTitle: indexHtml.includes("Wisconsin Presidential Results Explorer"),
+  sidebarExplorerTitle: indexHtml.includes("Upper Midwest Presidential Results Explorer"),
   sidebarCurrentMapScope: indexHtml.includes("2024 certified results"),
   sidebarHistoricalAction: indexHtml.includes('data-open-tab="history">Compare years</button>'),
   plainLanguageGlossary: indexHtml.includes("What the technical terms mean"),
@@ -200,6 +224,9 @@ const checks = {
     && indexHtml.includes('<option value="concentrated">')
     && indexHtml.includes('<option value="spread">')
     && indexHtml.includes('<option value="highVolume">'),
+  appStateSelectorPresent: indexHtml.includes('id="appStateSelect"'),
+  appStateOptions: element("#appStateSelect").options.length,
+  appStateSyncedWithSourcePlanner: element("#appStateSelect").value === "WI" && element("#sourceStateSelect").value === "WI",
   sourcePlannerTabPresent: indexHtml.includes('data-app-tab="sources"') && indexHtml.includes('id="sourcesPanel"'),
   sourcePlannerSidebarAction: indexHtml.includes('data-open-tab="sources">Open Source Planner</button>'),
   sourcePlannerStateOptions: element("#sourceStateSelect").options.length,
@@ -207,6 +234,9 @@ const checks = {
   sourcePlannerCountyRows: (element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length,
   sourcePlannerWaukeshaChecked: element("#sourceCountyRows").innerHTML.includes("Checked but not imported")
     && element("#sourceCountyRows").innerHTML.includes("Waukesha"),
+  sourcePlannerTimestamps: element("#sourceCountyRows").innerHTML.includes("2024-11-27T21:31:27Z")
+    && element("#sourceCountyRows").innerHTML.includes("2024-11-27T21:35:53Z"),
+  sourceTimestampNotesVisible: indexHtml.includes("WEC file Last-Modified header: 2024-11-27T21:31:27Z"),
   auditDistributionNote: element("#auditDistributionNote").textContent.includes("grid is not a geographic map"),
   auditSpreadPattern: vm.runInContext(`auditAffectedIndices(100, 8, 17, "spread").join(",") !== auditAffectedIndices(100, 8, 17, "concentrated").join(",")`, context),
   auditHighVolumeDisclaimer: vm.runInContext(`AUDIT_DISTRIBUTION_NOTES.highVolume.includes("cannot identify real high-volume audit units")`, context),
@@ -225,6 +255,75 @@ checks.auditMinimumMarginNote = element("#auditMinimumMarginNote").textContent.i
   && element("#auditMinimumMarginNote").textContent.includes("14,699")
   && element("#auditMinimumMarginNote").textContent.includes("only has about 439");
 checks.auditMinimumMarginTotal = element("#auditShiftedVotes").textContent === "13,170";
+vm.runInContext(`
+  setActiveState("MN", { updateControls: true });
+  renderSourcePlanner();
+  renderHistoricalComparison();
+  renderFlaggedAreasSummary();
+  renderReviewDrilldown();
+  renderEtaGraphs();
+  renderCitySplitOptions();
+  renderEtaTests();
+`, context);
+checks.minnesotaStateSelected = element("#appStateSelect").value === "MN" && element("#sourceStateSelect").value === "MN";
+checks.minnesotaSourcePlannerTitle = element("#sourceStateTitle").textContent === "Minnesota 2024 President";
+checks.minnesotaSourcePlannerCountyRows = (element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length;
+checks.minnesotaSourcePlannerTimestamp = element("#sourceCountyRows").innerHTML.includes("2025-02-14T17:22:26Z");
+checks.minnesotaSourcePlannerLoaded = element("#sourceCountyRows").innerHTML.includes("Loaded")
+  && element("#sourceCountyRows").innerHTML.includes("Minnesota SOS precinct federal/state spreadsheet");
+checks.minnesotaMapReady = element("#sourcePlanBadges").innerHTML.includes("Map ready");
+checks.minnesotaHistoricalLoaded = (element("#historicalTableRows").innerHTML.match(/<tr>/g) || []).length === 4
+  && element("#historicalSummary").textContent.toLowerCase().includes("native official minnesota secretary of state county rows")
+  && element("#historicalTrendGraph").innerHTML.includes("<svg");
+checks.minnesotaHistoricalCopyClean = element("#historicalDistributionGraph").innerHTML.includes("native official county rows")
+  && !element("#historicalDistributionGraph").innerHTML.includes("LTSB harmonized rows");
+checks.minnesotaHistoricalSeriesOptions = element("#historicalSeriesSelect").options.length === 4;
+checks.minnesotaReviewRowsLoaded = element("#reviewSummaryGrid").innerHTML.includes("Minnesota SOS precinct rows");
+checks.minnesotaVoteShareGraph = element("#voteShareGraph").innerHTML.includes("Minnesota SOS precinct vote-share chart");
+checks.minnesotaDownBallotGraph = element("#downBallotGraph").innerHTML.includes("Minnesota SOS precinct President vs Senate drop-off rates");
+checks.minnesotaTurnoutLoaded = element("#etaTests").innerHTML.includes("4,103 imported source rows")
+  && element("#turnoutGraph").innerHTML.includes("turnout histogram");
+checks.minnesotaStaticSourceTimestampVisible = indexHtml.includes("Minnesota SOS workbook Last-Modified header: 2025-02-14T17:22:26Z");
+
+const mnQueryHarness = createAppHarness({ search: "?state=MN" });
+const mnHashHarness = createAppHarness({ hash: "#sources?state=MN" });
+await new Promise((resolve) => setTimeout(resolve, 450));
+checks.directMinnesotaQuerySelected =
+  mnQueryHarness.element("#appStateSelect").value === "MN" &&
+  mnQueryHarness.element("#sourceStateSelect").value === "MN";
+checks.directMinnesotaQuerySummary =
+  mnQueryHarness.element("#sourceStateTitle").textContent === "Minnesota 2024 President" &&
+  (mnQueryHarness.element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length === 87;
+checks.directMinnesotaHashSelected =
+  mnHashHarness.element("#appStateSelect").value === "MN" &&
+  mnHashHarness.element("#sourceStateSelect").value === "MN";
+checks.directMinnesotaHashSourcesTab =
+  mnHashHarness.tabPanels.find((panel) => panel.id === "sourcesPanel").hidden === false &&
+  mnHashHarness.element("#sourceStateTitle").textContent === "Minnesota 2024 President";
+vm.runInContext(`
+  els.sourceStateSelect.value = "WI";
+  switchActiveState(els.sourceStateSelect.value);
+`, mnHashHarness.context);
+checks.sourcePlannerSelectorSyncsGlobal =
+  mnHashHarness.element("#appStateSelect").value === "WI" &&
+  mnHashHarness.element("#sourceStateSelect").value === "WI" &&
+  !mnHashHarness.context.window.location.href.includes("state=MN");
+vm.runInContext(`
+  els.appStateSelect.value = "MN";
+  switchActiveState(els.appStateSelect.value);
+`, mnHashHarness.context);
+checks.globalSelectorSyncsSourcePlanner =
+  mnHashHarness.element("#appStateSelect").value === "MN" &&
+  mnHashHarness.element("#sourceStateSelect").value === "MN" &&
+  mnHashHarness.context.window.location.hash.includes("state=MN");
+vm.runInContext(`
+  selectCounty("Hennepin");
+  updateReviewRoute();
+`, mnHashHarness.context);
+checks.minnesotaReviewRouteKeepsState =
+  mnHashHarness.context.window.location.hash.startsWith("#review?") &&
+  mnHashHarness.context.window.location.hash.includes("county=Hennepin") &&
+  mnHashHarness.context.window.location.hash.includes("state=MN");
 vm.runInContext(`setTheme("dark")`, context);
 checks.darkModeApplied = document.documentElement.dataset.theme === "dark";
 checks.darkModeStored = storage.get("wi-election-theme") === "dark";
@@ -251,12 +350,17 @@ const expected = {
   auditStatewidePreset: true,
   auditTrialsButton: true,
   auditDistributionControl: true,
+  appStateSelectorPresent: true,
+  appStateOptions: 2,
+  appStateSyncedWithSourcePlanner: true,
   sourcePlannerTabPresent: true,
   sourcePlannerSidebarAction: true,
-  sourcePlannerStateOptions: 1,
+  sourcePlannerStateOptions: 2,
   sourcePlannerWisconsinTitle: true,
   sourcePlannerCountyRows: 72,
   sourcePlannerWaukeshaChecked: true,
+  sourcePlannerTimestamps: true,
+  sourceTimestampNotesVisible: true,
   auditDistributionNote: true,
   auditSpreadPattern: true,
   auditHighVolumeDisclaimer: true,
@@ -271,6 +375,27 @@ const expected = {
   auditMinimumMarginShift: true,
   auditMinimumMarginNote: true,
   auditMinimumMarginTotal: true,
+  minnesotaStateSelected: true,
+  minnesotaSourcePlannerTitle: true,
+  minnesotaSourcePlannerCountyRows: 87,
+  minnesotaSourcePlannerTimestamp: true,
+  minnesotaSourcePlannerLoaded: true,
+  minnesotaMapReady: true,
+  minnesotaHistoricalLoaded: true,
+  minnesotaHistoricalCopyClean: true,
+  minnesotaHistoricalSeriesOptions: true,
+  minnesotaReviewRowsLoaded: true,
+  minnesotaVoteShareGraph: true,
+  minnesotaDownBallotGraph: true,
+  minnesotaTurnoutLoaded: true,
+  minnesotaStaticSourceTimestampVisible: true,
+  directMinnesotaQuerySelected: true,
+  directMinnesotaQuerySummary: true,
+  directMinnesotaHashSelected: true,
+  directMinnesotaHashSourcesTab: true,
+  sourcePlannerSelectorSyncsGlobal: true,
+  globalSelectorSyncsSourcePlanner: true,
+  minnesotaReviewRouteKeepsState: true,
   darkModeApplied: true,
   darkModeStored: true,
 };

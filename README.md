@@ -1,12 +1,13 @@
-# Wisconsin Presidential Results Explorer
+# Upper Midwest Presidential Results Explorer
 
 https://camreyn.github.io/wisconsin-2024-election-mapper/
 
-A static web app for reviewing Wisconsin's certified 2024 presidential results
-and comparing county-level presidential baselines across 2012, 2016, 2020, and
-2024. It includes the full certified candidate/write-in breakdown behind each
-county's "Other" total, a historical baseline tab, and a persistent dark-mode
-toggle.
+A static web app for reviewing certified 2024 presidential results and
+comparing presidential baselines across 2012, 2016, 2020, and 2024 where
+state-specific source rows are loaded. Wisconsin remains the full-feature
+default, and Minnesota is registered as the first expanded state with certified
+county totals, precinct review graphs, turnout rows, county geometry, and a
+native SOS county historical baseline.
 
 ![App screenshot](assets/app-screenshot.png)
 
@@ -15,9 +16,10 @@ toggle.
 Open `index.html` in a browser. The app is static and does not need a build
 step or a local server.
 
-The map uses Leaflet and local Wisconsin county boundaries in
-`data/wi-counties.geojson`. If Leaflet is blocked, the app falls back to an
-interactive county tile grid using the same result data.
+The map uses Leaflet and local state county boundaries in
+`data/wi-counties.geojson` and `data/mn-counties.geojson`. If Leaflet is
+blocked, the app falls back to an interactive county tile grid using the same
+result data.
 
 For GitHub Pages, publish the repository root from the `main` branch.
 
@@ -34,6 +36,7 @@ Or, if you use npm:
 
 ```powershell
 npm.cmd run build:data
+npm.cmd run build:minnesota
 npm.cmd run build:history
 npm.cmd run validate
 npm.cmd run validate:history
@@ -60,11 +63,35 @@ Wisconsin Elections Commission's `County by County Report_POTUS`.
 
 The official WEC PDF is saved locally as `data/County by County Report_POTUS.pdf`.
 
+## Multi-State Readiness
+
+The app now has an `APP_STATES` registry in `app.js`. Wisconsin remains the
+default full-feature state. Minnesota is registered as the first pilot state
+with certified 2024 presidential county totals aggregated from the official
+Minnesota Secretary of State federal/state precinct spreadsheet. New states
+should be added to that registry with certified result rows, candidate labels,
+county-equivalent geometry or a documented tile fallback, turnout data,
+historical data when available, and a linked Source Planner entry. The global
+State selector and Source Planner selector share the same state code, and export
+filenames use the registered state's `exportsSlug`. Each state also carries
+capability flags for Source Planner, certified results, map, review graphs,
+turnout, and historical baseline readiness so partially collected states can be
+shown without implying that every Wisconsin feature is available.
+
+The Minnesota pilot now includes certified county results, Source Planner rows,
+precinct-level review graphs, precinct turnout rows, county map geometry from
+MnGeo, and native official SOS precinct historical rows for `2012`, `2016`,
+MnGeo, and native official SOS county historical rows for `2012`, `2016`,
+`2020`, and `2024`. Regenerate its browser data bundles with
+`npm.cmd run build:minnesota`. The Minnesota 2024 source workbook's live `GET`
+response returned a server `Last-Modified` timestamp of `2025-02-14T17:22:26Z`.
+
 ## Historical Baseline
 
 The Historical Baseline tab compares presidential results for `2012`, `2016`,
-`2020`, and `2024`. It is designed to answer a basic interpretation question:
-was a visible shape already present in earlier presidential elections?
+`2020`, and `2024` where state-specific source rows are loaded. It is designed
+to answer a basic interpretation question: was a visible shape already present
+in earlier presidential elections?
 
 The multi-year comparison rows come from Wisconsin Legislative Technology
 Services Bureau harmonized ward layers. Some source totals were redistributed
@@ -77,6 +104,11 @@ The preserved source inventory, normalized CSV, reconciliation report, and
 masked-row list are under `data/historical/`. The generated browser bundle is
 `data/historical-data.js`.
 
+Minnesota historical rows are generated from official Minnesota Secretary of
+State President-by-County text files for each election year and stored inside
+`data/mn-app-data.js`. Those are native official county rows, not harmonized
+comparison geography.
+
 ## Transparency Tools
 
 The app includes a Data Confidence panel and a County Data Status table. These
@@ -85,15 +117,25 @@ vote-share and down-ballot graphs use official WEC ward vote totals, while
 turnout remains partial because denominator rows are only imported for some
 counties. The app also has download buttons for a coverage CSV and a source
 inventory CSV, plus a Source Planner tab that tracks 2024 election-number
-sources by state and county. Wisconsin is the first loaded state: every county
+sources by state and county. Wisconsin is the full-feature state: every county
 row points to the statewide certified WEC county result report, the WEC ward
 detail spreadsheet, and the county/municipal turnout denominator source status
-where those rows have been collected. The same planner is structured around a
-state source registry so additional states can be added without changing the
-county table UI. The app also keeps a "checked but not imported" log for sources
-that were reviewed but lacked turnout denominator fields. The county table can
-show a `!` review flag when county-level screening thresholds are crossed; this
-means "review further," not proof of tampering.
+where those rows have been collected. Minnesota rows point to the official
+statewide SOS precinct spreadsheet for certified results, review graphs, and
+turnout rows, MnGeo county boundaries for the map, and SOS historical precinct
+county files for baseline rows. The same planner is structured around a state source registry
+so additional states can be added without changing the county table UI.
+Wisconsin WEC source rows now carry the live file server
+`Last-Modified` timestamps checked from WEC headers: the POTUS county PDF is
+`2024-11-27T21:31:27Z`, the U.S. Senate county PDF is
+`2024-11-27T21:31:28Z`, and the ward federal/state spreadsheet is
+`2024-11-27T21:35:53Z`. These timestamps are exported with the county results,
+coverage CSV, source inventory CSV, source plan CSV, and review CSVs. They
+confirm file-object metadata, not necessarily the first public link date. The
+app also keeps a "checked but not imported" log for sources that were reviewed
+but lacked turnout denominator fields. The county table can show a `!` review
+flag when county-level screening thresholds are crossed; this means "review
+further," not proof of tampering.
 
 ## Statistical Screening Test Panel
 

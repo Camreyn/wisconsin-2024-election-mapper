@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Wisconsin Presidential Results Explorer</title>
+    <title>Upper Midwest Presidential Results Explorer</title>
     <script>
       const requestedTheme = new URLSearchParams(location.search).get("theme");
       let storedTheme = null;
@@ -21,21 +21,25 @@
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260603-source-planner" />
+    <link rel="stylesheet" href="./styles.css?v=20260603-state-registry" />
   </head>
   <body>
     <main class="app-shell">
       <section class="sidebar" aria-label="Election result controls">
         <div class="brand-block">
-          <p class="eyebrow">Wisconsin election explorer</p>
+          <p class="eyebrow">Election results explorer</p>
           <h1>Presidential Results</h1>
           <p class="subcopy">
             Review certified 2024 results, then compare presidential baselines
-            across 2012, 2016, 2020, and 2024.
+            across 2012, 2016, 2020, and 2024 where source rows are loaded.
           </p>
         </div>
 
         <section class="sidebar-scope" aria-label="Available presidential election records">
+          <label class="state-picker" for="appStateSelect">
+            <span>State</span>
+            <select id="appStateSelect"></select>
+          </label>
           <div class="sidebar-scope-heading">
             <span>Current map</span>
             <strong>2024 certified results</strong>
@@ -50,7 +54,7 @@
           <div class="sidebar-baseline-row">
             <div>
               <span>Historical baseline</span>
-              <strong>4 presidential elections</strong>
+            <strong>Loaded by selected state</strong>
             </div>
             <button type="button" data-open-tab="history">Compare years</button>
           </div>
@@ -139,7 +143,7 @@
         </section>
       </section>
 
-      <section class="map-stage" aria-label="Wisconsin county map and table">
+      <section class="map-stage" aria-label="County map and table">
         <nav class="app-tabs" role="tablist" aria-label="Main app sections">
           <button class="app-tab-button active" type="button" role="tab" data-app-tab="dashboard" aria-controls="dashboardPanel" aria-selected="true">
             Map
@@ -206,7 +210,7 @@
 
           <section class="history-warning" aria-label="Historical data limitation">
             <strong>Read this before comparing years</strong>
-            <p>The multi-year comparison rows come from Wisconsin Legislative Technology Services Bureau (LTSB) harmonized ward layers. In plain language, LTSB is a nonpartisan legislative service agency whose GIS team publishes mapping layers. Here, <strong>harmonized</strong> means that results from different years were placed onto a common ward map so the years can be compared. Some values were allocated using population-based methods, so these are useful comparison rows, not exact original ward records. Native official WEC 2024 reporting-unit rows remain available as a separate selectable series.</p>
+            <p>Wisconsin's multi-year comparison rows come from Wisconsin Legislative Technology Services Bureau (LTSB) harmonized ward layers. In plain language, LTSB is a nonpartisan legislative service agency whose GIS team publishes mapping layers. Here, <strong>harmonized</strong> means that results from different years were placed onto a common ward map so the years can be compared. Some values were allocated using population-based methods, so these are useful comparison rows, not exact original ward records. Minnesota uses native official Secretary of State county rows for each year.</p>
           </section>
 
           <section class="history-controls" aria-label="Historical comparison controls">
@@ -343,12 +347,21 @@
                 <strong>Presidential county results</strong>
                 <p>Used for map shading, county table, statewide totals, candidate breakdown, CSV export, and selected-county details.</p>
                 <span>Local files: data/County by County Report_POTUS.pdf; data/president-county-results.json</span>
+                <span>WEC file Last-Modified header: 2024-11-27T21:31:27Z. This is server file metadata, not guaranteed first public link time.</span>
                 <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
+              </article>
+              <article>
+                <strong>Minnesota pilot county results</strong>
+                <p>Used for Minnesota county table, statewide totals, candidate breakdown, review graphs, turnout graph, CSV export, and Source Planner readiness rows.</p>
+                <span>Local files: data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js</span>
+                <span>Minnesota SOS workbook Last-Modified header: 2025-02-14T17:22:26Z. This is server file metadata, not guaranteed first public link time.</span>
+                <a href="https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx" target="_blank" rel="noreferrer">Minnesota SOS workbook</a>
               </article>
               <article>
                 <strong>U.S. Senate and ward results</strong>
                 <p>Used for vote-share by vote-count scatterplots, presidential-versus-Senate drop-off histograms, selected-county filtering, city splits, and review drilldowns.</p>
                 <span>Local files: data/County by County Report_US Senate.pdf; data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js</span>
+                <span>WEC file Last-Modified headers: Senate county PDF 2024-11-27T21:31:28Z; ward spreadsheet 2024-11-27T21:35:53Z. These are server file metadata, not guaranteed first public link times.</span>
                 <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf" target="_blank" rel="noreferrer">WEC Senate PDF</a>
                 <a href="https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx" target="_blank" rel="noreferrer">Archived WEC spreadsheet</a>
               </article>
@@ -393,7 +406,7 @@
           <header class="workspace-intro">
             <p class="eyebrow">State expansion workspace</p>
             <h2>Source Planner</h2>
-            <p>Track the official result sources behind the app by state and county, with Wisconsin loaded first for 2024.</p>
+            <p>Track the official result sources behind the app by state and county, with each state's loaded capabilities shown separately.</p>
           </header>
 
           <section class="source-planner-controls" aria-label="Source planner controls">
@@ -1064,6 +1077,7 @@
                 <div class="graph-title-row">
                   <strong><span class="technical-term" tabindex="0" data-definition="A scatterplot that asks whether candidate vote share changes as local reporting-unit vote totals get larger. Each dot is one ward or reporting-unit row.">Vote-Share by Vote-Count Scatterplot</span></strong>
                   <button
+                    id="voteShareGraphInfo"
                     class="graph-info"
                     type="button"
                     aria-label="Vote share graph note: uses official WEC ward-level vote totals. The calculation is accurate for the data shown, but a pattern or flagged result means review further, not proof by itself."
@@ -1099,6 +1113,7 @@
                 <div class="graph-title-row">
                   <strong><span class="technical-term" tabindex="0" data-definition="A histogram that groups the difference between presidential votes and same-party U.S. Senate votes in the same ward row. It can show whether larger gaps cluster together.">Presidential-versus-Senate Drop-Off Histogram</span></strong>
                   <button
+                    id="downBallotGraphInfo"
                     class="graph-info"
                     type="button"
                     aria-label="Down-ballot graph note: uses official WEC ward-level President and U.S. Senate vote totals. The calculation is accurate for the data shown, but differences can come from normal split-ticket voting."
@@ -1251,10 +1266,12 @@
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
     ></script>
     <script src="./data/app-data.js?v=20260531-review-ux"></script>
+    <script src="./data/mn-app-data.js?v=20260604-minnesota"></script>
+    <script src="./data/mn-counties.js?v=20260604-minnesota-map"></script>
     <script src="./data/eta-data.js?v=20260531-review-ux"></script>
     <script src="./data/wi-counties.js?v=20260531-review-ux"></script>
     <script src="./data/turnout-data.js?v=20260531-review-ux"></script>
     <script src="./data/historical-data.js?v=20260601-history"></script>
-    <script src="./app.js?v=20260603-source-planner"></script>
+    <script src="./app.js?v=20260603-state-registry"></script>
   </body>
 </html>
