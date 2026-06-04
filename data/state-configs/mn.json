@@ -1,0 +1,161 @@
+{
+  "code": "MN",
+  "name": "Minnesota",
+  "authority": "Minnesota Secretary of State",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/mn-app-data.js",
+    "appDataGlobal": "MN_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "mn-2024-precinct-results",
+      "url": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+      "localFile": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx"
+    },
+    {
+      "id": "mn-2012-president-county",
+      "url": "https://electionresults.sos.mn.gov/Results/MediaFile_Archive/Index?erselectionId=1&mediafileid=51",
+      "localFile": "data/mn-2012-us-president-by-county.txt"
+    },
+    {
+      "id": "mn-2016-president-county",
+      "url": "https://electionresultsfiles.sos.mn.gov/20161108/USPresCty.txt",
+      "localFile": "data/mn-2016-us-president-by-county.txt"
+    },
+    {
+      "id": "mn-2020-president-county",
+      "url": "https://electionresultsfiles.sos.mn.gov/20201103/USPresCty.txt",
+      "localFile": "data/mn-2020-us-president-by-county.txt"
+    },
+    {
+      "id": "mn-2024-president-county",
+      "url": "https://electionresultsfiles.sos.mn.gov/20241105/USPresCty.txt",
+      "localFile": "data/mn-2024-us-president-by-county.txt"
+    },
+    {
+      "id": "mn-county-geometry",
+      "url": "https://feat.gisdata.mn.gov/arcgis/rest/services/MnGeo/mn_counties/FeatureServer/0/query?where=1%3D1&outFields=county_name,county_code,county_fips55_code&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/mn-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "mn-county-geometry",
+    "outputFile": "data/mn-counties.js",
+    "outputGlobal": "MN_COUNTIES_GEOJSON",
+    "nameProperty": "county_name",
+    "codeProperty": "county_code",
+    "expectedFeatures": 87
+  },
+  "certifiedResults": {
+    "sourceId": "mn-2024-precinct-results",
+    "sheet": "Precinct-Results",
+    "columns": {
+      "county": "COUNTYNAME",
+      "total": "USPRSTOTAL",
+      "trump": "USPRSR",
+      "harris": "USPRSDFL"
+    },
+    "otherCandidates": [
+      { "key": "libertarian", "label": "Libertarian candidate", "column": "USPRSLIB" },
+      { "key": "weThePeople", "label": "We The People candidate", "column": "USPRSWTP" },
+      { "key": "green", "label": "Green candidate", "column": "USPRSG" },
+      { "key": "socialismLiberation", "label": "Socialism and Liberation candidate", "column": "USPRSSLP" },
+      { "key": "socialistWorkers", "label": "Socialist Workers candidate", "column": "USPRSSWP" },
+      { "key": "justiceForAll", "label": "Justice For All candidate", "column": "USPRSJFA" },
+      { "key": "independent", "label": "Independent candidate", "column": "USPRSIND" },
+      { "key": "writeIn", "label": "Write-in candidates", "column": "USPRSWI" }
+    ],
+    "aggregateFields": {
+      "registered7Am": "REG7AM",
+      "electionDayRegistrations": "EDR",
+      "totalVoting": "TOTVOTING"
+    }
+  },
+  "reviewCharts": {
+    "sourceId": "mn-2024-precinct-results",
+    "sheet": "Precinct-Results",
+    "rowLabelColumns": {
+      "municipality": "MCDNAME",
+      "precinct": "PCTNAME"
+    },
+    "columns": {
+      "county": "COUNTYNAME",
+      "presidentTotal": "USPRSTOTAL",
+      "trump": "USPRSR",
+      "harris": "USPRSDFL",
+      "senateR": "USSENR",
+      "senateDem": "USSENDFL"
+    },
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "sourceId": "mn-2024-precinct-results",
+    "sheet": "Precinct-Results",
+    "rowLabelColumns": {
+      "municipality": "MCDNAME",
+      "precinct": "PCTNAME"
+    },
+    "columns": {
+      "county": "COUNTYNAME",
+      "municipality": "MCDNAME",
+      "ballotsCast": "TOTVOTING",
+      "registered7Am": "REG7AM",
+      "electionDayRegistrations": "EDR"
+    },
+    "registrationDenominatorTiming": "electionDayPlusEDR",
+    "sourceLevel": "precinct",
+    "notes": "Minnesota SOS precinct results spreadsheet. Denominator uses REG7AM plus EDR based on the SOS Fields sheet definitions.",
+    "warningRequired": false
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "officialCountyResultText",
+    "partyCodes": {
+      "dem": "DFL",
+      "rep": "R"
+    },
+    "contestName": "U.S. President & Vice President",
+    "sources": [
+      {
+        "year": 2012,
+        "sourceId": "mn-2012-president-county",
+        "note": "Official Minnesota SOS 2012 President by County text file."
+      },
+      {
+        "year": 2016,
+        "sourceId": "mn-2016-president-county",
+        "note": "Official Minnesota SOS 2016 President by County text file."
+      },
+      {
+        "year": 2020,
+        "sourceId": "mn-2020-president-county",
+        "note": "Official Minnesota SOS 2020 President by County text file."
+      },
+      {
+        "year": 2024,
+        "sourceId": "mn-2024-president-county",
+        "note": "Official Minnesota SOS 2024 President by County text file."
+      }
+    ]
+  },
+  "expected": {
+    "countyRows": 87,
+    "precinctRows": 4103,
+    "stateTotal": 3253920,
+    "trump": 1519032,
+    "harris": 1656979,
+    "other": 77909,
+    "reviewRows": 4075,
+    "turnoutRows": 4103,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 4,
+    "historicalRows": 348,
+    "geometryFeatures": 87
+  }
+}

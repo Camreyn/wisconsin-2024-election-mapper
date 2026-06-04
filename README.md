@@ -36,6 +36,7 @@ Or, if you use npm:
 
 ```powershell
 npm.cmd run build:data
+npm.cmd run build:states
 npm.cmd run build:minnesota
 npm.cmd run build:history
 npm.cmd run validate
@@ -44,6 +45,12 @@ npm.cmd run validate:ui
 ```
 
 Use `npm.cmd` in PowerShell if Windows blocks `npm.ps1`.
+
+To download any missing configured state source files before rebuilding:
+
+```powershell
+npm.cmd run build:states:download
+```
 
 To import a turnout CSV:
 
@@ -77,6 +84,17 @@ filenames use the registered state's `exportsSlug`. Each state also carries
 capability flags for Source Planner, certified results, map, review graphs,
 turnout, and historical baseline readiness so partially collected states can be
 shown without implying that every Wisconsin feature is available.
+
+State data imports are now config-driven. Add a state config under
+`data/state-configs/`, then run `npm.cmd run build:states` to generate its app
+data bundle and geometry bundle. The generic builder in
+`scripts/build-state-data.py` supports configured source downloads, XLSX sheet
+parsing, certified county aggregation, precinct review graph rows, turnout rows,
+President-by-County historical text files, GeoJSON county geometry
+normalization, and expected-count validation. Minnesota is the first complete
+config example in `data/state-configs/mn.json`; `npm.cmd run build:minnesota`
+uses that config directly. Future states should require config changes first,
+with parser code changes only when an official source format is genuinely new.
 
 The Minnesota pilot now includes certified county results, Source Planner rows,
 precinct-level review graphs, precinct turnout rows, county map geometry from
