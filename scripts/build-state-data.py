@@ -7,6 +7,7 @@ import re
 import urllib.request
 import urllib.parse
 import zipfile
+import subprocess
 from collections import defaultdict
 from pathlib import Path
 from xml.etree import ElementTree
@@ -130,6 +131,8 @@ def maybe_download_sources(config, *, force=False):
         download = source.get("download", {})
         if download.get("type") == "northDakotaResultsExport":
             path.write_bytes(download_north_dakota_export(source, download))
+        elif download.get("type") == "browserDownload":
+            download_with_browser(source, path, download)
         else:
             request = urllib.request.Request(
                 source["url"],
@@ -139,6 +142,25 @@ def maybe_download_sources(config, *, force=False):
                 path.write_bytes(response.read())
         downloaded.append(source["id"])
     return downloaded
+
+
+def download_with_browser(source, path, download):
+    command = [
+        "node",
+        "scripts/browser-download.mjs",
+        "--url",
+        source["url"],
+        "--output",
+        str(path),
+        "--timeout-ms",
+        str(download.get("timeoutMs", 120000)),
+    ]
+    if download.get("headless") is False:
+        command.extend(["--headless", "false"])
+    browser = download.get("browser")
+    if browser:
+        command.extend(["--browser", browser])
+    subprocess.run(command, cwd=ROOT, check=True)
 
 
 def hidden_input_value(page, input_id):
@@ -235,6 +257,8 @@ def row_label(row, column_index, row_label_columns):
 
 def certified_results(config):
     source = config["certifiedResults"]
+    if source.get("format") == "michiganCountyTab":
+        return certified_results_michigan_tab(config)
     if source.get("format") == "northDakotaStatewideCsv":
         return certified_results_north_dakota_csv(config)
 
@@ -283,6 +307,33 @@ def certified_results(config):
         result_rows.append(row)
 
     return result_rows, candidate_labels, precinct_rows
+
+
+def michigan_result_rows(path):
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        first_line = handle.readline()
+        if not first_line.startswith("TOTAL VOTER TURNOUT:"):
+            handle.seek(0)
+        for row in csv.DictReader(handle, delimiter="\t"):
+            yield {
+                "contest": row["OfficeDescription"],
+                "party": row["PartyDescription"],
+                "candidate": " ".join(
+                    part.strip()
+                    for part in (
+                        row["CandidateLastName"],
+                        row["CandidateFirstName"],
+                        row["CandidateMiddleName"],
+                    )
+                    if part and part.strip()
+                ),
+                "votes": int_text(row["CandidateVotes"]),
+                "county": title_county(row["CountyName"]),
+            }
+
+
+def title_county(value):
+    return " ".join(part.capitalize() for part in str(value).split())
 
 
 def north_dakota_export_rows(path):
@@ -361,8 +412,58 @@ def certified_results_north_dakota_csv(config):
     return result_rows, candidate_labels, precinct_rows
 
 
+def certified_results_michigan_tab(config):
+    source = config["certifiedResults"]
+    rows = [
+        row
+        for row in michigan_result_rows(local_source(config, source["sourceId"]))
+        if row["contest"] == source["contestName"]
+    ]
+    by_county = defaultdict(lambda: defaultdict(int))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    for row in rows:
+        county = row["county"]
+        if candidate_matches(row, source["majorCandidates"]["trump"]):
+            by_county[county]["trump"] += row["votes"]
+        elif candidate_matches(row, source["majorCandidates"]["harris"]):
+            by_county[county]["harris"] += row["votes"]
+        else:
+            matched_other = False
+            for candidate in source.get("otherCandidates", []):
+                if candidate_matches(row, candidate):
+                    by_county[county][candidate["key"]] += row["votes"]
+                    matched_other = True
+                    break
+            if not matched_other:
+                by_county[county]["unmappedOther"] += row["votes"]
+
+    result_rows = []
+    for county, totals in sorted(by_county.items()):
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+    return result_rows, candidate_labels, len(result_rows)
+
+
 def review_charts(config):
     review = config["reviewCharts"]
+    if review.get("format") == "michiganCountyTabComparison":
+        return review_charts_michigan_tab(config)
     if review.get("format") == "northDakotaStatewideCsvCountyComparison":
         return review_charts_north_dakota_csv(config)
 
@@ -503,8 +604,68 @@ def review_charts_north_dakota_csv(config):
     return review_rows, eta_analysis
 
 
+def review_charts_michigan_tab(config):
+    review = config["reviewCharts"]
+    rows = list(michigan_result_rows(local_source(config, review["sourceId"])))
+    president = contest_party_votes(rows, review["presidentContestName"])
+    down_ballot = contest_party_votes(rows, review["downBallotContestName"])
+    review_rows = []
+    for county in sorted(president):
+        trump = president[county][review["partyCodes"]["rep"]]
+        harris = president[county][review["partyCodes"]["dem"]]
+        president_total = sum(president[county].values())
+        senate_rep = down_ballot[county][review["partyCodes"]["rep"]]
+        senate_dem = down_ballot[county][review["partyCodes"]["dem"]]
+        if not president_total:
+            continue
+        review_rows.append(
+            {
+                "county": county,
+                "ward": f"{county} County",
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+    policy = review["policy"]
+    eta_analysis = {
+        "wardRows": len(review_rows),
+        "downBallot": {
+            "demDropVotes": sum(row["harris"] for row in review_rows) - sum(down_ballot[county][review["partyCodes"]["dem"]] for county in president),
+            "demDropPct": round2(average(row["demDropoff"] for row in review_rows)),
+            "repDropVotes": sum(row["trump"] for row in review_rows) - sum(down_ballot[county][review["partyCodes"]["rep"]] for county in president),
+            "repDropPct": round2(average(row["repDropoff"] for row in review_rows)),
+            "demOutlierWards": sum(1 for row in review_rows if abs(row["demDropoff"]) >= policy["outlierThresholdPct"] and row["harris"] >= policy["minCandidateVotes"]),
+            "repOutlierWards": sum(1 for row in review_rows if abs(row["repDropoff"]) >= policy["outlierThresholdPct"] and row["trump"] >= policy["minCandidateVotes"]),
+            "outlierThresholdPct": policy["outlierThresholdPct"],
+            "minCandidateVotes": policy["minCandidateVotes"],
+        },
+        "voteShare": {
+            "trumpCorrelation": round(pearson([row["trump"] for row in review_rows], [row["trumpShare"] for row in review_rows]), 4),
+            "harrisCorrelation": round(pearson([row["harris"] for row in review_rows], [row["harrisShare"] for row in review_rows]), 4),
+            "threshold": policy["voteShareCorrelationThreshold"],
+        },
+    }
+    return review_rows, eta_analysis
+
+
 def turnout_data(config):
     turnout = config["turnout"]
+    if turnout.get("format") == "notConfigured":
+        return {
+            "metadata": {
+                "rows": 0,
+                "warningRows": 0,
+                "source": "",
+                "sourceUrl": "",
+                "warning": turnout.get("notes", "Turnout rows are not loaded for this state yet."),
+            },
+            "rows": [],
+        }
     if turnout.get("format") == "northDakotaTurnoutHtml":
         return turnout_data_north_dakota_html(config)
 

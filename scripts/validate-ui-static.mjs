@@ -295,6 +295,7 @@ checks.minnesotaStaticSourceTimestampVisible = indexHtml.includes("Minnesota SOS
 
 const mnQueryHarness = createAppHarness({ search: "?state=MN" });
 const ndQueryHarness = createAppHarness({ search: "?state=ND" });
+const miQueryHarness = createAppHarness({ search: "?state=MI" });
 const mnHashHarness = createAppHarness({ hash: "#sources?state=MN" });
 await new Promise((resolve) => setTimeout(resolve, 450));
 checks.directMinnesotaQuerySelected =
@@ -318,6 +319,17 @@ checks.directNorthDakotaQuerySummary =
 checks.directNorthDakotaMapReady = ndQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Map ready");
 checks.directNorthDakotaHistoricalNotLoaded =
   ndQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline not loaded");
+checks.directMichiganQuerySelected =
+  miQueryHarness.element("#appStateSelect").value === "MI" &&
+  miQueryHarness.element("#sourceStateSelect").value === "MI";
+checks.directMichiganQuerySummary =
+  miQueryHarness.element("#sourceStateTitle").textContent === "Michigan 2024 President" &&
+  (miQueryHarness.element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length === 83;
+checks.directMichiganMapReady = miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Map ready");
+checks.directMichiganTurnoutNotLoaded =
+  miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Turnout not loaded");
+checks.directMichiganHistoricalNotLoaded =
+  miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline not loaded");
 vm.runInContext(`
   els.sourceStateSelect.value = "WI";
   switchActiveState(els.sourceStateSelect.value);
@@ -369,11 +381,11 @@ const expected = {
   auditTrialsButton: true,
   auditDistributionControl: true,
   appStateSelectorPresent: true,
-  appStateOptions: 3,
+  appStateOptions: 4,
   appStateSyncedWithSourcePlanner: true,
   sourcePlannerTabPresent: true,
   sourcePlannerSidebarAction: true,
-  sourcePlannerStateOptions: 3,
+  sourcePlannerStateOptions: 4,
   sourcePlannerWisconsinTitle: true,
   sourcePlannerCountyRows: 72,
   sourcePlannerWaukeshaChecked: true,
@@ -415,6 +427,11 @@ const expected = {
   directNorthDakotaQuerySummary: true,
   directNorthDakotaMapReady: true,
   directNorthDakotaHistoricalNotLoaded: true,
+  directMichiganQuerySelected: true,
+  directMichiganQuerySummary: true,
+  directMichiganMapReady: true,
+  directMichiganTurnoutNotLoaded: true,
+  directMichiganHistoricalNotLoaded: true,
   sourcePlannerSelectorSyncsGlobal: true,
   globalSelectorSyncsSourcePlanner: true,
   minnesotaReviewRouteKeepsState: true,

@@ -77,12 +77,16 @@ state with certified 2024 presidential county totals aggregated from the
 official Minnesota Secretary of State federal/state precinct spreadsheet. North
 Dakota is registered from `data/state-configs/nd.json` with official SOS All
 Statewide CSV results, county-level President-vs-Senate review rows, official
-turnout details, and Census county geometry. The global State selector and
-Source Planner selector share the same state code, and export filenames use the
-registered state's `exportsSlug`. Each state also carries capability flags for
-Source Planner, certified results, map, review graphs, turnout, and historical
-baseline readiness so partially collected states can be shown without implying
-that every Wisconsin feature is available.
+turnout details, and Census county geometry. Michigan is registered from
+`data/state-configs/mi.json` with an official MVIC county result export,
+county-level President-vs-Senate review rows, and Census county geometry; its
+protected MVIC export uses the browser-backed downloader in
+`scripts/browser-download.mjs`. The global State selector and Source Planner
+selector share the same state code, and export filenames use the registered
+state's `exportsSlug`. Each state also carries capability flags for Source
+Planner, certified results, map, review graphs, turnout, and historical baseline
+readiness so partially collected states can be shown without implying that every
+Wisconsin feature is available.
 
 State data imports are now config-driven. Start a new state with
 `npm.cmd run scaffold:state -- MI --name Michigan --authority "Michigan Secretary of State"`,
@@ -96,12 +100,16 @@ rows, capabilities, or export slugs. The generic builder in
 `scripts/build-state-data.py` supports configured source downloads, XLSX sheet
 parsing, certified county aggregation, precinct review graph rows, turnout rows,
 President-by-County historical text files, GeoJSON county geometry
-normalization, app registry generation, and expected-count validation.
+normalization, browser-backed protected source downloads, app registry
+generation, and expected-count validation.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
 `npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
 same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET
-export postback. Future states should require config changes first, with parser
-code changes only when an official source format is genuinely new.
+export postback. Michigan proves the protected-source path for a Cloudflare
+fronted official export through a real Edge browser session; run
+`npm.cmd run build:michigan` to rebuild it from the configured local sources.
+Future states should require config changes first, with parser code changes only
+when an official source format is genuinely new.
 
 The Minnesota pilot now includes certified county results, Source Planner rows,
 precinct-level review graphs, precinct turnout rows, county map geometry from
@@ -115,6 +123,14 @@ The North Dakota import includes certified presidential county totals from the
 official SOS All Statewide CSV export, county-level U.S. Senate comparison rows,
 official SOS turnout detail rows, and Census TIGERweb county geometry. It does
 not yet include historical baseline rows.
+
+The Michigan import includes certified presidential county totals from the
+official Michigan Voter Information Center export, county-level U.S. Senate
+comparison rows, and Census TIGERweb county geometry. The MVIC export endpoint is
+Cloudflare-protected for plain HTTP clients, so `npm.cmd run build:states:download`
+uses `scripts/browser-download.mjs` for that source. Michigan turnout and
+historical baseline rows are intentionally disabled until separate official
+sources are configured.
 
 ## Historical Baseline
 

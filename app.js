@@ -1080,6 +1080,7 @@ function stateCapabilityLabel(capability) {
   const labels = {
     map: state.capabilities?.map ? "Map ready" : "Map not ready",
     reviewGraphs: state.capabilities?.reviewGraphs ? "Review graphs ready" : "Review graphs need local detail",
+    turnout: state.capabilities?.turnout ? "Turnout ready" : "Turnout not loaded",
     historicalBaseline: state.capabilities?.historicalBaseline ? "Historical baseline ready" : "Historical baseline not loaded",
   };
   return labels[capability] || capability;
@@ -2108,6 +2109,7 @@ function renderSourcePlanner() {
     confidenceBadge("Certified statewide source", "strong"),
     confidenceBadge(stateCapabilityLabel("map"), stateCapabilityTone("map")),
     confidenceBadge(stateCapabilityLabel("reviewGraphs"), stateCapabilityTone("reviewGraphs")),
+    confidenceBadge(stateCapabilityLabel("turnout"), stateCapabilityTone("turnout")),
     confidenceBadge(stateCapabilityLabel("historicalBaseline"), stateCapabilityTone("historicalBaseline")),
     confidenceBadge(`${formatNumber(imported)} turnout counties imported`, imported ? "partial" : "missing"),
     confidenceBadge(`${formatNumber(missing)} turnout counties missing`, missing ? "missing" : "strong"),
@@ -2945,7 +2947,11 @@ function renderTurnoutGraph(county) {
   }
 
   els.turnoutGraphNote.textContent =
+    activeTurnoutPolicy().warning ||
     "Warning: turnout denominators may be pre-Election-Day or missing. Election Day registration can make those rates look too high.";
+  const placeholderWarning = els.turnoutGraphNote.textContent
+    ? `<text class="graph-label" x="52" y="244">${escapeText(els.turnoutGraphNote.textContent)}</text>`
+    : "";
 
   els.turnoutGraph.innerHTML = `
     <svg viewBox="0 0 760 260" role="img" aria-label="Turnout histogram placeholder">

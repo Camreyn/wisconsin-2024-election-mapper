@@ -7,6 +7,7 @@
     "build:data": "node scripts/build-data.mjs",
     "build:states": "py -3 scripts/build-state-data.py",
     "build:states:download": "py -3 scripts/build-state-data.py --download",
+    "build:michigan": "py -3 scripts/build-state-data.py data/state-configs/mi.json",
     "build:minnesota": "py -3 scripts/build-state-data.py data/state-configs/mn.json",
     "scaffold:state": "py -3 scripts/scaffold-state.py",
     "build:history": "node scripts/build-historical-data.mjs",
