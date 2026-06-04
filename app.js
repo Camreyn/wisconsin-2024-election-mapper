@@ -3352,18 +3352,19 @@ function renderCandidateBreakdown(row = null) {
 }
 
 function popupHtml(row) {
+  const otherCandidateRows = CANDIDATE_LABELS.map(
+    (candidate) => `<dt>${escapeText(candidate.label)}</dt><dd>${formatNumber(row[candidate.key] || 0)}</dd>`,
+  ).join("");
   return `
     <div class="county-popup">
-      <h3>${row.county} County</h3>
+      <h3>${escapeText(row.county)} County</h3>
       <dl>
         <dt>Winner</dt><dd>${winnerLabel(row)}</dd>
         <dt>Margin</dt><dd>${formatNumber(Math.abs(row.margin))}</dd>
         <dt>Trump</dt><dd>${formatNumber(row.trump)} (${row.trumpPct.toFixed(2)}%)</dd>
         <dt>Harris</dt><dd>${formatNumber(row.harris)} (${row.harrisPct.toFixed(2)}%)</dd>
         <dt>Other</dt><dd>${formatNumber(row.other)} (${row.otherPct.toFixed(2)}%)</dd>
-        <dt>Kennedy</dt><dd>${formatNumber(row.kennedy)}</dd>
-        <dt>Stein</dt><dd>${formatNumber(row.stein)}</dd>
-        <dt>Oliver</dt><dd>${formatNumber(row.oliver)}</dd>
+        ${otherCandidateRows}
         <dt>Total</dt><dd>${formatNumber(row.total)}</dd>
       </dl>
     </div>

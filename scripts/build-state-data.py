@@ -1,9 +1,11 @@
 import argparse
 import csv
+import html
 import json
 import math
 import re
 import urllib.request
+import urllib.parse
 import zipfile
 from collections import defaultdict
 from pathlib import Path
@@ -125,19 +127,73 @@ def maybe_download_sources(config, *, force=False):
         if path.exists() and not force:
             continue
         path.parent.mkdir(parents=True, exist_ok=True)
-        request = urllib.request.Request(
-            source["url"],
-            headers={"User-Agent": "Mozilla/5.0 state-election-data-builder"},
-        )
-        with urllib.request.urlopen(request, timeout=120) as response:
-            path.write_bytes(response.read())
+        download = source.get("download", {})
+        if download.get("type") == "northDakotaResultsExport":
+            path.write_bytes(download_north_dakota_export(source, download))
+        else:
+            request = urllib.request.Request(
+                source["url"],
+                headers={"User-Agent": "Mozilla/5.0 state-election-data-builder"},
+            )
+            with urllib.request.urlopen(request, timeout=120) as response:
+                path.write_bytes(response.read())
         downloaded.append(source["id"])
     return downloaded
+
+
+def hidden_input_value(page, input_id):
+    match = re.search(rf'id="{re.escape(input_id)}"\s+value="([^"]*)"', page)
+    return html.unescape(match.group(1)) if match else ""
+
+
+def download_north_dakota_export(source, download):
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor())
+    request = urllib.request.Request(
+        source["url"],
+        headers={"User-Agent": "Mozilla/5.0 state-election-data-builder"},
+    )
+    with opener.open(request, timeout=120) as response:
+        page = response.read().decode("utf-8", errors="replace")
+
+    form = {
+        "__EVENTTARGET": "",
+        "__EVENTARGUMENT": "",
+        "__VIEWSTATE": hidden_input_value(page, "__VIEWSTATE"),
+        "__VIEWSTATEGENERATOR": hidden_input_value(page, "__VIEWSTATEGENERATOR"),
+        "__EVENTVALIDATION": hidden_input_value(page, "__EVENTVALIDATION"),
+        "ctl00$hidElectionType": hidden_input_value(page, "hidElectionType"),
+        "ctl00$hidElectionDate": hidden_input_value(page, "hidElectionDate"),
+        "ctl00$hidPrecinctsReported": hidden_input_value(page, "hidPrecinctsReported"),
+        "ctl00$hidPrecinctsNotReported": hidden_input_value(page, "hidPrecinctsNotReported"),
+        "ctl00$hidPrecinctsPartial": hidden_input_value(page, "hidPrecinctsPartial"),
+        "ctl00$hidVoterTurnout": hidden_input_value(page, "hidVoterTurnout"),
+        "ctl00$hidVoterTotal": hidden_input_value(page, "hidVoterTotal"),
+        "ctl00$MainContent$hidCountyID": "",
+        "ctl00$txtQuickSearch": "",
+        "ctl00$txtQuickSearchSide": "",
+        "ctl00$MainContent$rblTypes": download.get("fileType", "1"),
+        download["buttonName"]: download["buttonValue"],
+    }
+    post = urllib.parse.urlencode(form).encode("utf-8")
+    post_request = urllib.request.Request(
+        source["url"],
+        data=post,
+        headers={
+            "Content-Type": "application/x-www-form-urlencoded",
+            "User-Agent": "Mozilla/5.0 state-election-data-builder",
+        },
+    )
+    with opener.open(post_request, timeout=120) as response:
+        return response.read()
 
 
 def int_cell(row, column_index, column_name):
     value = row[column_index[column_name]]
     return int(value or 0)
+
+
+def int_text(value):
+    return int(str(value or "0").replace(",", "").strip() or 0)
 
 
 def pct(votes, total):
@@ -179,6 +235,9 @@ def row_label(row, column_index, row_label_columns):
 
 def certified_results(config):
     source = config["certifiedResults"]
+    if source.get("format") == "northDakotaStatewideCsv":
+        return certified_results_north_dakota_csv(config)
+
     path = local_source(config, source["sourceId"])
     columns = source["columns"]
     column_index, rows = read_sheet_rows(path, source["sheet"])
@@ -226,8 +285,87 @@ def certified_results(config):
     return result_rows, candidate_labels, precinct_rows
 
 
+def north_dakota_export_rows(path):
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = csv.reader(handle)
+        next(rows)
+        for row in rows:
+            if len(row) < 9:
+                continue
+            yield {
+                "contest": row[0],
+                "party": row[1],
+                "candidate": row[3].strip(),
+                "votes": int_text(row[5]),
+                "precinctsReporting": row[7],
+                "county": row[8].strip(),
+            }
+
+
+def candidate_matches(row, rule):
+    if rule.get("partyCode") and row["party"] != rule["partyCode"]:
+        return False
+    if rule.get("candidateContains") and rule["candidateContains"].lower() not in row["candidate"].lower():
+        return False
+    return True
+
+
+def certified_results_north_dakota_csv(config):
+    source = config["certifiedResults"]
+    rows = [
+        row
+        for row in north_dakota_export_rows(local_source(config, source["sourceId"]))
+        if row["contest"] == source["contestName"]
+    ]
+    by_county = defaultdict(lambda: defaultdict(int))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    for row in rows:
+        county = row["county"]
+        if candidate_matches(row, source["majorCandidates"]["trump"]):
+            by_county[county]["trump"] += row["votes"]
+        elif candidate_matches(row, source["majorCandidates"]["harris"]):
+            by_county[county]["harris"] += row["votes"]
+        else:
+            matched_other = False
+            for candidate in source.get("otherCandidates", []):
+                if candidate_matches(row, candidate):
+                    by_county[county][candidate["key"]] += row["votes"]
+                    matched_other = True
+                    break
+            if not matched_other:
+                by_county[county]["unmappedOther"] += row["votes"]
+        if "/" in row["precinctsReporting"]:
+            by_county[county]["precinctRows"] = max(by_county[county]["precinctRows"], int_text(row["precinctsReporting"].split("/")[-1]))
+
+    result_rows = []
+    for county, totals in sorted(by_county.items()):
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+    precinct_rows = sum(totals["precinctRows"] for totals in by_county.values())
+    return result_rows, candidate_labels, precinct_rows
+
+
 def review_charts(config):
     review = config["reviewCharts"]
+    if review.get("format") == "northDakotaStatewideCsvCountyComparison":
+        return review_charts_north_dakota_csv(config)
+
     path = local_source(config, review["sourceId"])
     columns = review["columns"]
     column_index, rows = read_sheet_rows(path, review["sheet"])
@@ -308,8 +446,68 @@ def review_charts(config):
     return review_rows, eta_analysis
 
 
+def contest_party_votes(rows, contest_name):
+    by_county = defaultdict(lambda: defaultdict(int))
+    for row in rows:
+        if row["contest"] == contest_name:
+            by_county[row["county"]][row["party"]] += row["votes"]
+    return by_county
+
+
+def review_charts_north_dakota_csv(config):
+    review = config["reviewCharts"]
+    rows = list(north_dakota_export_rows(local_source(config, review["sourceId"])))
+    president = contest_party_votes(rows, review["presidentContestName"])
+    down_ballot = contest_party_votes(rows, review["downBallotContestName"])
+    review_rows = []
+    for county in sorted(president):
+        trump = president[county][review["partyCodes"]["rep"]]
+        harris = president[county][review["partyCodes"]["dem"]]
+        president_total = sum(president[county].values())
+        senate_rep = down_ballot[county][review["partyCodes"]["rep"]]
+        senate_dem = down_ballot[county][review["partyCodes"]["dem"]]
+        if not president_total:
+            continue
+        review_rows.append(
+            {
+                "county": county,
+                "ward": f"{county} County",
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+    policy = review["policy"]
+    eta_analysis = {
+        "wardRows": len(review_rows),
+        "downBallot": {
+            "demDropVotes": sum(row["harris"] for row in review_rows) - sum(down_ballot[county][review["partyCodes"]["dem"]] for county in president),
+            "demDropPct": round2(average(row["demDropoff"] for row in review_rows)),
+            "repDropVotes": sum(row["trump"] for row in review_rows) - sum(down_ballot[county][review["partyCodes"]["rep"]] for county in president),
+            "repDropPct": round2(average(row["repDropoff"] for row in review_rows)),
+            "demOutlierWards": sum(1 for row in review_rows if abs(row["demDropoff"]) >= policy["outlierThresholdPct"] and row["harris"] >= policy["minCandidateVotes"]),
+            "repOutlierWards": sum(1 for row in review_rows if abs(row["repDropoff"]) >= policy["outlierThresholdPct"] and row["trump"] >= policy["minCandidateVotes"]),
+            "outlierThresholdPct": policy["outlierThresholdPct"],
+            "minCandidateVotes": policy["minCandidateVotes"],
+        },
+        "voteShare": {
+            "trumpCorrelation": round(pearson([row["trump"] for row in review_rows], [row["trumpShare"] for row in review_rows]), 4),
+            "harrisCorrelation": round(pearson([row["harris"] for row in review_rows], [row["harrisShare"] for row in review_rows]), 4),
+            "threshold": policy["voteShareCorrelationThreshold"],
+        },
+    }
+    return review_rows, eta_analysis
+
+
 def turnout_data(config):
     turnout = config["turnout"]
+    if turnout.get("format") == "northDakotaTurnoutHtml":
+        return turnout_data_north_dakota_html(config)
+
     path = local_source(config, turnout["sourceId"])
     columns = turnout["columns"]
     column_index, rows = read_sheet_rows(path, turnout["sheet"])
@@ -353,6 +551,46 @@ def turnout_data(config):
     }
 
 
+def turnout_data_north_dakota_html(config):
+    turnout = config["turnout"]
+    text = local_source(config, turnout["sourceId"]).read_text(encoding="utf-8", errors="replace")
+    output_rows = []
+    for chunk in text.split('<div class="wrapper-turnout">')[1:]:
+        name_match = re.search(r"<h1>([^<]+)</h1>", chunk)
+        pct_match = re.search(r'<div class="dough-inner"><span class="int">(\d+)</span><span class="dec">([^<]+)</span>', chunk)
+        if not name_match or not pct_match:
+            continue
+        county = html.unescape(name_match.group(1)).strip()
+        turnout_pct = float(f"{pct_match.group(1)}{pct_match.group(2).replace('%', '')}")
+        precinct_cast = [int_text(value) for value in re.findall(r'<div class="county-cast [^"]+">([0-9,]+)</div>', chunk)]
+        ballots = sum(precinct_cast)
+        registered = round(ballots / (turnout_pct / 100)) if turnout_pct else 0
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": f"{county} County",
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2(turnout_pct),
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "sourceUrl": source_map(config)[turnout["sourceId"]]["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": local_source(config, turnout["sourceId"]).name,
+            "sourceUrl": source_map(config)[turnout["sourceId"]]["url"],
+        },
+        "rows": output_rows,
+    }
+
+
 def county_code_name_map(config):
     geometry = config["geometry"]
     geojson = json.loads(local_source(config, geometry["sourceId"]).read_text(encoding="utf-8"))
@@ -366,6 +604,16 @@ def county_code_name_map(config):
 
 def historical_baseline(config):
     historical = config["historicalBaseline"]
+    if not historical.get("sources"):
+        return {
+            "metadata": {
+                "purpose": f"{config['name']} historical presidential baseline is not configured yet.",
+                "seriesCount": 0,
+                "warning": "Historical rows are not loaded for this state yet.",
+                "sources": [],
+            },
+            "series": [],
+        }
     county_names = county_code_name_map(config)
     series = []
     for item in historical["sources"]:
@@ -512,8 +760,8 @@ def build_state(config, *, download=False, force_download=False):
             "metadata": {
                 "wardRows": len(review_rows),
                 "source": local_source(config, config["reviewCharts"]["sourceId"]).name,
-                "presidentSheet": config["reviewCharts"]["sheet"],
-                "senateSheet": config["reviewCharts"]["sheet"],
+                "presidentSheet": config["reviewCharts"].get("sheet") or config["reviewCharts"].get("presidentContestName", ""),
+                "senateSheet": config["reviewCharts"].get("sheet") or config["reviewCharts"].get("downBallotContestName", ""),
                 "rows": review_rows,
             }
         },

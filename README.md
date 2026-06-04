@@ -5,9 +5,9 @@ https://camreyn.github.io/wisconsin-2024-election-mapper/
 A static web app for reviewing certified 2024 presidential results and
 comparing presidential baselines across 2012, 2016, 2020, and 2024 where
 state-specific source rows are loaded. Wisconsin remains the full-feature
-default, and Minnesota is registered as the first expanded state with certified
-county totals, precinct review graphs, turnout rows, county geometry, and a
-native SOS county historical baseline.
+default, Minnesota is the first full expanded state, and North Dakota is the
+first second-state proof of the scripted import path with official SOS CSV
+results, turnout rows, and county geometry.
 
 ![App screenshot](assets/app-screenshot.png)
 
@@ -16,10 +16,9 @@ native SOS county historical baseline.
 Open `index.html` in a browser. The app is static and does not need a build
 step or a local server.
 
-The map uses Leaflet and local state county boundaries in
-`data/wi-counties.geojson` and `data/mn-counties.geojson`. If Leaflet is
-blocked, the app falls back to an interactive county tile grid using the same
-result data.
+The map uses Leaflet and local state county boundaries in generated state
+geometry bundles. If Leaflet is blocked, the app falls back to an interactive
+county tile grid using the same result data.
 
 For GitHub Pages, publish the repository root from the `main` branch.
 
@@ -72,18 +71,18 @@ The official WEC PDF is saved locally as `data/County by County Report_POTUS.pdf
 
 ## Multi-State Readiness
 
-The app now has an `APP_STATES` registry in `app.js`. Wisconsin remains the
-default full-feature state. Minnesota is registered as the first pilot state
-with certified 2024 presidential county totals aggregated from the official
-Minnesota Secretary of State federal/state precinct spreadsheet. New states
-should be added to that registry with certified result rows, candidate labels,
-county-equivalent geometry or a documented tile fallback, turnout data,
-historical data when available, and a linked Source Planner entry. The global
-State selector and Source Planner selector share the same state code, and export
-filenames use the registered state's `exportsSlug`. Each state also carries
-capability flags for Source Planner, certified results, map, review graphs,
-turnout, and historical baseline readiness so partially collected states can be
-shown without implying that every Wisconsin feature is available.
+The app has a generated state registry at `data/state-registry.js`. Wisconsin
+remains the default full-feature state. Minnesota is the first full expanded
+state with certified 2024 presidential county totals aggregated from the
+official Minnesota Secretary of State federal/state precinct spreadsheet. North
+Dakota is registered from `data/state-configs/nd.json` with official SOS All
+Statewide CSV results, county-level President-vs-Senate review rows, official
+turnout details, and Census county geometry. The global State selector and
+Source Planner selector share the same state code, and export filenames use the
+registered state's `exportsSlug`. Each state also carries capability flags for
+Source Planner, certified results, map, review graphs, turnout, and historical
+baseline readiness so partially collected states can be shown without implying
+that every Wisconsin feature is available.
 
 State data imports are now config-driven. Start a new state with
 `npm.cmd run scaffold:state -- MI --name Michigan --authority "Michigan Secretary of State"`,
@@ -99,9 +98,10 @@ parsing, certified county aggregation, precinct review graph rows, turnout rows,
 President-by-County historical text files, GeoJSON county geometry
 normalization, app registry generation, and expected-count validation.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
-`npm.cmd run build:minnesota` uses that config directly. Future states should
-require config changes first, with parser code changes only when an official
-source format is genuinely new.
+`npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
+same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET
+export postback. Future states should require config changes first, with parser
+code changes only when an official source format is genuinely new.
 
 The Minnesota pilot now includes certified county results, Source Planner rows,
 precinct-level review graphs, precinct turnout rows, county map geometry from
@@ -110,6 +110,11 @@ MnGeo, and native official SOS county historical rows for `2012`, `2016`,
 `2020`, and `2024`. Regenerate its browser data bundles with
 `npm.cmd run build:minnesota`. The Minnesota 2024 source workbook's live `GET`
 response returned a server `Last-Modified` timestamp of `2025-02-14T17:22:26Z`.
+
+The North Dakota import includes certified presidential county totals from the
+official SOS All Statewide CSV export, county-level U.S. Senate comparison rows,
+official SOS turnout detail rows, and Census TIGERweb county geometry. It does
+not yet include historical baseline rows.
 
 ## Historical Baseline
 

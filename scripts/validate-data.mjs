@@ -58,6 +58,23 @@ function assertEqual(errors, label, actual, expected) {
   }
 }
 
+function stateExpectedActual(payload, geometry) {
+  return {
+    countyRows: payload.presidentCountyResults.length,
+    precinctRows: payload.metadata.precinctRows,
+    stateTotal: payload.metadata.stateTotal,
+    trump: payload.presidentCountyResults.reduce((sum, row) => sum + row.trump, 0),
+    harris: payload.presidentCountyResults.reduce((sum, row) => sum + row.harris, 0),
+    other: payload.presidentCountyResults.reduce((sum, row) => sum + row.other, 0),
+    reviewRows: payload.reviewCharts.metadata.rows.length,
+    turnoutRows: payload.turnoutData.rows.length,
+    turnoutWarningRows: payload.turnoutData.metadata.warningRows,
+    historicalSeries: payload.historicalBaseline.series.length,
+    historicalRows: payload.historicalBaseline.series.reduce((sum, series) => sum + series.rowCount, 0),
+    geometryFeatures: geometry.features.length,
+  };
+}
+
 const errors = [];
 const counties = readJson("president-county-results.json");
 const labels = readJson("candidate-labels.json");
@@ -94,6 +111,11 @@ for (const config of stateConfigs) {
   }
   if (!fs.existsSync(path.join(root, config.geometry.outputFile))) {
     errors.push(`${config.code} missing generated geometry file: ${config.geometry.outputFile}`);
+  }
+  if (fs.existsSync(path.join(root, config.output.appDataFile)) && fs.existsSync(path.join(root, config.geometry.outputFile))) {
+    const payload = readWindowPayload(path.relative(dataDir, path.join(root, config.output.appDataFile)), config.output.appDataGlobal);
+    const geometry = readWindowPayload(path.relative(dataDir, path.join(root, config.geometry.outputFile)), config.geometry.outputGlobal);
+    assertEqual(errors, `${config.code} generated expected counts`, stateExpectedActual(payload, geometry), config.expected);
   }
 }
 

@@ -36,6 +36,7 @@ class MockClassList {
 }
 
 let currentElementLookup = null;
+let currentVmContext = null;
 
 class MockElement {
   constructor(id = "") {
@@ -74,6 +75,11 @@ class MockElement {
 
   append(child) {
     this.children.push(child);
+    if (child.src && currentVmContext) {
+      const scriptPath = child.src.replace(/^\.\//, "");
+      vm.runInContext(fs.readFileSync(path.join(root, scriptPath), "utf8"), currentVmContext, { filename: scriptPath });
+      child.onload?.();
+    }
   }
 
   insertBefore(child) {
@@ -135,7 +141,7 @@ function createAppHarness({ hash = "", search = "" } = {}) {
     body: new MockElement("body"),
     documentElement: { dataset: { theme: "light" } },
     createElement: () => new MockElement(),
-    querySelector: element,
+    querySelector: (selector) => selector.startsWith("script[") ? null : element(selector),
     querySelectorAll: (selector) => {
       if (selector === "[data-app-tab]") return appTabs;
       if (selector === ".tab-panel") return tabPanels;
@@ -176,6 +182,7 @@ function createAppHarness({ hash = "", search = "" } = {}) {
     },
   };
   vm.createContext(context);
+  currentVmContext = context;
 
   for (const file of [
     "data/app-data.js",
@@ -287,6 +294,7 @@ checks.minnesotaTurnoutLoaded = element("#etaTests").innerHTML.includes("4,103 i
 checks.minnesotaStaticSourceTimestampVisible = indexHtml.includes("Minnesota SOS workbook Last-Modified header: 2025-02-14T17:22:26Z");
 
 const mnQueryHarness = createAppHarness({ search: "?state=MN" });
+const ndQueryHarness = createAppHarness({ search: "?state=ND" });
 const mnHashHarness = createAppHarness({ hash: "#sources?state=MN" });
 await new Promise((resolve) => setTimeout(resolve, 450));
 checks.directMinnesotaQuerySelected =
@@ -301,6 +309,15 @@ checks.directMinnesotaHashSelected =
 checks.directMinnesotaHashSourcesTab =
   mnHashHarness.tabPanels.find((panel) => panel.id === "sourcesPanel").hidden === false &&
   mnHashHarness.element("#sourceStateTitle").textContent === "Minnesota 2024 President";
+checks.directNorthDakotaQuerySelected =
+  ndQueryHarness.element("#appStateSelect").value === "ND" &&
+  ndQueryHarness.element("#sourceStateSelect").value === "ND";
+checks.directNorthDakotaQuerySummary =
+  ndQueryHarness.element("#sourceStateTitle").textContent === "North Dakota 2024 President" &&
+  (ndQueryHarness.element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length === 53;
+checks.directNorthDakotaMapReady = ndQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Map ready");
+checks.directNorthDakotaHistoricalNotLoaded =
+  ndQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline not loaded");
 vm.runInContext(`
   els.sourceStateSelect.value = "WI";
   switchActiveState(els.sourceStateSelect.value);
@@ -352,11 +369,11 @@ const expected = {
   auditTrialsButton: true,
   auditDistributionControl: true,
   appStateSelectorPresent: true,
-  appStateOptions: 2,
+  appStateOptions: 3,
   appStateSyncedWithSourcePlanner: true,
   sourcePlannerTabPresent: true,
   sourcePlannerSidebarAction: true,
-  sourcePlannerStateOptions: 2,
+  sourcePlannerStateOptions: 3,
   sourcePlannerWisconsinTitle: true,
   sourcePlannerCountyRows: 72,
   sourcePlannerWaukeshaChecked: true,
@@ -394,6 +411,10 @@ const expected = {
   directMinnesotaQuerySummary: true,
   directMinnesotaHashSelected: true,
   directMinnesotaHashSourcesTab: true,
+  directNorthDakotaQuerySelected: true,
+  directNorthDakotaQuerySummary: true,
+  directNorthDakotaMapReady: true,
+  directNorthDakotaHistoricalNotLoaded: true,
   sourcePlannerSelectorSyncsGlobal: true,
   globalSelectorSyncsSourcePlanner: true,
   minnesotaReviewRouteKeepsState: true,
