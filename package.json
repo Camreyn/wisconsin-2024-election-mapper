@@ -19,6 +19,7 @@
     "build:history": "node scripts/build-historical-data.mjs",
     "validate": "node scripts/validate-data.mjs",
     "validate:history": "py -3 scripts/validate-historical-baseline.py",
+    "validate:state-config": "node scripts/validate-state-config.mjs",
     "validate:source-pipeline": "node scripts/validate-source-pipeline.mjs",
     "validate:ui": "node scripts/validate-ui-static.mjs"
   }

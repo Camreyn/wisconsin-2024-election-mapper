@@ -40,6 +40,7 @@ npm.cmd run build:minnesota
 npm.cmd run build:history
 npm.cmd run validate
 npm.cmd run validate:history
+npm.cmd run validate:state-config
 npm.cmd run validate:source-pipeline
 npm.cmd run validate:ui
 ```
@@ -127,6 +128,13 @@ downloads, geometry candidates, and importer hints. The lower-level
 `discover:sources` and `apply:discovery` commands remain available for manual
 inspection, but `bootstrap:state-sources` is the preferred one-command starting
 point for future states.
+After bootstrap, run
+`npm.cmd run validate:state-config -- --state ND` to get a readiness/gap report
+for that state. The validator checks source references, download strategies,
+known parser formats, Source Planner status, expected counts, local source-file
+presence, and capability flags. It exits nonzero for hard config errors; planned
+missing work such as an unloaded historical baseline is reported as a gap. Add
+`--strict-gaps` when you want gaps to fail a pipeline step.
 Discovery appends candidate `sources`, source-inventory rows, checked
 scripted-export follow-ups, and a Source Planner discovery summary. Recognized
 source shapes also get suggested download and parser metadata: MVIC protected

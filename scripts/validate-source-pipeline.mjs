@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { applyDiscovery, applyDiscoverySummary } from "./apply-source-discovery.mjs";
 import { bootstrapStateSources } from "./bootstrap-state-sources.mjs";
 import { discoverSources } from "./discover-state-sources.mjs";
+import { validateStateConfigFile } from "./validate-state-config.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -111,6 +112,10 @@ try {
     writtenBootstrapConfig.sources.some((source) => source.discovery?.suggestedDownload?.type === "northDakotaResultsExport"),
     "Bootstrap write should apply discovery inference to the scaffolded config.",
   );
+  const bootstrapReadiness = validateStateConfigFile(bootstrapConfig);
+  assert(bootstrapReadiness.status === "valid_with_gaps", "Bootstrap readiness should be valid but still report gaps.");
+  assert(bootstrapReadiness.gaps.some((gap) => gap.code === "discovered-source-needs-review"), "Bootstrap readiness should flag discovered source review gaps.");
+  assert(bootstrapReadiness.gaps.some((gap) => gap.capability === "certifiedResults"), "Bootstrap readiness should flag certified results readiness.");
 
   writeJson(mvicConfig, {
     code: "MI",
@@ -182,6 +187,8 @@ try {
       status: bootstrapWrite.summary.status,
       scaffolded: bootstrapWrite.summary.scaffolded,
       addedSources: bootstrapWrite.summary.apply.addedSources.length,
+      readiness: bootstrapReadiness.status,
+      readinessGaps: bootstrapReadiness.counts.gaps,
     },
     mvic: {
       appendedSources: mvicApplied.sources.length,
