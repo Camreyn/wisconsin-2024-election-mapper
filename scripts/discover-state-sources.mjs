@@ -219,8 +219,36 @@ function likelyDownloads(resources, postbacks) {
   return uniqueBy([...linked, ...postbackDownloads], (item) => `${item.type}:${item.url}:${item.source}`);
 }
 
+function detectAccessBarrier(html) {
+  if (/_Incapsula_Resource|Incapsula incident ID|Request unsuccessful\. Incapsula/i.test(html)) {
+    return {
+      status: "blocked",
+      type: "incapsula",
+      message: "The fetched page is an Incapsula access-protection response, not the election-results application HTML.",
+      nextStep: "Capture the page with an interactive browser session or find the official API/export endpoint exposed by the election application.",
+    };
+  }
+  if (/cf-browser-verification|challenge-platform|Just a moment|Cloudflare/i.test(html)) {
+    return {
+      status: "blocked",
+      type: "cloudflare",
+      message: "The fetched page appears to be a Cloudflare/browser-challenge response, not the election-results application HTML.",
+      nextStep: "Use browser-backed discovery/download or an official static export endpoint.",
+    };
+  }
+  return {
+    status: "clear",
+    type: "",
+    message: "",
+    nextStep: "",
+  };
+}
+
 function summarize(report) {
   const hints = [];
+  if (report.accessBarrier?.status === "blocked") {
+    hints.push(`${report.accessBarrier.type} access barrier detected; discovery results may be incomplete until the protected app is captured or an official API/export endpoint is provided.`);
+  }
   if (report.forms.some((form) => form.hasViewState)) {
     hints.push("ASP.NET viewstate form detected; direct downloads may need a postback downloader.");
   }
@@ -243,6 +271,7 @@ export async function discoverSources({ state = "", url = "", htmlFile = "" }) {
   const resources = collectLinkedResources(html, baseUrl);
   const forms = collectForms(html, baseUrl);
   const postbacks = collectPostbacks(html);
+  const accessBarrier = detectAccessBarrier(html);
   const report = {
     generatedAtUtc: new Date().toISOString(),
     state,
@@ -257,6 +286,7 @@ export async function discoverSources({ state = "", url = "", htmlFile = "" }) {
     resources,
     forms,
     postbacks,
+    accessBarrier,
     likelyDownloads: likelyDownloads(resources, postbacks),
   };
   report.pipelineHints = summarize(report);
@@ -275,6 +305,7 @@ export function sourceDiscoverySummary(report) {
       likelyDownloads: report.likelyDownloads.length,
     },
     likelyDownloads: report.likelyDownloads.slice(0, 12),
+    accessBarrier: report.accessBarrier,
     pipelineHints: report.pipelineHints,
   };
 }

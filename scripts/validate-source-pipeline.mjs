@@ -39,7 +39,9 @@ try {
   const bootstrapReport = tempFile("zz-discovery.json");
   const lifecycleConfig = tempFile("zy-config.json");
   const lifecycleReport = tempFile("zy-discovery.json");
-  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport);
+  const barrierHtml = tempFile("barrier.html");
+  const barrierConfig = tempFile("barrier-config.json");
+  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig);
   const ndHtmlFile = path.join(root, "data/nd-2024-voter-turnout-details.html");
 
   const ndDiscovery = await discoverSources({
@@ -198,6 +200,32 @@ try {
   assert(lifecycle.gitAddCommand.includes("git add"), "Lifecycle runner should emit a git add command.");
   assert(lifecycle.readiness.status === "valid_with_gaps", "Lifecycle runner should report valid_with_gaps for an unpromoted discovered state.");
 
+  fs.writeFileSync(
+    barrierHtml,
+    '<html><head><script src="/_Incapsula_Resource?x=1"></script></head><body>Request unsuccessful. Incapsula incident ID: 123</body></html>',
+    "utf8",
+  );
+  const barrierDiscovery = await discoverSources({
+    state: "PX",
+    url: "https://protected.example.test/results",
+    htmlFile: barrierHtml,
+  });
+  assert(barrierDiscovery.accessBarrier.status === "blocked", "Access barrier discovery should detect blocked pages.");
+  writeJson(barrierConfig, {
+    code: "PX",
+    name: "Protected Test",
+    sources: [],
+    app: {
+      sourcePlan: {},
+      sourceInventory: [],
+      checkedNotUsable: [],
+    },
+  });
+  const barrierApplied = readJson(barrierConfig);
+  const barrierApply = applyDiscovery(barrierApplied, barrierDiscovery);
+  assert(barrierApply.sourcePlanStatus === "Blocked by source protection", "Blocked discovery should set Source Planner blocked status.");
+  assert(barrierApplied.app.checkedNotUsable.some((entry) => entry.status.includes("incapsula")), "Blocked discovery should add a checked follow-up entry.");
+
   console.log(JSON.stringify({
     status: "passed",
     nd: {
@@ -222,6 +250,11 @@ try {
       status: lifecycle.status,
       readiness: lifecycle.readiness.status,
       filesToReview: lifecycle.filesToReview.length,
+    },
+    accessBarrier: {
+      status: barrierDiscovery.accessBarrier.status,
+      type: barrierDiscovery.accessBarrier.type,
+      sourcePlanStatus: barrierApply.sourcePlanStatus,
     },
   }, null, 2));
 } finally {
