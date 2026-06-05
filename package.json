@@ -14,10 +14,12 @@
     "build:minnesota": "py -3 scripts/build-state-data.py data/state-configs/mn.json",
     "discover:sources": "node scripts/discover-state-sources.mjs",
     "apply:discovery": "node scripts/apply-source-discovery.mjs",
+    "bootstrap:state-sources": "node scripts/bootstrap-state-sources.mjs",
     "scaffold:state": "py -3 scripts/scaffold-state.py",
     "build:history": "node scripts/build-historical-data.mjs",
     "validate": "node scripts/validate-data.mjs",
     "validate:history": "py -3 scripts/validate-historical-baseline.py",
+    "validate:source-pipeline": "node scripts/validate-source-pipeline.mjs",
     "validate:ui": "node scripts/validate-ui-static.mjs"
   }
 }

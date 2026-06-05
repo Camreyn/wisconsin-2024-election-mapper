@@ -1,28 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const args = new Map();
-for (let index = 2; index < process.argv.length; index += 1) {
-  const key = process.argv[index];
-  if (key.startsWith("--")) {
-    const next = process.argv[index + 1];
-    if (!next || next.startsWith("--")) {
-      args.set(key.slice(2), "true");
-    } else {
-      args.set(key.slice(2), next);
-      index += 1;
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = new Map();
+  for (let index = 0; index < argv.length; index += 1) {
+    const key = argv[index];
+    if (key.startsWith("--")) {
+      const next = argv[index + 1];
+      if (!next || next.startsWith("--")) {
+        args.set(key.slice(2), "true");
+      } else {
+        args.set(key.slice(2), next);
+        index += 1;
+      }
     }
   }
-}
-
-const configPath = args.get("config");
-const reportPath = args.get("report");
-const write = args.has("write");
-const limit = Number(args.get("limit") || 12);
-
-if (!configPath || !reportPath) {
-  console.error("Usage: node scripts/apply-source-discovery.mjs --config data/state-configs/xx.json --report report.json [--write] [--limit N]");
-  process.exit(2);
+  return args;
 }
 
 function slugify(value) {
@@ -237,7 +231,8 @@ function hasChecked(config, key) {
   return (config.app?.checkedNotUsable || []).some((entry) => entry.sourceUrl === key || entry.sourceUrl === String(key || ""));
 }
 
-function applyDiscovery(config, report) {
+export function applyDiscovery(config, report, options = {}) {
+  const limit = Number(options.limit || 12);
   config.sources ||= [];
   config.app ||= {};
   config.app.sourcePlan ||= {};
@@ -290,31 +285,54 @@ function applyDiscovery(config, report) {
   };
 }
 
-const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
-const result = applyDiscovery(config, report);
-
-const summary = {
-  status: write ? "written" : "preview",
-  config: configPath,
-  report: reportPath,
-  writeRequiredForMutation: !write,
-  addedSources: result.addedSources.map((source) => ({
-    id: source.id,
-    url: source.url,
-    localFile: source.localFile,
-    status: source.discovery.status,
-    role: source.discovery.role,
-    download: source.download || source.discovery.suggestedDownload || null,
-    parser: source.discovery.suggestedParser || null,
-  })),
-  addedInventory: result.addedInventory.length,
-  addedCheckedNotUsable: result.addedChecked.length,
-  sourcePlanStatus: result.sourcePlanStatus,
-};
-
-if (write) {
-  fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+export function applyDiscoverySummary(result, { configPath, reportPath, write }) {
+  return {
+    status: write ? "written" : "preview",
+    config: configPath,
+    report: reportPath,
+    writeRequiredForMutation: !write,
+    addedSources: result.addedSources.map((source) => ({
+      id: source.id,
+      url: source.url,
+      localFile: source.localFile,
+      status: source.discovery.status,
+      role: source.discovery.role,
+      download: source.download || source.discovery.suggestedDownload || null,
+      parser: source.discovery.suggestedParser || null,
+    })),
+    addedInventory: result.addedInventory.length,
+    addedCheckedNotUsable: result.addedChecked.length,
+    sourcePlanStatus: result.sourcePlanStatus,
+  };
 }
 
-process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+export function applyDiscoveryToConfigFile({ configPath, reportPath, write = false, limit = 12 }) {
+  const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const result = applyDiscovery(config, report, { limit });
+  const summary = applyDiscoverySummary(result, { configPath, reportPath, write });
+  if (write) {
+    fs.writeFileSync(configPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+  }
+  return { config, report, result, summary };
+}
+
+function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
+  const configPath = args.get("config");
+  const reportPath = args.get("report");
+  const write = args.has("write");
+  const limit = Number(args.get("limit") || 12);
+
+  if (!configPath || !reportPath) {
+    console.error("Usage: node scripts/apply-source-discovery.mjs --config data/state-configs/xx.json --report report.json [--write] [--limit N]");
+    process.exit(2);
+  }
+
+  const { summary } = applyDiscoveryToConfigFile({ configPath, reportPath, write, limit });
+  process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main();
+}

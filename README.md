@@ -40,6 +40,7 @@ npm.cmd run build:minnesota
 npm.cmd run build:history
 npm.cmd run validate
 npm.cmd run validate:history
+npm.cmd run validate:source-pipeline
 npm.cmd run validate:ui
 ```
 
@@ -109,26 +110,30 @@ candidate lookup files, set `reviewCharts.format` to
 `tabDelimitedZipComparison` and map the bundle through `zipTables`,
 `presidentContest`, `downBallotContest`, `partyCodes`, and `rowLabel`; Michigan
 is the first complete example of that path.
-Before filling a new config, run source discovery against the official results
-page:
-`npm.cmd run discover:sources -- --state ND --url https://results.sos.nd.gov/VoterTurnoutDetails.aspx`.
+Before filling a new config, bootstrap source discovery against the official
+results page in preview mode:
+`npm.cmd run bootstrap:state-sources -- --state ND --name "North Dakota" --authority "North Dakota Secretary of State" --url https://results.sos.nd.gov/VoterTurnoutDetails.aspx`.
+Add `--write --report outputs/nd-discovery.json` only after reviewing the
+preview. When the target `data/state-configs/<state>.json` does not exist, the
+bootstrap command scaffolds it from `data/state-configs/_template.json`, runs
+discovery, applies source candidates, and writes both the starter config and
+optional discovery report. When the config already exists, it applies discovery
+to that config instead; pass `--force --write` only when intentionally replacing
+the scaffolded config.
 For protected or scripted pages, first save browser-rendered HTML with
-`scripts/browser-snapshot.mjs`, then run discovery with `--html-file` and the
+`scripts/browser-snapshot.mjs`, then run bootstrap with `--html-file` and the
 original `--url`; the report lists links, scripts, ASP.NET postbacks, likely
-downloads, geometry candidates, and importer hints.
-To bridge discovery into a starter config, save the report and apply it in
-preview mode first:
-`npm.cmd run discover:sources -- --state XX --url TODO --output /tmp/xx-discovery.json`,
-then
-`npm.cmd run apply:discovery -- --config data/state-configs/xx.json --report /tmp/xx-discovery.json`.
-Add `--write` only after reviewing the preview; the script appends candidate
-`sources`, source-inventory rows, checked scripted-export follow-ups, and a
-Source Planner discovery summary. Recognized source shapes also get suggested
-download and parser metadata: MVIC protected file endpoints infer
-`browserDownload`, North Dakota export pages infer the required ASP.NET postback
-parameters, ZIP bundles suggest `tabDelimitedZipComparison`, spreadsheet
-downloads suggest XLSX mapping, and geometry-like URLs are tagged for the config
-`geometry` block.
+downloads, geometry candidates, and importer hints. The lower-level
+`discover:sources` and `apply:discovery` commands remain available for manual
+inspection, but `bootstrap:state-sources` is the preferred one-command starting
+point for future states.
+Discovery appends candidate `sources`, source-inventory rows, checked
+scripted-export follow-ups, and a Source Planner discovery summary. Recognized
+source shapes also get suggested download and parser metadata: MVIC protected
+file endpoints infer `browserDownload`, North Dakota export pages infer the
+required ASP.NET postback parameters, ZIP bundles suggest
+`tabDelimitedZipComparison`, spreadsheet downloads suggest XLSX mapping, and
+geometry-like URLs are tagged for the config `geometry` block.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
 `npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
 same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET

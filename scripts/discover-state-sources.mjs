@@ -1,29 +1,22 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const args = new Map();
-for (let index = 2; index < process.argv.length; index += 1) {
-  const key = process.argv[index];
-  if (key.startsWith("--")) {
-    const next = process.argv[index + 1];
-    if (!next || next.startsWith("--")) {
-      args.set(key.slice(2), "true");
-    } else {
-      args.set(key.slice(2), next);
-      index += 1;
+function parseArgs(argv = process.argv.slice(2)) {
+  const args = new Map();
+  for (let index = 0; index < argv.length; index += 1) {
+    const key = argv[index];
+    if (key.startsWith("--")) {
+      const next = argv[index + 1];
+      if (!next || next.startsWith("--")) {
+        args.set(key.slice(2), "true");
+      } else {
+        args.set(key.slice(2), next);
+        index += 1;
+      }
     }
   }
-}
-
-const state = args.get("state") || "";
-const url = args.get("url") || "";
-const htmlFile = args.get("html-file") || "";
-const output = args.get("output") || "";
-const summaryOnly = args.has("summary");
-
-if (!url && !htmlFile) {
-  console.error("Usage: node scripts/discover-state-sources.mjs --url URL [--html-file PATH] [--state CODE] [--output PATH]");
-  process.exit(2);
+  return args;
 }
 
 function stripTags(value) {
@@ -97,7 +90,7 @@ function uniqueBy(items, keyFn) {
   return outputItems;
 }
 
-async function readHtml() {
+async function readHtml({ htmlFile, url }) {
   if (htmlFile) {
     return fs.readFileSync(htmlFile, "utf8");
   }
@@ -243,48 +236,77 @@ function summarize(report) {
   return hints;
 }
 
-const html = await readHtml();
-const baseUrl = url || (htmlFile ? `file://${path.resolve(htmlFile).replace(/\\/g, "/")}` : "");
-const title = stripTags(html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "");
-const resources = collectLinkedResources(html, baseUrl);
-const forms = collectForms(html, baseUrl);
-const postbacks = collectPostbacks(html);
-const report = {
-  generatedAtUtc: new Date().toISOString(),
-  state,
-  input: {
-    url,
-    htmlFile,
-  },
-  page: {
-    title,
-    bytes: Buffer.byteLength(html, "utf8"),
-  },
-  resources,
-  forms,
-  postbacks,
-  likelyDownloads: likelyDownloads(resources, postbacks),
-};
-report.pipelineHints = summarize(report);
+export async function discoverSources({ state = "", url = "", htmlFile = "" }) {
+  const html = await readHtml({ htmlFile, url });
+  const baseUrl = url || (htmlFile ? `file://${path.resolve(htmlFile).replace(/\\/g, "/")}` : "");
+  const title = stripTags(html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i)?.[1] || "");
+  const resources = collectLinkedResources(html, baseUrl);
+  const forms = collectForms(html, baseUrl);
+  const postbacks = collectPostbacks(html);
+  const report = {
+    generatedAtUtc: new Date().toISOString(),
+    state,
+    input: {
+      url,
+      htmlFile,
+    },
+    page: {
+      title,
+      bytes: Buffer.byteLength(html, "utf8"),
+    },
+    resources,
+    forms,
+    postbacks,
+    likelyDownloads: likelyDownloads(resources, postbacks),
+  };
+  report.pipelineHints = summarize(report);
+  return report;
+}
 
-const json = `${JSON.stringify(report, null, 2)}\n`;
-const summary = {
-  generatedAtUtc: report.generatedAtUtc,
-  state: report.state,
-  page: report.page,
-  counts: {
-    resources: report.resources.length,
-    forms: report.forms.length,
-    postbacks: report.postbacks.length,
-    likelyDownloads: report.likelyDownloads.length,
-  },
-  likelyDownloads: report.likelyDownloads.slice(0, 12),
-  pipelineHints: report.pipelineHints,
-};
-const body = summaryOnly ? `${JSON.stringify(summary, null, 2)}\n` : json;
-if (output) {
-  fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
-  fs.writeFileSync(output, body, "utf8");
-} else {
-  process.stdout.write(body);
+export function sourceDiscoverySummary(report) {
+  return {
+    generatedAtUtc: report.generatedAtUtc,
+    state: report.state,
+    page: report.page,
+    counts: {
+      resources: report.resources.length,
+      forms: report.forms.length,
+      postbacks: report.postbacks.length,
+      likelyDownloads: report.likelyDownloads.length,
+    },
+    likelyDownloads: report.likelyDownloads.slice(0, 12),
+    pipelineHints: report.pipelineHints,
+  };
+}
+
+async function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
+  const state = args.get("state") || "";
+  const url = args.get("url") || "";
+  const htmlFile = args.get("html-file") || "";
+  const output = args.get("output") || "";
+  const summaryOnly = args.has("summary");
+
+  if (!url && !htmlFile) {
+    console.error("Usage: node scripts/discover-state-sources.mjs --url URL [--html-file PATH] [--state CODE] [--output PATH]");
+    process.exit(2);
+  }
+
+  const report = await discoverSources({ state, url, htmlFile });
+  const json = `${JSON.stringify(report, null, 2)}\n`;
+  const summary = sourceDiscoverySummary(report);
+  const body = summaryOnly ? `${JSON.stringify(summary, null, 2)}\n` : json;
+  if (output) {
+    fs.mkdirSync(path.dirname(path.resolve(output)), { recursive: true });
+    fs.writeFileSync(output, body, "utf8");
+  } else {
+    process.stdout.write(body);
+  }
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exit(1);
+  });
 }
