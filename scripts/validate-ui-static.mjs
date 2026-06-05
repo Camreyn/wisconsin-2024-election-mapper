@@ -330,8 +330,10 @@ checks.directMichiganQuerySummary =
 checks.directMichiganMapReady = miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Map ready");
 checks.directMichiganTurnoutNotLoaded =
   miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Turnout not loaded");
-checks.directMichiganHistoricalNotLoaded =
-  miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline not loaded");
+checks.directMichiganHistoricalLoaded =
+  miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline ready") &&
+  (miQueryHarness.element("#historicalTableRows").innerHTML.match(/<tr>/g) || []).length === 4 &&
+  miQueryHarness.element("#historicalSummary").textContent.toLowerCase().includes("native official michigan voter information center county rows");
 vm.runInContext(`
   els.sourceStateSelect.value = "WI";
   switchActiveState(els.sourceStateSelect.value);
@@ -434,7 +436,7 @@ const expected = {
   directMichiganQuerySummary: true,
   directMichiganMapReady: true,
   directMichiganTurnoutNotLoaded: true,
-  directMichiganHistoricalNotLoaded: true,
+  directMichiganHistoricalLoaded: true,
   sourcePlannerSelectorSyncsGlobal: true,
   globalSelectorSyncsSourcePlanner: true,
   minnesotaReviewRouteKeepsState: true,

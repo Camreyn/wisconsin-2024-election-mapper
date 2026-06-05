@@ -354,11 +354,15 @@ def north_dakota_export_rows(path):
 
 
 def candidate_matches(row, rule):
-    if rule.get("partyCode") and row["party"] != rule["partyCode"]:
+    if rule.get("partyCode") and normalize_party(row["party"]) != normalize_party(rule["partyCode"]):
         return False
     if rule.get("candidateContains") and rule["candidateContains"].lower() not in row["candidate"].lower():
         return False
     return True
+
+
+def normalize_party(value):
+    return re.sub(r"\s+", " ", str(value or "")).strip().upper()
 
 
 def certified_results_north_dakota_csv(config):
@@ -775,6 +779,8 @@ def historical_baseline(config):
             },
             "series": [],
         }
+    if historical.get("format") == "michiganCountyTab":
+        return historical_baseline_michigan_tab(config)
     county_names = county_code_name_map(config)
     series = []
     for item in historical["sources"]:
@@ -845,6 +851,84 @@ def historical_baseline(config):
                     "localFile": source_map(config)[item["sourceId"]]["localFile"],
                     "sourceUrl": source_map(config)[item["sourceId"]]["url"],
                     "format": "semicolon-delimited President by County text",
+                    "note": item["note"],
+                }
+                for item in historical["sources"]
+            ],
+        },
+        "series": series,
+    }
+
+
+def historical_baseline_michigan_tab(config):
+    historical = config["historicalBaseline"]
+    series = []
+    for item in historical["sources"]:
+        source = source_map(config)[item["sourceId"]]
+        by_county = defaultdict(lambda: {"dem": 0, "rep": 0, "other": 0, "total": 0})
+        for row in michigan_result_rows(project_path(source["localFile"])):
+            if row["contest"] != item["contestName"]:
+                continue
+            party = normalize_party(row["party"])
+            county = row["county"]
+            votes = row["votes"]
+            by_county[county]["total"] += votes
+            if party == normalize_party(historical["partyCodes"]["dem"]):
+                by_county[county]["dem"] += votes
+            elif party == normalize_party(historical["partyCodes"]["rep"]):
+                by_county[county]["rep"] += votes
+            else:
+                by_county[county]["other"] += votes
+
+        rows = []
+        for county, totals in sorted(by_county.items()):
+            rows.append(
+                {
+                    "county": county,
+                    "municipality": county,
+                    "reportingUnit": f"{county} County",
+                    "ward": f"{county} County",
+                    "dem": totals["dem"],
+                    "rep": totals["rep"],
+                    "other": totals["other"],
+                    "total": totals["total"],
+                }
+            )
+        statewide = {
+            "dem": sum(row["dem"] for row in rows),
+            "rep": sum(row["rep"] for row in rows),
+            "other": sum(row["other"] for row in rows),
+            "total": sum(row["total"] for row in rows),
+            "rowCount": len(rows),
+        }
+        series.append(
+            {
+                "id": f"{config['code'].lower()}-mvic-native-{item['year']}-president",
+                "electionYear": item["year"],
+                "sourceId": item["sourceId"],
+                "sourceClass": "nativeOfficial",
+                "sourceLevel": historical["sourceLevel"],
+                "rowMethod": historical["rowMethod"],
+                "rowCount": len(rows),
+                "sourceUrl": source["url"],
+                "localFile": source["localFile"],
+                "sourceNote": item["note"],
+                "statewide": statewide,
+                "rows": rows,
+            }
+        )
+
+    return {
+        "metadata": {
+            "purpose": f"Graph-ready {config['name']} presidential-election baseline using native official MVIC county rows.",
+            "seriesCount": len(series),
+            "warning": f"{config['name']} historical rows are native official county rows from each election year.",
+            "sources": [
+                {
+                    "year": item["year"],
+                    "localFile": source_map(config)[item["sourceId"]]["localFile"],
+                    "sourceUrl": source_map(config)[item["sourceId"]]["url"],
+                    "format": "Michigan MVIC tab-delimited county election result export",
                     "note": item["note"],
                 }
                 for item in historical["sources"]

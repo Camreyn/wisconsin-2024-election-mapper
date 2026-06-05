@@ -20,6 +20,36 @@
       }
     },
     {
+      "id": "mi-2020-general-results",
+      "url": "https://mvic.sos.state.mi.us/VoteHistory/GetElectionResultFile?electionId=683",
+      "localFile": "data/mi-2020-general-election-results.txt",
+      "download": {
+        "type": "browserDownload",
+        "headless": false,
+        "timeoutMs": 120000
+      }
+    },
+    {
+      "id": "mi-2016-general-results",
+      "url": "https://mvic.sos.state.mi.us/VoteHistory/GetElectionResultFile?electionId=670",
+      "localFile": "data/mi-2016-general-election-results.txt",
+      "download": {
+        "type": "browserDownload",
+        "headless": false,
+        "timeoutMs": 120000
+      }
+    },
+    {
+      "id": "mi-2012-general-results",
+      "url": "https://mvic.sos.state.mi.us/VoteHistory/GetElectionResultFile?electionId=652",
+      "localFile": "data/mi-2012-general-election-results.txt",
+      "download": {
+        "type": "browserDownload",
+        "headless": false,
+        "timeoutMs": 120000
+      }
+    },
+    {
       "id": "mi-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2726%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/mi-counties.geojson"
@@ -107,14 +137,40 @@
     "warningRequired": false
   },
   "historicalBaseline": {
+    "format": "michiganCountyTab",
     "sourceLevel": "county",
-    "rowMethod": "notConfigured",
+    "rowMethod": "mvicCountyExport",
     "partyCodes": {
       "dem": "DEMOCRATIC",
       "rep": "REPUBLICAN"
     },
     "contestName": "ELECTORS OF PRESIDENT AND VICE-PRESIDENT OF THE UNITED STATES 4 YEAR TERM (1) POSITION",
-    "sources": []
+    "sources": [
+      {
+        "year": 2012,
+        "sourceId": "mi-2012-general-results",
+        "contestName": "President of the United States 4 Year Term (1) Position",
+        "note": "Official Michigan Voter Information Center county result export for the 2012 November general election."
+      },
+      {
+        "year": 2016,
+        "sourceId": "mi-2016-general-results",
+        "contestName": "President of the United States 4 Year Term (1) Position",
+        "note": "Official Michigan Voter Information Center county result export for the 2016 November general election."
+      },
+      {
+        "year": 2020,
+        "sourceId": "mi-2020-general-results",
+        "contestName": "President of the United States 4 Year Term (1) Position",
+        "note": "Official Michigan Voter Information Center county result export for the 2020 November general election."
+      },
+      {
+        "year": 2024,
+        "sourceId": "mi-2024-general-results",
+        "contestName": "ELECTORS OF PRESIDENT AND VICE-PRESIDENT OF THE UNITED STATES 4 YEAR TERM (1) POSITION",
+        "note": "Official Michigan Voter Information Center county result export for the 2024 November general election."
+      }
+    ]
   },
   "app": {
     "countyLabel": "County",
@@ -125,7 +181,7 @@
       "map": true,
       "reviewGraphs": true,
       "turnout": false,
-      "historicalBaseline": false
+      "historicalBaseline": true
     },
     "sourcePlan": {
       "certifiedResults": {
@@ -170,6 +226,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Michigan county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Historical presidential baseline",
+        "file": "data/mi-2012-general-election-results.txt; data/mi-2016-general-election-results.txt; data/mi-2020-general-election-results.txt; data/mi-2024-general-election-results.txt; data/mi-app-data.js",
+        "sourceUrl": "https://www.michigan.gov/sos/elections/election-results-and-data",
+        "usedFor": "Michigan Historical Baseline tab: native MVIC county presidential comparison rows for 2012, 2016, 2020, and 2024.",
+        "confidence": "Official Michigan Secretary of State MVIC county result exports."
       }
     ],
     "checkedNotUsable": [
@@ -191,7 +254,7 @@
         "sourceUrl"
       ]
     },
-    "historicalSummary": "Historical comparison data is not loaded for Michigan yet.",
+    "historicalSummary": "Native official Michigan Voter Information Center county rows are shown for each election year.",
     "reviewRowLabel": "Michigan county row",
     "reviewRowLabelPlural": "Michigan county rows",
     "reviewGraphTitlePrefix": "Michigan county",
@@ -208,8 +271,8 @@
     "reviewRows": 83,
     "turnoutRows": 0,
     "turnoutWarningRows": 0,
-    "historicalSeries": 0,
-    "historicalRows": 0,
+    "historicalSeries": 4,
+    "historicalRows": 332,
     "geometryFeatures": 83
   }
 }

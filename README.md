@@ -79,14 +79,14 @@ Dakota is registered from `data/state-configs/nd.json` with official SOS All
 Statewide CSV results, county-level President-vs-Senate review rows, official
 turnout details, and Census county geometry. Michigan is registered from
 `data/state-configs/mi.json` with an official MVIC county result export,
-county-level President-vs-Senate review rows, and Census county geometry; its
-protected MVIC export uses the browser-backed downloader in
-`scripts/browser-download.mjs`. The global State selector and Source Planner
-selector share the same state code, and export filenames use the registered
-state's `exportsSlug`. Each state also carries capability flags for Source
-Planner, certified results, map, review graphs, turnout, and historical baseline
-readiness so partially collected states can be shown without implying that every
-Wisconsin feature is available.
+county-level President-vs-Senate review rows, native MVIC historical county
+rows, and Census county geometry; its protected MVIC exports use the
+browser-backed downloader in `scripts/browser-download.mjs`. The global State
+selector and Source Planner selector share the same state code, and export
+filenames use the registered state's `exportsSlug`. Each state also carries
+capability flags for Source Planner, certified results, map, review graphs,
+turnout, and historical baseline readiness so partially collected states can be
+shown without implying that every Wisconsin feature is available.
 
 State data imports are now config-driven. Start a new state with
 `npm.cmd run scaffold:state -- MI --name Michigan --authority "Michigan Secretary of State"`,
@@ -108,6 +108,8 @@ same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET
 export postback. Michigan proves the protected-source path for a Cloudflare
 fronted official export through a real Edge browser session; run
 `npm.cmd run build:michigan` to rebuild it from the configured local sources.
+`scripts/browser-snapshot.mjs` can capture protected MVIC page HTML during source
+discovery when the export ID is only visible after the browser challenge.
 Future states should require config changes first, with parser code changes only
 when an official source format is genuinely new.
 
@@ -126,11 +128,12 @@ not yet include historical baseline rows.
 
 The Michigan import includes certified presidential county totals from the
 official Michigan Voter Information Center export, county-level U.S. Senate
-comparison rows, and Census TIGERweb county geometry. The MVIC export endpoint is
-Cloudflare-protected for plain HTTP clients, so `npm.cmd run build:states:download`
-uses `scripts/browser-download.mjs` for that source. Michigan turnout and
-historical baseline rows are intentionally disabled until separate official
-sources are configured.
+comparison rows, native MVIC presidential county historical rows for `2012`,
+`2016`, `2020`, and `2024`, and Census TIGERweb county geometry. The MVIC export
+endpoint is Cloudflare-protected for plain HTTP clients, so
+`npm.cmd run build:states:download` uses `scripts/browser-download.mjs` for
+those sources. Michigan turnout rows remain disabled until a separate official
+county denominator source is configured.
 
 ## Historical Baseline
 
