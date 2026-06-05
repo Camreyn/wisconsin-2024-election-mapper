@@ -109,6 +109,13 @@ candidate lookup files, set `reviewCharts.format` to
 `tabDelimitedZipComparison` and map the bundle through `zipTables`,
 `presidentContest`, `downBallotContest`, `partyCodes`, and `rowLabel`; Michigan
 is the first complete example of that path.
+Before filling a new config, run source discovery against the official results
+page:
+`npm.cmd run discover:sources -- --state ND --url https://results.sos.nd.gov/VoterTurnoutDetails.aspx`.
+For protected or scripted pages, first save browser-rendered HTML with
+`scripts/browser-snapshot.mjs`, then run discovery with `--html-file` and the
+original `--url`; the report lists links, scripts, ASP.NET postbacks, likely
+downloads, geometry candidates, and importer hints.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
 `npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
 same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET
