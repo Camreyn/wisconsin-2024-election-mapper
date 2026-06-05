@@ -61,6 +61,15 @@ def worksheet_path_for_name(archive, sheet_name):
     raise ValueError(f"Could not find relationship target for {sheet_name}")
 
 
+def first_worksheet_name(workbook_path):
+    with zipfile.ZipFile(workbook_path) as archive:
+        workbook = ElementTree.fromstring(archive.read("xl/workbook.xml"))
+        sheet = workbook.find("main:sheets/main:sheet", NS)
+        if sheet is None:
+            raise ValueError(f"Could not find worksheet in {workbook_path}")
+        return sheet.attrib["name"]
+
+
 def cell_value(cell, shared_strings):
     cell_type = cell.attrib.get("t")
     if cell_type == "inlineStr":
@@ -179,8 +188,8 @@ def download_north_dakota_export(source, download):
         page = response.read().decode("utf-8", errors="replace")
 
     form = {
-        "__EVENTTARGET": "",
-        "__EVENTARGUMENT": "",
+        "__EVENTTARGET": download.get("eventTarget", ""),
+        "__EVENTARGUMENT": download.get("eventArgument", ""),
         "__VIEWSTATE": hidden_input_value(page, "__VIEWSTATE"),
         "__VIEWSTATEGENERATOR": hidden_input_value(page, "__VIEWSTATEGENERATOR"),
         "__EVENTVALIDATION": hidden_input_value(page, "__EVENTVALIDATION"),
@@ -195,8 +204,9 @@ def download_north_dakota_export(source, download):
         "ctl00$txtQuickSearch": "",
         "ctl00$txtQuickSearchSide": "",
         "ctl00$MainContent$rblTypes": download.get("fileType", "1"),
-        download["buttonName"]: download["buttonValue"],
     }
+    if download.get("buttonName"):
+        form[download["buttonName"]] = download["buttonValue"]
     post = urllib.parse.urlencode(form).encode("utf-8")
     post_request = urllib.request.Request(
         source["url"],
@@ -357,6 +367,47 @@ def north_dakota_export_rows(path):
                 "precinctsReporting": row[7],
                 "county": row[8].strip(),
             }
+
+
+def is_xlsx_file(path):
+    with path.open("rb") as handle:
+        return handle.read(2) == b"PK"
+
+
+def north_dakota_xlsx_historical_rows(path):
+    sheet_name = first_worksheet_name(path)
+    rows = iter_worksheet_rows(path, sheet_name)
+    header = None
+    for row in rows:
+        if "County" in row:
+            header = row
+            break
+    if not header:
+        raise ValueError(f"Could not find County header in {path}")
+    county_index = header.index("County")
+    candidate_columns = [
+        (index, str(name or ""))
+        for index, name in enumerate(header)
+        if index > county_index and name not in (None, "Number of Precincts")
+    ]
+    by_county = defaultdict(lambda: {"dem": 0, "rep": 0, "other": 0, "total": 0})
+    for row in rows:
+        if len(row) <= county_index or not row[county_index]:
+            continue
+        county = str(row[county_index]).strip()
+        if county.lower() in ("total", "totals", "statewide", "state of north dakota"):
+            continue
+        for index, header_text in candidate_columns:
+            votes = int_text(row[index] if index < len(row) else 0)
+            header_lower = header_text.lower()
+            by_county[county]["total"] += votes
+            if "democratic" in header_lower:
+                by_county[county]["dem"] += votes
+            elif "republican" in header_lower:
+                by_county[county]["rep"] += votes
+            else:
+                by_county[county]["other"] += votes
+    return by_county
 
 
 def candidate_matches(row, rule):
@@ -1102,6 +1153,8 @@ def historical_baseline(config):
         }
     if historical.get("format") == "michiganCountyTab":
         return historical_baseline_michigan_tab(config)
+    if historical.get("format") == "northDakotaStatewideCsv":
+        return historical_baseline_north_dakota_csv(config)
     county_names = county_code_name_map(config)
     series = []
     for item in historical["sources"]:
@@ -1250,6 +1303,89 @@ def historical_baseline_michigan_tab(config):
                     "localFile": source_map(config)[item["sourceId"]]["localFile"],
                     "sourceUrl": source_map(config)[item["sourceId"]]["url"],
                     "format": "Michigan MVIC tab-delimited county election result export",
+                    "note": item["note"],
+                }
+                for item in historical["sources"]
+            ],
+        },
+        "series": series,
+    }
+
+
+def historical_baseline_north_dakota_csv(config):
+    historical = config["historicalBaseline"]
+    series = []
+    for item in historical["sources"]:
+        source = source_map(config)[item["sourceId"]]
+        contest_name = item.get("contestName", historical["contestName"])
+        source_file = project_path(source["localFile"])
+        if is_xlsx_file(source_file):
+            by_county = north_dakota_xlsx_historical_rows(source_file)
+        else:
+            by_county = defaultdict(lambda: {"dem": 0, "rep": 0, "other": 0, "total": 0})
+            for row in north_dakota_export_rows(source_file):
+                if row["contest"] != contest_name:
+                    continue
+                county = row["county"]
+                votes = row["votes"]
+                party = normalize_party(row["party"])
+                by_county[county]["total"] += votes
+                if party == normalize_party(historical["partyCodes"]["dem"]):
+                    by_county[county]["dem"] += votes
+                elif party == normalize_party(historical["partyCodes"]["rep"]):
+                    by_county[county]["rep"] += votes
+                else:
+                    by_county[county]["other"] += votes
+
+        rows = []
+        for county, totals in sorted(by_county.items()):
+            rows.append(
+                {
+                    "county": county,
+                    "municipality": county,
+                    "reportingUnit": f"{county} County",
+                    "ward": f"{county} County",
+                    "dem": totals["dem"],
+                    "rep": totals["rep"],
+                    "other": totals["other"],
+                    "total": totals["total"],
+                }
+            )
+        statewide = {
+            "dem": sum(row["dem"] for row in rows),
+            "rep": sum(row["rep"] for row in rows),
+            "other": sum(row["other"] for row in rows),
+            "total": sum(row["total"] for row in rows),
+            "rowCount": len(rows),
+        }
+        series.append(
+            {
+                "id": f"{config['code'].lower()}-sos-native-{item['year']}-president",
+                "electionYear": item["year"],
+                "sourceId": item["sourceId"],
+                "sourceClass": "nativeOfficial",
+                "sourceLevel": historical["sourceLevel"],
+                "rowMethod": historical["rowMethod"],
+                "rowCount": len(rows),
+                "sourceUrl": source["url"],
+                "localFile": source["localFile"],
+                "sourceNote": item["note"],
+                "statewide": statewide,
+                "rows": rows,
+            }
+        )
+
+    return {
+        "metadata": {
+            "purpose": f"Graph-ready {config['name']} presidential-election baseline using native official SOS county rows.",
+            "seriesCount": len(series),
+            "warning": f"{config['name']} historical rows are native official county rows from each election year.",
+            "sources": [
+                {
+                    "year": item["year"],
+                    "localFile": source_map(config)[item["sourceId"]]["localFile"],
+                    "sourceUrl": source_map(config)[item["sourceId"]]["url"],
+                    "format": "North Dakota SOS All Statewide CSV export",
                     "note": item["note"],
                 }
                 for item in historical["sources"]

@@ -319,8 +319,10 @@ checks.directNorthDakotaQuerySummary =
   ndQueryHarness.element("#sourceStateTitle").textContent === "North Dakota 2024 President" &&
   (ndQueryHarness.element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length === 53;
 checks.directNorthDakotaMapReady = ndQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Map ready");
-checks.directNorthDakotaHistoricalNotLoaded =
-  ndQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline not loaded");
+checks.directNorthDakotaHistoricalLoaded =
+  ndQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline ready") &&
+  (ndQueryHarness.element("#historicalTableRows").innerHTML.match(/<tr>/g) || []).length === 4 &&
+  ndQueryHarness.element("#historicalSummary").textContent.toLowerCase().includes("native official north dakota secretary of state county rows");
 checks.directMichiganQuerySelected =
   miQueryHarness.element("#appStateSelect").value === "MI" &&
   miQueryHarness.element("#sourceStateSelect").value === "MI";
@@ -443,7 +445,7 @@ const expected = {
   directNorthDakotaQuerySelected: true,
   directNorthDakotaQuerySummary: true,
   directNorthDakotaMapReady: true,
-  directNorthDakotaHistoricalNotLoaded: true,
+  directNorthDakotaHistoricalLoaded: true,
   directMichiganQuerySelected: true,
   directMichiganQuerySummary: true,
   directMichiganMapReady: true,

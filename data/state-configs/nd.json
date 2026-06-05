@@ -26,6 +26,36 @@
       "localFile": "data/nd-2024-voter-turnout-details.html"
     },
     {
+      "id": "nd-2020-statewide-results",
+      "url": "https://results.sos.nd.gov/ResultsSW.aspx?text=Race&type=SW&map=CTY&eid=StuhWbgeuSk.",
+      "localFile": "data/nd-2020-president-county.csv",
+      "download": {
+        "type": "northDakotaResultsExport",
+        "fileType": "1",
+        "eventTarget": "ctl00$MainContent$rptRace$ctl00$ctl01"
+      }
+    },
+    {
+      "id": "nd-2016-statewide-results",
+      "url": "https://results.sos.nd.gov/ResultsSW.aspx?text=Race&type=SW&map=CTY&eid=NT3DecKycoM.",
+      "localFile": "data/nd-2016-president-county.csv",
+      "download": {
+        "type": "northDakotaResultsExport",
+        "fileType": "1",
+        "eventTarget": "ctl00$MainContent$rptRace$ctl00$ctl01"
+      }
+    },
+    {
+      "id": "nd-2012-statewide-results",
+      "url": "https://results.sos.nd.gov/ResultsSW.aspx?text=Race&type=SW&map=CTY&eid=vp_Q9Zt7wF4.",
+      "localFile": "data/nd-2012-president-county.csv",
+      "download": {
+        "type": "northDakotaResultsExport",
+        "fileType": "1",
+        "eventTarget": "ctl00$MainContent$rptRace$ctl00$ctl01"
+      }
+    },
+    {
       "id": "nd-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2738%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/nd-counties.geojson"
@@ -90,14 +120,38 @@
     "warningRequired": false
   },
   "historicalBaseline": {
+    "format": "northDakotaStatewideCsv",
     "sourceLevel": "county",
-    "rowMethod": "notConfigured",
+    "rowMethod": "sosAllStatewideCsv",
     "partyCodes": {
       "dem": "DEM",
       "rep": "REP"
     },
     "contestName": "President & Vice-President of the United States",
-    "sources": []
+    "sources": [
+      {
+        "year": 2012,
+        "sourceId": "nd-2012-statewide-results",
+        "contestName": "President and Vice President",
+        "note": "Official North Dakota SOS President county CSV export for the 2012 general election."
+      },
+      {
+        "year": 2016,
+        "sourceId": "nd-2016-statewide-results",
+        "contestName": "President and Vice President",
+        "note": "Official North Dakota SOS President county CSV export for the 2016 general election."
+      },
+      {
+        "year": 2020,
+        "sourceId": "nd-2020-statewide-results",
+        "note": "Official North Dakota SOS President county CSV export for the 2020 general election."
+      },
+      {
+        "year": 2024,
+        "sourceId": "nd-2024-statewide-results",
+        "note": "Official North Dakota SOS All Statewide CSV export for the 2024 general election."
+      }
+    ]
   },
   "app": {
     "countyLabel": "County",
@@ -108,7 +162,7 @@
       "map": true,
       "reviewGraphs": true,
       "turnout": true,
-      "historicalBaseline": false
+      "historicalBaseline": true
     },
     "sourcePlan": {
       "certifiedResults": {
@@ -160,6 +214,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "North Dakota county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Historical presidential baseline",
+        "file": "data/nd-2012-president-county.csv; data/nd-2016-president-county.csv; data/nd-2020-president-county.csv; data/nd-2024-general-all-statewide.csv; data/nd-app-data.js",
+        "sourceUrl": "https://www.sos.nd.gov/elections/election-results",
+        "usedFor": "North Dakota Historical Baseline tab: native SOS county presidential comparison rows for 2012, 2016, 2020, and 2024.",
+        "confidence": "Official North Dakota Secretary of State President county exports and 2024 All Statewide CSV export."
       }
     ],
     "checkedNotUsable": [],
@@ -175,7 +236,7 @@
         "sourceUrl"
       ]
     },
-    "historicalSummary": "Historical comparison data is not loaded for North Dakota yet.",
+    "historicalSummary": "Native official North Dakota Secretary of State county rows are shown for each election year.",
     "reviewRowLabel": "North Dakota county row",
     "reviewRowLabelPlural": "North Dakota county rows",
     "reviewGraphTitlePrefix": "North Dakota county",
@@ -192,8 +253,8 @@
     "reviewRows": 53,
     "turnoutRows": 53,
     "turnoutWarningRows": 0,
-    "historicalSeries": 0,
-    "historicalRows": 0,
+    "historicalSeries": 4,
+    "historicalRows": 212,
     "geometryFeatures": 53
   }
 }

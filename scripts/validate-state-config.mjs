@@ -15,7 +15,7 @@ const supportedReviewFormats = new Set([
   "northDakotaStatewideCsvCountyComparison",
 ]);
 const supportedTurnoutFormats = new Set(["xlsxPrecinctRows", "notConfigured", "michiganMvicCountyTurnout", "northDakotaTurnoutHtml"]);
-const supportedHistoricalFormats = new Set(["officialCountyResultText", "michiganCountyTab"]);
+const supportedHistoricalFormats = new Set(["officialCountyResultText", "michiganCountyTab", "northDakotaStatewideCsv"]);
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = new Map();
@@ -180,14 +180,26 @@ function validateSources(report) {
       );
     }
     if (downloadType === "northDakotaResultsExport") {
-      for (const field of ["fileType", "buttonName", "buttonValue"]) {
-        if (!source.download[field]) {
-          report.errors.push(
-            issue("error", "download-parameter-missing", `North Dakota export source "${source.id}" is missing download.${field}.`, {
-              path: `${pathPrefix}.download.${field}`,
-            }),
-          );
-        }
+      if (!source.download.fileType) {
+        report.errors.push(
+          issue("error", "download-parameter-missing", `North Dakota export source "${source.id}" is missing download.fileType.`, {
+            path: `${pathPrefix}.download.fileType`,
+          }),
+        );
+      }
+      if (!source.download.eventTarget && !source.download.buttonName) {
+        report.errors.push(
+          issue("error", "download-parameter-missing", `North Dakota export source "${source.id}" needs either download.eventTarget or download.buttonName.`, {
+            path: `${pathPrefix}.download`,
+          }),
+        );
+      }
+      if (source.download.buttonName && !source.download.buttonValue) {
+        report.errors.push(
+          issue("error", "download-parameter-missing", `North Dakota export source "${source.id}" is missing download.buttonValue.`, {
+            path: `${pathPrefix}.download.buttonValue`,
+          }),
+        );
       }
     }
     if (source.discovery && !isLoadedStatus(source.discovery.status)) {
@@ -322,6 +334,9 @@ function validateHistorical(report) {
   }
   if (loaded && Number(report.config.expected?.historicalSeries || 0) <= 0) {
     report.errors.push(issue("error", "expected-historical-count-missing", "Historical baseline is loaded but expected.historicalSeries is not positive."));
+  }
+  if (loaded && Number(report.config.expected?.historicalRows || 0) <= 0) {
+    report.errors.push(issue("error", "expected-historical-row-count-missing", "Historical baseline is loaded but expected.historicalRows is not positive."));
   }
   if (!loaded) {
     addCapabilityGap(report, "historicalBaseline", "Add historical source files, map party/contest rules, set expected historical counts, and enable app.capabilities.historicalBaseline.");

@@ -163,8 +163,9 @@ response returned a server `Last-Modified` timestamp of `2025-02-14T17:22:26Z`.
 
 The North Dakota import includes certified presidential county totals from the
 official SOS All Statewide CSV export, county-level U.S. Senate comparison rows,
-official SOS turnout detail rows, and Census TIGERweb county geometry. It does
-not yet include historical baseline rows.
+official SOS turnout detail rows, Census TIGERweb county geometry, and native
+official SOS presidential county historical rows for `2012`, `2016`, `2020`,
+and `2024`.
 
 The Michigan import includes certified presidential county totals from the
 official Michigan Voter Information Center export, precinct-level President vs
