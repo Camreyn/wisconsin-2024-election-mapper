@@ -268,11 +268,12 @@ def row_label(row, column_index, row_label_columns):
 
 def certified_results(config):
     source = config["certifiedResults"]
-    if source.get("format") == "michiganCountyTab":
-        return certified_results_michigan_tab(config)
-    if source.get("format") == "northDakotaStatewideCsv":
-        return certified_results_north_dakota_csv(config)
+    parser = parser_for(CERTIFIED_RESULT_PARSERS, source.get("format", "xlsxPrecinctAggregation"), "certified results")
+    return parser(config)
 
+
+def certified_results_xlsx_precinct_aggregation(config):
+    source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
     columns = source["columns"]
     column_index, rows = read_sheet_rows(path, source["sheet"])
@@ -523,13 +524,12 @@ def certified_results_michigan_tab(config):
 
 def review_charts(config):
     review = config["reviewCharts"]
-    if review.get("format") in ("tabDelimitedZipComparison", "michiganPrecinctZipComparison"):
-        return review_charts_tab_delimited_zip(config)
-    if review.get("format") == "michiganCountyTabComparison":
-        return review_charts_michigan_tab(config)
-    if review.get("format") == "northDakotaStatewideCsvCountyComparison":
-        return review_charts_north_dakota_csv(config)
+    parser = parser_for(REVIEW_CHART_PARSERS, review.get("format", "xlsxPrecinctComparison"), "review charts")
+    return parser(config)
 
+
+def review_charts_xlsx_precinct_comparison(config):
+    review = config["reviewCharts"]
     path = local_source(config, review["sourceId"])
     columns = review["columns"]
     column_index, rows = read_sheet_rows(path, review["sheet"])
@@ -921,22 +921,26 @@ def review_charts_michigan_tab(config):
 
 def turnout_data(config):
     turnout = config["turnout"]
-    if turnout.get("format") == "notConfigured":
-        return {
-            "metadata": {
-                "rows": 0,
-                "warningRows": 0,
-                "source": "",
-                "sourceUrl": "",
-                "warning": turnout.get("notes", "Turnout rows are not loaded for this state yet."),
-            },
-            "rows": [],
-        }
-    if turnout.get("format") == "michiganMvicCountyTurnout":
-        return turnout_data_michigan_mvic(config)
-    if turnout.get("format") == "northDakotaTurnoutHtml":
-        return turnout_data_north_dakota_html(config)
+    parser = parser_for(TURNOUT_PARSERS, turnout.get("format", "xlsxPrecinctRows"), "turnout")
+    return parser(config)
 
+
+def turnout_data_not_configured(config):
+    turnout = config["turnout"]
+    return {
+        "metadata": {
+            "rows": 0,
+            "warningRows": 0,
+            "source": "",
+            "sourceUrl": "",
+            "warning": turnout.get("notes", "Turnout rows are not loaded for this state yet."),
+        },
+        "rows": [],
+    }
+
+
+def turnout_data_xlsx_precinct_rows(config):
+    turnout = config["turnout"]
     path = local_source(config, turnout["sourceId"])
     columns = turnout["columns"]
     column_index, rows = read_sheet_rows(path, turnout["sheet"])
@@ -1151,10 +1155,16 @@ def historical_baseline(config):
             },
             "series": [],
         }
-    if historical.get("format") == "michiganCountyTab":
-        return historical_baseline_michigan_tab(config)
-    if historical.get("format") == "northDakotaStatewideCsv":
-        return historical_baseline_north_dakota_csv(config)
+    parser = parser_for(
+        HISTORICAL_BASELINE_PARSERS,
+        historical.get("format") or historical.get("rowMethod", "officialCountyResultText"),
+        "historical baseline",
+    )
+    return parser(config)
+
+
+def historical_baseline_official_county_result_text(config):
+    historical = config["historicalBaseline"]
     county_names = county_code_name_map(config)
     series = []
     for item in historical["sources"]:
@@ -1393,6 +1403,42 @@ def historical_baseline_north_dakota_csv(config):
         },
         "series": series,
     }
+
+
+def parser_for(registry, key, feature_name):
+    try:
+        return registry[key]
+    except KeyError as error:
+        supported = ", ".join(sorted(registry))
+        raise ValueError(f"Unsupported {feature_name} parser format {key!r}. Supported formats: {supported}") from error
+
+
+CERTIFIED_RESULT_PARSERS = {
+    "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
+    "michiganCountyTab": certified_results_michigan_tab,
+    "northDakotaStatewideCsv": certified_results_north_dakota_csv,
+}
+
+REVIEW_CHART_PARSERS = {
+    "xlsxPrecinctComparison": review_charts_xlsx_precinct_comparison,
+    "tabDelimitedZipComparison": review_charts_tab_delimited_zip,
+    "michiganPrecinctZipComparison": review_charts_tab_delimited_zip,
+    "michiganCountyTabComparison": review_charts_michigan_tab,
+    "northDakotaStatewideCsvCountyComparison": review_charts_north_dakota_csv,
+}
+
+TURNOUT_PARSERS = {
+    "notConfigured": turnout_data_not_configured,
+    "xlsxPrecinctRows": turnout_data_xlsx_precinct_rows,
+    "michiganMvicCountyTurnout": turnout_data_michigan_mvic,
+    "northDakotaTurnoutHtml": turnout_data_north_dakota_html,
+}
+
+HISTORICAL_BASELINE_PARSERS = {
+    "officialCountyResultText": historical_baseline_official_county_result_text,
+    "michiganCountyTab": historical_baseline_michigan_tab,
+    "northDakotaStatewideCsv": historical_baseline_north_dakota_csv,
+}
 
 
 def write_geometry(config):

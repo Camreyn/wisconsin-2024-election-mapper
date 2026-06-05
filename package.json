@@ -15,6 +15,8 @@
     "discover:sources": "node scripts/discover-state-sources.mjs",
     "apply:discovery": "node scripts/apply-source-discovery.mjs",
     "bootstrap:state-sources": "node scripts/bootstrap-state-sources.mjs",
+    "add:state": "node scripts/add-state-pipeline.mjs",
+    "inspect:sources": "py -3 scripts/inspect-state-sources.py",
     "scaffold:state": "py -3 scripts/scaffold-state.py",
     "build:history": "node scripts/build-historical-data.mjs",
     "validate": "node scripts/validate-data.mjs",

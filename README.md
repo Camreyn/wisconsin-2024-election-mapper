@@ -105,7 +105,8 @@ parsing, certified county aggregation, precinct review graph rows, turnout rows,
 President-by-County historical text files, GeoJSON county geometry
 normalization, browser-backed protected source downloads, PDF text extraction for
 registration denominator tables, generic tab-delimited ZIP precinct comparison
-parsing, app registry generation, and expected-count validation.
+parsing, parser-registry dispatch, app registry generation, and expected-count
+validation.
 For official ZIP bundles that separate vote rows from county, municipality, and
 candidate lookup files, set `reviewCharts.format` to
 `tabDelimitedZipComparison` and map the bundle through `zipTables`,
@@ -135,13 +136,23 @@ known parser formats, Source Planner status, expected counts, local source-file
 presence, and capability flags. It exits nonzero for hard config errors; planned
 missing work such as an unloaded historical baseline is reported as a gap. Add
 `--strict-gaps` when you want gaps to fail a pipeline step.
+For the most complete current workflow, use the lifecycle wrapper:
+`npm.cmd run add:state -- --state ND --name "North Dakota" --authority "North Dakota Secretary of State" --url https://results.sos.nd.gov/VoterTurnoutDetails.aspx --report outputs/nd-discovery.json`.
+By default it scaffolds or updates the config, writes the discovery report, runs
+source inspection, runs state-config validation, and prints a forward-slash
+`git add` command for the files that belong to that state. Add `--preview` for a
+non-writing dry run, `--download` to fetch missing configured sources, `--build`
+to build the state bundle, and `--strict-gaps` when discovery gaps should fail
+the command. The separate `npm.cmd run inspect:sources -- data/state-configs/nd.json`
+command inspects local source files and reports sheet names, headers, ZIP
+members, GeoJSON properties, contest hints, and likely column roles.
 Discovery appends candidate `sources`, source-inventory rows, checked
 scripted-export follow-ups, and a Source Planner discovery summary. Recognized
-source shapes also get suggested download and parser metadata: MVIC protected
-file endpoints infer `browserDownload`, North Dakota export pages infer the
-required ASP.NET postback parameters, ZIP bundles suggest
-`tabDelimitedZipComparison`, spreadsheet downloads suggest XLSX mapping, and
-geometry-like URLs are tagged for the config `geometry` block.
+source shapes also get scored role classification plus suggested download and
+parser metadata: MVIC protected file endpoints infer `browserDownload`, North
+Dakota export pages infer the required ASP.NET postback parameters, ZIP bundles
+suggest `tabDelimitedZipComparison`, spreadsheet downloads suggest XLSX mapping,
+and geometry-like URLs are tagged for the config `geometry` block.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
 `npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
 same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET
@@ -155,7 +166,6 @@ when an official source format is genuinely new.
 
 The Minnesota pilot now includes certified county results, Source Planner rows,
 precinct-level review graphs, precinct turnout rows, county map geometry from
-MnGeo, and native official SOS precinct historical rows for `2012`, `2016`,
 MnGeo, and native official SOS county historical rows for `2012`, `2016`,
 `2020`, and `2024`. Regenerate its browser data bundles with
 `npm.cmd run build:minnesota`. The Minnesota 2024 source workbook's live `GET`

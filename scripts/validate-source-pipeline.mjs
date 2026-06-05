@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyDiscovery, applyDiscoverySummary } from "./apply-source-discovery.mjs";
+import { runAddStatePipeline } from "./add-state-pipeline.mjs";
 import { bootstrapStateSources } from "./bootstrap-state-sources.mjs";
 import { discoverSources } from "./discover-state-sources.mjs";
 import { validateStateConfigFile } from "./validate-state-config.mjs";
@@ -36,7 +37,9 @@ try {
   const mvicConfig = tempFile("mvic-config.json");
   const bootstrapConfig = tempFile("zz-config.json");
   const bootstrapReport = tempFile("zz-discovery.json");
-  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport);
+  const lifecycleConfig = tempFile("zy-config.json");
+  const lifecycleReport = tempFile("zy-discovery.json");
+  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport);
   const ndHtmlFile = path.join(root, "data/nd-2024-voter-turnout-details.html");
 
   const ndDiscovery = await discoverSources({
@@ -75,6 +78,8 @@ try {
     ndExport.discovery.suggestedParser?.certifiedResultsFormat === "northDakotaStatewideCsv",
     "ND ResultsExport source should infer northDakotaStatewideCsv parser hint.",
   );
+  assert(ndExport.discovery.roleConfidence, "ND ResultsExport source should include role confidence.");
+  assert(Array.isArray(ndExport.discovery.roleScores), "ND ResultsExport source should include role scores.");
 
   const bootstrapPreview = await bootstrapStateSources({
     state: "ZZ",
@@ -174,6 +179,24 @@ try {
     precinctSource?.discovery.suggestedParser?.reviewChartsFormat === "tabDelimitedZipComparison",
     "MVIC precinct source should infer tabDelimitedZipComparison parser hint.",
   );
+  assert(resultSource.discovery.roleConfidence === "high", "MVIC result source should have high role confidence.");
+
+  const lifecycle = await runAddStatePipeline({
+    state: "ZY",
+    name: "Lifecycle Test",
+    authority: "Lifecycle Test Authority",
+    url: "https://results.sos.nd.gov/VoterTurnoutDetails.aspx",
+    htmlFile: ndHtmlFile,
+    configPath: lifecycleConfig,
+    reportPath: lifecycleReport,
+    write: true,
+    validate: true,
+  });
+  assert(lifecycle.status === "completed", "Lifecycle runner should complete scaffold/discovery/validation.");
+  assert(fs.existsSync(lifecycleConfig), "Lifecycle runner should write the state config.");
+  assert(fs.existsSync(lifecycleReport), "Lifecycle runner should write the discovery report.");
+  assert(lifecycle.gitAddCommand.includes("git add"), "Lifecycle runner should emit a git add command.");
+  assert(lifecycle.readiness.status === "valid_with_gaps", "Lifecycle runner should report valid_with_gaps for an unpromoted discovered state.");
 
   console.log(JSON.stringify({
     status: "passed",
@@ -194,6 +217,11 @@ try {
       appendedSources: mvicApplied.sources.length,
       resultDownload: resultSource.download.type,
       precinctParser: precinctSource.discovery.suggestedParser.reviewChartsFormat,
+    },
+    lifecycle: {
+      status: lifecycle.status,
+      readiness: lifecycle.readiness.status,
+      filesToReview: lifecycle.filesToReview.length,
     },
   }, null, 2));
 } finally {

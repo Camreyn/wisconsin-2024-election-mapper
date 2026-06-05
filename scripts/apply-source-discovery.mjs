@@ -75,6 +75,67 @@ function isPostbackOrScript(candidate) {
   return candidate.type === "postback-export" || candidate.url?.startsWith("javascript:");
 }
 
+const roleSignals = {
+  certifiedResults: [
+    [/certif|official|canvass|result|electionresult|getelectionresult|statewide|president/i, 4],
+    [/county|precinct|ward/i, 2],
+    [/turnout|registration|registered/i, -4],
+    [/geojson|feature|mapserver|shape|boundary/i, -5],
+  ],
+  reviewCharts: [
+    [/precinct|ward|reporting/i, 4],
+    [/zip|getprecinctresults|detail|by[-_\s]?precinct/i, 4],
+    [/senate|congress|down[-_\s]?ballot/i, 2],
+    [/turnout|registration|registered/i, -3],
+  ],
+  turnout: [
+    [/turnout|ballots?\s*cast|registered|registration|voterturnout|getvoterturnoutfile/i, 6],
+    [/precinct|county|ward/i, 1],
+    [/geojson|feature|mapserver|shape|boundary/i, -5],
+  ],
+  geometry: [
+    [/geojson|featureserver|mapserver|arcgis|tigerweb|boundary|boundaries|shape/i, 8],
+    [/county/i, 1],
+    [/result|turnout|candidate|election/i, -4],
+  ],
+  historicalBaseline: [
+    [/historical|past|archive|previous|20(12|16|20)|2012|2016|2020/i, 5],
+    [/president|general/i, 2],
+    [/turnout|registration|registered/i, -3],
+  ],
+};
+
+function roleClassification(candidate) {
+  const text = [
+    candidate.type,
+    candidate.url,
+    candidate.rawUrl,
+    candidate.source,
+    candidate.note,
+    candidate.text,
+  ].join(" ");
+  const scores = Object.entries(roleSignals).map(([role, signals]) => {
+    const reasons = [];
+    let score = 0;
+    for (const [pattern, weight] of signals) {
+      if (!pattern.test(text)) continue;
+      score += weight;
+      reasons.push(`${weight > 0 ? "+" : ""}${weight}: ${pattern.source}`);
+    }
+    if (candidate.type === "geometry" && role === "geometry") score += 8;
+    if (candidate.type === "zip" && role === "reviewCharts") score += 4;
+    if (candidate.type === "spreadsheet" && role === "certifiedResults") score += 2;
+    if (candidate.type === "pdf" && role === "turnout") score += 1;
+    return { role, score, reasons };
+  }).sort((left, right) => right.score - left.score);
+  const best = scores[0] || { role: "candidate", score: 0, reasons: [] };
+  return {
+    role: best.score > 0 ? best.role : "candidate",
+    confidence: best.score >= 8 ? "high" : best.score >= 4 ? "medium" : best.score > 0 ? "low" : "unknown",
+    scores: scores.filter((item) => item.score > 0).slice(0, 4),
+  };
+}
+
 function sourceCategory(candidate) {
   if (candidate.type === "geometry") return "Discovered geometry candidate";
   if (candidate.type === "pdf") return "Discovered PDF candidate";
@@ -94,9 +155,12 @@ function sourceStatus(candidate) {
 function inferCandidateConfig(candidate) {
   const url = String(candidate.url || "");
   const loweredUrl = url.toLowerCase();
+  const classification = roleClassification(candidate);
   const inference = {
     status: "",
-    role: "",
+    role: classification.role,
+    roleConfidence: classification.confidence,
+    roleScores: classification.scores,
     download: null,
     suggestedDownload: null,
     suggestedParser: null,
@@ -106,6 +170,7 @@ function inferCandidateConfig(candidate) {
   if (loweredUrl.includes("mvic.sos.state.mi.us/votehistory/getelectionresultfile")) {
     inference.status = "Candidate";
     inference.role = "certifiedResults";
+    inference.roleConfidence = "high";
     inference.download = { type: "browserDownload", headless: false, timeoutMs: 120000 };
     inference.suggestedParser = {
       certifiedResultsFormat: "michiganCountyTab",
@@ -115,6 +180,7 @@ function inferCandidateConfig(candidate) {
   } else if (loweredUrl.includes("mvic.sos.state.mi.us/votehistory/getvoterturnoutfile")) {
     inference.status = "Candidate";
     inference.role = "turnout";
+    inference.roleConfidence = "high";
     inference.download = { type: "browserDownload", headless: false, timeoutMs: 120000 };
     inference.suggestedParser = {
       turnoutFormat: "michiganMvicCountyTurnout",
@@ -124,6 +190,7 @@ function inferCandidateConfig(candidate) {
   } else if (loweredUrl.includes("mvic.sos.state.mi.us/votehistory/getprecinctresultsfile")) {
     inference.status = "Candidate";
     inference.role = "reviewCharts";
+    inference.roleConfidence = "high";
     inference.download = { type: "browserDownload", headless: false, timeoutMs: 180000 };
     inference.suggestedParser = {
       reviewChartsFormat: "tabDelimitedZipComparison",
@@ -133,6 +200,7 @@ function inferCandidateConfig(candidate) {
   } else if (/results\.sos\.nd\.gov\/resultsexport\.aspx/i.test(url)) {
     inference.status = "Needs postback parameters";
     inference.role = "certifiedResults";
+    inference.roleConfidence = "high";
     inference.suggestedDownload = {
       type: "northDakotaResultsExport",
       requiredFields: ["fileType", "buttonName", "buttonValue"],
@@ -143,21 +211,22 @@ function inferCandidateConfig(candidate) {
       reviewChartsFormat: "northDakotaStatewideCsvCountyComparison",
     };
   } else if (candidate.type === "zip") {
-    inference.role = "reviewCharts";
+    inference.role = inference.role === "candidate" ? "reviewCharts" : inference.role;
     inference.suggestedParser = {
       reviewChartsFormat: "tabDelimitedZipComparison",
       note: "Use this when the ZIP separates vote rows from lookup files; otherwise add a source-specific parser.",
     };
   } else if (candidate.type === "spreadsheet") {
-    inference.role = "certifiedResults";
+    inference.role = inference.role === "candidate" ? "certifiedResults" : inference.role;
     inference.suggestedParser = {
       certifiedResultsFormat: "xlsxPrecinctAggregation",
       reviewChartsFormat: "xlsxPrecinctComparison",
-      turnoutFormat: "xlsxTurnoutRows",
+      turnoutFormat: "xlsxPrecinctRows",
+      historicalFormat: "officialCountyResultText",
       note: "Map sheet names and columns after inspecting the workbook.",
     };
   } else if (candidate.type === "csv") {
-    inference.role = "certifiedResults";
+    inference.role = inference.role === "candidate" ? "certifiedResults" : inference.role;
     inference.suggestedParser = {
       parserFormat: "csv",
       note: "CSV formats vary; inspect headers before selecting or adding a parser format.",
@@ -189,6 +258,8 @@ function candidateSource(config, candidate, index) {
       source: candidate.source || "",
       note: candidate.note || "",
       role: inference.role || "candidate",
+      roleConfidence: inference.roleConfidence || "unknown",
+      roleScores: inference.roleScores || [],
       suggestedDownload: inference.suggestedDownload || undefined,
       suggestedParser: inference.suggestedParser || undefined,
       inferenceNotes: inference.notes,
@@ -299,6 +370,7 @@ export function applyDiscoverySummary(result, { configPath, reportPath, write })
       role: source.discovery.role,
       download: source.download || source.discovery.suggestedDownload || null,
       parser: source.discovery.suggestedParser || null,
+      roleConfidence: source.discovery.roleConfidence || "unknown",
     })),
     addedInventory: result.addedInventory.length,
     addedCheckedNotUsable: result.addedChecked.length,

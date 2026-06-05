@@ -257,6 +257,9 @@ const checks = {
   auditGridUnits: (element("#auditUnitGrid").innerHTML.match(/class="audit-unit/g) || []).length,
   auditVoteComparison: element("#auditVoteComparison").innerHTML.includes("3,271,210") && element("#auditVoteComparison").innerHTML.includes("Illustrative margin movement"),
 };
+const registryStates = context.window.STATE_APP_REGISTRY?.states || [];
+checks.appStateOptionsMatchRegistry = element("#appStateSelect").options.length === registryStates.length + 1;
+checks.sourcePlannerStateOptionsMatchRegistry = element("#sourceStateSelect").options.length === registryStates.length + 1;
 vm.runInContext(`els.auditMinimumMarginMode.checked = true; renderAuditSimulator();`, context);
 checks.auditMinimumMarginShift = element("#auditShiftValue").textContent === "490 needed";
 checks.auditMinimumMarginNote = element("#auditMinimumMarginNote").textContent.includes("29,397")
@@ -348,6 +351,33 @@ checks.directMichiganVoteShareGraph =
   miQueryHarness.element("#voteShareGraph").innerHTML.includes("Michigan MVIC precinct vote-share chart");
 checks.directMichiganDownBallotGraph =
   miQueryHarness.element("#downBallotGraph").innerHTML.includes("Michigan MVIC precinct President vs Senate drop-off rates");
+
+async function collectRegistryDirectRouteChecks(states) {
+  const routeChecks = {};
+  for (const state of states) {
+    const harness = createAppHarness({ search: `?state=${encodeURIComponent(state.code)}` });
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    const badges = harness.element("#sourcePlanBadges").innerHTML;
+    const countyRows = (harness.element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length;
+    const historicalRows = (harness.element("#historicalTableRows").innerHTML.match(/<tr>/g) || []).length;
+    const capabilities = state.capabilities || {};
+    routeChecks[state.code] = {
+      selected: harness.element("#appStateSelect").value === state.code && harness.element("#sourceStateSelect").value === state.code,
+      title: harness.element("#sourceStateTitle").textContent === `${state.name} ${state.electionYear} ${state.office}`,
+      countyRows: countyRows === state.expectedCountyCount,
+      mapReady: !capabilities.map || badges.includes("Map ready"),
+      turnoutReady: !capabilities.turnout || (badges.includes("Turnout ready") && harness.element("#turnoutGraph").innerHTML.includes("turnout histogram")),
+      historicalReady: !capabilities.historicalBaseline || (badges.includes("Historical baseline ready") && historicalRows > 0),
+      reviewReady: !capabilities.reviewGraphs || harness.element("#voteShareGraph").innerHTML.includes("<svg"),
+    };
+  }
+  return routeChecks;
+}
+
+checks.registryDirectRoutes = await collectRegistryDirectRouteChecks(registryStates);
+checks.registryDirectRoutesAllReady = Object.values(checks.registryDirectRoutes).every((stateChecks) =>
+  Object.values(stateChecks).every(Boolean),
+);
 vm.runInContext(`
   els.sourceStateSelect.value = "WI";
   switchActiveState(els.sourceStateSelect.value);
@@ -420,6 +450,8 @@ const expected = {
   auditTrialSummary: true,
   auditGridUnits: 3730,
   auditVoteComparison: true,
+  appStateOptionsMatchRegistry: true,
+  sourcePlannerStateOptionsMatchRegistry: true,
   auditMinimumMarginShift: true,
   auditMinimumMarginNote: true,
   auditMinimumMarginTotal: true,
@@ -456,6 +488,7 @@ const expected = {
   directMichiganReviewTableLoaded: true,
   directMichiganVoteShareGraph: true,
   directMichiganDownBallotGraph: true,
+  registryDirectRoutesAllReady: true,
   sourcePlannerSelectorSyncsGlobal: true,
   globalSelectorSyncsSourcePlanner: true,
   minnesotaReviewRouteKeepsState: true,
