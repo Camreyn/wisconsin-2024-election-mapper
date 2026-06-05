@@ -123,7 +123,12 @@ then
 `npm.cmd run apply:discovery -- --config data/state-configs/xx.json --report /tmp/xx-discovery.json`.
 Add `--write` only after reviewing the preview; the script appends candidate
 `sources`, source-inventory rows, checked scripted-export follow-ups, and a
-Source Planner discovery summary.
+Source Planner discovery summary. Recognized source shapes also get suggested
+download and parser metadata: MVIC protected file endpoints infer
+`browserDownload`, North Dakota export pages infer the required ASP.NET postback
+parameters, ZIP bundles suggest `tabDelimitedZipComparison`, spreadsheet
+downloads suggest XLSX mapping, and geometry-like URLs are tagged for the config
+`geometry` block.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
 `npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
 same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET
