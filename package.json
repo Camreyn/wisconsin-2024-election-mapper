@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "description": "Static Wisconsin presidential results explorer with certified 2024 data, historical baselines, and statistical screening charts.",
+  "dependencies": {
+    "pdfjs-dist": "^5.6.205"
+  },
   "scripts": {
     "build:data": "node scripts/build-data.mjs",
     "build:states": "py -3 scripts/build-state-data.py",

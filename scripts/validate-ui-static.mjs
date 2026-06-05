@@ -328,12 +328,24 @@ checks.directMichiganQuerySummary =
   miQueryHarness.element("#sourceStateTitle").textContent === "Michigan 2024 President" &&
   (miQueryHarness.element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length === 83;
 checks.directMichiganMapReady = miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Map ready");
-checks.directMichiganTurnoutNotLoaded =
-  miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Turnout not loaded");
+checks.directMichiganTurnoutLoaded =
+  miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Turnout ready") &&
+  miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("83 turnout counties imported") &&
+  miQueryHarness.element("#turnoutGraph").innerHTML.includes("turnout histogram");
 checks.directMichiganHistoricalLoaded =
   miQueryHarness.element("#sourcePlanBadges").innerHTML.includes("Historical baseline ready") &&
   (miQueryHarness.element("#historicalTableRows").innerHTML.match(/<tr>/g) || []).length === 4 &&
   miQueryHarness.element("#historicalSummary").textContent.toLowerCase().includes("native official michigan voter information center county rows");
+checks.directMichiganReviewDatasetLoaded =
+  vm.runInContext(`WARD_CHARTS.metadata.rows.length`, miQueryHarness.context) === 4428;
+checks.directMichiganReviewRowsLoaded =
+  miQueryHarness.element("#reviewSummaryGrid").innerHTML.includes("12 Michigan MVIC precinct rows");
+checks.directMichiganReviewTableLoaded =
+  miQueryHarness.element("#reviewWardRows").innerHTML.includes("Millen Township - Precinct 1");
+checks.directMichiganVoteShareGraph =
+  miQueryHarness.element("#voteShareGraph").innerHTML.includes("Michigan MVIC precinct vote-share chart");
+checks.directMichiganDownBallotGraph =
+  miQueryHarness.element("#downBallotGraph").innerHTML.includes("Michigan MVIC precinct President vs Senate drop-off rates");
 vm.runInContext(`
   els.sourceStateSelect.value = "WI";
   switchActiveState(els.sourceStateSelect.value);
@@ -435,8 +447,13 @@ const expected = {
   directMichiganQuerySelected: true,
   directMichiganQuerySummary: true,
   directMichiganMapReady: true,
-  directMichiganTurnoutNotLoaded: true,
+  directMichiganTurnoutLoaded: true,
   directMichiganHistoricalLoaded: true,
+  directMichiganReviewDatasetLoaded: true,
+  directMichiganReviewRowsLoaded: true,
+  directMichiganReviewTableLoaded: true,
+  directMichiganVoteShareGraph: true,
+  directMichiganDownBallotGraph: true,
   sourcePlannerSelectorSyncsGlobal: true,
   globalSelectorSyncsSourcePlanner: true,
   minnesotaReviewRouteKeepsState: true,

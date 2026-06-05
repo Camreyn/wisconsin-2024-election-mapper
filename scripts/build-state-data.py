@@ -1,6 +1,7 @@
 import argparse
 import csv
 import html
+import io
 import json
 import math
 import re
@@ -336,6 +337,11 @@ def title_county(value):
     return " ".join(part.capitalize() for part in str(value).split())
 
 
+def michigan_county_name(value):
+    text = re.sub(r"\s+county$", "", str(value or ""), flags=re.IGNORECASE)
+    return title_county(text.replace(".", ""))
+
+
 def north_dakota_export_rows(path):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         rows = csv.reader(handle)
@@ -466,6 +472,8 @@ def certified_results_michigan_tab(config):
 
 def review_charts(config):
     review = config["reviewCharts"]
+    if review.get("format") == "michiganPrecinctZipComparison":
+        return review_charts_michigan_precinct_zip(config)
     if review.get("format") == "michiganCountyTabComparison":
         return review_charts_michigan_tab(config)
     if review.get("format") == "northDakotaStatewideCsvCountyComparison":
@@ -557,6 +565,177 @@ def contest_party_votes(rows, contest_name):
         if row["contest"] == contest_name:
             by_county[row["county"]][row["party"]] += row["votes"]
     return by_county
+
+
+def eta_analysis_from_review_rows(review_rows, policy, senate_dem_total, senate_rep_total):
+    harris_total = sum(row["harris"] for row in review_rows)
+    trump_total = sum(row["trump"] for row in review_rows)
+    dem_drop_votes = harris_total - senate_dem_total
+    rep_drop_votes = trump_total - senate_rep_total
+    return {
+        "wardRows": len(review_rows),
+        "downBallot": {
+            "demDropVotes": dem_drop_votes,
+            "demDropPct": round2((dem_drop_votes / harris_total) * 100) if harris_total else 0,
+            "repDropVotes": rep_drop_votes,
+            "repDropPct": round2((rep_drop_votes / trump_total) * 100) if trump_total else 0,
+            "demOutlierWards": sum(
+                1
+                for row in review_rows
+                if row["harris"] >= policy["minCandidateVotes"]
+                and abs(row["demDropoff"]) >= policy["outlierThresholdPct"]
+            ),
+            "repOutlierWards": sum(
+                1
+                for row in review_rows
+                if row["trump"] >= policy["minCandidateVotes"]
+                and abs(row["repDropoff"]) >= policy["outlierThresholdPct"]
+            ),
+            "outlierThresholdPct": policy["outlierThresholdPct"],
+            "minCandidateVotes": policy["minCandidateVotes"],
+        },
+        "voteShare": {
+            "trumpCorrelation": round(
+                pearson([row["trump"] for row in review_rows], [row["trumpShare"] for row in review_rows]),
+                4,
+            ),
+            "harrisCorrelation": round(
+                pearson([row["harris"] for row in review_rows], [row["harrisShare"] for row in review_rows]),
+                4,
+            ),
+            "threshold": policy["voteShareCorrelationThreshold"],
+        },
+    }
+
+
+def tab_rows_from_zip(archive, name):
+    text = archive.read(name).decode("utf-8-sig")
+    return list(csv.reader(io.StringIO(text), delimiter="\t"))
+
+
+def michigan_precinct_office_key(rule):
+    return (
+        str(rule["officeCode"]).zfill(1),
+        str(rule.get("districtCode", "00000")).zfill(5),
+        str(rule.get("statusCode", "0")),
+    )
+
+
+def michigan_precinct_label(city, ward, precinct, label):
+    parts = [city or "Unknown municipality"]
+    if ward and ward != "0":
+        parts.append(f"Ward {int_text(ward)}")
+    precinct_text = f"Precinct {int_text(precinct)}" if precinct else "Precinct"
+    if label:
+        precinct_text = f"{precinct_text} {label}"
+    parts.append(precinct_text)
+    return " - ".join(parts)
+
+
+def review_charts_michigan_precinct_zip(config):
+    review = config["reviewCharts"]
+    president_key = michigan_precinct_office_key(review["presidentOffice"])
+    down_ballot_key = michigan_precinct_office_key(review["downBallotOffice"])
+    party_codes = review["partyCodes"]
+    precincts = defaultdict(lambda: defaultdict(int))
+    senate_dem_total = 0
+    senate_rep_total = 0
+
+    with zipfile.ZipFile(local_source(config, review["sourceId"])) as archive:
+        counties = {
+            row[0].strip(): michigan_county_name(row[1])
+            for row in tab_rows_from_zip(archive, "2024GEN/county.txt")
+            if len(row) >= 2 and row[0].strip().isdigit()
+        }
+        cities = {
+            (row[2].strip(), row[3].strip()): title_county(row[4])
+            for row in tab_rows_from_zip(archive, "2024GEN/2024city.txt")
+            if len(row) >= 5 and row[2].strip().isdigit()
+        }
+        candidates = {}
+        for row in tab_rows_from_zip(archive, "2024GEN/2024name.txt"):
+            if len(row) < 10 or not row[0].strip().isdigit():
+                continue
+            candidates[(row[2].strip(), row[3].strip(), row[4].strip(), row[5].strip())] = row[9].strip()
+
+        for row in tab_rows_from_zip(archive, "2024GEN/2024vote.txt"):
+            if len(row) < 12 or not row[0].strip().isdigit():
+                continue
+            office_key = (row[2].strip(), row[3].strip(), row[4].strip())
+            if office_key not in (president_key, down_ballot_key):
+                continue
+            candidate_key = (*office_key, row[5].strip())
+            party = candidates.get(candidate_key)
+            county_code = row[6].strip()
+            city_code = row[7].strip()
+            ward = row[8].strip()
+            precinct = row[9].strip()
+            label = row[10].strip()
+            votes = int_text(row[11])
+            row_key = (county_code, city_code, ward, precinct, label)
+            item = precincts[row_key]
+            item["county"] = counties.get(county_code, f"County {county_code}")
+            item["city"] = cities.get((county_code, city_code), f"Municipality {city_code}")
+            item["wardCode"] = ward
+            item["precinctCode"] = precinct
+            item["precinctLabel"] = label
+            if office_key == president_key:
+                item["president_total"] += votes
+                if party == party_codes["dem"]:
+                    item["harris"] += votes
+                elif party == party_codes["rep"]:
+                    item["trump"] += votes
+            elif office_key == down_ballot_key:
+                if party == party_codes["dem"]:
+                    item["senate_dem"] += votes
+                    senate_dem_total += votes
+                elif party == party_codes["rep"]:
+                    item["senate_rep"] += votes
+                    senate_rep_total += votes
+
+    review_rows = []
+    for _key, item in sorted(
+        precincts.items(),
+        key=lambda pair: (
+            pair[1]["county"],
+            pair[1]["city"],
+            int_text(pair[1]["wardCode"]),
+            int_text(pair[1]["precinctCode"]),
+            pair[1]["precinctLabel"],
+        ),
+    ):
+        president_total = item["president_total"]
+        if not president_total:
+            continue
+        harris = item["harris"]
+        trump = item["trump"]
+        senate_dem = item["senate_dem"]
+        senate_rep = item["senate_rep"]
+        review_rows.append(
+            {
+                "county": item["county"],
+                "ward": michigan_precinct_label(
+                    item["city"],
+                    item["wardCode"],
+                    item["precinctCode"],
+                    item["precinctLabel"],
+                ),
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        senate_dem_total,
+        senate_rep_total,
+    )
 
 
 def review_charts_north_dakota_csv(config):
@@ -670,6 +849,8 @@ def turnout_data(config):
             },
             "rows": [],
         }
+    if turnout.get("format") == "michiganMvicCountyTurnout":
+        return turnout_data_michigan_mvic(config)
     if turnout.get("format") == "northDakotaTurnoutHtml":
         return turnout_data_north_dakota_html(config)
 
@@ -714,6 +895,114 @@ def turnout_data(config):
         },
         "rows": output_rows,
     }
+
+
+def turnout_data_michigan_mvic(config):
+    turnout = config["turnout"]
+    turnout_source = source_map(config)[turnout["sourceId"]]
+    registration_source = source_map(config)[turnout["registrationSourceId"]]
+    voters_by_county = {}
+    with local_source(config, turnout["sourceId"]).open("r", encoding="utf-8-sig", newline="") as handle:
+        first = handle.readline()
+        if not first.startswith("TOTAL VOTER TURNOUT:"):
+            handle.seek(0)
+        for row in csv.DictReader(handle, delimiter="\t"):
+            if not re.match(r"^\d+$", row.get("County Code", "")):
+                continue
+            county = michigan_county_name(row["County Name"])
+            voters_by_county[county] = int_text(row["County Voters"])
+
+    registration_by_county = michigan_registration_totals_from_pdf(local_source(config, turnout["registrationSourceId"]))
+    missing_registration = sorted(set(voters_by_county) - set(registration_by_county))
+    if missing_registration:
+        raise ValueError(f"Michigan turnout registration rows missing for: {', '.join(missing_registration)}")
+
+    output_rows = []
+    for county, ballots in sorted(voters_by_county.items()):
+        registration = registration_by_county[county]
+        registered = registration[turnout.get("denominatorField", "novemberActiveRegisteredVoters")]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": f"{county} County",
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "sourceUrl": f"{turnout_source['url']} ; {registration_source['url']}",
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": f"{local_source(config, turnout['sourceId']).name}; {local_source(config, turnout['registrationSourceId']).name}",
+            "sourceUrl": f"{turnout_source['url']} ; {registration_source['url']}",
+        },
+        "rows": output_rows,
+    }
+
+
+def extract_pdf_text(path):
+    completed = subprocess.run(
+        ["node", "scripts/extract-pdf-text.mjs", str(path)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return completed.stdout
+
+
+def michigan_registration_totals_from_pdf(path):
+    rows = {}
+    pending_county = None
+    pending_numbers = []
+    orphan_numbers = []
+    for raw_line in extract_pdf_text(path).splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("2024 ") or line in {"May August November", "Active All Active All Active All"}:
+            continue
+        if line.startswith("County ") or line.startswith("Voters ") or line.startswith("* "):
+            continue
+        if line.startswith("Total*"):
+            continue
+        numbers = re.findall(r"\d[\d,]*", line)
+        if not numbers:
+            continue
+        county_part = "" if re.match(r"^\d", line) else re.sub(r"\s+\d[\d,\s]*$", "", line).strip()
+        if county_part:
+            if pending_county and len(pending_numbers) != 6:
+                raise ValueError(f"Incomplete Michigan registration row for {pending_county}: {pending_numbers}")
+            pending_county = michigan_county_name(county_part)
+            pending_numbers = orphan_numbers + [int_text(value) for value in numbers]
+            orphan_numbers = []
+        elif pending_county:
+            pending_numbers.extend(int_text(value) for value in numbers)
+        else:
+            orphan_numbers = [int_text(value) for value in numbers]
+
+        if pending_county and len(pending_numbers) >= 6:
+            if len(pending_numbers) != 6:
+                raise ValueError(f"Unexpected Michigan registration row for {pending_county}: {pending_numbers}")
+            rows[pending_county] = {
+                "mayActiveRegisteredVoters": pending_numbers[0],
+                "mayAllRegisteredVoters": pending_numbers[1],
+                "augustActiveRegisteredVoters": pending_numbers[2],
+                "augustAllRegisteredVoters": pending_numbers[3],
+                "novemberActiveRegisteredVoters": pending_numbers[4],
+                "novemberAllRegisteredVoters": pending_numbers[5],
+            }
+            pending_county = None
+            pending_numbers = []
+    if pending_county:
+        raise ValueError(f"Incomplete Michigan registration row for {pending_county}: {pending_numbers}")
+    return rows
 
 
 def turnout_data_north_dakota_html(config):
