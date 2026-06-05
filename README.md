@@ -102,8 +102,13 @@ rows, capabilities, or export slugs. The generic builder in
 parsing, certified county aggregation, precinct review graph rows, turnout rows,
 President-by-County historical text files, GeoJSON county geometry
 normalization, browser-backed protected source downloads, PDF text extraction for
-registration denominator tables, Michigan MVIC precinct ZIP review-row parsing,
-app registry generation, and expected-count validation.
+registration denominator tables, generic tab-delimited ZIP precinct comparison
+parsing, app registry generation, and expected-count validation.
+For official ZIP bundles that separate vote rows from county, municipality, and
+candidate lookup files, set `reviewCharts.format` to
+`tabDelimitedZipComparison` and map the bundle through `zipTables`,
+`presidentContest`, `downBallotContest`, `partyCodes`, and `rowLabel`; Michigan
+is the first complete example of that path.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
 `npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
 same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET

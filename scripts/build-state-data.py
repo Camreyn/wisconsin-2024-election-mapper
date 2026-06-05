@@ -472,8 +472,8 @@ def certified_results_michigan_tab(config):
 
 def review_charts(config):
     review = config["reviewCharts"]
-    if review.get("format") == "michiganPrecinctZipComparison":
-        return review_charts_michigan_precinct_zip(config)
+    if review.get("format") in ("tabDelimitedZipComparison", "michiganPrecinctZipComparison"):
+        return review_charts_tab_delimited_zip(config)
     if review.get("format") == "michiganCountyTabComparison":
         return review_charts_michigan_tab(config)
     if review.get("format") == "northDakotaStatewideCsvCountyComparison":
@@ -608,77 +608,114 @@ def eta_analysis_from_review_rows(review_rows, policy, senate_dem_total, senate_
     }
 
 
-def tab_rows_from_zip(archive, name):
-    text = archive.read(name).decode("utf-8-sig")
-    return list(csv.reader(io.StringIO(text), delimiter="\t"))
+def normalize_zip_value(value, normalizer=None):
+    text = str(value or "").strip()
+    if normalizer == "michiganCountyName":
+        return michigan_county_name(text)
+    if normalizer == "titleCase":
+        return title_county(text)
+    return text
 
 
-def michigan_precinct_office_key(rule):
-    return (
-        str(rule["officeCode"]).zfill(1),
-        str(rule.get("districtCode", "00000")).zfill(5),
-        str(rule.get("statusCode", "0")),
-    )
+def tab_rows_from_zip(archive, table_config):
+    text = archive.read(table_config["path"]).decode(table_config.get("encoding", "utf-8-sig"))
+    delimiter = table_config.get("delimiter", "\t")
+    columns = table_config["columns"]
+    normalizers = table_config.get("normalizers", {})
+    minimum_columns = max(columns.values()) + 1
+    required_digit_column = table_config.get("requireDigitColumn")
+    for raw_row in csv.reader(io.StringIO(text), delimiter=delimiter):
+        if len(raw_row) < minimum_columns:
+            continue
+        if required_digit_column and not raw_row[columns[required_digit_column]].strip().isdigit():
+            continue
+        yield {
+            key: normalize_zip_value(raw_row[index], normalizers.get(key))
+            for key, index in columns.items()
+        }
 
 
-def michigan_precinct_label(city, ward, precinct, label):
-    parts = [city or "Unknown municipality"]
-    if ward and ward != "0":
-        parts.append(f"Ward {int_text(ward)}")
-    precinct_text = f"Precinct {int_text(precinct)}" if precinct else "Precinct"
-    if label:
-        precinct_text = f"{precinct_text} {label}"
-    parts.append(precinct_text)
-    return " - ".join(parts)
+def zip_key(row, fields):
+    return tuple(row.get(field, "") for field in fields)
 
 
-def review_charts_michigan_precinct_zip(config):
+def zip_lookup(archive, table_config):
+    key_fields = table_config["keyFields"]
+    value_fields = table_config["valueFields"]
+    lookup = {}
+    for row in tab_rows_from_zip(archive, table_config):
+        values = {field: row.get(field, "") for field in value_fields}
+        lookup[zip_key(row, key_fields)] = values[value_fields[0]] if len(value_fields) == 1 else values
+    return lookup
+
+
+def configured_zip_key(rule, fields):
+    return tuple(str(rule[field]) for field in fields)
+
+
+def row_label_part(item, part):
+    value = item.get(part["field"], "")
+    if value in part.get("omitValues", []):
+        return ""
+    if part.get("integer") and value:
+        value = str(int_text(value))
+    if not value and not part.get("showWhenBlank", False):
+        return ""
+    text = f"{part.get('prefix', '')}{value}{part.get('suffix', '')}"
+    append_value = item.get(part.get("appendField", ""), "")
+    if append_value:
+        text = f"{text}{part.get('appendSeparator', ' ')}{append_value}"
+    return text
+
+
+def zip_review_row_label(item, label_config):
+    parts = [row_label_part(item, part) for part in label_config["parts"]]
+    parts = [part for part in parts if part]
+    return label_config.get("separator", " - ").join(parts) or label_config.get("fallback", "Unnamed reporting unit")
+
+
+def review_charts_tab_delimited_zip(config):
     review = config["reviewCharts"]
-    president_key = michigan_precinct_office_key(review["presidentOffice"])
-    down_ballot_key = michigan_precinct_office_key(review["downBallotOffice"])
+    tables = review["zipTables"]
+    contest_key_fields = review.get("contestKeyFields", ["officeCode", "districtCode", "statusCode"])
+    candidate_key_fields = review.get(
+        "candidateKeyFields",
+        [*contest_key_fields, "candidateCode"],
+    )
+    reporting_unit_key_fields = review.get(
+        "reportingUnitKeyFields",
+        ["countyCode", "municipalityCode", "wardCode", "precinctCode", "precinctLabel"],
+    )
+    president_key = configured_zip_key(review["presidentContest"], contest_key_fields)
+    down_ballot_key = configured_zip_key(review["downBallotContest"], contest_key_fields)
     party_codes = review["partyCodes"]
     precincts = defaultdict(lambda: defaultdict(int))
     senate_dem_total = 0
     senate_rep_total = 0
 
     with zipfile.ZipFile(local_source(config, review["sourceId"])) as archive:
-        counties = {
-            row[0].strip(): michigan_county_name(row[1])
-            for row in tab_rows_from_zip(archive, "2024GEN/county.txt")
-            if len(row) >= 2 and row[0].strip().isdigit()
-        }
-        cities = {
-            (row[2].strip(), row[3].strip()): title_county(row[4])
-            for row in tab_rows_from_zip(archive, "2024GEN/2024city.txt")
-            if len(row) >= 5 and row[2].strip().isdigit()
-        }
-        candidates = {}
-        for row in tab_rows_from_zip(archive, "2024GEN/2024name.txt"):
-            if len(row) < 10 or not row[0].strip().isdigit():
-                continue
-            candidates[(row[2].strip(), row[3].strip(), row[4].strip(), row[5].strip())] = row[9].strip()
+        counties = zip_lookup(archive, tables["countyLookup"]) if "countyLookup" in tables else {}
+        municipalities = zip_lookup(archive, tables["municipalityLookup"]) if "municipalityLookup" in tables else {}
+        candidates = zip_lookup(archive, tables["candidateLookup"])
 
-        for row in tab_rows_from_zip(archive, "2024GEN/2024vote.txt"):
-            if len(row) < 12 or not row[0].strip().isdigit():
-                continue
-            office_key = (row[2].strip(), row[3].strip(), row[4].strip())
+        for row in tab_rows_from_zip(archive, tables["votes"]):
+            office_key = zip_key(row, contest_key_fields)
             if office_key not in (president_key, down_ballot_key):
                 continue
-            candidate_key = (*office_key, row[5].strip())
+            candidate_key = zip_key(row, candidate_key_fields)
             party = candidates.get(candidate_key)
-            county_code = row[6].strip()
-            city_code = row[7].strip()
-            ward = row[8].strip()
-            precinct = row[9].strip()
-            label = row[10].strip()
-            votes = int_text(row[11])
-            row_key = (county_code, city_code, ward, precinct, label)
+            votes = int_text(row["votes"])
+            row_key = zip_key(row, reporting_unit_key_fields)
             item = precincts[row_key]
-            item["county"] = counties.get(county_code, f"County {county_code}")
-            item["city"] = cities.get((county_code, city_code), f"Municipality {city_code}")
-            item["wardCode"] = ward
-            item["precinctCode"] = precinct
-            item["precinctLabel"] = label
+            county_code = row.get("countyCode", "")
+            municipality_code = row.get("municipalityCode", "")
+            item["county"] = counties.get((county_code,), f"County {county_code}")
+            item["municipality"] = municipalities.get(
+                (county_code, municipality_code),
+                f"Municipality {municipality_code}",
+            )
+            for field in reporting_unit_key_fields:
+                item[field] = row.get(field, "")
             if office_key == president_key:
                 item["president_total"] += votes
                 if party == party_codes["dem"]:
@@ -698,10 +735,10 @@ def review_charts_michigan_precinct_zip(config):
         precincts.items(),
         key=lambda pair: (
             pair[1]["county"],
-            pair[1]["city"],
-            int_text(pair[1]["wardCode"]),
-            int_text(pair[1]["precinctCode"]),
-            pair[1]["precinctLabel"],
+            pair[1]["municipality"],
+            int_text(pair[1].get("wardCode", "")),
+            int_text(pair[1].get("precinctCode", "")),
+            pair[1].get("precinctLabel", ""),
         ),
     ):
         president_total = item["president_total"]
@@ -714,12 +751,7 @@ def review_charts_michigan_precinct_zip(config):
         review_rows.append(
             {
                 "county": item["county"],
-                "ward": michigan_precinct_label(
-                    item["city"],
-                    item["wardCode"],
-                    item["precinctCode"],
-                    item["precinctLabel"],
-                ),
+                "ward": zip_review_row_label(item, review["rowLabel"]),
                 "total": president_total,
                 "harris": harris,
                 "trump": trump,

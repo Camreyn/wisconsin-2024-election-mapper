@@ -140,17 +140,117 @@
     ]
   },
   "reviewCharts": {
-    "format": "michiganPrecinctZipComparison",
+    "format": "tabDelimitedZipComparison",
     "sourceId": "mi-2024-precinct-results",
-    "presidentOffice": {
+    "zipTables": {
+      "countyLookup": {
+        "path": "2024GEN/county.txt",
+        "requireDigitColumn": "countyCode",
+        "columns": {
+          "countyCode": 0,
+          "countyName": 1
+        },
+        "keyFields": [
+          "countyCode"
+        ],
+        "valueFields": [
+          "countyName"
+        ],
+        "normalizers": {
+          "countyName": "michiganCountyName"
+        }
+      },
+      "municipalityLookup": {
+        "path": "2024GEN/2024city.txt",
+        "requireDigitColumn": "countyCode",
+        "columns": {
+          "countyCode": 2,
+          "municipalityCode": 3,
+          "municipalityName": 4
+        },
+        "keyFields": [
+          "countyCode",
+          "municipalityCode"
+        ],
+        "valueFields": [
+          "municipalityName"
+        ],
+        "normalizers": {
+          "municipalityName": "titleCase"
+        }
+      },
+      "candidateLookup": {
+        "path": "2024GEN/2024name.txt",
+        "requireDigitColumn": "year",
+        "columns": {
+          "year": 0,
+          "officeCode": 2,
+          "districtCode": 3,
+          "statusCode": 4,
+          "candidateCode": 5,
+          "partyCode": 9
+        },
+        "keyFields": [
+          "officeCode",
+          "districtCode",
+          "statusCode",
+          "candidateCode"
+        ],
+        "valueFields": [
+          "partyCode"
+        ]
+      },
+      "votes": {
+        "path": "2024GEN/2024vote.txt",
+        "requireDigitColumn": "year",
+        "columns": {
+          "year": 0,
+          "officeCode": 2,
+          "districtCode": 3,
+          "statusCode": 4,
+          "candidateCode": 5,
+          "countyCode": 6,
+          "municipalityCode": 7,
+          "wardCode": 8,
+          "precinctCode": 9,
+          "precinctLabel": 10,
+          "votes": 11
+        }
+      }
+    },
+    "presidentContest": {
       "officeCode": "1",
       "districtCode": "00000",
       "statusCode": "0"
     },
-    "downBallotOffice": {
+    "downBallotContest": {
       "officeCode": "5",
       "districtCode": "00000",
       "statusCode": "0"
+    },
+    "rowLabel": {
+      "separator": " - ",
+      "fallback": "Unnamed precinct",
+      "parts": [
+        {
+          "field": "municipality"
+        },
+        {
+          "field": "wardCode",
+          "prefix": "Ward ",
+          "omitValues": [
+            "",
+            "0"
+          ],
+          "integer": true
+        },
+        {
+          "field": "precinctCode",
+          "prefix": "Precinct ",
+          "integer": true,
+          "appendField": "precinctLabel"
+        }
+      ]
     },
     "partyCodes": {
       "dem": "DEM",

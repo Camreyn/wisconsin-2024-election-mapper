@@ -41,6 +41,7 @@
     "aggregateFields": {}
   },
   "reviewCharts": {
+    "format": "xlsxPrecinctComparison",
     "sourceId": "{{state_slug}}-2024-precinct-results",
     "sheet": "TODO",
     "rowLabelColumns": {
