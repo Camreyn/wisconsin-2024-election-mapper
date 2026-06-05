@@ -84,12 +84,17 @@ turnout details, and Census county geometry. Michigan is registered from
 precinct-level President-vs-Senate review rows from the official MVIC precinct
 ZIP, official MVIC turnout rows joined to SOS registration totals, native MVIC
 historical county rows, and Census county geometry; its protected MVIC exports
-use the browser-backed downloader in `scripts/browser-download.mjs`. The global
-State selector and Source Planner selector share the same state code, and export
-filenames use the registered state's `exportsSlug`. Each state also carries
-capability flags for Source Planner, certified results, map, review graphs,
-turnout, and historical baseline readiness so partially collected states can be
-shown without implying that every Wisconsin feature is available.
+use the browser-backed downloader in `scripts/browser-download.mjs`.
+Pennsylvania is registered from `data/state-configs/pa.json` with the official
+Department of State precinct election returns bulk file, precinct-level
+President-vs-Senate review rows, and Census county geometry; turnout and
+historical baseline remain explicit Source Planner gaps until official
+denominator and historical sources are mapped. The global State selector and
+Source Planner selector share the same state code, and export filenames use the
+registered state's `exportsSlug`. Each state also carries capability flags for
+Source Planner, certified results, map, review graphs, turnout, and historical
+baseline readiness so partially collected states can be shown without implying
+that every Wisconsin feature is available.
 
 State data imports are now config-driven. Start a new state with
 `npm.cmd run scaffold:state -- MI --name Michigan --authority "Michigan Secretary of State"`,
@@ -112,6 +117,11 @@ candidate lookup files, set `reviewCharts.format` to
 `tabDelimitedZipComparison` and map the bundle through `zipTables`,
 `presidentContest`, `downBallotContest`, `partyCodes`, and `rowLabel`; Michigan
 is the first complete example of that path.
+For official comma-delimited Pennsylvania-style precinct returns where each row
+is one candidate in one contest/reporting unit, set `certifiedResults.format` to
+`pennsylvaniaBulkCsv` and `reviewCharts.format` to
+`pennsylvaniaBulkCsvPrecinctComparison`; Pennsylvania is the first example of
+that path.
 Before filling a new config, bootstrap source discovery against the official
 results page in preview mode:
 `npm.cmd run bootstrap:state-sources -- --state ND --name "North Dakota" --authority "North Dakota Secretary of State" --url https://results.sos.nd.gov/VoterTurnoutDetails.aspx`.

@@ -23,6 +23,76 @@ NS = {
     "pkgrel": "http://schemas.openxmlformats.org/package/2006/relationships",
 }
 
+PENNSYLVANIA_COUNTY_NAMES = {
+    "01": "Adams",
+    "02": "Allegheny",
+    "03": "Armstrong",
+    "04": "Beaver",
+    "05": "Bedford",
+    "06": "Berks",
+    "07": "Blair",
+    "08": "Bradford",
+    "09": "Bucks",
+    "10": "Butler",
+    "11": "Cambria",
+    "12": "Cameron",
+    "13": "Carbon",
+    "14": "Centre",
+    "15": "Chester",
+    "16": "Clarion",
+    "17": "Clearfield",
+    "18": "Clinton",
+    "19": "Columbia",
+    "20": "Crawford",
+    "21": "Cumberland",
+    "22": "Dauphin",
+    "23": "Delaware",
+    "24": "Elk",
+    "25": "Erie",
+    "26": "Fayette",
+    "27": "Forest",
+    "28": "Franklin",
+    "29": "Fulton",
+    "30": "Greene",
+    "31": "Huntingdon",
+    "32": "Indiana",
+    "33": "Jefferson",
+    "34": "Juniata",
+    "35": "Lackawanna",
+    "36": "Lancaster",
+    "37": "Lawrence",
+    "38": "Lebanon",
+    "39": "Lehigh",
+    "40": "Luzerne",
+    "41": "Lycoming",
+    "42": "McKean",
+    "43": "Mercer",
+    "44": "Mifflin",
+    "45": "Monroe",
+    "46": "Montgomery",
+    "47": "Montour",
+    "48": "Northampton",
+    "49": "Northumberland",
+    "50": "Perry",
+    "51": "Philadelphia",
+    "52": "Pike",
+    "53": "Potter",
+    "54": "Schuylkill",
+    "55": "Snyder",
+    "56": "Somerset",
+    "57": "Sullivan",
+    "58": "Susquehanna",
+    "59": "Tioga",
+    "60": "Union",
+    "61": "Venango",
+    "62": "Warren",
+    "63": "Washington",
+    "64": "Wayne",
+    "65": "Westmoreland",
+    "66": "Wyoming",
+    "67": "York",
+}
+
 
 def column_number(cell_ref):
     letters = re.match(r"([A-Z]+)", cell_ref).group(1)
@@ -370,6 +440,64 @@ def north_dakota_export_rows(path):
             }
 
 
+def pennsylvania_county_name(county_code):
+    normalized = str(int_text(county_code)).zfill(2)
+    return PENNSYLVANIA_COUNTY_NAMES.get(normalized, f"County {normalized}")
+
+
+def pennsylvania_precinct_label(row):
+    parts = [row["municipality"]]
+    if row["breakdown1Code"] and row["breakdown1Name"]:
+        parts.append(f"{row['breakdown1Code']} {row['breakdown1Name']}")
+    if row["breakdown2Code"] and row["breakdown2Name"]:
+        parts.append(f"{row['breakdown2Code']} {row['breakdown2Name']}")
+    if len(parts) == 1 and row["precinctCode"]:
+        parts.append(f"Precinct {int_text(row['precinctCode'])}")
+    return " - ".join(part for part in parts if part) or "Unnamed precinct"
+
+
+def pennsylvania_precinct_key(row, fields=None):
+    key_fields = fields or [
+        "countyCode",
+        "precinctCode",
+        "municipality",
+        "breakdown1Code",
+        "breakdown1Name",
+        "breakdown2Code",
+        "breakdown2Name",
+    ]
+    return tuple(str(row.get(field, "")) for field in key_fields)
+
+
+def pennsylvania_bulk_rows(path):
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.reader(handle):
+            if len(row) < 37:
+                continue
+            candidate = " ".join(
+                part.strip()
+                for part in (row[11], row[12], row[13], row[14])
+                if part and part.strip()
+            )
+            yield {
+                "year": row[0],
+                "electionType": row[1],
+                "countyCode": str(int_text(row[2])).zfill(2),
+                "county": pennsylvania_county_name(row[2]),
+                "precinctCode": str(row[3]).strip(),
+                "officeCode": row[8].strip(),
+                "party": row[9].strip(),
+                "candidate": candidate,
+                "votes": int_text(row[15]),
+                "municipality": row[22].strip(),
+                "breakdown1Code": row[23].strip(),
+                "breakdown1Name": row[24].strip(),
+                "breakdown2Code": row[25].strip(),
+                "breakdown2Name": row[26].strip(),
+                "vtdCode": str(row[30]).strip(),
+            }
+
+
 def is_xlsx_file(path):
     with path.open("rb") as handle:
         return handle.read(2) == b"PK"
@@ -472,6 +600,55 @@ def certified_results_north_dakota_csv(config):
         )
     precinct_rows = sum(totals["precinctRows"] for totals in by_county.values())
     return result_rows, candidate_labels, precinct_rows
+
+
+def certified_results_pennsylvania_bulk_csv(config):
+    source = config["certifiedResults"]
+    office_code = source.get("officeCode", "USP")
+    by_county = defaultdict(lambda: defaultdict(int))
+    precinct_keys = set()
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+
+    for row in pennsylvania_bulk_rows(local_source(config, source["sourceId"])):
+        if row["officeCode"] != office_code:
+            continue
+        county = row["county"]
+        precinct_keys.add(pennsylvania_precinct_key(row, source.get("precinctKeyFields")))
+        if candidate_matches(row, source["majorCandidates"]["trump"]):
+            by_county[county]["trump"] += row["votes"]
+        elif candidate_matches(row, source["majorCandidates"]["harris"]):
+            by_county[county]["harris"] += row["votes"]
+        else:
+            matched_other = False
+            for candidate in source.get("otherCandidates", []):
+                if candidate_matches(row, candidate):
+                    by_county[county][candidate["key"]] += row["votes"]
+                    matched_other = True
+                    break
+            if not matched_other:
+                by_county[county]["unmappedOther"] += row["votes"]
+
+    result_rows = []
+    for county, totals in sorted(by_county.items()):
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+    return result_rows, candidate_labels, len(precinct_keys)
 
 
 def certified_results_michigan_tab(config):
@@ -917,6 +1094,70 @@ def review_charts_michigan_tab(config):
         },
     }
     return review_rows, eta_analysis
+
+
+def review_charts_pennsylvania_bulk_csv(config):
+    review = config["reviewCharts"]
+    president_office = review.get("presidentOfficeCode", "USP")
+    down_ballot_office = review.get("downBallotOfficeCode", "USS")
+    party_codes = review["partyCodes"]
+    precincts = defaultdict(lambda: defaultdict(int))
+    senate_dem_total = 0
+    senate_rep_total = 0
+
+    for row in pennsylvania_bulk_rows(local_source(config, review["sourceId"])):
+        office = row["officeCode"]
+        if office not in (president_office, down_ballot_office):
+            continue
+        key = pennsylvania_precinct_key(row, review.get("precinctKeyFields"))
+        item = precincts[key]
+        item["county"] = row["county"]
+        item["ward"] = pennsylvania_precinct_label(row)
+        votes = row["votes"]
+        party = normalize_party(row["party"])
+        if office == president_office:
+            item["president_total"] += votes
+            if party == normalize_party(party_codes["dem"]):
+                item["harris"] += votes
+            elif party == normalize_party(party_codes["rep"]):
+                item["trump"] += votes
+        elif office == down_ballot_office:
+            if party == normalize_party(party_codes["dem"]):
+                item["senate_dem"] += votes
+                senate_dem_total += votes
+            elif party == normalize_party(party_codes["rep"]):
+                item["senate_rep"] += votes
+                senate_rep_total += votes
+
+    review_rows = []
+    for _key, item in sorted(precincts.items(), key=lambda pair: (pair[1]["county"], pair[1]["ward"])):
+        president_total = item["president_total"]
+        if not president_total:
+            continue
+        harris = item["harris"]
+        trump = item["trump"]
+        senate_dem = item["senate_dem"]
+        senate_rep = item["senate_rep"]
+        review_rows.append(
+            {
+                "county": item["county"],
+                "ward": item["ward"],
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        senate_dem_total,
+        senate_rep_total,
+    )
 
 
 def turnout_data(config):
@@ -1417,6 +1658,7 @@ CERTIFIED_RESULT_PARSERS = {
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "michiganCountyTab": certified_results_michigan_tab,
     "northDakotaStatewideCsv": certified_results_north_dakota_csv,
+    "pennsylvaniaBulkCsv": certified_results_pennsylvania_bulk_csv,
 }
 
 REVIEW_CHART_PARSERS = {
@@ -1425,6 +1667,7 @@ REVIEW_CHART_PARSERS = {
     "michiganPrecinctZipComparison": review_charts_tab_delimited_zip,
     "michiganCountyTabComparison": review_charts_michigan_tab,
     "northDakotaStatewideCsvCountyComparison": review_charts_north_dakota_csv,
+    "pennsylvaniaBulkCsvPrecinctComparison": review_charts_pennsylvania_bulk_csv,
 }
 
 TURNOUT_PARSERS = {

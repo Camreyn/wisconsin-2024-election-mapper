@@ -1,0 +1,215 @@
+{
+  "code": "PA",
+  "name": "Pennsylvania",
+  "authority": "Pennsylvania Department of State",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/pa-app-data.js",
+    "appDataGlobal": "PA_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "pa-2024-precinct-results",
+      "url": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_268768_20250129.txt",
+      "localFile": "data/pa-2024-general-election-returns-precinct.txt"
+    },
+    {
+      "id": "pa-2024-precinct-results-readme",
+      "url": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_readme.txt",
+      "localFile": "data/pa-2024-general-election-returns-readme.txt"
+    },
+    {
+      "id": "pa-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2742%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/pa-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "pa-county-geometry",
+    "outputFile": "data/pa-counties.js",
+    "outputGlobal": "PA_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "COUNTY",
+    "expectedFeatures": 67
+  },
+  "certifiedResults": {
+    "format": "pennsylvaniaBulkCsv",
+    "sourceId": "pa-2024-precinct-results",
+    "officeCode": "USP",
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP",
+        "candidateContains": "TRUMP"
+      },
+      "harris": {
+        "partyCode": "DEM",
+        "candidateContains": "HARRIS"
+      }
+    },
+    "otherCandidates": [
+      {
+        "key": "stein",
+        "label": "Jill Stein",
+        "partyCode": "GRN",
+        "candidateContains": "STEIN"
+      },
+      {
+        "key": "oliver",
+        "label": "Chase Oliver",
+        "partyCode": "LIB",
+        "candidateContains": "OLIVER"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "pennsylvaniaBulkCsvPrecinctComparison",
+    "sourceId": "pa-2024-precinct-results",
+    "presidentOfficeCode": "USP",
+    "downBallotOfficeCode": "USS",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "notes": "Pennsylvania's official 2024 precinct election returns bulk file includes candidate vote totals by contest and precinct, but not registered-voter denominator rows. Turnout remains disabled until an official denominator source is added."
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President Of The United States",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "pennsylvania-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": true,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Pennsylvania DOS precinct election returns bulk file",
+        "detail": "Presidential county totals are aggregated from the official Pennsylvania Department of State 2024 General Election Precinct Election Returns comma-delimited bulk file.",
+        "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
+        "localFile": "data/pa-2024-general-election-returns-precinct.txt; data/pa-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official readme says the data was extracted January 10, 2025; the direct bulk file name includes 20250129.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Pennsylvania DOS precinct election returns bulk file",
+        "detail": "The official bulk file includes precinct-level President and U.S. Senate rows. The state builder groups rows by county, precinct code, municipality, ward, and precinct breakdown fields for President-vs-Senate review graphs.",
+        "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
+        "localFile": "data/pa-2024-general-election-returns-precinct.txt; data/pa-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official readme says the data was extracted January 10, 2025; the direct bulk file name includes 20250129.",
+        "status": "Loaded"
+      },
+      "turnout": {
+        "title": "Pennsylvania turnout denominator source",
+        "detail": "The official precinct election returns bulk file does not include registered-voter denominator rows, so Pennsylvania turnout remains disabled until an official turnout or registration source is added.",
+        "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
+        "localFile": "",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Reviewed official precinct election returns readme and fields list.",
+        "status": "Needs denominator source"
+      },
+      "discoveryCandidates": {
+        "title": "Discovered source candidates",
+        "detail": "incapsula access protection blocked source discovery for https://www.electionreturns.pa.gov/General/SummaryResults?ElectionID=18&ElectionType=G&IsActive=0. The official PA.gov bulk election data page provided a usable direct text export instead.",
+        "sourceUrl": "https://www.electionreturns.pa.gov/General/SummaryResults?ElectionID=18&ElectionType=G&IsActive=0",
+        "localFile": "outputs/pa-electionreturns.html",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Generated by scripts/discover-state-sources.mjs and scripts/apply-source-discovery.mjs.",
+        "status": "Superseded by official bulk file"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Presidential county results",
+        "file": "data/pa-2024-general-election-returns-precinct.txt; data/pa-app-data.js",
+        "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
+        "usedFor": "Pennsylvania county table, statewide totals, candidate breakdown, CSV export, Source Planner rows, and precinct-level review graphs.",
+        "confidence": "Official Pennsylvania Department of State 2024 General Election Precinct Election Returns bulk file."
+      },
+      {
+        "category": "Precinct returns schema",
+        "file": "data/pa-2024-general-election-returns-readme.txt",
+        "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
+        "usedFor": "Documents the comma-delimited precinct returns fields, county codes, office codes, and party codes used by the Pennsylvania parser.",
+        "confidence": "Official Pennsylvania Department of State readme for the 2024 General Election Precinct Election Returns file."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/pa-counties.geojson; data/pa-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "Pennsylvania county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "Protected election-results application",
+        "sourceUrl": "https://www.electionreturns.pa.gov/General/SummaryResults?ElectionID=18&ElectionType=G&IsActive=0",
+        "reason": "The fetched page is an Incapsula access-protection response, not the election-results application HTML.",
+        "status": "Blocked by incapsula",
+        "nextStep": "Use the official PA.gov bulk election data file or an interactive browser capture for the protected electionreturns.pa.gov application."
+      },
+      {
+        "category": "Turnout denominator",
+        "sourceUrl": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_readme.txt",
+        "reason": "The official precinct returns schema lists candidate vote totals and district/municipality fields, but no registered-voter denominator fields.",
+        "status": "Needs separate official source",
+        "nextStep": "Find an official Pennsylvania voter-registration or turnout denominator file before enabling turnout."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "notConfigured",
+      "status": "Needs denominator source",
+      "acceptedSource": "No official Pennsylvania denominator source is configured yet.",
+      "warning": "Pennsylvania turnout is disabled because the official precinct returns bulk file does not include registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet for Pennsylvania.",
+    "reviewRowLabel": "Pennsylvania DOS precinct row",
+    "reviewRowLabelPlural": "Pennsylvania DOS precinct rows",
+    "reviewGraphTitlePrefix": "Pennsylvania DOS precinct",
+    "mapLoadingText": "Loading local Pennsylvania county boundaries...",
+    "noGeometryText": "Pennsylvania county geometry is not loaded yet; showing the county tile fallback."
+  },
+  "expected": {
+    "countyRows": 67,
+    "precinctRows": 9187,
+    "stateTotal": 7031737,
+    "trump": 3543041,
+    "harris": 3420865,
+    "other": 67831,
+    "reviewRows": 9154,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 67
+  }
+}

@@ -6,13 +6,19 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const configDir = path.join(root, "data/state-configs");
 
 const supportedDownloads = new Set(["browserDownload", "northDakotaResultsExport"]);
-const supportedCertifiedFormats = new Set(["xlsxPrecinctAggregation", "michiganCountyTab", "northDakotaStatewideCsv"]);
+const supportedCertifiedFormats = new Set([
+  "xlsxPrecinctAggregation",
+  "michiganCountyTab",
+  "northDakotaStatewideCsv",
+  "pennsylvaniaBulkCsv",
+]);
 const supportedReviewFormats = new Set([
   "xlsxPrecinctComparison",
   "tabDelimitedZipComparison",
   "michiganPrecinctZipComparison",
   "michiganCountyTabComparison",
   "northDakotaStatewideCsvCountyComparison",
+  "pennsylvaniaBulkCsvPrecinctComparison",
 ]);
 const supportedTurnoutFormats = new Set(["xlsxPrecinctRows", "notConfigured", "michiganMvicCountyTurnout", "northDakotaTurnoutHtml"]);
 const supportedHistoricalFormats = new Set(["officialCountyResultText", "michiganCountyTab", "northDakotaStatewideCsv"]);
