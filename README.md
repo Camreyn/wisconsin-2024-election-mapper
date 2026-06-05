@@ -116,6 +116,14 @@ For protected or scripted pages, first save browser-rendered HTML with
 `scripts/browser-snapshot.mjs`, then run discovery with `--html-file` and the
 original `--url`; the report lists links, scripts, ASP.NET postbacks, likely
 downloads, geometry candidates, and importer hints.
+To bridge discovery into a starter config, save the report and apply it in
+preview mode first:
+`npm.cmd run discover:sources -- --state XX --url TODO --output /tmp/xx-discovery.json`,
+then
+`npm.cmd run apply:discovery -- --config data/state-configs/xx.json --report /tmp/xx-discovery.json`.
+Add `--write` only after reviewing the preview; the script appends candidate
+`sources`, source-inventory rows, checked scripted-export follow-ups, and a
+Source Planner discovery summary.
 Minnesota is the first complete config example in `data/state-configs/mn.json`;
 `npm.cmd run build:minnesota` uses that config directly. North Dakota proves the
 same path for an official CSV-plus-HTML source pattern and a scripted ASP.NET
