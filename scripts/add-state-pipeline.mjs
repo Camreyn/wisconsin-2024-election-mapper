@@ -181,6 +181,14 @@ export async function runAddStatePipeline({
       updatedSources: sourceProfile.updatedSources.length,
     });
   }
+  if (write && sourceProfile.status === "applied") {
+    for (const artifact of sourceProfile.artifactCommands || []) {
+      steps.push({
+        name: artifact.name || "source-profile-artifact",
+        ...run(artifact.command, artifact.args || []),
+      });
+    }
+  }
 
   const readiness = fs.existsSync(resolvedConfigPath) ? validateStateConfigFile(resolvedConfigPath) : null;
   if (readiness) {
@@ -231,7 +239,7 @@ export async function runAddStatePipeline({
   ]);
 
   return {
-    status: steps.some((step) => step.status && !["preview", "written", "ready", "valid_with_gaps", "skipped"].includes(step.status))
+    status: steps.some((step) => step.status && !["preview", "written", "applied", "ready", "valid_with_gaps", "skipped"].includes(step.status))
       ? "failed"
       : "completed",
     state: code,

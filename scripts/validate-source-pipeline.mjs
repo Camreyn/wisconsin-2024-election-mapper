@@ -45,7 +45,8 @@ try {
   const paProfileConfig = tempFile("pa-profile-config.json");
   const alProfileConfig = tempFile("al-profile-config.json");
   const flProfileConfig = tempFile("fl-profile-config.json");
-  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig, paProfileConfig, alProfileConfig, flProfileConfig);
+  const azProfileConfig = tempFile("az-profile-config.json");
+  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig, paProfileConfig, alProfileConfig, flProfileConfig, azProfileConfig);
   const ndHtmlFile = path.join(root, "data/nd-2024-voter-turnout-details.html");
 
   const ndDiscovery = await discoverSources({
@@ -346,6 +347,40 @@ try {
   assert(flProfileSeed.historicalBaseline.format === "floridaPrecinctZip", "FL source profile should configure the historical ZIP parser.");
   assert(flProfileReadiness.status === "ready", "FL source profile should produce a ready config when source files already exist.");
 
+  const azProfileSeed = {
+    code: "AZ",
+    name: "Arizona",
+    authority: "Arizona Secretary of State",
+    electionYear: 2024,
+    office: "President",
+    output: {
+      appDataFile: "data/az-app-data.js",
+      appDataGlobal: "AZ_ELECTION_APP_DATA",
+    },
+    sources: [],
+    app: {
+      sourcePlan: {},
+      sourceInventory: [],
+      checkedNotUsable: [],
+    },
+  };
+  const azProfile = applyStateSourceProfile(azProfileSeed, {
+    state: "AZ",
+    input: { url: "https://results.arizona.vote/#/featured/47/0" },
+    page: { title: "Just a moment..." },
+    accessBarrier: { status: "blocked", type: "cloudflare" },
+  });
+  writeJson(azProfileConfig, azProfileSeed);
+  const azProfileReadiness = validateStateConfigFile(azProfileConfig);
+  assert(azProfile.status === "applied", "AZ source profile should apply to the official Arizona results app.");
+  assert(azProfile.profile === "arizonaCountySourceManifest", "AZ source profile should use the county manifest profile.");
+  assert(azProfile.artifactCommands?.some((command) => command.name === "arizona-source-manifest"), "AZ source profile should expose the source-manifest artifact command.");
+  assert(azProfileSeed.sources.some((source) => source.id === "az-2024-county-source-manifest"), "AZ source profile should add the county source manifest source.");
+  assert(azProfileSeed.certifiedResults.format === "notConfigured", "AZ source profile should keep certified results unloaded until protected sources are resolved.");
+  assert(azProfileSeed.reviewCharts.format === "notConfigured", "AZ source profile should keep review graphs unloaded until county parsers are promoted.");
+  assert(azProfileSeed.app.sourcePlan.certifiedResults.status === "Blocked by source protection", "AZ Source Planner should record the protected statewide app.");
+  assert(azProfileReadiness.status === "valid_with_gaps", "AZ source profile should be valid with gaps until county sources are promoted.");
+
   fs.writeFileSync(
     barrierHtml,
     '<html><head><script src="/_Incapsula_Resource?x=1"></script></head><body>Request unsuccessful. Incapsula incident ID: 123</body></html>',
@@ -412,6 +447,12 @@ try {
       status: flProfile.status,
       sources: flProfileSeed.sources.length,
       readiness: flProfileReadiness.status,
+    },
+    azProfile: {
+      status: azProfile.status,
+      sources: azProfileSeed.sources.length,
+      readiness: azProfileReadiness.status,
+      artifactCommands: azProfile.artifactCommands.length,
     },
     accessBarrier: {
       status: barrierDiscovery.accessBarrier.status,

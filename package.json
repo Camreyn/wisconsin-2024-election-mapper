@@ -16,6 +16,7 @@
     "discover:sources": "node scripts/discover-state-sources.mjs",
     "apply:discovery": "node scripts/apply-source-discovery.mjs",
     "apply:source-profile": "node scripts/apply-state-source-profile.mjs",
+    "build:arizona:sources": "node scripts/build-arizona-source-manifest.mjs",
     "bootstrap:state-sources": "node scripts/bootstrap-state-sources.mjs",
     "add:state": "node scripts/add-state-pipeline.mjs",
     "inspect:sources": "py -3 scripts/inspect-state-sources.py",

@@ -7,6 +7,7 @@ const configDir = path.join(root, "data/state-configs");
 
 const supportedDownloads = new Set(["browserDownload", "northDakotaResultsExport"]);
 const supportedCertifiedFormats = new Set([
+  "notConfigured",
   "xlsxPrecinctAggregation",
   "alabamaPrecinctZip",
   "floridaPrecinctZip",
@@ -15,6 +16,7 @@ const supportedCertifiedFormats = new Set([
   "pennsylvaniaBulkCsv",
 ]);
 const supportedReviewFormats = new Set([
+  "notConfigured",
   "xlsxPrecinctComparison",
   "alabamaPrecinctZipComparison",
   "floridaPrecinctZipComparison",
@@ -267,12 +269,15 @@ function validateCertifiedResults(report) {
   if (!supportedCertifiedFormats.has(format)) {
     report.errors.push(issue("error", "unsupported-certified-format", `Unsupported certifiedResults.format "${format}".`));
   }
+  if (loaded && format === "notConfigured") {
+    report.errors.push(issue("error", "loaded-certified-not-configured", "Certified results capability is loaded but certifiedResults.format is notConfigured."));
+  }
   addTodoIssues(report, certified, "Certified results", loaded);
   requireSourceReference(report, certified.sourceId, "certifiedResults.sourceId", "Certified results must point to a configured source");
   if (format === "xlsxPrecinctAggregation" && !certified.columns) {
     report.errors.push(issue("error", "certified-columns-missing", "XLSX certified results need certifiedResults.columns."));
   }
-  if (format !== "xlsxPrecinctAggregation" && !certified.majorCandidates) {
+  if (format !== "notConfigured" && format !== "xlsxPrecinctAggregation" && !certified.majorCandidates) {
     report.errors.push(issue("error", "certified-candidates-missing", `${format} certified results need majorCandidates rules.`));
   }
   if (loaded && Number(report.config.expected?.countyRows || 0) <= 0) {
@@ -292,6 +297,9 @@ function validateReviewCharts(report) {
   const format = review.format || "xlsxPrecinctComparison";
   if (!supportedReviewFormats.has(format)) {
     report.errors.push(issue("error", "unsupported-review-format", `Unsupported reviewCharts.format "${format}".`));
+  }
+  if (loaded && format === "notConfigured") {
+    report.errors.push(issue("error", "loaded-review-not-configured", "Review graph capability is loaded but reviewCharts.format is notConfigured."));
   }
   addTodoIssues(report, review, "Review graphs", loaded);
   requireSourceReference(report, review.sourceId, "reviewCharts.sourceId", "Review graphs must point to a configured source");

@@ -1,0 +1,437 @@
+{
+  "state": "AZ",
+  "name": "Arizona",
+  "electionYear": 2024,
+  "office": "President",
+  "authority": "Arizona Secretary of State",
+  "sourceStatus": "county-source-manifest-needed",
+  "statewideSources": [
+    {
+      "label": "Arizona official results app",
+      "url": "https://results.arizona.vote/#/featured/47/0",
+      "format": "webapp",
+      "access": "protected",
+      "roles": [
+        "countyTotals",
+        "precinctResults",
+        "turnout"
+      ],
+      "note": "Headless browser snapshots and direct HTTP requests returned Cloudflare verification pages."
+    },
+    {
+      "label": "Arizona SOS 2024 Election Info",
+      "url": "https://azsos.gov/events/local-elections/408",
+      "format": "html",
+      "access": "protected",
+      "roles": [
+        "countyCanvassIndex"
+      ],
+      "note": "Searchable official page references county canvass links; direct automated fetches returned Cloudflare verification pages."
+    }
+  ],
+  "parserFamilies": [
+    {
+      "id": "arizonaCountySummaryPdf",
+      "status": "candidate",
+      "appliesTo": [
+        "Apache"
+      ],
+      "nextStep": "Promote a PDF text parser for official county summary/precinct sections after reconciling Apache rows."
+    },
+    {
+      "id": "maricopaSovText",
+      "status": "blocked-by-protected-download",
+      "appliesTo": [
+        "Maricopa"
+      ],
+      "nextStep": "Add a protected-download or approved interactive capture route for the official SOV text file."
+    },
+    {
+      "id": "countyResultsPageDiscovery",
+      "status": "candidate",
+      "appliesTo": [
+        "Coconino",
+        "Maricopa"
+      ],
+      "nextStep": "Snapshot county result pages, discover official files, then promote per-format parser hints."
+    },
+    {
+      "id": "arizonaCountyCanvassPdf",
+      "status": "blocked-by-protected-download",
+      "appliesTo": [
+        "Apache",
+        "Cochise",
+        "Coconino",
+        "Gila",
+        "Graham",
+        "Greenlee",
+        "La Paz",
+        "Maricopa",
+        "Mohave",
+        "Navajo",
+        "Pima",
+        "Pinal",
+        "Santa Cruz",
+        "Yavapai",
+        "Yuma"
+      ],
+      "nextStep": "Use county-hosted mirrors where available or an approved capture route for SOS-hosted canvass PDFs."
+    }
+  ],
+  "counties": [
+    {
+      "county": "Apache",
+      "fips": "001",
+      "status": "downloadable-county-pdf-candidate",
+      "sourceCandidates": [
+        {
+          "label": "Apache County official results PDF",
+          "url": "https://ecs-cluster-bucket-wsos-prod-two.s3.us-west-2.amazonaws.com/uploads/sites/107/2024-General-Election-Official-Results.pdf",
+          "format": "pdf",
+          "access": "downloadable",
+          "parserHint": "arizonaCountySummaryPdf",
+          "roles": [
+            "countyTotals",
+            "precinctResults",
+            "turnout"
+          ],
+          "note": "Pipeline probe downloaded this county-hosted file and extracted official summary plus precinct sections from the PDF text."
+        },
+        {
+          "label": "Apache County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Apache.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Cochise",
+      "fips": "003",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Cochise County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Cochise.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Coconino",
+      "fips": "005",
+      "status": "county-results-page-candidate",
+      "sourceCandidates": [
+        {
+          "label": "Coconino County past election results page",
+          "url": "https://www.coconino.az.gov/205/Past-Election-Results",
+          "format": "html",
+          "access": "page",
+          "parserHint": "countyResultsPageDiscovery",
+          "roles": [
+            "countyTotals",
+            "precinctResults",
+            "turnout"
+          ],
+          "note": "Official county page listing November 5, 2024 General Election result resources."
+        },
+        {
+          "label": "Coconino County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Coconino.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Gila",
+      "fips": "007",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Gila County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Gila.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Graham",
+      "fips": "009",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Graham County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Graham.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Greenlee",
+      "fips": "011",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Greenlee County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Greenlee.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "La Paz",
+      "fips": "012",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "La Paz County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-LaPaz.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Maricopa",
+      "fips": "013",
+      "status": "protected-sov-text-discovered",
+      "sourceCandidates": [
+        {
+          "label": "Maricopa County historic results page",
+          "url": "https://elections.maricopa.gov/results-and-data/historic-results.html?year=2024",
+          "format": "html",
+          "access": "browserSnapshot",
+          "parserHint": "countyResultsPageDiscovery",
+          "roles": [
+            "countyTotals",
+            "precinctResults",
+            "turnout"
+          ],
+          "note": "Browser snapshot recovered official 2024 SOV and file-description asset links from this page."
+        },
+        {
+          "label": "Maricopa County final SOV text",
+          "url": "https://elections.maricopa.gov/asset/jcr:5c8a38fd-0d5a-4fa1-83cb-8b13e5ff089c/11-05-2024-2b%20Final%20SOV%20and%20Official%20Canvass%20Report.txt",
+          "format": "text",
+          "access": "protected",
+          "parserHint": "maricopaSovText",
+          "roles": [
+            "countyTotals",
+            "precinctResults",
+            "turnout"
+          ],
+          "note": "Official SOV text asset link discovered from the county archive. Direct automated download returned Cloudflare verification."
+        },
+        {
+          "label": "Maricopa County final SOV file description",
+          "url": "https://elections.maricopa.gov/asset/jcr:7bd7f5df-392a-40c2-a236-2ecd5291ba60/11-05-2024-2c%20FILE%20DESCRIPTION-Final%20SOV%20and%20Official%20Canvass%20Report.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "maricopaSovFileDescription",
+          "roles": [
+            "schema"
+          ],
+          "note": "Official file description for Maricopa's SOV text format."
+        },
+        {
+          "label": "Maricopa County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Maricopa.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Mohave",
+      "fips": "015",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Mohave County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Mohave.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Navajo",
+      "fips": "017",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Navajo County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Navajo.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Pima",
+      "fips": "019",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Pima County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Pima.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Pinal",
+      "fips": "021",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Pinal County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Pinal.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Santa Cruz",
+      "fips": "023",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Santa Cruz County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-SantaCruz.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Yavapai",
+      "fips": "025",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Yavapai County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Yavapai.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    },
+    {
+      "county": "Yuma",
+      "fips": "027",
+      "status": "sos-canvass-pdf-protected",
+      "sourceCandidates": [
+        {
+          "label": "Yuma County SOS-hosted canvass PDF",
+          "url": "https://apps.azsos.gov/election/2024/ge/canvass/202411GeneralElectionCanvass-Yuma.pdf",
+          "format": "pdf",
+          "access": "protected",
+          "parserHint": "arizonaCountyCanvassPdf",
+          "roles": [
+            "countyTotals",
+            "turnout"
+          ],
+          "note": "Arizona SOS county canvass PDF candidate. Direct automated fetches to apps.azsos.gov returned Cloudflare verification pages in this environment."
+        }
+      ]
+    }
+  ],
+  "nextSteps": [
+    "Resolve protected downloads for the statewide results app or SOS-hosted canvass PDFs.",
+    "Promote a PDF text parser for county canvass files that include precinct sections.",
+    "Promote Maricopa SOV text parsing once an approved source file is locally available.",
+    "Reconcile county totals against the official statewide canvass before enabling Arizona app capabilities."
+  ]
+}
