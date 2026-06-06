@@ -48,22 +48,11 @@ function readConfigs() {
     .map((name) => JSON.parse(fs.readFileSync(path.join(configDir, name), "utf8")));
 }
 
-function configBuildReady(config) {
-  const capabilities = config.app?.capabilities || {};
-  const requiredCapabilities = [
-    "certifiedResults",
-    "map",
-    "reviewGraphs",
-    "turnout",
-    "historicalBaseline",
-  ];
-  if (!requiredCapabilities.every((capability) => capabilities[capability])) {
-    return false;
-  }
-  if (!config.expected?.countyRows || !config.expected?.stateTotal) {
-    return false;
-  }
-  return (config.sources || []).every((source) => source.url && source.url !== "TODO");
+function configGenerated(config) {
+  const appDataReady = fs.existsSync(path.join(root, config.output.appDataFile));
+  const geometryFile = config.geometry?.outputFile;
+  const geometryReady = !geometryFile || fs.existsSync(path.join(root, geometryFile));
+  return appDataReady && geometryReady;
 }
 
 function normalizeCounty(name) {
@@ -103,14 +92,14 @@ const minnesota = readWindowPayload("mn-app-data.js", "MN_ELECTION_APP_DATA");
 const minnesotaGeojson = readWindowPayload("mn-counties.js", "MN_COUNTIES_GEOJSON");
 const stateRegistry = readWindowPayload("state-registry.js", "STATE_APP_REGISTRY");
 const stateConfigs = readConfigs();
-const buildReadyStateConfigs = stateConfigs.filter(configBuildReady);
+const generatedStateConfigs = stateConfigs.filter(configGenerated);
 
 assertEqual(errors, "county row count", counties.length, 72);
 assertEqual(errors, "candidate label count", labels.length, otherKeys.length);
 assertEqual(errors, "county geometry count", geojson.features.length, 72);
-assertEqual(errors, "state registry config count", stateRegistry.states.length, buildReadyStateConfigs.length);
+assertEqual(errors, "state registry config count", stateRegistry.states.length, generatedStateConfigs.length);
 
-for (const config of buildReadyStateConfigs) {
+for (const config of generatedStateConfigs) {
   const registryEntry = stateRegistry.states.find((entry) => entry.code === config.code);
   if (!registryEntry) {
     errors.push(`Missing state registry entry for ${config.code}`);

@@ -343,6 +343,10 @@ def certified_results(config):
     return parser(config)
 
 
+def certified_results_not_configured(config):
+    return [], [{"key": item["key"], "label": item["label"]} for item in config["certifiedResults"].get("otherCandidates", [])], 0
+
+
 def certified_results_xlsx_precinct_aggregation(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -932,6 +936,16 @@ def review_charts(config):
     review = config["reviewCharts"]
     parser = parser_for(REVIEW_CHART_PARSERS, review.get("format", "xlsxPrecinctComparison"), "review charts")
     return parser(config)
+
+
+def review_charts_not_configured(config):
+    policy = {
+        "outlierThresholdPct": 15,
+        "minCandidateVotes": 100,
+        "voteShareCorrelationThreshold": 0.35,
+        **config["reviewCharts"].get("policy", {}),
+    }
+    return [], eta_analysis_from_review_rows([], policy, 0, 0)
 
 
 def review_charts_xlsx_precinct_comparison(config):
@@ -2485,6 +2499,7 @@ def parser_for(registry, key, feature_name):
 
 
 CERTIFIED_RESULT_PARSERS = {
+    "notConfigured": certified_results_not_configured,
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
@@ -2494,6 +2509,7 @@ CERTIFIED_RESULT_PARSERS = {
 }
 
 REVIEW_CHART_PARSERS = {
+    "notConfigured": review_charts_not_configured,
     "xlsxPrecinctComparison": review_charts_xlsx_precinct_comparison,
     "alabamaPrecinctZipComparison": review_charts_alabama_precinct_zip,
     "floridaPrecinctZipComparison": review_charts_florida_precinct_zip,
@@ -2583,7 +2599,11 @@ def build_state(config, *, download=False, force_download=False):
             "precinctRows": precinct_rows,
             "countyRows": len(result_rows),
             "stateTotal": sum(row["total"] for row in result_rows),
-            "notes": f"Aggregated from configured official {config['authority']} source files.",
+            "notes": (
+                "Certified result rows are not loaded for this state yet; source planner data is available."
+                if config["certifiedResults"].get("format") == "notConfigured"
+                else f"Aggregated from configured official {config['authority']} source files."
+            ),
         },
         "presidentCountyResults": result_rows,
         "candidateLabels": candidate_labels,

@@ -1755,7 +1755,7 @@ async function copyReviewLink() {
 }
 
 function renderReviewDrilldown() {
-  if (!els.reviewSummaryGrid || !WARD_CHARTS) {
+  if (!els.reviewSummaryGrid || !WARD_CHARTS || !(WARD_CHARTS.metadata?.rows || []).length) {
     if (els.reviewSummaryGrid) {
       els.reviewSummaryGrid.innerHTML = `
         <article>

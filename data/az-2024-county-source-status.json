@@ -1,9 +1,9 @@
 {
   "state": "AZ",
-  "generatedAtUtc": "2026-06-06T05:01:38.056Z",
+  "generatedAtUtc": "2026-06-06T05:31:45.592Z",
   "manifestFile": "data/az-2024-county-source-manifest.json",
   "cacheDir": "outputs/az-county-sources",
-  "downloadFiles": true,
+  "downloadFiles": false,
   "parsedCountyCount": 4,
   "countyCount": 15,
   "totals": {
