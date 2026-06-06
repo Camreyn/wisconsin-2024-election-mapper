@@ -23,6 +23,26 @@
       "id": "pa-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2742%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/pa-counties.geojson"
+    },
+    {
+      "id": "pa-2024-vote-history-registration-summary",
+      "url": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/voter%20registration%20-%20vote%20history%20summary%20-%202024%20general.xlsx",
+      "localFile": "data/pa-2024-voter-registration-vote-history-summary.xlsx"
+    },
+    {
+      "id": "pa-2020-precinct-results",
+      "url": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/ElectionReturns_2020_General_PrecinctReturns.txt",
+      "localFile": "data/pa-2020-general-election-returns-precinct.txt"
+    },
+    {
+      "id": "pa-2016-precinct-results",
+      "url": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/ElectionReturns_2016_General_PrecinctReturns.txt",
+      "localFile": "data/pa-2016-general-election-returns-precinct.txt"
+    },
+    {
+      "id": "pa-2012-precinct-results",
+      "url": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/ElectionReturns_2012_General_PrecinctReturns.txt",
+      "localFile": "data/pa-2012-general-election-returns-precinct.txt"
     }
   ],
   "geometry": {
@@ -78,18 +98,51 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "notes": "Pennsylvania's official 2024 precinct election returns bulk file includes candidate vote totals by contest and precinct, but not registered-voter denominator rows. Turnout remains disabled until an official denominator source is added."
+    "format": "pennsylvaniaVoteHistoryXlsx",
+    "sourceId": "pa-2024-vote-history-registration-summary",
+    "sheet": "By county",
+    "columns": {
+      "county": "County",
+      "ballotsCast": "Vote History",
+      "registeredVoters": "Registered voters"
+    },
+    "registrationDenominatorTiming": "certifiedVoterRegistrationSummary",
+    "sourceLevel": "county",
+    "notes": "Pennsylvania DOS 2024 General Election Vote History & Voter Registration Summary workbook. Ballots cast use county vote-history rows; denominators use the workbook's registered-voter column.",
+    "warningRequired": false
   },
   "historicalBaseline": {
+    "format": "pennsylvaniaBulkCsv",
     "sourceLevel": "county",
-    "rowMethod": "notConfigured",
+    "rowMethod": "dosPrecinctReturnsAggregatedToCounty",
+    "officeCode": "USP",
     "partyCodes": {
       "dem": "DEM",
       "rep": "REP"
     },
     "contestName": "President Of The United States",
-    "sources": []
+    "sources": [
+      {
+        "year": 2012,
+        "sourceId": "pa-2012-precinct-results",
+        "note": "Official Pennsylvania Department of State 2012 general election precinct returns aggregated to county presidential rows."
+      },
+      {
+        "year": 2016,
+        "sourceId": "pa-2016-precinct-results",
+        "note": "Official Pennsylvania Department of State 2016 general election precinct returns aggregated to county presidential rows."
+      },
+      {
+        "year": 2020,
+        "sourceId": "pa-2020-precinct-results",
+        "note": "Official Pennsylvania Department of State 2020 general election precinct returns aggregated to county presidential rows."
+      },
+      {
+        "year": 2024,
+        "sourceId": "pa-2024-precinct-results",
+        "note": "Official Pennsylvania Department of State 2024 general election precinct returns aggregated to county presidential rows."
+      }
+    ]
   },
   "app": {
     "countyLabel": "County",
@@ -99,8 +152,8 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": true,
-      "turnout": false,
-      "historicalBaseline": false
+      "turnout": true,
+      "historicalBaseline": true
     },
     "sourcePlan": {
       "certifiedResults": {
@@ -122,13 +175,13 @@
         "status": "Loaded"
       },
       "turnout": {
-        "title": "Pennsylvania turnout denominator source",
-        "detail": "The official precinct election returns bulk file does not include registered-voter denominator rows, so Pennsylvania turnout remains disabled until an official turnout or registration source is added.",
+        "title": "Pennsylvania DOS vote history and voter registration summary",
+        "detail": "County turnout rows use the official 2024 General Election Vote History & Voter Registration Summary workbook: Vote History divided by Registered voters on the By county sheet.",
         "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
-        "localFile": "",
+        "localFile": "data/pa-2024-voter-registration-vote-history-summary.xlsx; data/pa-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Reviewed official precinct election returns readme and fields list.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official PA election data page and 2024 General Data Handbook identify the workbook as a post-election SURE summary.",
+        "status": "Loaded"
       },
       "discoveryCandidates": {
         "title": "Discovered source candidates",
@@ -149,11 +202,18 @@
         "confidence": "Official Pennsylvania Department of State 2024 General Election Precinct Election Returns bulk file."
       },
       {
-        "category": "Precinct returns schema",
-        "file": "data/pa-2024-general-election-returns-readme.txt",
+        "category": "Turnout denominator source",
+        "file": "data/pa-2024-voter-registration-vote-history-summary.xlsx; data/pa-app-data.js",
         "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
-        "usedFor": "Documents the comma-delimited precinct returns fields, county codes, office codes, and party codes used by the Pennsylvania parser.",
-        "confidence": "Official Pennsylvania Department of State readme for the 2024 General Election Precinct Election Returns file."
+        "usedFor": "Pennsylvania turnout graph and Source Planner turnout coverage.",
+        "confidence": "Official Pennsylvania Department of State Vote History & Voter Registration Summary workbook."
+      },
+      {
+        "category": "Historical presidential baseline",
+        "file": "data/pa-2012-general-election-returns-precinct.txt; data/pa-2016-general-election-returns-precinct.txt; data/pa-2020-general-election-returns-precinct.txt; data/pa-2024-general-election-returns-precinct.txt; data/pa-app-data.js",
+        "sourceUrl": "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
+        "usedFor": "Pennsylvania Historical Baseline tab: native DOS precinct returns aggregated to county presidential comparison rows for 2012, 2016, 2020, and 2024.",
+        "confidence": "Official Pennsylvania Department of State general election returns precinct files."
       },
       {
         "category": "County boundaries",
@@ -170,20 +230,13 @@
         "reason": "The fetched page is an Incapsula access-protection response, not the election-results application HTML.",
         "status": "Blocked by incapsula",
         "nextStep": "Use the official PA.gov bulk election data file or an interactive browser capture for the protected electionreturns.pa.gov application."
-      },
-      {
-        "category": "Turnout denominator",
-        "sourceUrl": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_readme.txt",
-        "reason": "The official precinct returns schema lists candidate vote totals and district/municipality fields, but no registered-voter denominator fields.",
-        "status": "Needs separate official source",
-        "nextStep": "Find an official Pennsylvania voter-registration or turnout denominator file before enabling turnout."
       }
     ],
     "turnoutPolicy": {
-      "route": "notConfigured",
-      "status": "Needs denominator source",
-      "acceptedSource": "No official Pennsylvania denominator source is configured yet.",
-      "warning": "Pennsylvania turnout is disabled because the official precinct returns bulk file does not include registered-voter denominators.",
+      "route": "voteHistoryRegistrationSummaryWorkbook",
+      "status": "Loaded",
+      "acceptedSource": "Pennsylvania DOS 2024 General Election Vote History & Voter Registration Summary workbook.",
+      "warning": "Pennsylvania turnout uses vote-history rows and registered-voter denominators from the DOS summary workbook, not candidate vote totals from the election returns file.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -191,7 +244,7 @@
         "sourceUrl"
       ]
     },
-    "historicalSummary": "Historical comparison data is not loaded yet for Pennsylvania.",
+    "historicalSummary": "Native official Pennsylvania Department of State precinct returns are aggregated to county presidential rows for each election year.",
     "reviewRowLabel": "Pennsylvania DOS precinct row",
     "reviewRowLabelPlural": "Pennsylvania DOS precinct rows",
     "reviewGraphTitlePrefix": "Pennsylvania DOS precinct",
@@ -206,10 +259,10 @@
     "harris": 3420865,
     "other": 67831,
     "reviewRows": 9154,
-    "turnoutRows": 0,
+    "turnoutRows": 67,
     "turnoutWarningRows": 0,
-    "historicalSeries": 0,
-    "historicalRows": 0,
+    "historicalSeries": 4,
+    "historicalRows": 268,
     "geometryFeatures": 67
   }
 }

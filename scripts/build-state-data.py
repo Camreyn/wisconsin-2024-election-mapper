@@ -472,8 +472,10 @@ def pennsylvania_precinct_key(row, fields=None):
 def pennsylvania_bulk_rows(path):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         for row in csv.reader(handle):
-            if len(row) < 37:
+            if len(row) < 33:
                 continue
+            has_yes_no_columns = len(row) >= 37
+            municipal_offset = 2 if has_yes_no_columns else 0
             candidate = " ".join(
                 part.strip()
                 for part in (row[11], row[12], row[13], row[14])
@@ -489,12 +491,12 @@ def pennsylvania_bulk_rows(path):
                 "party": row[9].strip(),
                 "candidate": candidate,
                 "votes": int_text(row[15]),
-                "municipality": row[22].strip(),
-                "breakdown1Code": row[23].strip(),
-                "breakdown1Name": row[24].strip(),
-                "breakdown2Code": row[25].strip(),
-                "breakdown2Name": row[26].strip(),
-                "vtdCode": str(row[30]).strip(),
+                "municipality": row[20 + municipal_offset].strip(),
+                "breakdown1Code": row[21 + municipal_offset].strip(),
+                "breakdown1Name": row[22 + municipal_offset].strip(),
+                "breakdown2Code": row[23 + municipal_offset].strip(),
+                "breakdown2Name": row[24 + municipal_offset].strip(),
+                "vtdCode": str(row[28 + municipal_offset]).strip(),
             }
 
 
@@ -1373,6 +1375,53 @@ def turnout_data_north_dakota_html(config):
     }
 
 
+def turnout_data_pennsylvania_vote_history_xlsx(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    columns = turnout.get(
+        "columns",
+        {
+            "county": "County",
+            "ballotsCast": "Vote History",
+            "registeredVoters": "Registered voters",
+        },
+    )
+    column_index, rows = read_sheet_rows(path, turnout.get("sheet", "By county"))
+    output_rows = []
+
+    for row in rows:
+        county_raw = str(row[column_index[columns["county"]]] or "").strip()
+        if not county_raw or county_raw.upper() == "TOTAL":
+            continue
+        county = title_county(county_raw)
+        ballots = int_text(row[column_index[columns["ballotsCast"]]])
+        registered = int_text(row[column_index[columns["registeredVoters"]]])
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": f"{county} County",
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "sourceUrl": source_map(config)[turnout["sourceId"]]["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": local_source(config, turnout["sourceId"]).name,
+            "sourceUrl": source_map(config)[turnout["sourceId"]]["url"],
+        },
+        "rows": output_rows,
+    }
+
+
 def county_code_name_map(config):
     geometry = config["geometry"]
     geojson = json.loads(local_source(config, geometry["sourceId"]).read_text(encoding="utf-8"))
@@ -1646,6 +1695,85 @@ def historical_baseline_north_dakota_csv(config):
     }
 
 
+def historical_baseline_pennsylvania_bulk_csv(config):
+    historical = config["historicalBaseline"]
+    series = []
+    for item in historical["sources"]:
+        source = source_map(config)[item["sourceId"]]
+        office_code = item.get("officeCode", historical.get("officeCode", "USP"))
+        by_county = defaultdict(lambda: {"dem": 0, "rep": 0, "other": 0, "total": 0})
+        for row in pennsylvania_bulk_rows(project_path(source["localFile"])):
+            if row["officeCode"] != office_code:
+                continue
+            county = row["county"]
+            votes = row["votes"]
+            party = normalize_party(row["party"])
+            by_county[county]["total"] += votes
+            if party == normalize_party(historical["partyCodes"]["dem"]):
+                by_county[county]["dem"] += votes
+            elif party == normalize_party(historical["partyCodes"]["rep"]):
+                by_county[county]["rep"] += votes
+            else:
+                by_county[county]["other"] += votes
+
+        rows = []
+        for county, totals in sorted(by_county.items()):
+            rows.append(
+                {
+                    "county": county,
+                    "municipality": county,
+                    "reportingUnit": f"{county} County",
+                    "ward": f"{county} County",
+                    "dem": totals["dem"],
+                    "rep": totals["rep"],
+                    "other": totals["other"],
+                    "total": totals["total"],
+                }
+            )
+        statewide = {
+            "dem": sum(row["dem"] for row in rows),
+            "rep": sum(row["rep"] for row in rows),
+            "other": sum(row["other"] for row in rows),
+            "total": sum(row["total"] for row in rows),
+            "rowCount": len(rows),
+        }
+        series.append(
+            {
+                "id": f"{config['code'].lower()}-dos-native-{item['year']}-president",
+                "electionYear": item["year"],
+                "sourceId": item["sourceId"],
+                "sourceClass": "nativeOfficial",
+                "sourceLevel": historical["sourceLevel"],
+                "rowMethod": historical["rowMethod"],
+                "rowCount": len(rows),
+                "sourceUrl": source["url"],
+                "localFile": source["localFile"],
+                "sourceNote": item["note"],
+                "statewide": statewide,
+                "rows": rows,
+            }
+        )
+
+    return {
+        "metadata": {
+            "purpose": f"Graph-ready {config['name']} presidential-election baseline using native official Department of State county rows.",
+            "seriesCount": len(series),
+            "warning": f"{config['name']} historical rows are native official precinct returns aggregated to county rows by election year.",
+            "sources": [
+                {
+                    "year": item["year"],
+                    "localFile": source_map(config)[item["sourceId"]]["localFile"],
+                    "sourceUrl": source_map(config)[item["sourceId"]]["url"],
+                    "format": "Pennsylvania Department of State comma-delimited precinct election returns",
+                    "note": item["note"],
+                }
+                for item in historical["sources"]
+            ],
+        },
+        "series": series,
+    }
+
+
 def parser_for(registry, key, feature_name):
     try:
         return registry[key]
@@ -1675,12 +1803,14 @@ TURNOUT_PARSERS = {
     "xlsxPrecinctRows": turnout_data_xlsx_precinct_rows,
     "michiganMvicCountyTurnout": turnout_data_michigan_mvic,
     "northDakotaTurnoutHtml": turnout_data_north_dakota_html,
+    "pennsylvaniaVoteHistoryXlsx": turnout_data_pennsylvania_vote_history_xlsx,
 }
 
 HISTORICAL_BASELINE_PARSERS = {
     "officialCountyResultText": historical_baseline_official_county_result_text,
     "michiganCountyTab": historical_baseline_michigan_tab,
     "northDakotaStatewideCsv": historical_baseline_north_dakota_csv,
+    "pennsylvaniaBulkCsv": historical_baseline_pennsylvania_bulk_csv,
 }
 
 

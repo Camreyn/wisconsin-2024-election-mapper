@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { applyStateSourceProfile } from "./apply-state-source-profile.mjs";
 import { bootstrapStateSources } from "./bootstrap-state-sources.mjs";
 import { validateStateConfigFile } from "./validate-state-config.mjs";
 
@@ -126,7 +127,6 @@ export async function runAddStatePipeline({
   const steps = [];
   const configExists = fs.existsSync(resolvedConfigPath);
   let config = configExists ? readJson(resolvedConfigPath) : bootstrap.config;
-  const readiness = configExists ? validateStateConfigFile(resolvedConfigPath) : null;
   steps.push({
     name: "bootstrap",
     status: bootstrap.summary.status,
@@ -134,6 +134,22 @@ export async function runAddStatePipeline({
     report: displayPath(resolvedReportPath),
     addedSources: bootstrap.summary.apply.addedSources.length,
   });
+
+  const sourceProfile = applyStateSourceProfile(config, bootstrap.report);
+  if (write && sourceProfile.status === "applied") {
+    fs.writeFileSync(resolvedConfigPath, `${JSON.stringify(config, null, 2)}\n`, "utf8");
+  }
+  if (sourceProfile.status === "applied") {
+    steps.push({
+      name: "source-profile",
+      status: sourceProfile.status,
+      profile: sourceProfile.profile,
+      addedSources: sourceProfile.addedSources.length,
+      updatedSources: sourceProfile.updatedSources.length,
+    });
+  }
+
+  const readiness = configExists ? validateStateConfigFile(resolvedConfigPath) : null;
   if (readiness) {
     steps.push({
       name: "readiness",

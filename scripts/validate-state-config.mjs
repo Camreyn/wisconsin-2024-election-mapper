@@ -20,8 +20,19 @@ const supportedReviewFormats = new Set([
   "northDakotaStatewideCsvCountyComparison",
   "pennsylvaniaBulkCsvPrecinctComparison",
 ]);
-const supportedTurnoutFormats = new Set(["xlsxPrecinctRows", "notConfigured", "michiganMvicCountyTurnout", "northDakotaTurnoutHtml"]);
-const supportedHistoricalFormats = new Set(["officialCountyResultText", "michiganCountyTab", "northDakotaStatewideCsv"]);
+const supportedTurnoutFormats = new Set([
+  "xlsxPrecinctRows",
+  "notConfigured",
+  "michiganMvicCountyTurnout",
+  "northDakotaTurnoutHtml",
+  "pennsylvaniaVoteHistoryXlsx",
+]);
+const supportedHistoricalFormats = new Set([
+  "officialCountyResultText",
+  "michiganCountyTab",
+  "northDakotaStatewideCsv",
+  "pennsylvaniaBulkCsv",
+]);
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = new Map();

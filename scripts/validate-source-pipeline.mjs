@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { applyDiscovery, applyDiscoverySummary } from "./apply-source-discovery.mjs";
+import { applyStateSourceProfile } from "./apply-state-source-profile.mjs";
 import { runAddStatePipeline } from "./add-state-pipeline.mjs";
 import { bootstrapStateSources } from "./bootstrap-state-sources.mjs";
 import { discoverSources } from "./discover-state-sources.mjs";
@@ -41,7 +42,8 @@ try {
   const lifecycleReport = tempFile("zy-discovery.json");
   const barrierHtml = tempFile("barrier.html");
   const barrierConfig = tempFile("barrier-config.json");
-  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig);
+  const paProfileConfig = tempFile("pa-profile-config.json");
+  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig, paProfileConfig);
   const ndHtmlFile = path.join(root, "data/nd-2024-voter-turnout-details.html");
 
   const ndDiscovery = await discoverSources({
@@ -200,6 +202,63 @@ try {
   assert(lifecycle.gitAddCommand.includes("git add"), "Lifecycle runner should emit a git add command.");
   assert(lifecycle.readiness.status === "valid_with_gaps", "Lifecycle runner should report valid_with_gaps for an unpromoted discovered state.");
 
+  const paProfileSeed = {
+    code: "PA",
+    name: "Pennsylvania",
+    authority: "Pennsylvania Department of State",
+    electionYear: 2024,
+    office: "President",
+    output: {
+      appDataFile: "data/pa-app-data.js",
+      appDataGlobal: "PA_ELECTION_APP_DATA",
+    },
+    sources: [],
+    app: {
+      sourcePlan: {},
+      sourceInventory: [],
+      checkedNotUsable: [],
+    },
+  };
+  const paProfileReport = {
+    state: "PA",
+    input: {
+      url: "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data",
+    },
+    page: {
+      title: "Historical Elections Data | Department of State | Commonwealth of Pennsylvania",
+    },
+    resources: [
+      {
+        text: "Download the 2024 General Election Voter Registration Vote History",
+        url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/voter%20registration%20-%20vote%20history%20summary%20-%202024%20general.xlsx",
+      },
+      {
+        text: "Download the 2024 General Voter Election Returns Precinct Data",
+        url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_268768_20250129.txt",
+      },
+      {
+        text: "Download the 2020 General Election Returns Precinct Data",
+        url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/ElectionReturns_2020_General_PrecinctReturns.txt",
+      },
+      {
+        text: "Download the 2016 General Election Returns Precinct Data",
+        url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/ElectionReturns_2016_General_PrecinctReturns.txt",
+      },
+      {
+        text: "Download the 2012 General Election Returns Precinct Data",
+        url: "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/ElectionReturns_2012_General_PrecinctReturns.txt",
+      },
+    ],
+  };
+  const paProfile = applyStateSourceProfile(paProfileSeed, paProfileReport);
+  writeJson(paProfileConfig, paProfileSeed);
+  const paProfileReadiness = validateStateConfigFile(paProfileConfig);
+  assert(paProfile.status === "applied", "PA source profile should apply to the official PA election data page.");
+  assert(paProfileSeed.sources.some((source) => source.id === "pa-2024-vote-history-registration-summary"), "PA source profile should add the turnout workbook source.");
+  assert(paProfileSeed.turnout.format === "pennsylvaniaVoteHistoryXlsx", "PA source profile should configure the turnout parser.");
+  assert(paProfileSeed.historicalBaseline.format === "pennsylvaniaBulkCsv", "PA source profile should configure the historical parser.");
+  assert(paProfileReadiness.status === "ready", "PA source profile should produce a ready config when source files already exist.");
+
   fs.writeFileSync(
     barrierHtml,
     '<html><head><script src="/_Incapsula_Resource?x=1"></script></head><body>Request unsuccessful. Incapsula incident ID: 123</body></html>',
@@ -250,6 +309,11 @@ try {
       status: lifecycle.status,
       readiness: lifecycle.readiness.status,
       filesToReview: lifecycle.filesToReview.length,
+    },
+    paProfile: {
+      status: paProfile.status,
+      sources: paProfileSeed.sources.length,
+      readiness: paProfileReadiness.status,
     },
     accessBarrier: {
       status: barrierDiscovery.accessBarrier.status,
