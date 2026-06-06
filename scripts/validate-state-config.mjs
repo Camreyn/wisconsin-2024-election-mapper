@@ -9,6 +9,7 @@ const supportedDownloads = new Set(["browserDownload", "northDakotaResultsExport
 const supportedCertifiedFormats = new Set([
   "xlsxPrecinctAggregation",
   "alabamaPrecinctZip",
+  "floridaPrecinctZip",
   "michiganCountyTab",
   "northDakotaStatewideCsv",
   "pennsylvaniaBulkCsv",
@@ -16,6 +17,7 @@ const supportedCertifiedFormats = new Set([
 const supportedReviewFormats = new Set([
   "xlsxPrecinctComparison",
   "alabamaPrecinctZipComparison",
+  "floridaPrecinctZipComparison",
   "tabDelimitedZipComparison",
   "michiganPrecinctZipComparison",
   "michiganCountyTabComparison",
@@ -24,6 +26,7 @@ const supportedReviewFormats = new Set([
 ]);
 const supportedTurnoutFormats = new Set([
   "alabamaPrecinctZipTurnout",
+  "floridaPrecinctZipTurnout",
   "xlsxPrecinctRows",
   "notConfigured",
   "michiganMvicCountyTurnout",
@@ -33,6 +36,7 @@ const supportedTurnoutFormats = new Set([
 const supportedHistoricalFormats = new Set([
   "officialCountyResultText",
   "alabamaPrecinctZip",
+  "floridaPrecinctZip",
   "michiganCountyTab",
   "northDakotaStatewideCsv",
   "pennsylvaniaBulkCsv",

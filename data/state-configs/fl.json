@@ -1,0 +1,312 @@
+{
+  "code": "FL",
+  "name": "Florida",
+  "authority": "Florida Division of Elections",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/fl-app-data.js",
+    "appDataGlobal": "FL_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "fl-2024-precinct-results",
+      "url": "https://dos.fl.gov/media/708761/2024-gen-outputofficial1.zip",
+      "localFile": "data/fl-2024-general-precinct-level-results.zip"
+    },
+    {
+      "id": "fl-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2712%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/fl-counties.geojson"
+    },
+    {
+      "id": "fl-2020-precinct-results",
+      "url": "https://fldoswebumbracoprod.blob.core.windows.net/media/703763/2020-general-election-rev.zip",
+      "localFile": "data/fl-2020-general-precinct-level-results.zip"
+    },
+    {
+      "id": "fl-2016-precinct-results",
+      "url": "https://dos.fl.gov/media/697454/precinctlevelelectionresults2016gen.zip",
+      "localFile": "data/fl-2016-general-precinct-level-results.zip"
+    },
+    {
+      "id": "fl-2012-precinct-results",
+      "url": "https://dos.fl.gov/media/697204/precinctlevelelectionresults2012gen.zip",
+      "localFile": "data/fl-2012-general-precinct-level-results.zip"
+    },
+    {
+      "id": "fl-precinct-results-data-definitions",
+      "url": "https://dos.fl.gov/media/709209/final-precinct-level-elections-data-definitions-and-field-codes_20250624.pdf",
+      "localFile": "data/fl-precinct-level-election-results-definitions.pdf"
+    }
+  ],
+  "geometry": {
+    "sourceId": "fl-county-geometry",
+    "outputFile": "data/fl-counties.js",
+    "outputGlobal": "FL_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "COUNTY",
+    "expectedFeatures": 67
+  },
+  "certifiedResults": {
+    "format": "floridaPrecinctZip",
+    "sourceId": "fl-2024-precinct-results",
+    "contestName": "President and Vice President",
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP",
+        "candidateContains": "TRUMP"
+      },
+      "harris": {
+        "partyCode": "DEM",
+        "candidateContains": "HARRIS"
+      }
+    },
+    "otherCandidates": [
+      {
+        "key": "stein",
+        "label": "Jill Stein / Butch Ware",
+        "partyCode": "GRE",
+        "candidateContains": "STEIN"
+      },
+      {
+        "key": "writeIn",
+        "label": "Write-In",
+        "candidateContains": "WRITE"
+      },
+      {
+        "key": "oliver",
+        "label": "Chase Oliver / Mike ter Maat",
+        "partyCode": "LPF",
+        "candidateContains": "OLIVER"
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De la Cruz / Karina Garcia",
+        "partyCode": "PSL",
+        "candidateContains": "CRUZ"
+      },
+      {
+        "key": "sonski",
+        "label": "Peter Sonski / Lauren Onak",
+        "partyCode": "ASP",
+        "candidateContains": "SONSKI"
+      },
+      {
+        "key": "terry",
+        "label": "Randall Terry / Stephen Broden",
+        "partyCode": "CPF",
+        "candidateContains": "TERRY"
+      }
+    ],
+    "excludeCandidatePatterns": [
+      "OverVotes",
+      "UnderVotes"
+    ]
+  },
+  "reviewCharts": {
+    "format": "floridaPrecinctZipComparison",
+    "sourceId": "fl-2024-precinct-results",
+    "presidentContestName": "President and Vice President",
+    "downBallotContestName": "United States Senator",
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP",
+        "candidateContains": "TRUMP"
+      },
+      "harris": {
+        "partyCode": "DEM",
+        "candidateContains": "HARRIS"
+      }
+    },
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "excludeCandidatePatterns": [
+      "OverVotes",
+      "UnderVotes"
+    ],
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "floridaPrecinctZipTurnout",
+    "sourceId": "fl-2024-precinct-results",
+    "contestName": "President and Vice President",
+    "registrationDenominatorTiming": "officialPrecinctFileRegisteredVoters",
+    "sourceLevel": "precinct",
+    "notes": "Florida Division of Elections precinct-level file. Ballots cast are presidential-contest rows including candidate votes, write-ins, overvotes, and undervotes; denominators use the file's Total Registered voters field.",
+    "warningRequired": false
+  },
+  "historicalBaseline": {
+    "format": "floridaPrecinctZip",
+    "sourceLevel": "county",
+    "rowMethod": "doePrecinctZipAggregatedToCounty",
+    "contestName": "President and Vice President",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "alternateRepPartyCodes": [
+      "RPO"
+    ],
+    "excludeCandidatePatterns": [
+      "OverVotes",
+      "UnderVotes",
+      "Times Blank Voted",
+      "Times Over Voted",
+      "Number of Under Votes"
+    ],
+    "sources": [
+      {
+        "year": 2012,
+        "sourceId": "fl-2012-precinct-results",
+        "contestName": "President of the United States",
+        "note": "Official Florida Division of Elections 2012 general election precinct-level ZIP aggregated to county presidential rows."
+      },
+      {
+        "year": 2016,
+        "sourceId": "fl-2016-precinct-results",
+        "contestName": "President of the United States",
+        "note": "Official Florida Division of Elections 2016 general election precinct-level ZIP aggregated to county presidential rows."
+      },
+      {
+        "year": 2020,
+        "sourceId": "fl-2020-precinct-results",
+        "contestName": "President of the United States",
+        "note": "Official Florida Division of Elections 2020 general election precinct-level ZIP aggregated to county presidential rows."
+      },
+      {
+        "year": 2024,
+        "sourceId": "fl-2024-precinct-results",
+        "contestName": "President and Vice President",
+        "note": "Official Florida Division of Elections 2024 general election precinct-level ZIP aggregated to county presidential rows."
+      }
+    ]
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "florida-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": true,
+      "turnout": true,
+      "historicalBaseline": true
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Florida DOE 2024 precinct-level results ZIP",
+        "detail": "Presidential county totals are aggregated from the official Florida Division of Elections 2024 General Election precinct-level tab-delimited ZIP.",
+        "sourceUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/",
+        "localFile": "data/fl-2024-general-precinct-level-results.zip; data/fl-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official Florida DOE precinct-level results page, updated June 2, 2026, links the 2024 General Election ZIP.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Florida DOE precinct-level tab-delimited files",
+        "detail": "The official ZIP contains one county text file per county. The state builder imports President and U.S. Senate rows for precinct-level review graphs.",
+        "sourceUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/",
+        "localFile": "data/fl-2024-general-precinct-level-results.zip; data/fl-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official Florida DOE data-definition PDF maps the 19 tab-delimited fields used by the ZIP.",
+        "status": "Loaded"
+      },
+      "turnout": {
+        "title": "Florida DOE precinct registered-voter and presidential participation rows",
+        "detail": "Precinct turnout rows use presidential-contest vote totals, including overvotes and undervotes, divided by the Total Registered voters field in the official precinct-level ZIP.",
+        "sourceUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/; https://dos.fl.gov/elections/data-statistics/elections-data/voter-turnout/",
+        "localFile": "data/fl-2024-general-precinct-level-results.zip; data/fl-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Florida DOE voter-turnout page defines turnout against active registered voters and points to book-closing reports; the precinct ZIP includes registered-voter denominators by precinct.",
+        "status": "Loaded"
+      },
+      "discoveryCandidates": {
+        "title": "Discovered source candidates",
+        "detail": "12 source candidate(s) and 0 scripted-export follow-up(s) were added from https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/. Confirm download strategies and parser formats before marking any candidate Loaded.",
+        "sourceUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/",
+        "localFile": "",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Generated by scripts/discover-state-sources.mjs and scripts/apply-source-discovery.mjs.",
+        "status": "Candidate"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Presidential county results",
+        "file": "data/fl-2024-general-precinct-level-results.zip; data/fl-app-data.js",
+        "sourceUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/",
+        "usedFor": "Florida county table, statewide totals, candidate breakdown, CSV export, Source Planner rows, and precinct-level review graphs.",
+        "confidence": "Official Florida Division of Elections 2024 General Election precinct-level results ZIP."
+      },
+      {
+        "category": "Turnout denominator source",
+        "file": "data/fl-2024-general-precinct-level-results.zip; data/fl-app-data.js",
+        "sourceUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/; https://dos.fl.gov/elections/data-statistics/elections-data/voter-turnout/",
+        "usedFor": "Florida turnout graph and Source Planner turnout coverage.",
+        "confidence": "Official Florida Division of Elections precinct-level ZIP fields plus DOE voter-turnout definition."
+      },
+      {
+        "category": "Historical presidential baseline",
+        "file": "data/fl-2012-general-precinct-level-results.zip; data/fl-2016-general-precinct-level-results.zip; data/fl-2020-general-precinct-level-results.zip; data/fl-2024-general-precinct-level-results.zip; data/fl-app-data.js",
+        "sourceUrl": "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/",
+        "usedFor": "Florida Historical Baseline tab: native DOE precinct-level ZIP rows aggregated to county presidential comparison rows for 2012, 2016, 2020, and 2024.",
+        "confidence": "Official Florida Division of Elections general election precinct-level ZIP files."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/fl-counties.geojson; data/fl-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "Florida county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Field definitions",
+        "file": "data/fl-precinct-level-election-results-definitions.pdf",
+        "sourceUrl": "https://dos.fl.gov/media/709209/final-precinct-level-elections-data-definitions-and-field-codes_20250624.pdf",
+        "usedFor": "Parser field mapping for Florida precinct-level results.",
+        "confidence": "Official Florida Division of Elections data-definition PDF."
+      }
+    ],
+    "checkedNotUsable": [],
+    "turnoutPolicy": {
+      "route": "precinctFileRegisteredVotersAndPresidentContestParticipation",
+      "status": "Loaded",
+      "acceptedSource": "Florida Division of Elections 2024 General Election precinct-level results ZIP.",
+      "warning": "Florida turnout rows use presidential-contest participation including overvotes and undervotes divided by the precinct registered-voter field.",
+      "requiredFields": [
+        "county",
+        "ward",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Native official Florida Division of Elections precinct-level ZIP files are aggregated to county presidential rows for each election year.",
+    "reviewRowLabel": "Florida DOE precinct row",
+    "reviewRowLabelPlural": "Florida DOE precinct rows",
+    "reviewGraphTitlePrefix": "Florida DOE precinct",
+    "mapLoadingText": "Loading local Florida county boundaries...",
+    "noGeometryText": "Florida county geometry is not loaded yet; showing the county tile fallback."
+  },
+  "expected": {
+    "countyRows": 67,
+    "precinctRows": 5712,
+    "stateTotal": 10935466,
+    "trump": 6110126,
+    "harris": 4683038,
+    "other": 142302,
+    "reviewRows": 5620,
+    "turnoutRows": 5712,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 4,
+    "historicalRows": 268,
+    "geometryFeatures": 67
+  }
+}

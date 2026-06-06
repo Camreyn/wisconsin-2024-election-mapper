@@ -44,7 +44,8 @@ try {
   const barrierConfig = tempFile("barrier-config.json");
   const paProfileConfig = tempFile("pa-profile-config.json");
   const alProfileConfig = tempFile("al-profile-config.json");
-  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig, paProfileConfig, alProfileConfig);
+  const flProfileConfig = tempFile("fl-profile-config.json");
+  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig, paProfileConfig, alProfileConfig, flProfileConfig);
   const ndHtmlFile = path.join(root, "data/nd-2024-voter-turnout-details.html");
 
   const ndDiscovery = await discoverSources({
@@ -313,6 +314,38 @@ try {
   assert(alProfileSeed.historicalBaseline.format === "alabamaPrecinctZip", "AL source profile should configure the historical ZIP parser.");
   assert(alProfileReadiness.status === "ready", "AL source profile should produce a ready config when source files already exist.");
 
+  const flProfileSeed = {
+    code: "FL",
+    name: "Florida",
+    authority: "Florida Division of Elections",
+    electionYear: 2024,
+    office: "President",
+    output: {
+      appDataFile: "data/fl-app-data.js",
+      appDataGlobal: "FL_ELECTION_APP_DATA",
+    },
+    sources: [],
+    app: {
+      sourcePlan: {},
+      sourceInventory: [],
+      checkedNotUsable: [],
+    },
+  };
+  const flProfile = applyStateSourceProfile(flProfileSeed, {
+    state: "FL",
+    input: { url: "https://dos.fl.gov/elections/data-statistics/elections-data/precinct-level-election-results/" },
+    page: { title: "Precinct-Level Election Results - Division of Elections - Florida Department of State" },
+    resources: [],
+  });
+  writeJson(flProfileConfig, flProfileSeed);
+  const flProfileReadiness = validateStateConfigFile(flProfileConfig);
+  assert(flProfile.status === "applied", "FL source profile should apply to the official Florida precinct results page.");
+  assert(flProfileSeed.certifiedResults.format === "floridaPrecinctZip", "FL source profile should configure the certified ZIP parser.");
+  assert(flProfileSeed.reviewCharts.format === "floridaPrecinctZipComparison", "FL source profile should configure the precinct review parser.");
+  assert(flProfileSeed.turnout.format === "floridaPrecinctZipTurnout", "FL source profile should configure the turnout parser.");
+  assert(flProfileSeed.historicalBaseline.format === "floridaPrecinctZip", "FL source profile should configure the historical ZIP parser.");
+  assert(flProfileReadiness.status === "ready", "FL source profile should produce a ready config when source files already exist.");
+
   fs.writeFileSync(
     barrierHtml,
     '<html><head><script src="/_Incapsula_Resource?x=1"></script></head><body>Request unsuccessful. Incapsula incident ID: 123</body></html>',
@@ -374,6 +407,11 @@ try {
       status: alProfile.status,
       sources: alProfileSeed.sources.length,
       readiness: alProfileReadiness.status,
+    },
+    flProfile: {
+      status: flProfile.status,
+      sources: flProfileSeed.sources.length,
+      readiness: flProfileReadiness.status,
     },
     accessBarrier: {
       status: barrierDiscovery.accessBarrier.status,

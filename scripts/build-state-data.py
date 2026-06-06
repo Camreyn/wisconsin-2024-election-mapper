@@ -512,6 +512,50 @@ def pennsylvania_bulk_rows(path):
             }
 
 
+def florida_precinct_rows(path, *, include_recounts=False):
+    with zipfile.ZipFile(path) as archive:
+        for member in sorted(archive.namelist()):
+            lowered = member.lower()
+            if not lowered.endswith(".txt"):
+                continue
+            if not include_recounts and "recount" in lowered:
+                continue
+            text = archive.read(member).decode("utf-8-sig", errors="replace")
+            for raw_row in csv.reader(io.StringIO(text), delimiter="\t"):
+                if len(raw_row) < 19:
+                    continue
+                yield {
+                    "countyCode": raw_row[0].strip(),
+                    "county": title_county(raw_row[1].strip()),
+                    "electionNumber": raw_row[2].strip(),
+                    "electionDate": raw_row[3].strip(),
+                    "electionName": raw_row[4].strip(),
+                    "precinctId": raw_row[5].strip(),
+                    "precinct": raw_row[6].strip(),
+                    "registeredVoters": int_text(raw_row[7]),
+                    "registeredRepublicans": int_text(raw_row[8]),
+                    "registeredDemocrats": int_text(raw_row[9]),
+                    "registeredOther": int_text(raw_row[10]),
+                    "contest": raw_row[11].strip(),
+                    "district": raw_row[12].strip(),
+                    "contestCode": raw_row[13].strip(),
+                    "candidate": raw_row[14].strip(),
+                    "party": raw_row[15].strip(),
+                    "candidateId": raw_row[16].strip(),
+                    "candidateNumber": raw_row[17].strip(),
+                    "votes": int_text(raw_row[18]),
+                }
+
+
+def florida_contest_matches(row, contest_name):
+    return normalize_party(row["contest"]) == normalize_party(contest_name)
+
+
+def florida_excluded_candidate(row, config_section):
+    candidate = row["candidate"]
+    return any(re.search(pattern, candidate, flags=re.IGNORECASE) for pattern in config_section.get("excludeCandidatePatterns", []))
+
+
 def legacy_xls_workbooks(paths, *, all_sheets=False):
     with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as handle:
         manifest_path = Path(handle.name)
@@ -749,6 +793,56 @@ def certified_results_pennsylvania_bulk_csv(config):
             continue
         county = row["county"]
         precinct_keys.add(pennsylvania_precinct_key(row, source.get("precinctKeyFields")))
+        if candidate_matches(row, source["majorCandidates"]["trump"]):
+            by_county[county]["trump"] += row["votes"]
+        elif candidate_matches(row, source["majorCandidates"]["harris"]):
+            by_county[county]["harris"] += row["votes"]
+        else:
+            matched_other = False
+            for candidate in source.get("otherCandidates", []):
+                if candidate_matches(row, candidate):
+                    by_county[county][candidate["key"]] += row["votes"]
+                    matched_other = True
+                    break
+            if not matched_other:
+                by_county[county]["unmappedOther"] += row["votes"]
+
+    result_rows = []
+    for county, totals in sorted(by_county.items()):
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+    return result_rows, candidate_labels, len(precinct_keys)
+
+
+def certified_results_florida_precinct_zip(config):
+    source = config["certifiedResults"]
+    by_county = defaultdict(lambda: defaultdict(int))
+    precinct_keys = set()
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+
+    for row in florida_precinct_rows(local_source(config, source["sourceId"])):
+        if not florida_contest_matches(row, source["contestName"]):
+            continue
+        precinct_keys.add((row["countyCode"], row["precinctId"]))
+        if florida_excluded_candidate(row, source):
+            continue
+        county = row["county"]
         if candidate_matches(row, source["majorCandidates"]["trump"]):
             by_county[county]["trump"] += row["votes"]
         elif candidate_matches(row, source["majorCandidates"]["harris"]):
@@ -1295,6 +1389,68 @@ def review_charts_pennsylvania_bulk_csv(config):
     )
 
 
+def review_charts_florida_precinct_zip(config):
+    review = config["reviewCharts"]
+    precincts = defaultdict(lambda: defaultdict(int))
+    senate_dem_total = 0
+    senate_rep_total = 0
+
+    for row in florida_precinct_rows(local_source(config, review["sourceId"])):
+        is_president = florida_contest_matches(row, review["presidentContestName"])
+        is_down_ballot = florida_contest_matches(row, review["downBallotContestName"])
+        if not is_president and not is_down_ballot:
+            continue
+        key = (row["countyCode"], row["precinctId"])
+        item = precincts[key]
+        item["county"] = row["county"]
+        item["ward"] = f"{row['precinctId']} {row['precinct']}".strip()
+        if is_president:
+            item["president_total"] += row["votes"]
+            if florida_excluded_candidate(row, review):
+                continue
+            if candidate_matches(row, review["majorCandidates"]["trump"]):
+                item["trump"] += row["votes"]
+            elif candidate_matches(row, review["majorCandidates"]["harris"]):
+                item["harris"] += row["votes"]
+        elif is_down_ballot:
+            if row["party"] == review["partyCodes"]["dem"]:
+                item["senate_dem"] += row["votes"]
+                senate_dem_total += row["votes"]
+            elif row["party"] == review["partyCodes"]["rep"]:
+                item["senate_rep"] += row["votes"]
+                senate_rep_total += row["votes"]
+
+    review_rows = []
+    for _key, item in sorted(precincts.items(), key=lambda pair: (pair[1]["county"], pair[1]["ward"])):
+        president_total = item["president_total"]
+        if not president_total:
+            continue
+        harris = item["harris"]
+        trump = item["trump"]
+        senate_dem = item["senate_dem"]
+        senate_rep = item["senate_rep"]
+        review_rows.append(
+            {
+                "county": item["county"],
+                "ward": item["ward"],
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        senate_dem_total,
+        senate_rep_total,
+    )
+
+
 def review_charts_alabama_precinct_zip(config):
     review = config["reviewCharts"]
     party_codes = review["partyCodes"]
@@ -1623,6 +1779,51 @@ def turnout_data_pennsylvania_vote_history_xlsx(config):
             "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
             "source": local_source(config, turnout["sourceId"]).name,
             "sourceUrl": source_map(config)[turnout["sourceId"]]["url"],
+        },
+        "rows": output_rows,
+    }
+
+
+def turnout_data_florida_precinct_zip(config):
+    turnout = config["turnout"]
+    precincts = defaultdict(lambda: defaultdict(int))
+    source = source_map(config)[turnout["sourceId"]]
+    for row in florida_precinct_rows(local_source(config, turnout["sourceId"])):
+        if not florida_contest_matches(row, turnout["contestName"]):
+            continue
+        key = (row["countyCode"], row["precinctId"])
+        item = precincts[key]
+        item["county"] = row["county"]
+        item["ward"] = f"{row['precinctId']} {row['precinct']}".strip()
+        item["registeredVoters"] = max(item["registeredVoters"], row["registeredVoters"])
+        item["ballotsCast"] += row["votes"]
+
+    output_rows = []
+    for _key, item in sorted(precincts.items(), key=lambda pair: (pair[1]["county"], pair[1]["ward"])):
+        registered = item["registeredVoters"]
+        ballots = item["ballotsCast"]
+        output_rows.append(
+            {
+                "county": item["county"],
+                "municipality": item["county"],
+                "ward": item["ward"],
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": local_source(config, turnout["sourceId"]).name,
+            "sourceUrl": source["url"],
         },
         "rows": output_rows,
     }
@@ -2051,6 +2252,90 @@ def historical_baseline_pennsylvania_bulk_csv(config):
     }
 
 
+def historical_baseline_florida_precinct_zip(config):
+    historical = config["historicalBaseline"]
+    series = []
+    for item in historical["sources"]:
+        source = source_map(config)[item["sourceId"]]
+        contest_name = item.get("contestName", historical["contestName"])
+        by_county = defaultdict(lambda: {"dem": 0, "rep": 0, "other": 0, "total": 0})
+        section = {
+            **historical,
+            "excludeCandidatePatterns": item.get("excludeCandidatePatterns", historical.get("excludeCandidatePatterns", [])),
+        }
+        for row in florida_precinct_rows(project_path(source["localFile"])):
+            if not florida_contest_matches(row, contest_name):
+                continue
+            if florida_excluded_candidate(row, section):
+                continue
+            county = row["county"]
+            votes = row["votes"]
+            by_county[county]["total"] += votes
+            if row["party"] == historical["partyCodes"]["dem"]:
+                by_county[county]["dem"] += votes
+            elif row["party"] in {historical["partyCodes"]["rep"], *historical.get("alternateRepPartyCodes", [])}:
+                by_county[county]["rep"] += votes
+            else:
+                by_county[county]["other"] += votes
+
+        rows = []
+        for county, totals in sorted(by_county.items()):
+            rows.append(
+                {
+                    "county": county,
+                    "municipality": county,
+                    "reportingUnit": f"{county} County",
+                    "ward": f"{county} County",
+                    "dem": totals["dem"],
+                    "rep": totals["rep"],
+                    "other": totals["other"],
+                    "total": totals["total"],
+                }
+            )
+        statewide = {
+            "dem": sum(row["dem"] for row in rows),
+            "rep": sum(row["rep"] for row in rows),
+            "other": sum(row["other"] for row in rows),
+            "total": sum(row["total"] for row in rows),
+            "rowCount": len(rows),
+        }
+        series.append(
+            {
+                "id": f"{config['code'].lower()}-doe-native-{item['year']}-president",
+                "electionYear": item["year"],
+                "sourceId": item["sourceId"],
+                "sourceClass": "nativeOfficial",
+                "sourceLevel": historical["sourceLevel"],
+                "rowMethod": historical["rowMethod"],
+                "rowCount": len(rows),
+                "sourceUrl": source["url"],
+                "localFile": source["localFile"],
+                "sourceNote": item["note"],
+                "statewide": statewide,
+                "rows": rows,
+            }
+        )
+
+    return {
+        "metadata": {
+            "purpose": f"Graph-ready {config['name']} presidential-election baseline using native official precinct rows.",
+            "seriesCount": len(series),
+            "warning": f"{config['name']} historical rows are native official precinct returns aggregated to county rows by election year.",
+            "sources": [
+                {
+                    "year": item["year"],
+                    "localFile": source_map(config)[item["sourceId"]]["localFile"],
+                    "sourceUrl": source_map(config)[item["sourceId"]]["url"],
+                    "format": "Florida Division of Elections tab-delimited precinct-level results ZIP",
+                    "note": item["note"],
+                }
+                for item in historical["sources"]
+            ],
+        },
+        "series": series,
+    }
+
+
 def historical_baseline_alabama_precinct_zip(config):
     historical = config["historicalBaseline"]
     series = []
@@ -2202,6 +2487,7 @@ def parser_for(registry, key, feature_name):
 CERTIFIED_RESULT_PARSERS = {
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
+    "floridaPrecinctZip": certified_results_florida_precinct_zip,
     "michiganCountyTab": certified_results_michigan_tab,
     "northDakotaStatewideCsv": certified_results_north_dakota_csv,
     "pennsylvaniaBulkCsv": certified_results_pennsylvania_bulk_csv,
@@ -2210,6 +2496,7 @@ CERTIFIED_RESULT_PARSERS = {
 REVIEW_CHART_PARSERS = {
     "xlsxPrecinctComparison": review_charts_xlsx_precinct_comparison,
     "alabamaPrecinctZipComparison": review_charts_alabama_precinct_zip,
+    "floridaPrecinctZipComparison": review_charts_florida_precinct_zip,
     "tabDelimitedZipComparison": review_charts_tab_delimited_zip,
     "michiganPrecinctZipComparison": review_charts_tab_delimited_zip,
     "michiganCountyTabComparison": review_charts_michigan_tab,
@@ -2220,6 +2507,7 @@ REVIEW_CHART_PARSERS = {
 TURNOUT_PARSERS = {
     "notConfigured": turnout_data_not_configured,
     "alabamaPrecinctZipTurnout": turnout_data_alabama_precinct_zip,
+    "floridaPrecinctZipTurnout": turnout_data_florida_precinct_zip,
     "xlsxPrecinctRows": turnout_data_xlsx_precinct_rows,
     "michiganMvicCountyTurnout": turnout_data_michigan_mvic,
     "northDakotaTurnoutHtml": turnout_data_north_dakota_html,
@@ -2229,6 +2517,7 @@ TURNOUT_PARSERS = {
 HISTORICAL_BASELINE_PARSERS = {
     "officialCountyResultText": historical_baseline_official_county_result_text,
     "alabamaPrecinctZip": historical_baseline_alabama_precinct_zip,
+    "floridaPrecinctZip": historical_baseline_florida_precinct_zip,
     "michiganCountyTab": historical_baseline_michigan_tab,
     "northDakotaStatewideCsv": historical_baseline_north_dakota_csv,
     "pennsylvaniaBulkCsv": historical_baseline_pennsylvania_bulk_csv,
