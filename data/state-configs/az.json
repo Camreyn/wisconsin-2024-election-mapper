@@ -67,7 +67,7 @@
     "capabilities": {
       "sourcePlanner": true,
       "certifiedResults": false,
-      "map": false,
+      "map": true,
       "reviewGraphs": false,
       "turnout": false,
       "historicalBaseline": false
@@ -185,6 +185,6 @@
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,
-    "geometryFeatures": 0
+    "geometryFeatures": 15
   }
 }

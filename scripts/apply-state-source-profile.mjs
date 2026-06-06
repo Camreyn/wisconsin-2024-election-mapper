@@ -927,7 +927,7 @@ function applyArizonaProfile(config) {
   config.app.capabilities = {
     sourcePlanner: true,
     certifiedResults: false,
-    map: false,
+    map: true,
     reviewGraphs: false,
     turnout: false,
     historicalBaseline: false,
@@ -1029,7 +1029,7 @@ function applyArizonaProfile(config) {
     turnoutWarningRows: 0,
     historicalSeries: 0,
     historicalRows: 0,
-    geometryFeatures: 0,
+    geometryFeatures: 15,
   };
 
   return {

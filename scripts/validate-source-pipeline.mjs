@@ -7,6 +7,7 @@ import { applyStateSourceProfile } from "./apply-state-source-profile.mjs";
 import { runAddStatePipeline } from "./add-state-pipeline.mjs";
 import { bootstrapStateSources } from "./bootstrap-state-sources.mjs";
 import { discoverSources } from "./discover-state-sources.mjs";
+import { parsePresidentialSummary } from "./probe-arizona-county-sources.mjs";
 import { validateStateConfigFile } from "./validate-state-config.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -380,6 +381,29 @@ try {
   assert(azProfileSeed.reviewCharts.format === "notConfigured", "AZ source profile should keep review graphs unloaded until county parsers are promoted.");
   assert(azProfileSeed.app.sourcePlan.certifiedResults.status === "Blocked by source protection", "AZ Source Planner should record the protected statewide app.");
   assert(azProfileReadiness.status === "valid_with_gaps", "AZ source profile should be valid with gaps until county sources are promoted.");
+  const azSummary = parsePresidentialSummary(`
+    Summary Results Report
+    General Election
+    November 5, 2024
+    Registered Voters - Total 82,242
+    Ballots Cast - Total 59,501 12,671 46,502 328
+    Presidential Electors
+    Vote For 1
+    REP Trump/Vance 35,936 60.77% 9,815 25,904 217
+    DEM Harris/Walz 22,296 37.70% 2,608 19,583 105
+    LBT Oliver/ter Maat 380 0.64% 74 306 0
+    GRN Stein/Ware 311 0.53% 64 245 2
+    Write-In Totals 212 0.36% 45 164 3
+    Total Votes Cast 59,135 100.00% 12,606 46,202 327
+    Overvotes 33 0 33 0
+    Undervotes 333 65 267 1
+    Contest Totals 59,501 12,671 46,502 328
+    Precincts Reporting 55 of 55
+  `);
+  assert(azSummary.trump === 35936, "AZ PDF summary parser should read Trump/Vance votes.");
+  assert(azSummary.harris === 22296, "AZ PDF summary parser should read Harris/Walz votes.");
+  assert(azSummary.other === 903, "AZ PDF summary parser should derive other presidential votes.");
+  assert(azSummary.registeredVoters === 82242, "AZ PDF summary parser should read registered-voter totals.");
 
   fs.writeFileSync(
     barrierHtml,
@@ -453,6 +477,7 @@ try {
       sources: azProfileSeed.sources.length,
       readiness: azProfileReadiness.status,
       artifactCommands: azProfile.artifactCommands.length,
+      parsedFixtureTotal: azSummary.totalVotesCast,
     },
     accessBarrier: {
       status: barrierDiscovery.accessBarrier.status,

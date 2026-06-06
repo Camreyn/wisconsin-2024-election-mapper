@@ -2608,6 +2608,12 @@ def build_state(config, *, download=False, force_download=False):
     return assert_expected(config, payload, geometry_features)
 
 
+def build_state_geometry(config, *, download=False, force_download=False):
+    if download or force_download:
+        maybe_download_sources(config, force=force_download)
+    return {"geometryFeatures": write_geometry(config)}
+
+
 def registry_entry(config):
     app = config.get("app", {})
     geometry = config.get("geometry", {})
@@ -2705,6 +2711,7 @@ def main():
     parser.add_argument("config", nargs="*", help="Path to one or more state config JSON files. Defaults to data/state-configs/*.json.")
     parser.add_argument("--download", action="store_true", help="Download any missing configured source files before building.")
     parser.add_argument("--force-download", action="store_true", help="Download configured source files even when local files exist.")
+    parser.add_argument("--geometry-only", action="store_true", help="Build only configured county geometry artifacts.")
     args = parser.parse_args()
 
     explicit_configs = bool(args.config)
@@ -2713,6 +2720,13 @@ def main():
     for config_path in config_paths(args):
         config = read_config(config_path)
         configs.append(config)
+        if args.geometry_only:
+            summaries[config["code"]] = build_state_geometry(
+                config,
+                download=args.download,
+                force_download=args.force_download,
+            )
+            continue
         if not explicit_configs and not config_build_ready(config):
             summaries[config["code"]] = {
                 "status": "skipped",
