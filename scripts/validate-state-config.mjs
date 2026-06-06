@@ -8,12 +8,14 @@ const configDir = path.join(root, "data/state-configs");
 const supportedDownloads = new Set(["browserDownload", "northDakotaResultsExport"]);
 const supportedCertifiedFormats = new Set([
   "xlsxPrecinctAggregation",
+  "alabamaPrecinctZip",
   "michiganCountyTab",
   "northDakotaStatewideCsv",
   "pennsylvaniaBulkCsv",
 ]);
 const supportedReviewFormats = new Set([
   "xlsxPrecinctComparison",
+  "alabamaPrecinctZipComparison",
   "tabDelimitedZipComparison",
   "michiganPrecinctZipComparison",
   "michiganCountyTabComparison",
@@ -21,6 +23,7 @@ const supportedReviewFormats = new Set([
   "pennsylvaniaBulkCsvPrecinctComparison",
 ]);
 const supportedTurnoutFormats = new Set([
+  "alabamaPrecinctZipTurnout",
   "xlsxPrecinctRows",
   "notConfigured",
   "michiganMvicCountyTurnout",
@@ -29,6 +32,7 @@ const supportedTurnoutFormats = new Set([
 ]);
 const supportedHistoricalFormats = new Set([
   "officialCountyResultText",
+  "alabamaPrecinctZip",
   "michiganCountyTab",
   "northDakotaStatewideCsv",
   "pennsylvaniaBulkCsv",
@@ -317,6 +321,9 @@ function validateTurnout(report) {
   }
   if (format === "michiganMvicCountyTurnout") {
     requireSourceReference(report, turnout.registrationSourceId, "turnout.registrationSourceId", "Michigan turnout must point to a registration source");
+  }
+  if (format === "alabamaPrecinctZipTurnout") {
+    requireSourceReference(report, turnout.registrationSourceId, "turnout.registrationSourceId", "Alabama turnout must point to a registration source");
   }
   if (loaded && format === "notConfigured") {
     report.errors.push(issue("error", "loaded-turnout-not-configured", "Turnout capability is loaded but turnout.format is notConfigured."));

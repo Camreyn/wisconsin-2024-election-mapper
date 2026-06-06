@@ -7,6 +7,9 @@ const PA_ELECTION_DATA_PAGE =
   "https://www.pa.gov/agencies/dos/resources/voting-and-elections-resources/voting-and-election-statistics/election-data";
 const PA_GEOMETRY_URL =
   "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2742%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson";
+const AL_ELECTION_DATA_PAGE = "https://www.sos.alabama.gov/alabama-votes/voter/election-data";
+const AL_GEOMETRY_URL =
+  "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2701%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson";
 
 function parseArgs(argv = process.argv.slice(2)) {
   const args = new Map();
@@ -144,6 +147,41 @@ function paSourceDefinitions(report) {
       id: "pa-county-geometry",
       url: PA_GEOMETRY_URL,
       localFile: "data/pa-counties.geojson",
+    },
+  ];
+}
+
+function alabamaSourceDefinitions() {
+  return [
+    {
+      id: "al-2024-precinct-results",
+      url: "https://www.sos.alabama.gov/sites/default/files/election-data/2024-12/2024-General%20Precinct%20Level%20Results.zip",
+      localFile: "data/al-2024-general-precinct-level-results.zip",
+    },
+    {
+      id: "al-2024-voter-registration",
+      url: "https://www.sos.alabama.gov/sites/default/files/election-data/2025-01/ALVR-2024.xlsx",
+      localFile: "data/al-2024-voter-registration.xlsx",
+    },
+    {
+      id: "al-2020-precinct-results",
+      url: "https://www.sos.alabama.gov/sites/default/files/election-data/2020-12/2020%20General%20Precinct%20Results.zip",
+      localFile: "data/al-2020-general-precinct-level-results.zip",
+    },
+    {
+      id: "al-2016-precinct-results",
+      url: "https://www.sos.alabama.gov/sites/default/files/election-data/2017-06/2016-General-PrecinctLevel.zip",
+      localFile: "data/al-2016-general-precinct-level-results.zip",
+    },
+    {
+      id: "al-2012-precinct-results",
+      url: "https://www.sos.alabama.gov/sites/default/files/election-data/2017-06/2012General-PrecinctLevel.zip",
+      localFile: "data/al-2012-general-precinct-level-results.zip",
+    },
+    {
+      id: "al-county-geometry",
+      url: AL_GEOMETRY_URL,
+      localFile: "data/al-counties.geojson",
     },
   ];
 }
@@ -354,10 +392,223 @@ function applyPennsylvaniaProfile(config, report = {}) {
   };
 }
 
+function applyAlabamaProfile(config) {
+  const addedSources = [];
+  const updatedSources = [];
+  config.sources = (config.sources || []).filter((source) => !String(source.id || "").startsWith("al-discovered-"));
+  for (const source of alabamaSourceDefinitions()) {
+    const result = upsertSource(config, source);
+    (result.added ? addedSources : updatedSources).push(source.id);
+  }
+
+  config.geometry = {
+    sourceId: "al-county-geometry",
+    outputFile: "data/al-counties.js",
+    outputGlobal: "AL_COUNTIES_GEOJSON",
+    nameProperty: "NAME",
+    codeProperty: "COUNTY",
+    expectedFeatures: 67,
+  };
+  config.certifiedResults = {
+    format: "alabamaPrecinctZip",
+    sourceId: "al-2024-precinct-results",
+    contestName: "PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES",
+    majorCandidates: {
+      trump: { partyCode: "REP", candidateContains: "TRUMP" },
+      harris: { partyCode: "DEM", candidateContains: "HARRIS" },
+    },
+    otherCandidates: [
+      { key: "kennedy", label: "Robert F. Kennedy Jr.", partyCode: "IND", candidateContains: "KENNEDY" },
+      { key: "oliver", label: "Chase Oliver", partyCode: "IND", candidateContains: "OLIVER" },
+      { key: "stein", label: "Jill Stein", partyCode: "IND", candidateContains: "STEIN" },
+      { key: "writeIn", label: "Write-In", partyCode: "NON", candidateContains: "WRITE" },
+    ],
+    excludeCandidatePatterns: ["OVER VOTES", "UNDER VOTES"],
+  };
+  config.reviewCharts = {
+    format: "alabamaPrecinctZipComparison",
+    sourceId: "al-2024-precinct-results",
+    presidentContestName: "PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES",
+    downBallotContestStartsWith: "UNITED STATES REPRESENTATIVE",
+    partyCodes: { dem: "DEM", rep: "REP" },
+    excludeCandidatePatterns: ["OVER VOTES", "UNDER VOTES"],
+    policy: {
+      outlierThresholdPct: 15,
+      minCandidateVotes: 100,
+      voteShareCorrelationThreshold: 0.35,
+    },
+  };
+  config.turnout = {
+    format: "alabamaPrecinctZipTurnout",
+    sourceId: "al-2024-precinct-results",
+    registrationSourceId: "al-2024-voter-registration",
+    ballotsCastContestName: "BALLOTS CAST - TOTAL",
+    registrationSheet: "December",
+    registrationCountyColumn: 0,
+    registeredVotersColumn: 1,
+    registrationDenominatorTiming: "december2024VoterRegistrationWorkbook",
+    sourceLevel: "county",
+    notes: "Alabama SOS precinct-level results ZIP supplies county ballots-cast rows. Denominators use the December sheet total registered-voter column in the official ALVR-2024 workbook.",
+    warningRequired: false,
+  };
+  config.historicalBaseline = {
+    format: "alabamaPrecinctZip",
+    sourceLevel: "county",
+    rowMethod: "sosPrecinctZipCountyXlsAggregatedToCounty",
+    contestName: "PRESIDENT AND VICE PRESIDENT OF THE UNITED STATES",
+    partyCodes: { dem: "DEM", rep: "REP" },
+    excludeCandidatePatterns: ["OVER VOTES", "UNDER VOTES"],
+    demCandidateContains: ["OBAMA"],
+    repCandidateContains: ["ROMNEY"],
+    sources: [
+      {
+        year: 2012,
+        sourceId: "al-2012-precinct-results",
+        wideContestName: "FOR PRESIDENT AND VICE-PRESIDENT OF THE UNITED STATES (Vote For 1)",
+        demCandidateContains: ["OBAMA"],
+        repCandidateContains: ["ROMNEY"],
+        note: "Official Alabama Secretary of State 2012 general election precinct-level ZIP aggregated to county presidential rows.",
+      },
+      {
+        year: 2016,
+        sourceId: "al-2016-precinct-results",
+        note: "Official Alabama Secretary of State 2016 general election precinct-level ZIP aggregated to county presidential rows.",
+      },
+      {
+        year: 2020,
+        sourceId: "al-2020-precinct-results",
+        note: "Official Alabama Secretary of State 2020 general election precinct-level ZIP aggregated to county presidential rows.",
+      },
+      {
+        year: 2024,
+        sourceId: "al-2024-precinct-results",
+        note: "Official Alabama Secretary of State 2024 general election precinct-level ZIP aggregated to county presidential rows.",
+      },
+    ],
+  };
+
+  config.app ||= {};
+  config.app.countyLabel = "County";
+  config.app.exportsSlug = "alabama-2024";
+  config.app.capabilities = {
+    sourcePlanner: true,
+    certifiedResults: true,
+    map: true,
+    reviewGraphs: true,
+    turnout: true,
+    historicalBaseline: true,
+  };
+  config.app.sourcePlan = {
+    ...(config.app.sourcePlan || {}),
+    certifiedResults: {
+      title: "Alabama SOS 2024 General Precinct Level Results ZIP",
+      detail: "Presidential county totals are aggregated from the official Alabama Secretary of State ZIP containing one county XLS workbook per county.",
+      sourceUrl: AL_ELECTION_DATA_PAGE,
+      localFile: "data/al-2024-general-precinct-level-results.zip; data/al-app-data.js",
+      sourceLastModifiedUtc: "",
+      sourceTimestampBasis: "Official Alabama SOS election data downloads page groups the ZIP under 2024 election data.",
+      status: "Loaded",
+    },
+    wardDetail: {
+      title: "Alabama SOS county XLS precinct columns",
+      detail: "The official ZIP contains county XLS workbooks with precinct columns. The state builder imports President rows and U.S. House rows for precinct-level review graphs.",
+      sourceUrl: AL_ELECTION_DATA_PAGE,
+      localFile: "data/al-2024-general-precinct-level-results.zip; data/al-app-data.js",
+      sourceLastModifiedUtc: "",
+      sourceTimestampBasis: "Official Alabama SOS election data downloads page groups the ZIP under 2024 election data.",
+      status: "Loaded",
+    },
+    turnout: {
+      title: "Alabama SOS ballots-cast rows plus voter registration workbook",
+      detail: "County turnout rows use BALLOTS CAST - TOTAL from the official precinct results ZIP divided by December total registered voters from ALVR-2024.xlsx.",
+      sourceUrl: AL_ELECTION_DATA_PAGE,
+      localFile: "data/al-2024-general-precinct-level-results.zip; data/al-2024-voter-registration.xlsx; data/al-app-data.js",
+      sourceLastModifiedUtc: "",
+      sourceTimestampBasis: "Official Alabama SOS election data downloads page lists the precinct results ZIP and ALVR-2024 workbook.",
+      status: "Loaded",
+    },
+  };
+  config.app.turnoutPolicy = {
+    route: "precinctZipBallotsCastAndRegistrationWorkbook",
+    status: "Loaded",
+    acceptedSource: "Alabama SOS 2024 General Precinct Level Results ZIP plus ALVR-2024 voter registration workbook.",
+    warning: "Alabama turnout uses county ballots-cast rows from the official results ZIP and December total registered-voter denominators from ALVR-2024.xlsx.",
+    requiredFields: ["county", "ballotsCast", "registeredVoters", "sourceUrl"],
+  };
+  config.app.historicalSummary =
+    "Native official Alabama Secretary of State precinct-level ZIP workbooks are aggregated to county presidential rows for each election year.";
+  config.app.reviewRowLabel = "Alabama SOS precinct column";
+  config.app.reviewRowLabelPlural = "Alabama SOS precinct columns";
+  config.app.reviewGraphTitlePrefix = "Alabama SOS precinct";
+  config.app.mapLoadingText = "Loading local Alabama county boundaries...";
+  config.app.noGeometryText = "Alabama county geometry is not loaded yet; showing the county tile fallback.";
+  config.app.sourceInventory = [];
+  config.app.checkedNotUsable = [];
+  upsertInventory(config, {
+    category: "Presidential county results",
+    file: "data/al-2024-general-precinct-level-results.zip; data/al-app-data.js",
+    sourceUrl: AL_ELECTION_DATA_PAGE,
+    usedFor: "Alabama county table, statewide totals, candidate breakdown, CSV export, Source Planner rows, and precinct-level review graphs.",
+    confidence: "Official Alabama Secretary of State 2024 General Precinct Level Results ZIP.",
+  });
+  upsertInventory(config, {
+    category: "Turnout denominator source",
+    file: "data/al-2024-voter-registration.xlsx; data/al-app-data.js",
+    sourceUrl: AL_ELECTION_DATA_PAGE,
+    usedFor: "Alabama turnout graph and Source Planner turnout coverage.",
+    confidence: "Official Alabama Secretary of State ALVR-2024 voter registration workbook.",
+  });
+  upsertInventory(config, {
+    category: "Historical presidential baseline",
+    file: "data/al-2012-general-precinct-level-results.zip; data/al-2016-general-precinct-level-results.zip; data/al-2020-general-precinct-level-results.zip; data/al-2024-general-precinct-level-results.zip; data/al-app-data.js",
+    sourceUrl: AL_ELECTION_DATA_PAGE,
+    usedFor: "Alabama Historical Baseline tab: native SOS precinct ZIP rows aggregated to county presidential comparison rows for 2012, 2016, 2020, and 2024.",
+    confidence: "Official Alabama Secretary of State general election precinct-level ZIP files.",
+  });
+  upsertInventory(config, {
+    category: "County boundaries",
+    file: "data/al-counties.geojson; data/al-counties.js",
+    sourceUrl: "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+    usedFor: "Alabama county polygon map.",
+    confidence: "U.S. Census TIGERweb county geography.",
+  });
+  config.expected = {
+    countyRows: 67,
+    precinctRows: 2083,
+    stateTotal: 2265090,
+    trump: 1462616,
+    harris: 772412,
+    other: 30062,
+    reviewRows: 2083,
+    turnoutRows: 67,
+    turnoutWarningRows: 0,
+    historicalSeries: 4,
+    historicalRows: 268,
+    geometryFeatures: 67,
+  };
+
+  return {
+    profile: "alabamaSosElectionData",
+    status: "applied",
+    addedSources,
+    updatedSources,
+    loadedCapabilities: Object.entries(config.app.capabilities)
+      .filter(([, enabled]) => enabled)
+      .map(([name]) => name),
+  };
+}
+
 export function applyStateSourceProfile(config, report = {}) {
   const code = String(config.code || report.state || "").toUpperCase();
   const inputUrl = String(report.input?.url || "");
   const pageTitle = String(report.page?.title || "");
+  const isAlabamaElectionData =
+    code === "AL" &&
+    (inputUrl.includes("sos.alabama.gov/alabama-votes/voter/election-data") ||
+      pageTitle.includes("Elections Data Downloads"));
+  if (isAlabamaElectionData) {
+    return applyAlabamaProfile(config, report);
+  }
   const isPaElectionData =
     code === "PA" &&
     (inputUrl.includes("/voting-and-election-statistics/election-data") ||

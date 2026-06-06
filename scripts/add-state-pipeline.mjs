@@ -111,20 +111,53 @@ export async function runAddStatePipeline({
   const code = String(state).toUpperCase();
   const resolvedConfigPath = configPath || path.join(root, "data/state-configs", `${stateSlug(code)}.json`);
   const resolvedReportPath = reportPath || path.join(root, "outputs", `${stateSlug(code)}-source-discovery.json`);
-  const bootstrap = await bootstrapStateSources({
-    state: code,
-    name,
-    authority,
-    url,
-    htmlFile,
-    configPath: resolvedConfigPath,
-    reportPath: resolvedReportPath,
-    write,
-    force,
-    limit,
-  });
-
   const steps = [];
+  let discoveryHtmlFile = htmlFile;
+  let bootstrap;
+  try {
+    bootstrap = await bootstrapStateSources({
+      state: code,
+      name,
+      authority,
+      url,
+      htmlFile: discoveryHtmlFile,
+      configPath: resolvedConfigPath,
+      reportPath: resolvedReportPath,
+      write,
+      force,
+      limit,
+    });
+  } catch (error) {
+    if (!url || discoveryHtmlFile) {
+      throw error;
+    }
+    discoveryHtmlFile = path.join(root, "outputs", `${stateSlug(code)}-source-page.html`);
+    steps.push({
+      name: "browser-snapshot",
+      reason: `Plain source fetch failed: ${error.message}`,
+      output: displayPath(discoveryHtmlFile),
+      ...run("node", [
+        "scripts/browser-snapshot.mjs",
+        "--url",
+        url,
+        "--output",
+        displayPath(discoveryHtmlFile),
+      ]),
+    });
+    bootstrap = await bootstrapStateSources({
+      state: code,
+      name,
+      authority,
+      url,
+      htmlFile: discoveryHtmlFile,
+      configPath: resolvedConfigPath,
+      reportPath: resolvedReportPath,
+      write,
+      force,
+      limit,
+    });
+  }
+
   const configExists = fs.existsSync(resolvedConfigPath);
   let config = configExists ? readJson(resolvedConfigPath) : bootstrap.config;
   steps.push({
@@ -149,7 +182,7 @@ export async function runAddStatePipeline({
     });
   }
 
-  const readiness = configExists ? validateStateConfigFile(resolvedConfigPath) : null;
+  const readiness = fs.existsSync(resolvedConfigPath) ? validateStateConfigFile(resolvedConfigPath) : null;
   if (readiness) {
     steps.push({
       name: "readiness",
@@ -159,13 +192,21 @@ export async function runAddStatePipeline({
     });
   }
 
-  if (write && (download || forceDownload || build)) {
+  if (write && (download || forceDownload || build) && readiness?.status === "ready") {
     const buildArgs = ["-3", "scripts/build-state-data.py"];
     if (download) buildArgs.push("--download");
     if (forceDownload) buildArgs.push("--force-download");
     buildArgs.push(displayPath(resolvedConfigPath));
     steps.push({ name: "build", ...run("py", buildArgs) });
     config = readJson(resolvedConfigPath);
+  } else if (write && (download || forceDownload || build)) {
+    steps.push({
+      name: "build",
+      status: "skipped",
+      reason: readiness
+        ? `State config is ${readiness.status}; resolve readiness gaps before downloading/building generated app data.`
+        : "State config was not written; run without --preview before downloading/building generated app data.",
+    });
   }
 
   if (write && inspect) {
@@ -184,17 +225,18 @@ export async function runAddStatePipeline({
   const candidateFiles = unique([
     displayPath(resolvedConfigPath),
     fs.existsSync(resolvedReportPath) ? displayPath(resolvedReportPath) : "",
+    discoveryHtmlFile && fs.existsSync(discoveryHtmlFile) ? displayPath(discoveryHtmlFile) : "",
     ...sourceFiles(config),
     ...outputFiles(config),
   ]);
 
   return {
-    status: steps.some((step) => step.status && step.status !== "preview" && step.status !== "written" && step.status !== "ready" && step.status !== "valid_with_gaps")
+    status: steps.some((step) => step.status && !["preview", "written", "ready", "valid_with_gaps", "skipped"].includes(step.status))
       ? "failed"
       : "completed",
     state: code,
     steps,
-    readiness: configExists ? validateStateConfigFile(resolvedConfigPath) : null,
+    readiness: fs.existsSync(resolvedConfigPath) ? validateStateConfigFile(resolvedConfigPath) : null,
     filesToReview: candidateFiles,
     gitAddCommand: gitAddCommand(candidateFiles),
     note: "A newly discovered state may correctly finish as valid_with_gaps until source roles, parser mappings, and expected reconciliation counts are promoted from discovery candidates.",

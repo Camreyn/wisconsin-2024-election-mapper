@@ -43,7 +43,8 @@ try {
   const barrierHtml = tempFile("barrier.html");
   const barrierConfig = tempFile("barrier-config.json");
   const paProfileConfig = tempFile("pa-profile-config.json");
-  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig, paProfileConfig);
+  const alProfileConfig = tempFile("al-profile-config.json");
+  tempFiles.push(ndReport, ndConfig, mvicReport, mvicConfig, bootstrapConfig, bootstrapReport, lifecycleConfig, lifecycleReport, barrierHtml, barrierConfig, paProfileConfig, alProfileConfig);
   const ndHtmlFile = path.join(root, "data/nd-2024-voter-turnout-details.html");
 
   const ndDiscovery = await discoverSources({
@@ -202,6 +203,27 @@ try {
   assert(lifecycle.gitAddCommand.includes("git add"), "Lifecycle runner should emit a git add command.");
   assert(lifecycle.readiness.status === "valid_with_gaps", "Lifecycle runner should report valid_with_gaps for an unpromoted discovered state.");
 
+  const lifecycleBuildSkipConfig = tempFile("zx-config.json");
+  const lifecycleBuildSkipReport = tempFile("zx-discovery.json");
+  tempFiles.push(lifecycleBuildSkipConfig, lifecycleBuildSkipReport);
+  const lifecycleBuildSkip = await runAddStatePipeline({
+    state: "ZX",
+    name: "Lifecycle Build Skip Test",
+    authority: "Lifecycle Build Skip Test Authority",
+    url: "https://results.sos.nd.gov/VoterTurnoutDetails.aspx",
+    htmlFile: ndHtmlFile,
+    configPath: lifecycleBuildSkipConfig,
+    reportPath: lifecycleBuildSkipReport,
+    write: true,
+    build: true,
+    validate: true,
+  });
+  assert(lifecycleBuildSkip.status === "completed", "Lifecycle runner should complete when build is requested for an unpromoted state.");
+  assert(
+    lifecycleBuildSkip.steps.some((step) => step.name === "build" && step.status === "skipped"),
+    "Lifecycle runner should skip build until a generated state config is ready.",
+  );
+
   const paProfileSeed = {
     code: "PA",
     name: "Pennsylvania",
@@ -259,6 +281,38 @@ try {
   assert(paProfileSeed.historicalBaseline.format === "pennsylvaniaBulkCsv", "PA source profile should configure the historical parser.");
   assert(paProfileReadiness.status === "ready", "PA source profile should produce a ready config when source files already exist.");
 
+  const alProfileSeed = {
+    code: "AL",
+    name: "Alabama",
+    authority: "Alabama Secretary of State",
+    electionYear: 2024,
+    office: "President",
+    output: {
+      appDataFile: "data/al-app-data.js",
+      appDataGlobal: "AL_ELECTION_APP_DATA",
+    },
+    sources: [],
+    app: {
+      sourcePlan: {},
+      sourceInventory: [],
+      checkedNotUsable: [],
+    },
+  };
+  const alProfile = applyStateSourceProfile(alProfileSeed, {
+    state: "AL",
+    input: { url: "https://www.sos.alabama.gov/alabama-votes/voter/election-data" },
+    page: { title: "Elections Data Downloads | Alabama Secretary of State" },
+    resources: [],
+  });
+  writeJson(alProfileConfig, alProfileSeed);
+  const alProfileReadiness = validateStateConfigFile(alProfileConfig);
+  assert(alProfile.status === "applied", "AL source profile should apply to the official Alabama election data page.");
+  assert(alProfileSeed.certifiedResults.format === "alabamaPrecinctZip", "AL source profile should configure the certified ZIP parser.");
+  assert(alProfileSeed.reviewCharts.format === "alabamaPrecinctZipComparison", "AL source profile should configure the precinct review parser.");
+  assert(alProfileSeed.turnout.format === "alabamaPrecinctZipTurnout", "AL source profile should configure the turnout parser.");
+  assert(alProfileSeed.historicalBaseline.format === "alabamaPrecinctZip", "AL source profile should configure the historical ZIP parser.");
+  assert(alProfileReadiness.status === "ready", "AL source profile should produce a ready config when source files already exist.");
+
   fs.writeFileSync(
     barrierHtml,
     '<html><head><script src="/_Incapsula_Resource?x=1"></script></head><body>Request unsuccessful. Incapsula incident ID: 123</body></html>',
@@ -309,11 +363,17 @@ try {
       status: lifecycle.status,
       readiness: lifecycle.readiness.status,
       filesToReview: lifecycle.filesToReview.length,
+      buildSkip: lifecycleBuildSkip.steps.find((step) => step.name === "build")?.status,
     },
     paProfile: {
       status: paProfile.status,
       sources: paProfileSeed.sources.length,
       readiness: paProfileReadiness.status,
+    },
+    alProfile: {
+      status: alProfile.status,
+      sources: alProfileSeed.sources.length,
+      readiness: alProfileReadiness.status,
     },
     accessBarrier: {
       status: barrierDiscovery.accessBarrier.status,

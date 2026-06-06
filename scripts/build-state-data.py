@@ -9,6 +9,7 @@ import urllib.request
 import urllib.parse
 import zipfile
 import subprocess
+import tempfile
 from collections import defaultdict
 from pathlib import Path
 from xml.etree import ElementTree
@@ -418,6 +419,17 @@ def title_county(value):
     return " ".join(part.capitalize() for part in str(value).split())
 
 
+def alabama_county_name(value):
+    normalized = re.sub(r"[^a-z0-9]", "", str(value or "").lower())
+    overrides = {
+        "dekalb": "DeKalb",
+        "stclair": "St. Clair",
+    }
+    if normalized in overrides:
+        return overrides[normalized]
+    return title_county(re.sub(r"\s+county$", "", str(value or ""), flags=re.IGNORECASE))
+
+
 def michigan_county_name(value):
     text = re.sub(r"\s+county$", "", str(value or ""), flags=re.IGNORECASE)
     return title_county(text.replace(".", ""))
@@ -498,6 +510,127 @@ def pennsylvania_bulk_rows(path):
                 "breakdown2Name": row[24 + municipal_offset].strip(),
                 "vtdCode": str(row[28 + municipal_offset]).strip(),
             }
+
+
+def legacy_xls_workbooks(paths, *, all_sheets=False):
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".json", delete=False) as handle:
+        manifest_path = Path(handle.name)
+        json.dump(
+            [{"id": path.name, "path": str(path), "allSheets": all_sheets} for path in paths],
+            handle,
+        )
+    try:
+        completed = subprocess.run(
+            ["node", "scripts/read-legacy-xls.mjs", "--manifest", str(manifest_path)],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return json.loads(completed.stdout)["workbooks"]
+    finally:
+        manifest_path.unlink(missing_ok=True)
+
+
+def legacy_xls_workbooks_from_zip(path, *, all_sheets=False):
+    with tempfile.TemporaryDirectory(prefix="state-xls-") as temp_dir:
+        temp_root = Path(temp_dir)
+        extracted = []
+        with zipfile.ZipFile(path) as archive:
+            for member in sorted(archive.namelist()):
+                if not member.lower().endswith((".xls", ".xlsx")):
+                    continue
+                output = temp_root / Path(member).name
+                output.write_bytes(archive.read(member))
+                extracted.append(output)
+        return legacy_xls_workbooks(extracted, all_sheets=all_sheets)
+
+
+def alabama_county_from_workbook(workbook):
+    raw = Path(workbook["id"]).stem
+    raw = re.sub(r"^\d{4}-General-", "", raw, flags=re.IGNORECASE)
+    return alabama_county_name(raw)
+
+
+def alabama_precinct_columns(header):
+    return [
+        (index, str(name).strip())
+        for index, name in enumerate(header)
+        if index >= 3 and str(name or "").strip() and str(name or "").strip().upper() not in {"TOTAL", "TOTALS"}
+    ]
+
+
+def alabama_excluded_candidate(candidate, config_section):
+    return any(re.search(pattern, candidate, flags=re.IGNORECASE) for pattern in config_section.get("excludeCandidatePatterns", []))
+
+
+def alabama_precinct_zip_workbooks(config_section, config, *, all_sheets=False):
+    return legacy_xls_workbooks_from_zip(local_source(config, config_section["sourceId"]), all_sheets=all_sheets)
+
+
+def certified_results_alabama_precinct_zip(config):
+    source = config["certifiedResults"]
+    by_county = defaultdict(lambda: defaultdict(int))
+    precinct_keys = set()
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+
+    for workbook in alabama_precinct_zip_workbooks(source, config):
+        county = alabama_county_from_workbook(workbook)
+        rows = workbook["rows"]
+        if not rows:
+            continue
+        columns = alabama_precinct_columns(rows[0])
+        for row in rows[1:]:
+            contest = str(row[0] if len(row) > 0 else "").strip()
+            if contest.upper() != source["contestName"].upper():
+                continue
+            party = str(row[1] if len(row) > 1 else "").strip()
+            candidate = str(row[2] if len(row) > 2 else "").strip()
+            if alabama_excluded_candidate(candidate, source):
+                continue
+            row_votes = sum(int_text(row[index] if index < len(row) else 0) for index, _name in columns)
+            if row_votes <= 0:
+                continue
+            for index, precinct in columns:
+                votes = int_text(row[index] if index < len(row) else 0)
+                if votes:
+                    precinct_keys.add((county, precinct))
+            candidate_row = {"party": party, "candidate": candidate}
+            if candidate_matches(candidate_row, source["majorCandidates"]["trump"]):
+                by_county[county]["trump"] += row_votes
+            elif candidate_matches(candidate_row, source["majorCandidates"]["harris"]):
+                by_county[county]["harris"] += row_votes
+            else:
+                matched_other = False
+                for candidate_rule in source.get("otherCandidates", []):
+                    if candidate_matches(candidate_row, candidate_rule):
+                        by_county[county][candidate_rule["key"]] += row_votes
+                        matched_other = True
+                        break
+                if not matched_other:
+                    by_county[county]["unmappedOther"] += row_votes
+
+    result_rows = []
+    for county, totals in sorted(by_county.items()):
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+    return result_rows, candidate_labels, len(precinct_keys)
 
 
 def is_xlsx_file(path):
@@ -1162,6 +1295,79 @@ def review_charts_pennsylvania_bulk_csv(config):
     )
 
 
+def review_charts_alabama_precinct_zip(config):
+    review = config["reviewCharts"]
+    party_codes = review["partyCodes"]
+    precincts = defaultdict(lambda: defaultdict(int))
+    house_dem_total = 0
+    house_rep_total = 0
+
+    for workbook in alabama_precinct_zip_workbooks(review, config):
+        county = alabama_county_from_workbook(workbook)
+        rows = workbook["rows"]
+        if not rows:
+            continue
+        columns = alabama_precinct_columns(rows[0])
+        for row in rows[1:]:
+            contest = str(row[0] if len(row) > 0 else "").strip()
+            party = normalize_party(row[1] if len(row) > 1 else "")
+            candidate = str(row[2] if len(row) > 2 else "").strip()
+            is_president = contest.upper() == review["presidentContestName"].upper()
+            is_down_ballot = contest.upper().startswith(review["downBallotContestStartsWith"].upper())
+            if not is_president and not is_down_ballot:
+                continue
+            if is_president and alabama_excluded_candidate(candidate, review):
+                continue
+            for index, precinct in columns:
+                votes = int_text(row[index] if index < len(row) else 0)
+                item = precincts[(county, precinct)]
+                item["county"] = county
+                item["ward"] = precinct
+                if is_president:
+                    item["president_total"] += votes
+                    if party == normalize_party(party_codes["dem"]):
+                        item["harris"] += votes
+                    elif party == normalize_party(party_codes["rep"]):
+                        item["trump"] += votes
+                elif is_down_ballot:
+                    if party == normalize_party(party_codes["dem"]):
+                        item["house_dem"] += votes
+                        house_dem_total += votes
+                    elif party == normalize_party(party_codes["rep"]):
+                        item["house_rep"] += votes
+                        house_rep_total += votes
+
+    review_rows = []
+    for _key, item in sorted(precincts.items(), key=lambda pair: (pair[1]["county"], pair[1]["ward"])):
+        president_total = item["president_total"]
+        if not president_total:
+            continue
+        harris = item["harris"]
+        trump = item["trump"]
+        house_dem = item["house_dem"]
+        house_rep = item["house_rep"]
+        review_rows.append(
+            {
+                "county": item["county"],
+                "ward": item["ward"],
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - house_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - house_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        house_dem_total,
+        house_rep_total,
+    )
+
+
 def turnout_data(config):
     turnout = config["turnout"]
     parser = parser_for(TURNOUT_PARSERS, turnout.get("format", "xlsxPrecinctRows"), "turnout")
@@ -1417,6 +1623,77 @@ def turnout_data_pennsylvania_vote_history_xlsx(config):
             "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
             "source": local_source(config, turnout["sourceId"]).name,
             "sourceUrl": source_map(config)[turnout["sourceId"]]["url"],
+        },
+        "rows": output_rows,
+    }
+
+
+def alabama_registration_rows(path, turnout):
+    rows = list(iter_worksheet_rows(path, turnout.get("registrationSheet", "December")))
+    county_column = turnout.get("registrationCountyColumn", 0)
+    registered_column = turnout.get("registeredVotersColumn", 1)
+    output = {}
+    for row in rows:
+        if len(row) <= registered_column:
+            continue
+        county_raw = str(row[county_column] or "").strip()
+        if not county_raw or county_raw.upper() == "TOTAL":
+            continue
+        registered = int_text(row[registered_column])
+        if registered:
+            output[alabama_county_name(county_raw)] = registered
+    return output
+
+
+def turnout_data_alabama_precinct_zip(config):
+    turnout = config["turnout"]
+    turnout_source = source_map(config)[turnout["sourceId"]]
+    registration_source = source_map(config)[turnout["registrationSourceId"]]
+    ballots_by_county = defaultdict(int)
+
+    for workbook in alabama_precinct_zip_workbooks(turnout, config):
+        county = alabama_county_from_workbook(workbook)
+        rows = workbook["rows"]
+        if not rows:
+            continue
+        columns = alabama_precinct_columns(rows[0])
+        for row in rows[1:]:
+            contest = str(row[0] if len(row) > 0 else "").strip()
+            if contest.upper() != turnout["ballotsCastContestName"].upper():
+                continue
+            ballots_by_county[county] += sum(int_text(row[index] if index < len(row) else 0) for index, _name in columns)
+            break
+
+    registered_by_county = alabama_registration_rows(local_source(config, turnout["registrationSourceId"]), turnout)
+    missing_registration = sorted(set(ballots_by_county) - set(registered_by_county))
+    if missing_registration:
+        raise ValueError(f"Alabama turnout registration rows missing for: {', '.join(missing_registration)}")
+
+    output_rows = []
+    for county, ballots in sorted(ballots_by_county.items()):
+        registered = registered_by_county[county]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": f"{county} County",
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "sourceUrl": f"{turnout_source['url']} ; {registration_source['url']}",
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": f"{local_source(config, turnout['sourceId']).name}; {local_source(config, turnout['registrationSourceId']).name}",
+            "sourceUrl": f"{turnout_source['url']} ; {registration_source['url']}",
         },
         "rows": output_rows,
     }
@@ -1774,6 +2051,146 @@ def historical_baseline_pennsylvania_bulk_csv(config):
     }
 
 
+def historical_baseline_alabama_precinct_zip(config):
+    historical = config["historicalBaseline"]
+    series = []
+    for item in historical["sources"]:
+        source = source_map(config)[item["sourceId"]]
+        section = {
+            **historical,
+            "sourceId": item["sourceId"],
+            "excludeCandidatePatterns": historical.get("excludeCandidatePatterns", []),
+        }
+        by_county = defaultdict(lambda: {"dem": 0, "rep": 0, "other": 0, "total": 0})
+        for workbook in alabama_precinct_zip_workbooks(section, config, all_sheets=True):
+            county = alabama_county_from_workbook(workbook)
+            if workbook.get("sheets") and alabama_historical_wide_sheet_rows(workbook, item, historical, by_county[county]):
+                continue
+            rows = workbook["rows"]
+            if not rows:
+                continue
+            columns = alabama_precinct_columns(rows[0])
+            for row in rows[1:]:
+                contest = str(row[0] if len(row) > 0 else "").strip()
+                contest_name = item.get("contestName", historical.get("contestName", ""))
+                if contest_name and contest.upper() != contest_name.upper():
+                    continue
+                if not contest_name and not re.search(item.get("contestPattern", historical["contestPattern"]), contest, flags=re.IGNORECASE):
+                    continue
+                candidate = str(row[2] if len(row) > 2 else "").strip()
+                if alabama_excluded_candidate(candidate, section):
+                    continue
+                party = normalize_party(row[1] if len(row) > 1 else "")
+                votes = sum(int_text(row[index] if index < len(row) else 0) for index, _name in columns)
+                by_county[county]["total"] += votes
+                if party == normalize_party(historical["partyCodes"]["dem"]):
+                    by_county[county]["dem"] += votes
+                elif party == normalize_party(historical["partyCodes"]["rep"]):
+                    by_county[county]["rep"] += votes
+                else:
+                    by_county[county]["other"] += votes
+
+        rows = []
+        for county, totals in sorted(by_county.items()):
+            rows.append(
+                {
+                    "county": county,
+                    "municipality": county,
+                    "reportingUnit": f"{county} County",
+                    "ward": f"{county} County",
+                    "dem": totals["dem"],
+                    "rep": totals["rep"],
+                    "other": totals["other"],
+                    "total": totals["total"],
+                }
+            )
+        statewide = {
+            "dem": sum(row["dem"] for row in rows),
+            "rep": sum(row["rep"] for row in rows),
+            "other": sum(row["other"] for row in rows),
+            "total": sum(row["total"] for row in rows),
+            "rowCount": len(rows),
+        }
+        series.append(
+            {
+                "id": f"{config['code'].lower()}-sos-native-{item['year']}-president",
+                "electionYear": item["year"],
+                "sourceId": item["sourceId"],
+                "sourceClass": "nativeOfficial",
+                "sourceLevel": historical["sourceLevel"],
+                "rowMethod": historical["rowMethod"],
+                "rowCount": len(rows),
+                "sourceUrl": source["url"],
+                "localFile": source["localFile"],
+                "sourceNote": item["note"],
+                "statewide": statewide,
+                "rows": rows,
+            }
+        )
+
+    return {
+        "metadata": {
+            "purpose": f"Graph-ready {config['name']} presidential-election baseline using native official SOS precinct rows aggregated to counties.",
+            "seriesCount": len(series),
+            "warning": f"{config['name']} historical rows are native official precinct returns aggregated to county rows by election year.",
+            "sources": [
+                {
+                    "year": item["year"],
+                    "localFile": source_map(config)[item["sourceId"]]["localFile"],
+                    "sourceUrl": source_map(config)[item["sourceId"]]["url"],
+                    "format": "Alabama Secretary of State county XLS files inside precinct-level ZIP archives",
+                    "note": item["note"],
+                }
+                for item in historical["sources"]
+            ],
+        },
+        "series": series,
+    }
+
+
+def alabama_historical_wide_sheet_rows(workbook, item, historical, totals):
+    contest_name = item.get("wideContestName")
+    if not contest_name:
+        return False
+    contest_sheet = None
+    for sheet in workbook.get("sheets", []):
+        first_value = str((sheet.get("rows") or [[""]])[0][0] or "").strip()
+        if first_value.upper() == contest_name.upper():
+            contest_sheet = sheet
+            break
+    if not contest_sheet:
+        return False
+
+    rows = contest_sheet["rows"]
+    if len(rows) < 4:
+        return True
+    candidate_row = rows[1]
+    header_row = rows[2]
+    candidate_columns = []
+    for index, value in enumerate(candidate_row):
+        candidate = str(value or "").strip()
+        if not candidate:
+            continue
+        total_index = index + 1 if index + 1 < len(header_row) and str(header_row[index + 1]).strip().upper() == "TOTAL VOTES" else index
+        candidate_columns.append((total_index, candidate))
+
+    for row in rows[3:]:
+        precinct = str(row[0] if len(row) > 0 else "").strip()
+        if not precinct or precinct.upper().startswith("TOTAL"):
+            continue
+        for index, candidate in candidate_columns:
+            votes = int_text(row[index] if index < len(row) else 0)
+            totals["total"] += votes
+            candidate_upper = candidate.upper()
+            if any(name in candidate_upper for name in item.get("demCandidateContains", historical.get("demCandidateContains", []))):
+                totals["dem"] += votes
+            elif any(name in candidate_upper for name in item.get("repCandidateContains", historical.get("repCandidateContains", []))):
+                totals["rep"] += votes
+            else:
+                totals["other"] += votes
+    return True
+
+
 def parser_for(registry, key, feature_name):
     try:
         return registry[key]
@@ -1784,6 +2201,7 @@ def parser_for(registry, key, feature_name):
 
 CERTIFIED_RESULT_PARSERS = {
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
+    "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
     "michiganCountyTab": certified_results_michigan_tab,
     "northDakotaStatewideCsv": certified_results_north_dakota_csv,
     "pennsylvaniaBulkCsv": certified_results_pennsylvania_bulk_csv,
@@ -1791,6 +2209,7 @@ CERTIFIED_RESULT_PARSERS = {
 
 REVIEW_CHART_PARSERS = {
     "xlsxPrecinctComparison": review_charts_xlsx_precinct_comparison,
+    "alabamaPrecinctZipComparison": review_charts_alabama_precinct_zip,
     "tabDelimitedZipComparison": review_charts_tab_delimited_zip,
     "michiganPrecinctZipComparison": review_charts_tab_delimited_zip,
     "michiganCountyTabComparison": review_charts_michigan_tab,
@@ -1800,6 +2219,7 @@ REVIEW_CHART_PARSERS = {
 
 TURNOUT_PARSERS = {
     "notConfigured": turnout_data_not_configured,
+    "alabamaPrecinctZipTurnout": turnout_data_alabama_precinct_zip,
     "xlsxPrecinctRows": turnout_data_xlsx_precinct_rows,
     "michiganMvicCountyTurnout": turnout_data_michigan_mvic,
     "northDakotaTurnoutHtml": turnout_data_north_dakota_html,
@@ -1808,6 +2228,7 @@ TURNOUT_PARSERS = {
 
 HISTORICAL_BASELINE_PARSERS = {
     "officialCountyResultText": historical_baseline_official_county_result_text,
+    "alabamaPrecinctZip": historical_baseline_alabama_precinct_zip,
     "michiganCountyTab": historical_baseline_michigan_tab,
     "northDakotaStatewideCsv": historical_baseline_north_dakota_csv,
     "pennsylvaniaBulkCsv": historical_baseline_pennsylvania_bulk_csv,
@@ -1970,6 +2391,26 @@ def all_real_configs():
     return [read_config(path) for path in sorted(CONFIG_DIR.glob("*.json")) if not path.name.startswith("_")]
 
 
+def config_build_ready(config):
+    capabilities = config.get("app", {}).get("capabilities", {})
+    required_capabilities = [
+        "certifiedResults",
+        "map",
+        "reviewGraphs",
+        "turnout",
+        "historicalBaseline",
+    ]
+    if not all(capabilities.get(capability) for capability in required_capabilities):
+        return False
+    expected = config.get("expected", {})
+    if not expected.get("countyRows") or not expected.get("stateTotal"):
+        return False
+    for source in config.get("sources", []):
+        if source.get("url") in {"", "TODO"}:
+            return False
+    return True
+
+
 def main():
     parser = argparse.ArgumentParser(description="Build configured state election app data bundles.")
     parser.add_argument("config", nargs="*", help="Path to one or more state config JSON files. Defaults to data/state-configs/*.json.")
@@ -1977,11 +2418,18 @@ def main():
     parser.add_argument("--force-download", action="store_true", help="Download configured source files even when local files exist.")
     args = parser.parse_args()
 
+    explicit_configs = bool(args.config)
     summaries = {}
     configs = []
     for config_path in config_paths(args):
         config = read_config(config_path)
         configs.append(config)
+        if not explicit_configs and not config_build_ready(config):
+            summaries[config["code"]] = {
+                "status": "skipped",
+                "reason": "State config is not fully promoted yet.",
+            }
+            continue
         summaries[config["code"]] = build_state(
             config,
             download=args.download,
