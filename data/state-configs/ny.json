@@ -1,0 +1,241 @@
+{
+  "code": "NY",
+  "name": "New York",
+  "authority": "New York State Board of Elections",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/ny-app-data.js",
+    "appDataGlobal": "NY_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "ny-2024-president-county-results",
+      "url": "https://ny.elstats.civera.com/api/download_contest/5591_table.csv?split_party=true",
+      "localFile": "data/ny-2024-president-results-by-county.csv"
+    },
+    {
+      "id": "ny-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2736%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/ny-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "ny-county-geometry",
+    "outputFile": "data/ny-counties.js",
+    "outputGlobal": "NY_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "COUNTY",
+    "expectedFeatures": 62
+  },
+  "certifiedResults": {
+    "format": "newYorkCountyCsv",
+    "sourceId": "ny-2024-president-county-results",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "otherCandidates": [
+      {
+        "key": "stein",
+        "label": "Jill Stein",
+        "columnHeader": "Jill Stein"
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De la Cruz",
+        "columnHeader": "Claudia De la Cruz"
+      },
+      {
+        "key": "oliver",
+        "label": "Chase Oliver",
+        "columnHeader": "Chase Oliver"
+      },
+      {
+        "key": "west",
+        "label": "Cornel West",
+        "columnHeader": "Cornel West"
+      },
+      {
+        "key": "sonski",
+        "label": "Peter Sonski",
+        "columnHeader": "Peter Sonski"
+      },
+      {
+        "key": "ayyadurai",
+        "label": "Shiva Ayyadurai",
+        "columnHeader": "Shiva Ayyadurai"
+      },
+      {
+        "key": "garrity",
+        "label": "Chris Garrity",
+        "columnHeader": "Chris Garrity"
+      },
+      {
+        "key": "scollin",
+        "label": "Raymond Anthony Scollin",
+        "columnHeader": "Raymond Anthony Scollin"
+      },
+      {
+        "key": "odonnell",
+        "label": "Andrew O'Donnell",
+        "columnHeader": "Andrew O'Donnell"
+      },
+      {
+        "key": "futureMadamPotus",
+        "label": "Future Madam Potus",
+        "columnHeader": "Future Madam Potus"
+      },
+      {
+        "key": "hubbard",
+        "label": "Garry Hubbard",
+        "columnHeader": "Garry Hubbard"
+      },
+      {
+        "key": "mcneil",
+        "label": "Andre Ramon McNeil Sr",
+        "columnHeader": "Andre Ramon McNeil Sr"
+      },
+      {
+        "key": "scattering",
+        "label": "Scattering",
+        "columnHeader": "Scattering"
+      }
+    ],
+    "excludeColumns": [
+      "",
+      "Blank",
+      "Void",
+      "Total Votes"
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "ny-2024-president-county-results",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "ny-2024-president-county-results",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "New York turnout is not loaded yet. The certified county result CSV includes Blank, Void, and Total Votes columns but does not include registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President/Vice President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "ny-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "New York certified presidential county results",
+        "detail": "Official county-level presidential contest CSV from the New York State Board of Elections results export. Fusion-party columns are aggregated by candidate: Democratic plus Working Families for Harris, and Republican plus Conservative for Trump.",
+        "sourceUrl": "https://ny.elstats.civera.com/api/download_contest/5591_table.csv?split_party=true",
+        "localFile": "data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Downloaded from the official NYS Board of Elections EL45/Civera results export endpoint.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "New York precinct or ward detail",
+        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit file before they can be enabled.",
+        "sourceUrl": "https://elections.ny.gov/2024-election-results",
+        "localFile": "data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "County result source checked during New York load.",
+        "status": "Needs precinct source"
+      },
+      "turnout": {
+        "title": "New York turnout denominator",
+        "detail": "The certified contest CSV exposes candidate votes, blank ballots, void ballots, and total votes, but no county registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
+        "sourceUrl": "https://elections.ny.gov/2024-election-results",
+        "localFile": "data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official presidential county CSV lacks registered-voter denominator fields.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Certified presidential results",
+        "file": "data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
+        "sourceUrl": "https://ny.elstats.civera.com/api/download_contest/5591_table.csv?split_party=true",
+        "usedFor": "New York certified 2024 presidential county results.",
+        "confidence": "Official New York State Board of Elections results export."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/ny-counties.geojson; data/ny-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "New York county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "County-level certified CSV",
+        "sourceUrl": "https://ny.elstats.civera.com/api/download_contest/5591_table.csv?split_party=true",
+        "reason": "The source is suitable for certified county totals and the county map, but not for precinct-level review graphs or turnout denominators.",
+        "status": "Loaded for county results only",
+        "nextStep": "Locate an official precinct/reporting-unit source and official county registration or turnout denominator source."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "New York turnout should not be inferred from the certified contest CSV because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "New York reporting-unit row",
+    "reviewRowLabelPlural": "New York reporting-unit rows",
+    "reviewGraphTitlePrefix": "New York reporting unit",
+    "mapLoadingText": "Loading local New York county boundaries...",
+    "noGeometryText": "New York county geometry is not loaded yet; showing the county tile fallback."
+  },
+  "expected": {
+    "countyRows": 62,
+    "precinctRows": 62,
+    "stateTotal": 8263474,
+    "trump": 3579519,
+    "harris": 4619543,
+    "other": 64412,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 62
+  }
+}

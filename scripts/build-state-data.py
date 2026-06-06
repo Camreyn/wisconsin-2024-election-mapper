@@ -396,6 +396,76 @@ def certified_results_xlsx_precinct_aggregation(config):
     return result_rows, candidate_labels, precinct_rows
 
 
+def new_york_column_matches(header_value, party_value, rule):
+    if rule.get("columnHeader") and str(header_value).strip() != rule["columnHeader"]:
+        return False
+    if rule.get("candidateContains") and rule["candidateContains"].lower() not in str(header_value).lower():
+        return False
+    if rule.get("partyCode") and normalize_party(party_value) != normalize_party(rule["partyCode"]):
+        return False
+    return True
+
+
+def certified_results_new_york_county_csv(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if len(rows) < 3:
+        raise ValueError(f"New York county results source has too few rows: {path}")
+
+    header = rows[0]
+    party_row = rows[1]
+    excluded_columns = set(source.get("excludeColumns", ["Blank", "Void", "Total Votes", ""]))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+
+    for row in rows[2:]:
+        if len(row) < 2 or row[0] != "County":
+            continue
+        county = str(row[1]).strip()
+        totals = defaultdict(int)
+        for index, header_value in enumerate(header):
+            if index >= len(row) or header_value in excluded_columns:
+                continue
+            party_value = party_row[index] if index < len(party_row) else ""
+            votes = int_text(row[index])
+            if new_york_column_matches(header_value, party_value, source["majorCandidates"]["trump"]):
+                totals["trump"] += votes
+            elif new_york_column_matches(header_value, party_value, source["majorCandidates"]["harris"]):
+                totals["harris"] += votes
+            else:
+                matched_other = False
+                for candidate in source.get("otherCandidates", []):
+                    if new_york_column_matches(header_value, party_value, candidate):
+                        totals[candidate["key"]] += votes
+                        matched_other = True
+                        break
+                if not matched_other and header_value:
+                    totals["unmappedOther"] += votes
+
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def michigan_result_rows(path):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         first_line = handle.readline()
@@ -2504,6 +2574,7 @@ CERTIFIED_RESULT_PARSERS = {
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
     "michiganCountyTab": certified_results_michigan_tab,
+    "newYorkCountyCsv": certified_results_new_york_county_csv,
     "northDakotaStatewideCsv": certified_results_north_dakota_csv,
     "pennsylvaniaBulkCsv": certified_results_pennsylvania_bulk_csv,
 }

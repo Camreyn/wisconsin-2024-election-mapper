@@ -12,6 +12,7 @@ const supportedCertifiedFormats = new Set([
   "alabamaPrecinctZip",
   "floridaPrecinctZip",
   "michiganCountyTab",
+  "newYorkCountyCsv",
   "northDakotaStatewideCsv",
   "pennsylvaniaBulkCsv",
 ]);
