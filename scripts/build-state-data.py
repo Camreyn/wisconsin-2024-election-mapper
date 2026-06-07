@@ -2023,6 +2023,7 @@ def certified_results_south_carolina_enr_json(config):
     sum_path = local_source(config, source["statewideSourceId"])
     details = json.loads(details_path.read_text(encoding="utf-8"))
     statewide = json.loads(sum_path.read_text(encoding="utf-8"))
+    state_name = config["name"]
     contest_key = source["contestKey"]
     detail_contest = next(
         (contest for contest in details.get("Contests", []) if str(contest.get("K")) == str(contest_key)),
@@ -2033,7 +2034,7 @@ def certified_results_south_carolina_enr_json(config):
         None,
     )
     if not detail_contest or not statewide_contest:
-        raise ValueError(f"Could not find South Carolina ENR contest {contest_key!r}")
+        raise ValueError(f"Could not find {state_name} ENR contest {contest_key!r}")
 
     county_names = {
         re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).lower(): name
@@ -2105,7 +2106,7 @@ def certified_results_south_carolina_enr_json(config):
     }
     if parsed_totals != expected_totals:
         raise ValueError(
-            "South Carolina ENR county totals do not match statewide summary totals: "
+            f"{state_name} ENR county totals do not match statewide summary totals: "
             f"{parsed_totals} != {expected_totals}"
         )
 
@@ -4764,6 +4765,7 @@ CERTIFIED_RESULT_PARSERS = {
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
     "californiaPresidentXlsx": certified_results_california_president_xlsx,
+    "clarityEnrJson": certified_results_south_carolina_enr_json,
     "coloradoCiveraCsv": certified_results_colorado_civera_csv,
     "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,

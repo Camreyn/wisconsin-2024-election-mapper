@@ -11,6 +11,7 @@ const supportedCertifiedFormats = new Set([
   "xlsxPrecinctAggregation",
   "alabamaPrecinctZip",
   "californiaPresidentXlsx",
+  "clarityEnrJson",
   "coloradoCiveraCsv",
   "connecticutStatementText",
   "delawareCountyHtml",
