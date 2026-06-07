@@ -30,6 +30,7 @@ const supportedCertifiedFormats = new Set([
   "newYorkCountyCsv",
   "northDakotaStatewideCsv",
   "oklahomaEnrZip",
+  "oregonMapDataJson",
   "pennsylvaniaBulkCsv",
   "rhodeIslandSummaryXlsx",
   "southCarolinaEnrJson",

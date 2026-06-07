@@ -1,0 +1,9 @@
+ContestID,ContestName,NominatingParty,PartyCode,AreaType,AreaNum,OfficeSeqNo,BallotOrder,CandidateID,CandidateName,CurrentDateTime,VoteFor,CandidateVotes,CandidatePercentage,PrecinctsReporting
+300031511,"President","","","","Federal",110001,,9901,"Write-in",6/7/2026 4:30:40 AM,1,15026,0.00669460764635933,1194/1314,
+300031511,"President","Constitution","","","Federal",110001,,300046773,"Randall Terry",6/7/2026 4:30:40 AM,1,1850,0.000824239594420655,1194/1314,
+300031511,"President","Democrat","","","Federal",110001,,300046768,"Kamala D Harris/Tim Walz",6/7/2026 4:30:40 AM,1,1240600,0.552730616669332,1194/1314,
+300031511,"President","We The People","","","Federal",110001,,300046766,"Robert F Kennedy Jr/Nicole Shanahan",6/7/2026 4:30:40 AM,1,33733,0.0150292293181578,1194/1314,
+300031511,"President","Libertarian","","","Federal",110001,,300046769,"Chase Oliver/Mike ter Maat",6/7/2026 4:30:40 AM,1,9061,0.0040369918729976,1194/1314,
+300031511,"President","Pacific Green","","","Federal",110001,,300046771,"Jill Stein/Rudolph Ware",6/7/2026 4:30:40 AM,1,19099,0.00850927135883249,1194/1314,
+300031511,"President","Progressive","","","Federal",110001,,300046774,"Cornel West",6/7/2026 4:30:40 AM,1,5644,0.00251459906535685,1194/1314,
+300031511,"President","Republican","","","Federal",110001,,300046779,"Donald J Trump/JD Vance",6/7/2026 4:30:40 AM,1,919480,0.409660444474543,1194/1314,

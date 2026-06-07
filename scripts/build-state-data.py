@@ -2871,6 +2871,89 @@ def certified_results_north_dakota_csv(config):
     return result_rows, candidate_labels, precinct_rows
 
 
+def certified_results_oregon_map_data_json(config):
+    source = config["certifiedResults"]
+    with local_source(config, source["sourceId"]).open("r", encoding="utf-8") as handle:
+        payload = json.load(handle)
+    records = payload.get("d", payload)
+    if not isinstance(records, list):
+        raise ValueError("Oregon map data JSON did not contain a result row list")
+
+    candidate_rules = {
+        "trump": source["majorCandidates"]["trump"],
+        "harris": source["majorCandidates"]["harris"],
+        **{item["key"]: item for item in source.get("otherCandidates", [])},
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    by_county = defaultdict(lambda: defaultdict(int))
+
+    for row in records:
+        if row.get("RaceName") != source.get("contestName", "President"):
+            continue
+        county = f"{row['CountyName']} County"
+        candidate_name = str(row.get("calcCandidate", "")).lower()
+        matched_key = next(
+            (
+                key
+                for key, rule in candidate_rules.items()
+                if rule.get("candidateContains", "").lower() in candidate_name
+            ),
+            None,
+        )
+        if matched_key:
+            by_county[county][matched_key] += int(row.get("calcCandidateVotes") or 0)
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other_values = {item["key"]: totals[item["key"]] for item in candidate_labels}
+        other = sum(other_values.values())
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    statewide_source_id = source.get("statewideSourceId")
+    if statewide_source_id:
+        with local_source(config, statewide_source_id).open("r", encoding="utf-8-sig", newline="") as handle:
+            statewide_totals = defaultdict(int)
+            for row in csv.DictReader(handle):
+                if row.get("ContestName") != source.get("contestName", "President"):
+                    continue
+                candidate_name = str(row.get("CandidateName", "")).lower()
+                matched_key = next(
+                    (
+                        key
+                        for key, rule in candidate_rules.items()
+                        if rule.get("candidateContains", "").lower() in candidate_name
+                    ),
+                    None,
+                )
+                if matched_key:
+                    statewide_totals[matched_key] += int_text(row.get("CandidateVotes"))
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        }
+        if parsed_totals != dict(statewide_totals):
+            raise ValueError(f"Oregon county map totals do not match statewide export: {parsed_totals} != {dict(statewide_totals)}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_pennsylvania_bulk_csv(config):
     source = config["certifiedResults"]
     office_code = source.get("officeCode", "USP")
@@ -4608,6 +4691,7 @@ CERTIFIED_RESULT_PARSERS = {
     "newYorkCountyCsv": certified_results_new_york_county_csv,
     "northDakotaStatewideCsv": certified_results_north_dakota_csv,
     "oklahomaEnrZip": certified_results_oklahoma_enr_zip,
+    "oregonMapDataJson": certified_results_oregon_map_data_json,
     "pennsylvaniaBulkCsv": certified_results_pennsylvania_bulk_csv,
     "rhodeIslandSummaryXlsx": certified_results_rhode_island_summary_xlsx,
     "southCarolinaEnrJson": certified_results_south_carolina_enr_json,
