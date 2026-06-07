@@ -1,0 +1,222 @@
+{
+  "code": "ME",
+  "name": "Maine",
+  "authority": "Maine Department of the Secretary of State",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/me-app-data.js",
+    "appDataGlobal": "ME_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "me-2024-president-county-town-final-corrected",
+      "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
+      "localFile": "data/me-2024-president-county-town-final-corrected.xlsx"
+    },
+    {
+      "id": "me-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2723%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/me-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "me-county-geometry",
+    "outputFile": "data/me-counties.js",
+    "outputGlobal": "ME_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 16
+  },
+  "certifiedResults": {
+    "format": "maineCountyTownXlsx",
+    "sourceId": "me-2024-president-county-town-final-corrected",
+    "sheet": "President & VP",
+    "columns": {
+      "countyCode": "CTY",
+      "municipality": "MUNICIPALITY",
+      "harris": "Harris, Kamala D.",
+      "trump": "Trump, Donald J. ",
+      "oliver": "Oliver, Chase",
+      "stein": "Stein, Jill ",
+      "west": "West, Cornel",
+      "others": "Others"
+    },
+    "countyCodes": {
+      "AND": "Androscoggin County",
+      "ARO": "Aroostook County",
+      "CUM": "Cumberland County",
+      "FRA": "Franklin County",
+      "HAN": "Hancock County",
+      "KEN": "Kennebec County",
+      "KNO": "Knox County",
+      "LIN": "Lincoln County",
+      "OXF": "Oxford County",
+      "PEN": "Penobscot County",
+      "PIS": "Piscataquis County",
+      "SAG": "Sagadahoc County",
+      "SOM": "Somerset County",
+      "WAL": "Waldo County",
+      "WAS": "Washington County",
+      "YOR": "York County"
+    },
+    "uocavaLabel": "STATE UOCAVA",
+    "uocavaCountyName": "State UOCAVA",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Trump"
+      },
+      "harris": {
+        "candidateContains": "Harris"
+      }
+    },
+    "metadataNotes": "Aggregated from the official Maine Secretary of State corrected final President and Vice President workbook. County rows use county total rows, plus the statewide UOCAVA row so the app reconciles to the certified statewide candidate total; municipality rows are counted as local reporting rows for source coverage.",
+    "otherCandidates": [
+      {
+        "key": "oliver",
+        "label": "Chase Oliver",
+        "column": "oliver"
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein",
+        "column": "stein"
+      },
+      {
+        "key": "west",
+        "label": "Cornel West",
+        "column": "west"
+      },
+      {
+        "key": "others",
+        "label": "Other write-ins",
+        "column": "others"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "me-2024-president-county-town-final-corrected",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "me-2024-president-county-town-final-corrected",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "me-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Maine official presidential county results",
+        "detail": "Certified county presidential totals are parsed from the Maine Secretary of State final corrected President and Vice President workbook.",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
+        "localFile": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Maine SOS source filename identifies the workbook as FINAL-Corrected 20241205.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Maine municipality-level presidential rows",
+        "detail": "The same official workbook includes municipality rows that reconcile to county total rows, plus a statewide UOCAVA row that is not county-assigned. The app retains these source rows in pipeline metadata.",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
+        "localFile": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Maine SOS workbook rows include municipality totals and county subtotal rows.",
+        "status": "Loaded"
+      },
+      "turnout": {
+        "title": "Maine turnout denominator",
+        "detail": "The official presidential workbook includes vote totals but not registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
+        "localFile": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official presidential workbook lacks registered-voter denominator fields.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Official presidential county and municipality results",
+        "file": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-app-data.js",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
+        "usedFor": "Maine 2024 certified presidential county totals, statewide UOCAVA row, and municipality source row coverage.",
+        "confidence": "Official Maine Secretary of State final corrected workbook."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/me-counties.geojson; data/me-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "Maine county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "Turnout denominator",
+        "sourceUrl": "https://www.maine.gov/sos/elections-voting/election-results-data/election-results-2024",
+        "reason": "The official presidential results workbook does not include registered-voter denominators for turnout calculations.",
+        "status": "Needs denominator source",
+        "nextStep": "Identify an official Maine turnout or registration source before enabling turnout."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "Maine turnout should not be inferred from the certified presidential results workbook because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "Maine reporting-unit row",
+    "reviewRowLabelPlural": "Maine reporting-unit rows",
+    "reviewGraphTitlePrefix": "Maine reporting unit",
+    "mapLoadingText": "Loading local Maine county boundaries...",
+    "noGeometryText": "Maine county geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 17,
+    "precinctRows": 513,
+    "stateTotal": 831375,
+    "trump": 377977,
+    "harris": 435652,
+    "other": 17746,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 16
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "code": "AK",
+  "name": "Alaska",
+  "authority": "Alaska election authorities via national county baseline",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/ak-app-data.js",
+    "appDataGlobal": "AK_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "national-2024-county-president-results",
+      "url": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+      "localFile": "data/national-2024-county-president-results.csv"
+    },
+    {
+      "id": "ak-house-district-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer/2/query?where=STATE%3D%2702%27&outFields=NAME,BASENAME,GEOID,STATE,SLDL&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/ak-house-districts.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "ak-house-district-geometry",
+    "outputFile": "data/ak-house-districts.js",
+    "outputGlobal": "AK_HOUSE_DISTRICTS_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 40
+  },
+  "certifiedResults": {
+    "format": "nationalCountyBaselineCsv",
+    "sourceId": "national-2024-county-president-results",
+    "stateName": "Alaska",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "votes_gop"
+      },
+      "harris": {
+        "candidateContains": "votes_dem"
+      }
+    },
+    "metadataNotes": "Aggregated from the national 2024 county presidential baseline CSV. Source Planner marks this as a baseline import pending replacement by a native official state export where available.",
+    "otherCandidates": [
+      {
+        "key": "nationalOther",
+        "label": "Other candidates"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "national-2024-county-president-results",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "national-2024-county-president-results",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "House District",
+    "exportsSlug": "ak-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Alaska national baseline presidential house district results",
+        "detail": "County-level presidential rows are imported from the public national 2024 county results baseline. This is the app floor for broad state coverage and should be replaced by a native official state export/parser when one is collected.",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "localFile": "data/national-2024-county-president-results.csv; data/ak-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Downloaded from tonmcg/US_County_Level_Election_Results_08-24; repository README says the data are compiled from reputable public sources but are not authoritative.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Alaska precinct or reporting-unit detail",
+        "detail": "The baseline import is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "localFile": "data/national-2024-county-president-results.csv; data/ak-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Baseline source checked during broad state import.",
+        "status": "Needs precinct source"
+      },
+      "turnout": {
+        "title": "Alaska turnout denominator",
+        "detail": "The baseline import does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "localFile": "data/national-2024-county-president-results.csv; data/ak-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Baseline presidential county results",
+        "file": "data/national-2024-county-president-results.csv; data/ak-app-data.js",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "usedFor": "Alaska 2024 presidential house district result baseline.",
+        "confidence": "Public national county-level results baseline; not a substitute for a native official state parser."
+      },
+      {
+        "category": "House District boundaries",
+        "file": "data/ak-house-districts.geojson; data/ak-house-districts.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer",
+        "usedFor": "Alaska house district polygon map.",
+        "confidence": "U.S. Census TIGERweb geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "National county baseline",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "reason": "Useful for broad app coverage, but the repository itself notes that the compiled results are not authoritative. Promote this state to a native official source when possible.",
+        "status": "Baseline only",
+        "nextStep": "Collect a native official state export, add a parser if needed, and reconcile totals."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "Alaska turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "Alaska reporting-unit row",
+    "reviewRowLabelPlural": "Alaska reporting-unit rows",
+    "reviewGraphTitlePrefix": "Alaska reporting unit",
+    "mapLoadingText": "Loading local Alaska house district boundaries...",
+    "noGeometryText": "Alaska house district geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 40,
+    "precinctRows": 40,
+    "stateTotal": 324097,
+    "trump": 184407,
+    "harris": 139690,
+    "other": 0,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 40
+  }
+}

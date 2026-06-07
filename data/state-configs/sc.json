@@ -1,0 +1,210 @@
+{
+  "code": "SC",
+  "name": "South Carolina",
+  "authority": "South Carolina State Election Commission",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/sc-app-data.js",
+    "appDataGlobal": "SC_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "sc-2024-general-election-sum",
+      "url": "https://www.enr-scvotes.org/SC/122436/359624/json/sum.json",
+      "localFile": "data/sc-2024-general-election-sum.json"
+    },
+    {
+      "id": "sc-2024-general-election-details",
+      "url": "https://www.enr-scvotes.org/SC/122436/359624/json/details.json",
+      "localFile": "data/sc-2024-general-election-details.json"
+    },
+    {
+      "id": "sc-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2745%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/sc-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "sc-county-geometry",
+    "outputFile": "data/sc-counties.js",
+    "outputGlobal": "SC_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 46
+  },
+  "certifiedResults": {
+    "format": "southCarolinaEnrJson",
+    "sourceId": "sc-2024-general-election-details",
+    "statewideSourceId": "sc-2024-general-election-sum",
+    "contestKey": "20500",
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP",
+        "candidateContains": "TRUMP"
+      },
+      "harris": {
+        "partyCode": "DEM",
+        "candidateContains": "HARRIS"
+      }
+    },
+    "metadataNotes": "Official South Carolina Election Commission ENR static JSON for the 2024 General Election. The parser reads the statewide presidential contest summary and county detail feed for ENR version 359624, then validates county candidate sums against the statewide totals.",
+    "otherCandidates": [
+      {
+        "key": "terry",
+        "label": "Randall Terry / Stephen Broden",
+        "partyCode": "CON",
+        "candidateContains": "TERRY"
+      },
+      {
+        "key": "west",
+        "label": "Cornel West / Melina Abdulla",
+        "partyCode": "UNC",
+        "candidateContains": "WEST"
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein / Rudolph Ware",
+        "partyCode": "GRN",
+        "candidateContains": "STEIN"
+      },
+      {
+        "key": "oliver",
+        "label": "Chase Oliver / Mike ter Maat",
+        "partyCode": "LIB",
+        "candidateContains": "OLIVER"
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De La Cruz / Karina Garcia",
+        "partyCode": "WRK",
+        "candidateContains": "CRUZ"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "sc-2024-general-election-details",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "sc-2024-general-election-sum",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "Turnout is not loaded because the ENR presidential result feeds do not include app-ready registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "sc-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "South Carolina official presidential county results",
+        "detail": "County-level presidential rows are parsed from the South Carolina State Election Commission ENR static JSON detail feed for the 2024 General Election. The parser validates county candidate totals against the statewide ENR summary contest.",
+        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
+        "localFile": "data/sc-2024-general-election-details.json; data/sc-2024-general-election-sum.json; data/sc-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "State-linked ENR current version file /SC/122436/current_ver.txt returned 359624; static JSON files were downloaded from that version path.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "South Carolina precinct or reporting-unit detail",
+        "detail": "The current official ENR promotion uses county-level presidential detail rows. Precinct-level review drilldowns remain disabled until an official precinct, ward, or reporting-unit export is mapped.",
+        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
+        "localFile": "data/sc-2024-general-election-details.json; data/sc-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "ENR detail feed is county-level for the statewide presidential contest in this parser.",
+        "status": "Needs precinct source"
+      },
+      "turnout": {
+        "title": "South Carolina turnout denominator",
+        "detail": "The ENR presidential result feeds include county vote totals but do not provide mapped registered-voter denominators for the app turnout module. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
+        "localFile": "data/sc-2024-general-election-sum.json; data/sc-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "ENR summary feed was checked during official-source promotion; it reports contest votes but not app-ready registration denominators.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Official presidential county results",
+        "file": "data/sc-2024-general-election-details.json; data/sc-2024-general-election-sum.json; data/sc-app-data.js",
+        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
+        "usedFor": "South Carolina 2024 presidential county result totals.",
+        "confidence": "Official South Carolina State Election Commission election-results page links to this ENR result site; parser validates county detail totals against the statewide ENR summary."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/sc-counties.geojson; data/sc-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "South Carolina county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "National county baseline",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "reason": "No longer used for South Carolina because the state-linked ENR static JSON feed is now mapped.",
+        "status": "Replaced",
+        "nextStep": "Keep only as a broad national fallback for states without official-source parsers."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "South Carolina turnout should not be inferred from the ENR presidential result feeds because they lack app-ready registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "South Carolina reporting-unit row",
+    "reviewRowLabelPlural": "South Carolina reporting-unit rows",
+    "reviewGraphTitlePrefix": "South Carolina reporting unit",
+    "mapLoadingText": "Loading local South Carolina county boundaries...",
+    "noGeometryText": "South Carolina county geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 46,
+    "precinctRows": 46,
+    "stateTotal": 2548140,
+    "trump": 1483747,
+    "harris": 1028452,
+    "other": 35941,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 46
+  }
+}

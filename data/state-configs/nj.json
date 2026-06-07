@@ -1,0 +1,205 @@
+{
+  "code": "NJ",
+  "name": "New Jersey",
+  "authority": "New Jersey Division of Elections",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/nj-app-data.js",
+    "appDataGlobal": "NJ_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "nj-2024-official-general-results-president",
+      "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
+      "localFile": "data/nj-2024-official-general-results-president.pdf"
+    },
+    {
+      "id": "nj-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2734%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/nj-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "nj-county-geometry",
+    "outputFile": "data/nj-counties.js",
+    "outputGlobal": "NJ_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 21
+  },
+  "certifiedResults": {
+    "format": "newJerseyPresidentPdf",
+    "sourceId": "nj-2024-official-general-results-president",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "DONALD J. TRUMP"
+      },
+      "harris": {
+        "candidateContains": "KAMALA D. HARRIS"
+      }
+    },
+    "otherCandidates": [
+      {
+        "key": "stein",
+        "label": "Jill Stein",
+        "candidateContains": "JILL STEIN"
+      },
+      {
+        "key": "kennedy",
+        "label": "Robert F. Kennedy Jr.",
+        "candidateContains": "ROBERT F. KENNEDY"
+      },
+      {
+        "key": "oliver",
+        "label": "Chase Oliver",
+        "candidateContains": "CHASE OLIVER"
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De la Cruz",
+        "candidateContains": "CLAUDIA DE LA CRUZ"
+      },
+      {
+        "key": "terry",
+        "label": "Randall Terry",
+        "candidateContains": "RANDALL A. TERRY"
+      },
+      {
+        "key": "kishore",
+        "label": "Joseph Kishore",
+        "candidateContains": "JOSEPH KISHORE"
+      },
+      {
+        "key": "fruit",
+        "label": "Rachele Fruit",
+        "candidateContains": "RACHELE FRUIT"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "nj-2024-official-general-results-president",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "nj-2024-official-general-results-president",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "New Jersey turnout is not loaded yet. The official presidential PDF contains candidate tallies by county but does not include registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "nj-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "New Jersey official presidential county results",
+        "detail": "Official New Jersey Division of Elections President results PDF. The parser reads each candidate's county tally page and validates county sums against the PDF's candidate Total lines.",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
+        "localFile": "data/nj-2024-official-general-results-president.pdf; data/nj-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official Division of Elections PDF marked 12/05/2024 Official List.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "New Jersey precinct or reporting-unit detail",
+        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
+        "localFile": "data/nj-2024-official-general-results-president.pdf; data/nj-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "County result source checked during New Jersey load.",
+        "status": "Needs precinct source"
+      },
+      "turnout": {
+        "title": "New Jersey turnout denominator",
+        "detail": "The official presidential PDF includes county candidate tallies, but no registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
+        "localFile": "data/nj-2024-official-general-results-president.pdf; data/nj-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official presidential county PDF lacks registered-voter denominator fields.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Official presidential county results",
+        "file": "data/nj-2024-official-general-results-president.pdf; data/nj-app-data.js",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
+        "usedFor": "New Jersey 2024 presidential county results.",
+        "confidence": "Official New Jersey Division of Elections presidential results PDF."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/nj-counties.geojson; data/nj-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "New Jersey county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "National county baseline",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "reason": "Superseded for New Jersey by the official New Jersey Division of Elections 2024 presidential results PDF.",
+        "status": "Superseded",
+        "nextStep": "Keep the official Division of Elections PDF as the authoritative New Jersey presidential county source."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "New Jersey turnout should not be inferred from the certified presidential PDF because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "New Jersey reporting-unit row",
+    "reviewRowLabelPlural": "New Jersey reporting-unit rows",
+    "reviewGraphTitlePrefix": "New Jersey reporting unit",
+    "mapLoadingText": "Loading local New Jersey county boundaries...",
+    "noGeometryText": "New Jersey county geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 21,
+    "precinctRows": 21,
+    "stateTotal": 4272725,
+    "trump": 1968215,
+    "harris": 2220713,
+    "other": 83797,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 21
+  }
+}

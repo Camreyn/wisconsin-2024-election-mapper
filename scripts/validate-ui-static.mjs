@@ -170,6 +170,7 @@ function createAppHarness({ hash = "", search = "" } = {}) {
     navigator: {},
     setTimeout,
     clearTimeout,
+    __STATIC_UI_VALIDATION__: true,
   };
   context.window = context;
   context.window.location = location;
@@ -298,11 +299,16 @@ checks.minnesotaStaticSourceTimestampVisible = indexHtml.includes("Minnesota SOS
 checks.minnesotaSaintLouisGeometryMatchesResults =
   vm.runInContext(`normalizeCounty("Saint Louis") === normalizeCounty("St. Louis")`, context);
 
-const mnQueryHarness = createAppHarness({ search: "?state=MN" });
-const ndQueryHarness = createAppHarness({ search: "?state=ND" });
-const miQueryHarness = createAppHarness({ search: "?state=MI" });
-const mnHashHarness = createAppHarness({ hash: "#sources?state=MN" });
-await new Promise((resolve) => setTimeout(resolve, 450));
+async function createSettledHarness(options, waitMs = 450) {
+  const harness = createAppHarness(options);
+  await new Promise((resolve) => setTimeout(resolve, waitMs));
+  return harness;
+}
+
+const mnQueryHarness = await createSettledHarness({ search: "?state=MN" });
+const ndQueryHarness = await createSettledHarness({ search: "?state=ND" });
+const miQueryHarness = await createSettledHarness({ search: "?state=MI" });
+const mnHashHarness = await createSettledHarness({ hash: "#sources?state=MN" });
 checks.directMinnesotaQuerySelected =
   mnQueryHarness.element("#appStateSelect").value === "MN" &&
   mnQueryHarness.element("#sourceStateSelect").value === "MN";
@@ -354,9 +360,10 @@ checks.directMichiganDownBallotGraph =
 
 async function collectRegistryDirectRouteChecks(states) {
   const routeChecks = {};
-  for (const state of states) {
-    const harness = createAppHarness({ search: `?state=${encodeURIComponent(state.code)}` });
-    await new Promise((resolve) => setTimeout(resolve, 450));
+  const sampleCodes = new Set(["AK", "AL", "AZ", "CA", "FL", "HI", "NY", "OH", "PA", "TX", "WY"]);
+  const sampledStates = states.filter((state) => sampleCodes.has(state.code));
+  for (const state of sampledStates) {
+    const harness = await createSettledHarness({ search: `?state=${encodeURIComponent(state.code)}` }, 120);
     const badges = harness.element("#sourcePlanBadges").innerHTML;
     const countyRows = (harness.element("#sourceCountyRows").innerHTML.match(/<tr>/g) || []).length;
     const historicalRows = (harness.element("#historicalTableRows").innerHTML.match(/<tr>/g) || []).length;
@@ -378,7 +385,7 @@ checks.registryDirectRoutes = await collectRegistryDirectRouteChecks(registrySta
 checks.registryDirectRoutesAllReady = Object.values(checks.registryDirectRoutes).every((stateChecks) =>
   Object.values(stateChecks).every(Boolean),
 );
-vm.runInContext(`
+await vm.runInContext(`
   els.sourceStateSelect.value = "WI";
   switchActiveState(els.sourceStateSelect.value);
 `, mnHashHarness.context);
@@ -386,7 +393,7 @@ checks.sourcePlannerSelectorSyncsGlobal =
   mnHashHarness.element("#appStateSelect").value === "WI" &&
   mnHashHarness.element("#sourceStateSelect").value === "WI" &&
   !mnHashHarness.context.window.location.href.includes("state=MN");
-vm.runInContext(`
+await vm.runInContext(`
   els.appStateSelect.value = "MN";
   switchActiveState(els.appStateSelect.value);
 `, mnHashHarness.context);

@@ -1,0 +1,196 @@
+{
+  "code": "MD",
+  "name": "Maryland",
+  "authority": "Maryland State Board of Elections",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/md-app-data.js",
+    "appDataGlobal": "MD_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "md-2024-president-county-breakdown",
+      "url": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
+      "localFile": "data/md-2024-president-county-breakdown.html"
+    },
+    {
+      "id": "md-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2724%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/md-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "md-county-geometry",
+    "outputFile": "data/md-counties.js",
+    "outputGlobal": "MD_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 24
+  },
+  "certifiedResults": {
+    "format": "marylandCountyHtml",
+    "sourceId": "md-2024-president-county-breakdown",
+    "writeInKey": "writeIns",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "otherCandidates": [
+      {
+        "key": "oliver",
+        "label": "Chase Oliver",
+        "candidateContains": "Chase Oliver"
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein",
+        "candidateContains": "Jill Ellen Stein"
+      },
+      {
+        "key": "kennedy",
+        "label": "Robert F. Kennedy Jr.",
+        "candidateContains": "Robert F. Kennedy"
+      },
+      {
+        "key": "writeIns",
+        "label": "Write-ins"
+      }
+    ],
+    "expectedTotals": {
+      "trump": 1035550,
+      "harris": 1902577,
+      "other": 100207,
+      "total": 3038334
+    }
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "md-2024-president-county-breakdown",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "md-2024-president-county-breakdown",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "Maryland turnout is not loaded yet. The official presidential county breakdown page includes vote totals by voting method, but not registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "md-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Maryland certified presidential county results",
+        "detail": "Official Maryland State Board of Elections presidential county-breakdown HTML table. The parser reads all candidate tables, keeps Oliver, Stein, Kennedy, and write-ins as separate other-candidate groups, and validates against the official statewide total.",
+        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
+        "localFile": "data/md-2024-president-county-breakdown.html; data/md-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official archived Maryland State Board of Elections 2024 Presidential General Election county breakdown page.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Maryland precinct or reporting-unit detail",
+        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit export before they can be enabled.",
+        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
+        "localFile": "data/md-2024-president-county-breakdown.html; data/md-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "County breakdown source checked during Maryland load.",
+        "status": "Needs precinct source"
+      },
+      "turnout": {
+        "title": "Maryland turnout denominator",
+        "detail": "The official county breakdown includes early, election-day, mail-in, provisional, and total votes, but no county registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
+        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
+        "localFile": "data/md-2024-president-county-breakdown.html; data/md-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official presidential county breakdown lacks registered-voter denominator fields.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Certified presidential county results",
+        "file": "data/md-2024-president-county-breakdown.html; data/md-app-data.js",
+        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
+        "usedFor": "Maryland 2024 presidential county result table.",
+        "confidence": "Official archived Maryland State Board of Elections county breakdown page."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/md-counties.geojson; data/md-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "Maryland county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "National county baseline",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "reason": "Superseded for Maryland by the official Maryland State Board of Elections 2024 Presidential General Election county breakdown page.",
+        "status": "Superseded",
+        "nextStep": "Keep the official SBE county breakdown page as the authoritative Maryland presidential county source."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "Maryland turnout should not be inferred from the certified county breakdown page because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "Maryland reporting-unit row",
+    "reviewRowLabelPlural": "Maryland reporting-unit rows",
+    "reviewGraphTitlePrefix": "Maryland reporting unit",
+    "mapLoadingText": "Loading local Maryland county boundaries...",
+    "noGeometryText": "Maryland county geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 24,
+    "precinctRows": 24,
+    "stateTotal": 3038334,
+    "trump": 1035550,
+    "harris": 1902577,
+    "other": 100207,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 24
+  }
+}

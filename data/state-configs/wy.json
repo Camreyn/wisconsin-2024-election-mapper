@@ -1,0 +1,187 @@
+{
+  "code": "WY",
+  "name": "Wyoming",
+  "authority": "Wyoming Secretary of State",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/wy-app-data.js",
+    "appDataGlobal": "WY_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "wy-2024-general-results",
+      "url": "https://sos.wyo.gov/Elections/Docs/2024/Results/General/2024_Wyoming_General_Results.zip",
+      "localFile": "data/wy-2024-general-results.zip"
+    },
+    {
+      "id": "wy-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2756%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/wy-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "wy-county-geometry",
+    "outputFile": "data/wy-counties.js",
+    "outputGlobal": "WY_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 23
+  },
+  "certifiedResults": {
+    "format": "wyomingStatewideSummaryXlsx",
+    "sourceId": "wy-2024-general-results",
+    "workbook": "2024 General Results Summaries - OFFICIAL.xlsx",
+    "sheet": "Statewide Candidates",
+    "contest": "United States President",
+    "countyColumn": 0,
+    "candidateColumnStart": 1,
+    "candidateColumnEnd": 7,
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "metadataNotes": "Aggregated from the official Wyoming Secretary of State 2024 General Election statewide candidate summary workbook.",
+    "otherCandidates": [
+      {
+        "key": "libertarian",
+        "label": "Chase Oliver and Mike ter Maat (L)",
+        "candidateContains": "Chase Oliver"
+      },
+      {
+        "key": "writeIn",
+        "label": "Write-ins",
+        "candidateContains": "Write-Ins"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "wy-2024-general-results",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "wy-2024-general-results",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "Turnout is not loaded from the statewide candidate summary because it does not include registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "wy-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Wyoming SOS 2024 General statewide candidate summary",
+        "detail": "Presidential county totals are aggregated from the official Wyoming Secretary of State ZIP workbook named 2024 General Results Summaries - OFFICIAL.xlsx.",
+        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
+        "localFile": "data/wy-2024-general-results.zip; data/wy-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official Wyoming SOS results page labels the data as 2024 Official General Election Results and links State Canvassing Board certification.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Wyoming official precinct-by-precinct workbooks",
+        "detail": "The official Wyoming SOS ZIP also includes county precinct-by-precinct workbooks. Review drilldowns remain disabled until that workbook layout is mapped to the review parser.",
+        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
+        "localFile": "data/wy-2024-general-results.zip; data/wy-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official SOS ZIP contains 2024 County General PbP - OFFICIAL.xlsx.",
+        "status": "Needs parser mapping"
+      },
+      "turnout": {
+        "title": "Wyoming turnout denominator",
+        "detail": "The statewide candidate summary does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
+        "localFile": "data/wy-2024-general-results.zip; data/wy-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official statewide candidate summary lacks registered-voter denominator fields.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Presidential county results",
+        "file": "data/wy-2024-general-results.zip; data/wy-app-data.js",
+        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
+        "usedFor": "Wyoming county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
+        "confidence": "Official Wyoming Secretary of State 2024 General Election results ZIP and State Canvassing Board certification page."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/wy-counties.geojson; data/wy-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "Wyoming county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "National county baseline",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "reason": "Superseded for Wyoming by the official Wyoming Secretary of State 2024 General Election ZIP.",
+        "status": "Superseded",
+        "nextStep": "Keep the official SOS workbook as the authoritative Wyoming presidential county source."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "Wyoming turnout should not be inferred from the statewide candidate summary because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "Wyoming reporting-unit row",
+    "reviewRowLabelPlural": "Wyoming reporting-unit rows",
+    "reviewGraphTitlePrefix": "Wyoming reporting unit",
+    "mapLoadingText": "Loading local Wyoming county boundaries...",
+    "noGeometryText": "Wyoming county geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 23,
+    "precinctRows": 23,
+    "stateTotal": 269048,
+    "trump": 192633,
+    "harris": 69527,
+    "other": 6888,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 23
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "code": "OK",
+  "name": "Oklahoma",
+  "authority": "Oklahoma State Election Board",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/ok-app-data.js",
+    "appDataGlobal": "OK_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "ok-2024-general-enr-results",
+      "url": "https://results.okelections.gov/OKER/?elecDate=20241105",
+      "localFile": "data/ok-2024-general-enr-results.zip"
+    },
+    {
+      "id": "ok-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2740%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/ok-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "ok-county-geometry",
+    "outputFile": "data/ok-counties.js",
+    "outputGlobal": "OK_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 77
+  },
+  "certifiedResults": {
+    "format": "oklahomaEnrZip",
+    "sourceId": "ok-2024-general-enr-results",
+    "raceId": 10001,
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "DONALD J. TRUMP"
+      },
+      "harris": {
+        "candidateContains": "KAMALA D. HARRIS"
+      }
+    },
+    "metadataNotes": "Parsed from the official Oklahoma State Election Board OK Election Results API JSON payloads for the 2024-11-05 election. The local archive includes statewide metadata/results and all 77 county result payloads.",
+    "otherCandidates": [
+      {
+        "key": "oliver",
+        "label": "Chase Oliver / Mike ter Maat",
+        "candidateContains": "CHASE OLIVER"
+      },
+      {
+        "key": "kennedy",
+        "label": "Robert F. Kennedy Jr. / Nicole Shanahan",
+        "candidateContains": "ROBERT F. KENNEDY"
+      },
+      {
+        "key": "garrity",
+        "label": "Chris Garrity / Cody Ballard",
+        "candidateContains": "CHRIS GARRITY"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "ok-2024-general-enr-results",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "ok-2024-general-enr-results",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "ok-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Oklahoma official presidential county results",
+        "detail": "County-level presidential rows are parsed from the official Oklahoma State Election Board OK Election Results API. The archived payload includes statewide race metadata/results and all 77 county result JSON payloads for race ID 10001.",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
+        "localFile": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Archived from Oklahoma State Election Board OKER API endpoints: getconfig/20241105, getelec/20241105/SW/xx, GetResults/20241105/SW/xx, and GetResults/20241105/CW/{countyCode}.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Oklahoma precinct or reporting-unit detail",
+        "detail": "The loaded official OKER payload is county-level for this app pass. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
+        "localFile": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official county result payloads checked during Oklahoma source promotion.",
+        "status": "Needs precinct source"
+      },
+      "turnout": {
+        "title": "Oklahoma turnout denominator",
+        "detail": "The loaded official OKER result payload includes vote totals and turnout percentages but no county registered-voter denominator fields. Turnout remains disabled until an official denominator source is mapped.",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
+        "localFile": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official OKER county result payload lacks registered-voter denominator fields needed by the turnout module.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Official presidential county results",
+        "file": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
+        "usedFor": "Oklahoma official 2024 presidential county results.",
+        "confidence": "Official Oklahoma State Election Board results API payloads."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/ok-counties.geojson; data/ok-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "Oklahoma county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "National county baseline",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "reason": "Replaced by the official Oklahoma State Election Board OKER API archive and oklahomaEnrZip parser.",
+        "status": "Replaced",
+        "nextStep": "Keep only as a cross-check fallback if needed."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "Oklahoma turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "Oklahoma reporting-unit row",
+    "reviewRowLabelPlural": "Oklahoma reporting-unit rows",
+    "reviewGraphTitlePrefix": "Oklahoma reporting unit",
+    "mapLoadingText": "Loading local Oklahoma county boundaries...",
+    "noGeometryText": "Oklahoma county geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 77,
+    "precinctRows": 77,
+    "stateTotal": 1566173,
+    "trump": 1036213,
+    "harris": 499599,
+    "other": 30361,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 77
+  }
+}

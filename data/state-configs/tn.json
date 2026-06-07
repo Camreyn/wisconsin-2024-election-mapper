@@ -1,0 +1,205 @@
+{
+  "code": "TN",
+  "name": "Tennessee",
+  "authority": "Tennessee Secretary of State Division of Elections",
+  "electionYear": 2024,
+  "office": "President",
+  "output": {
+    "appDataFile": "data/tn-app-data.js",
+    "appDataGlobal": "TN_ELECTION_APP_DATA"
+  },
+  "sources": [
+    {
+      "id": "tn-2024-general-all-by-precinct",
+      "url": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
+      "localFile": "data/tn-2024-general-all-by-precinct.xlsx"
+    },
+    {
+      "id": "tn-county-geometry",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2747%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
+      "localFile": "data/tn-counties.geojson"
+    }
+  ],
+  "geometry": {
+    "sourceId": "tn-county-geometry",
+    "outputFile": "data/tn-counties.js",
+    "outputGlobal": "TN_COUNTIES_GEOJSON",
+    "nameProperty": "NAME",
+    "codeProperty": "GEOID",
+    "expectedFeatures": 95
+  },
+  "certifiedResults": {
+    "format": "tennesseePrecinctXlsx",
+    "sourceId": "tn-2024-general-all-by-precinct",
+    "sheet": "SOFFICEL",
+    "officeName": "President and Vice President of the United States",
+    "candidateSlots": 10,
+    "columns": {
+      "county": "COUNTY",
+      "office": "OFFICENAME",
+      "candidatePrefix": "RNAME",
+      "votesPrefix": "PVTALLY"
+    },
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "metadataNotes": "Aggregated from the official Tennessee Secretary of State 2024 State General results-by-precinct spreadsheet. Presidential precinct rows are summed to county totals.",
+    "otherCandidates": [
+      {
+        "key": "bowman",
+        "label": "Jay J Bowman / De D Bowman",
+        "candidateContains": "Jay J Bowman"
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De la Cruz / Karina Garcia",
+        "candidateContains": "Claudia De la Cruz"
+      },
+      {
+        "key": "fruit",
+        "label": "Rachele Fruit / Dennis Richter",
+        "candidateContains": "Rachele Fruit"
+      },
+      {
+        "key": "kennedy",
+        "label": "Robert F. Kennedy Jr. / Nicole Shanahan",
+        "candidateContains": "Robert F. Kennedy"
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein / Samson LeBeau Kpadenou",
+        "candidateContains": "Jill Stein"
+      }
+    ]
+  },
+  "reviewCharts": {
+    "format": "notConfigured",
+    "sourceId": "tn-2024-general-all-by-precinct",
+    "policy": {
+      "outlierThresholdPct": 15,
+      "minCandidateVotes": 100,
+      "voteShareCorrelationThreshold": 0.35
+    }
+  },
+  "turnout": {
+    "format": "notConfigured",
+    "sourceId": "tn-2024-general-all-by-precinct",
+    "registrationDenominatorTiming": "notLoaded",
+    "sourceLevel": "county",
+    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "warningRequired": true
+  },
+  "historicalBaseline": {
+    "sourceLevel": "county",
+    "rowMethod": "notConfigured",
+    "partyCodes": {
+      "dem": "DEM",
+      "rep": "REP"
+    },
+    "contestName": "President",
+    "sources": []
+  },
+  "app": {
+    "countyLabel": "County",
+    "exportsSlug": "tn-2024",
+    "capabilities": {
+      "sourcePlanner": true,
+      "certifiedResults": true,
+      "map": true,
+      "reviewGraphs": false,
+      "turnout": false,
+      "historicalBaseline": false
+    },
+    "sourcePlan": {
+      "certifiedResults": {
+        "title": "Tennessee official presidential precinct results",
+        "detail": "Official Tennessee Secretary of State State General precinct spreadsheet rows are filtered to President and Vice President of the United States and aggregated to county-level presidential totals.",
+        "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
+        "localFile": "data/tn-2024-general-all-by-precinct.xlsx; data/tn-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Downloaded from the Tennessee Secretary of State historical election results page for November 5, 2024.",
+        "status": "Loaded"
+      },
+      "wardDetail": {
+        "title": "Tennessee precinct or reporting-unit detail",
+        "detail": "The official spreadsheet contains precinct-level presidential rows and is currently used to aggregate county totals. Review drilldowns remain disabled until a dedicated review-graph parser is mapped.",
+        "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
+        "localFile": "data/tn-2024-general-all-by-precinct.xlsx; data/tn-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official precinct spreadsheet checked during Tennessee source promotion.",
+        "status": "Loaded for certified aggregation"
+      },
+      "turnout": {
+        "title": "Tennessee turnout denominator",
+        "detail": "The official precinct result spreadsheet includes vote tallies but not registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "sourceUrl": "https://sos.tn.gov/elections/results",
+        "localFile": "data/tn-2024-general-all-by-precinct.xlsx; data/tn-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official result spreadsheet lacks registered-voter denominator fields.",
+        "status": "Needs denominator source"
+      }
+    },
+    "sourceInventory": [
+      {
+        "category": "Official presidential precinct results",
+        "file": "data/tn-2024-general-all-by-precinct.xlsx; data/tn-app-data.js",
+        "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
+        "usedFor": "Tennessee official 2024 presidential county results aggregated from precinct rows.",
+        "confidence": "Official Tennessee Secretary of State Division of Elections spreadsheet."
+      },
+      {
+        "category": "County boundaries",
+        "file": "data/tn-counties.geojson; data/tn-counties.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+        "usedFor": "Tennessee county polygon map.",
+        "confidence": "U.S. Census TIGERweb county geography."
+      }
+    ],
+    "checkedNotUsable": [
+      {
+        "category": "National county baseline",
+        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "reason": "Replaced by the official Tennessee Secretary of State precinct spreadsheet and tennesseePrecinctXlsx parser.",
+        "status": "Replaced",
+        "nextStep": "Keep only as a cross-check fallback if needed."
+      }
+    ],
+    "turnoutPolicy": {
+      "route": "officialRegistrationOrTurnoutDenominator",
+      "status": "Needs denominator source",
+      "acceptedSource": "Not loaded yet.",
+      "warning": "Tennessee turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "requiredFields": [
+        "county",
+        "ballotsCast",
+        "registeredVoters",
+        "sourceUrl"
+      ]
+    },
+    "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewRowLabel": "Tennessee reporting-unit row",
+    "reviewRowLabelPlural": "Tennessee reporting-unit rows",
+    "reviewGraphTitlePrefix": "Tennessee reporting unit",
+    "mapLoadingText": "Loading local Tennessee county boundaries...",
+    "noGeometryText": "Tennessee county geometry is not loaded yet; showing the tile fallback."
+  },
+  "expected": {
+    "countyRows": 95,
+    "precinctRows": 1862,
+    "stateTotal": 3063942,
+    "trump": 1966865,
+    "harris": 1056265,
+    "other": 40812,
+    "reviewRows": 0,
+    "turnoutRows": 0,
+    "turnoutWarningRows": 0,
+    "historicalSeries": 0,
+    "historicalRows": 0,
+    "geometryFeatures": 95
+  }
+}

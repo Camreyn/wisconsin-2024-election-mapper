@@ -396,6 +396,124 @@ def certified_results_xlsx_precinct_aggregation(config):
     return result_rows, candidate_labels, precinct_rows
 
 
+def certified_results_maine_county_town_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    columns = source["columns"]
+    column_index, rows = read_sheet_rows(path, source.get("sheet", "President & VP"))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    county_codes = source["countyCodes"]
+    result_rows = []
+    precinct_rows = 0
+
+    for row in rows:
+        county_code = str(row[column_index[columns["countyCode"]]] or "").strip()
+        municipality = str(row[column_index[columns["municipality"]]] or "").strip()
+        if county_code and municipality:
+            precinct_rows += 1
+            continue
+        if municipality == source.get("uocavaLabel", "STATE UOCAVA"):
+            county = source.get("uocavaCountyName", "State UOCAVA")
+            precinct_rows += 1
+        elif municipality.endswith(" Total") and municipality != "Statewide Total":
+            code = municipality.removesuffix(" Total").strip()
+            county = county_codes.get(code)
+            if not county:
+                continue
+        else:
+            continue
+        trump = int_cell(row, column_index, columns["trump"])
+        harris = int_cell(row, column_index, columns["harris"])
+        other_values = {
+            item["key"]: int_cell(row, column_index, columns.get(item["column"], item["column"]))
+            for item in source.get("otherCandidates", [])
+        }
+        other = sum(other_values.values())
+        total = trump + harris + other
+        margin = trump - harris
+        result_rows.append(
+            {
+                "county": county,
+                "trump": trump,
+                "trumpPct": pct(trump, total),
+                "harris": harris,
+                "harrisPct": pct(harris, total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, precinct_rows
+
+
+def certified_results_tennessee_precinct_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    columns = source["columns"]
+    column_index, rows = read_sheet_rows(path, source.get("sheet", "SOFFICEL"))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    by_county = defaultdict(lambda: defaultdict(int))
+    precinct_rows = 0
+
+    for row in rows:
+        if row[column_index[columns["office"]]] != source["officeName"]:
+            continue
+        county = row[column_index[columns["county"]]]
+        if not county:
+            continue
+        precinct_rows += 1
+        totals = by_county[f"{county} County"]
+        for slot in range(1, int(source.get("candidateSlots", 10)) + 1):
+            name_column = f"{columns['candidatePrefix']}{slot}"
+            vote_column = f"{columns['votesPrefix']}{slot}"
+            name_index = column_index.get(name_column)
+            vote_index = column_index.get(vote_column)
+            if name_index is None or vote_index is None or name_index >= len(row):
+                continue
+            candidate = row[name_index]
+            if not candidate:
+                continue
+            votes = int_text(row[vote_index] if vote_index < len(row) else 0)
+            if new_york_column_matches(candidate, "", source["majorCandidates"]["trump"]):
+                totals["trump"] += votes
+            elif new_york_column_matches(candidate, "", source["majorCandidates"]["harris"]):
+                totals["harris"] += votes
+            else:
+                key = "unmappedOther"
+                for item in source.get("otherCandidates", []):
+                    if new_york_column_matches(candidate, "", item):
+                        key = item["key"]
+                        break
+                totals[key] += votes
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, precinct_rows
+
+
 def new_york_column_matches(header_value, party_value, rule):
     if rule.get("columnHeader") and str(header_value).strip() != rule["columnHeader"]:
         return False
@@ -462,6 +580,1101 @@ def certified_results_new_york_county_csv(config):
                 "total": total,
             }
         )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_virginia_locality_csv(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if len(rows) < 3:
+        raise ValueError(f"Virginia locality results source has too few rows: {path}")
+
+    header = rows[0]
+    party_row = rows[1]
+    excluded_columns = set(source.get("excludeColumns", ["", "Total Votes Cast"]))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+    reported_totals = None
+
+    for row in rows[2:]:
+        if len(row) < 2:
+            continue
+        row_type = str(row[0]).strip()
+        if row_type not in {"State", "Locality"}:
+            continue
+
+        totals = defaultdict(int)
+        for index, header_value in enumerate(header):
+            if index >= len(row) or header_value in excluded_columns:
+                continue
+            party_value = party_row[index] if index < len(party_row) else ""
+            votes = int_text(row[index])
+            if new_york_column_matches(header_value, party_value, source["majorCandidates"]["trump"]):
+                totals["trump"] += votes
+            elif new_york_column_matches(header_value, party_value, source["majorCandidates"]["harris"]):
+                totals["harris"] += votes
+            else:
+                matched_other = False
+                for candidate in source.get("otherCandidates", []):
+                    if new_york_column_matches(header_value, party_value, candidate):
+                        totals[candidate["key"]] += votes
+                        matched_other = True
+                        break
+                if not matched_other and header_value:
+                    totals["unmappedOther"] += votes
+
+        if row_type == "State":
+            reported_totals = totals
+            continue
+
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": str(row[1]).strip(),
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    if reported_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+            "unmappedOther": sum(
+                row["other"] - sum(row[item["key"]] for item in candidate_labels)
+                for row in result_rows
+            ),
+        }
+        expected_totals = {
+            "trump": reported_totals["trump"],
+            "harris": reported_totals["harris"],
+            **{item["key"]: reported_totals[item["key"]] for item in candidate_labels},
+            "unmappedOther": reported_totals["unmappedOther"],
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Virginia locality totals do not match State row: {parsed_totals} != {expected_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def geometry_names_by_geoid(config):
+    geometry = config.get("geometry", {})
+    source_id = geometry.get("sourceId")
+    if not source_id:
+        return {}
+    path = local_source(config, source_id)
+    if not path.exists():
+        return {}
+    geojson = json.loads(path.read_text(encoding="utf-8"))
+    code_property = geometry.get("codeProperty", "GEOID")
+    name_property = geometry.get("nameProperty", "NAME")
+    names = {}
+    for feature in geojson.get("features", []):
+        props = feature.get("properties", {})
+        geoid = str(props.get(code_property) or props.get("GEOID") or "").zfill(5)
+        name = props.get(name_property) or props.get("NAME")
+        if geoid and name:
+            names[geoid] = name
+    return names
+
+
+def national_county_baseline_name(row):
+    name = str(row.get("county_name", "")).strip()
+    return re.sub(
+        r"\s+(County|Parish|Borough|Census Area|Municipality|city)$",
+        "",
+        name,
+        flags=re.IGNORECASE,
+    )
+
+
+def certified_results_national_county_baseline_csv(config):
+    source = config["certifiedResults"]
+    state_name = source.get("stateName", config["name"]).lower()
+    geoid_names = geometry_names_by_geoid(config)
+    candidate_labels = [{"key": "nationalOther", "label": "Other candidates"}]
+    result_rows = []
+    with local_source(config, source["sourceId"]).open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            if str(row.get("state_name", "")).lower() != state_name:
+                continue
+            geoid = str(row.get("county_fips", "")).zfill(5)
+            trump = int_text(row.get("votes_gop"))
+            harris = int_text(row.get("votes_dem"))
+            total = int_text(row.get("total_votes"))
+            other = max(0, total - trump - harris)
+            margin = trump - harris
+            result_rows.append(
+                {
+                    "county": geoid_names.get(geoid) or national_county_baseline_name(row),
+                    "trump": trump,
+                    "trumpPct": pct(trump, total),
+                    "harris": harris,
+                    "harrisPct": pct(harris, total),
+                    "other": other,
+                    "otherPct": pct(other, total),
+                    "nationalOther": other,
+                    "margin": margin,
+                    "marginPct": round((margin / total) * 100, 4) if total else 0,
+                    "total": total,
+                }
+            )
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_wyoming_statewide_summary_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    workbook_name = source.get("workbook")
+
+    if workbook_name:
+        with zipfile.ZipFile(path) as archive:
+            workbook_bytes = archive.read(workbook_name)
+        with tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False) as handle:
+            handle.write(workbook_bytes)
+            workbook_path = Path(handle.name)
+        try:
+            rows = list(iter_worksheet_rows(workbook_path, source["sheet"]))
+        finally:
+            workbook_path.unlink(missing_ok=True)
+    else:
+        rows = list(iter_worksheet_rows(path, source["sheet"]))
+
+    contest = source.get("contest", config["office"])
+    contest_row_index = next(
+        (
+            index
+            for index, row in enumerate(rows)
+            if any(str(value or "").strip() == contest for value in row)
+        ),
+        None,
+    )
+    if contest_row_index is None or contest_row_index + 1 >= len(rows):
+        raise ValueError(f"Could not find Wyoming contest {contest!r} in {path}")
+
+    candidate_row = rows[contest_row_index + 1]
+    county_column = source.get("countyColumn", 0)
+    candidate_column_start = source.get("candidateColumnStart", county_column + 1)
+    candidate_column_end = source.get("candidateColumnEnd", len(candidate_row))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+
+    for row in rows[contest_row_index + 2 :]:
+        if len(row) <= county_column:
+            continue
+        county = str(row[county_column] or "").strip()
+        if not county:
+            continue
+        if county.lower() == "total":
+            break
+
+        totals = defaultdict(int)
+        for index, header_value in enumerate(candidate_row):
+            if index < candidate_column_start or index >= candidate_column_end:
+                continue
+            if index >= len(row):
+                continue
+            if new_york_column_matches(header_value, "", source["majorCandidates"]["trump"]):
+                totals["trump"] += int_text(row[index])
+            elif new_york_column_matches(header_value, "", source["majorCandidates"]["harris"]):
+                totals["harris"] += int_text(row[index])
+            else:
+                for candidate in source.get("otherCandidates", []):
+                    if new_york_column_matches(header_value, "", candidate):
+                        totals[candidate["key"]] += int_text(row[index])
+                        break
+
+        other = sum(totals[item["key"]] for item in candidate_labels)
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_montana_canvass_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    try:
+        start = lines.index(source.get("contest", "PRESIDENT & VICE PRESIDENT"))
+    except ValueError as error:
+        raise ValueError(f"Could not find Montana presidential contest in {path}") from error
+
+    end = next(
+        (index for index in range(start + 1, len(lines)) if lines[index].startswith(source.get("endMarker", "Page 2 of"))),
+        None,
+    )
+    if end is None:
+        raise ValueError(f"Could not find Montana presidential contest page boundary in {path}")
+
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    other_keys = [item["key"] for item in candidate_labels]
+    row_pattern = re.compile(
+        r"^(?P<county>[A-Z][A-Z\s]+?)\s+"
+        r"(?P<harris>\d+)\s+(?P<green>\d+)\s+(?P<libertarian>\d+)\s+"
+        r"(?P<trump>\d+)\s+(?P<kennedy>\d+)$"
+    )
+    total_pattern = re.compile(
+        r"^Total\s+(?P<harris>\d+)\s+(?P<green>\d+)\s+(?P<libertarian>\d+)\s+"
+        r"(?P<trump>\d+)\s+(?P<kennedy>\d+)$"
+    )
+    result_rows = []
+    reported_totals = None
+
+    for line in lines[start + 1 : end]:
+        total_match = total_pattern.match(line)
+        if total_match:
+            reported_totals = {key: int_text(value) for key, value in total_match.groupdict().items()}
+            continue
+        match = row_pattern.match(line)
+        if not match:
+            continue
+
+        raw_county = "LEWIS AND CLARK" if match.group("county") == "LEWIS AND" else match.group("county")
+        county = county_names.get(raw_county) or f"{raw_county.title()} County"
+        totals = {key: int_text(value) for key, value in match.groupdict().items() if key != "county"}
+        other = sum(totals[key] for key in other_keys)
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{key: totals[key] for key in other_keys},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    if reported_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            **{key: sum(row[key] for row in result_rows) for key in other_keys},
+        }
+        if parsed_totals != reported_totals:
+            raise ValueError(f"Montana parsed totals do not match PDF totals: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def clean_html_cell(value):
+    return html.unescape(re.sub(r"<[^>]+>", "", str(value or ""))).strip()
+
+
+def certified_results_delaware_county_html(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    document = path.read_text(encoding="utf-8")
+    start = document.find(source.get("sectionMarker", 'id="bycounty"'))
+    end = document.find(source.get("endMarker", 'id="bycountyw"'), start)
+    if start < 0 or end < 0:
+        raise ValueError(f"Could not find Delaware by-county results section in {path}")
+
+    section = document[start:end]
+    contest_index = section.find(source.get("contestClass", "PresidentandVicePresident"))
+    if contest_index < 0:
+        raise ValueError(f"Could not find Delaware presidential contest table in {path}")
+    tbody_match = re.search(r"<tbody>(.*?)</tbody>", section[contest_index:], flags=re.DOTALL | re.IGNORECASE)
+    if not tbody_match:
+        raise ValueError(f"Could not find Delaware presidential by-county table body in {path}")
+
+    county_columns = source["countyColumns"]
+    state_column = source.get("stateColumn", "State")
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    by_county = defaultdict(lambda: defaultdict(int))
+
+    for row_html in re.findall(r"<tr>(.*?)</tr>", tbody_match.group(1), flags=re.DOTALL | re.IGNORECASE):
+        cells = [
+            clean_html_cell(cell)
+            for cell in re.findall(r"<td(?:\s[^>]*)?>(.*?)</td>", row_html, flags=re.DOTALL | re.IGNORECASE)
+        ]
+        if len(cells) < 4:
+            continue
+        candidate = cells[0]
+        party = cells[1] if len(cells) > 1 else ""
+        if new_york_column_matches(candidate, party, source["majorCandidates"]["trump"]):
+            key = "trump"
+        elif new_york_column_matches(candidate, party, source["majorCandidates"]["harris"]):
+            key = "harris"
+        else:
+            key = "unmappedOther"
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, party, item):
+                    key = item["key"]
+                    break
+
+        county_sum = 0
+        for county_name, column_index in county_columns.items():
+            votes = int_text(cells[column_index])
+            by_county[county_name][key] += votes
+            county_sum += votes
+        state_index = source.get("columnIndexes", {}).get(state_column)
+        if state_index is not None and state_index < len(cells):
+            reported_state_total = int_text(cells[state_index])
+            if county_sum != reported_state_total:
+                raise ValueError(
+                    f"Delaware county totals for {candidate!r} do not match State column: "
+                    f"{county_sum} != {reported_state_total}"
+                )
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_maryland_county_html(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    document = path.read_text(encoding="utf-8", errors="replace").replace("\n", " ")
+    table_matches = list(re.finditer(r"<table[^>]*>(.*?)</table>", document, flags=re.DOTALL | re.IGNORECASE))
+    if not table_matches:
+        raise ValueError(f"Could not find Maryland county breakdown table in {path}")
+
+    geometry_names = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).lower(): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    geometry_names["baltimore city"] = "Baltimore city"
+    rows = []
+    current_header = None
+    for table_match in table_matches:
+        for row_html in re.findall(r"<tr[^>]*>(.*?)</tr>", table_match.group(1), flags=re.DOTALL | re.IGNORECASE):
+            cells = [
+                clean_html_cell(cell)
+                for cell in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", row_html, flags=re.DOTALL | re.IGNORECASE)
+            ]
+            if not cells:
+                continue
+            if cells[0] == "Jurisdiction":
+                current_header = cells
+                continue
+            if cells[0] == "Totals":
+                continue
+            if not current_header:
+                raise ValueError(f"Maryland county row appeared before a header: {cells}")
+            rows.append((current_header, cells))
+
+    by_county = defaultdict(lambda: defaultdict(int))
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    for header, cells in rows:
+        raw_county = cells[0]
+        county = geometry_names.get(raw_county.lower()) or f"{raw_county} County"
+        for index, header_value in enumerate(header[1:], start=1):
+            votes = int_text(cells[index] if index < len(cells) else 0)
+            if new_york_column_matches(header_value, "", source["majorCandidates"]["trump"]):
+                key = "trump"
+            elif new_york_column_matches(header_value, "", source["majorCandidates"]["harris"]):
+                key = "harris"
+            else:
+                key = "unmappedOther"
+                for item in source.get("otherCandidates", []):
+                    if new_york_column_matches(header_value, "", item):
+                        key = item["key"]
+                        break
+                if "(Write In)" in header_value and source.get("writeInKey"):
+                    key = source["writeInKey"]
+            by_county[county][key] += votes
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    expected_totals = source.get("expectedTotals")
+    if expected_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            "other": sum(row["other"] for row in result_rows),
+            "total": sum(row["total"] for row in result_rows),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Maryland parsed totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_new_jersey_president_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    counties = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    by_county = defaultdict(lambda: defaultdict(int))
+    candidate_totals = defaultdict(int)
+    current_key = None
+
+    for line in lines:
+        if line.startswith("Total "):
+            if current_key:
+                candidate_totals[current_key] += int_text(re.findall(r"\d[\d,]*", line)[-1])
+            current_key = None
+            continue
+
+        for key, rule in {
+            "trump": source["majorCandidates"]["trump"],
+            "harris": source["majorCandidates"]["harris"],
+            **{item["key"]: item for item in source.get("otherCandidates", [])},
+        }.items():
+            if rule.get("candidateContains") and rule["candidateContains"].lower() in line.lower():
+                current_key = key
+                break
+
+        if not current_key:
+            continue
+        raw_county = next((name for name in counties if line.startswith(f"{name} ")), None)
+        if not raw_county:
+            continue
+        by_county[counties[raw_county]][current_key] += int_text(re.findall(r"\d[\d,]*", line)[-1])
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    parsed_candidate_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+    }
+    if parsed_candidate_totals != dict(candidate_totals):
+        raise ValueError(
+            "New Jersey parsed county totals do not match PDF candidate totals: "
+            f"{parsed_candidate_totals} != {dict(candidate_totals)}"
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_washington_county_html(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    document = path.read_text(encoding="utf-8")
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    county_pattern = re.compile(
+        r'<td class="CountyName" rowspan="\d+">(?P<county>[^<]+)</td>'
+        r"(?P<body>.*?)(?=<tr><td colspan=\"4\" class=\"Seperator\"></td></tr>)",
+        flags=re.DOTALL,
+    )
+    row_pattern = re.compile(
+        r'<div class="CandidateName">(?P<candidate>[^<]+)</div>.*?'
+        r'<td class="CandidateVotes">(?P<votes>[\d,]+)</td>',
+        flags=re.DOTALL,
+    )
+    total_pattern = re.compile(r'<td class="TotalVotes">Total Votes</td><td>(?P<votes>[\d,]+)</td>')
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+
+    for county_match in county_pattern.finditer(document):
+        raw_county = clean_html_cell(county_match.group("county"))
+        county = county_names.get(raw_county.upper()) or f"{raw_county} County"
+        totals = defaultdict(int)
+        candidate_sum = 0
+        for candidate_match in row_pattern.finditer(county_match.group("body")):
+            candidate = clean_html_cell(candidate_match.group("candidate"))
+            votes = int_text(candidate_match.group("votes"))
+            candidate_sum += votes
+            if new_york_column_matches(candidate, "", source["majorCandidates"]["trump"]):
+                totals["trump"] += votes
+            elif new_york_column_matches(candidate, "", source["majorCandidates"]["harris"]):
+                totals["harris"] += votes
+            else:
+                matched_other = False
+                for item in source.get("otherCandidates", []):
+                    if new_york_column_matches(candidate, "", item):
+                        totals[item["key"]] += votes
+                        matched_other = True
+                        break
+                if not matched_other:
+                    totals["unmappedOther"] += votes
+
+        total_match = total_pattern.search(county_match.group("body"))
+        if not total_match:
+            raise ValueError(f"Washington county block missing Total Votes row: {county}")
+        reported_total = int_text(total_match.group("votes"))
+        if candidate_sum != reported_total:
+            raise ValueError(f"Washington county total mismatch for {county}: {candidate_sum} != {reported_total}")
+
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_south_carolina_enr_json(config):
+    source = config["certifiedResults"]
+    details_path = local_source(config, source["sourceId"])
+    sum_path = local_source(config, source["statewideSourceId"])
+    details = json.loads(details_path.read_text(encoding="utf-8"))
+    statewide = json.loads(sum_path.read_text(encoding="utf-8"))
+    contest_key = source["contestKey"]
+    detail_contest = next(
+        (contest for contest in details.get("Contests", []) if str(contest.get("K")) == str(contest_key)),
+        None,
+    )
+    statewide_contest = next(
+        (contest for contest in statewide.get("Contests", []) if str(contest.get("K")) == str(contest_key)),
+        None,
+    )
+    if not detail_contest or not statewide_contest:
+        raise ValueError(f"Could not find South Carolina ENR contest {contest_key!r}")
+
+    county_names = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).lower(): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    candidate_keys = []
+    for index, candidate in enumerate(statewide_contest.get("CH", [])):
+        party = statewide_contest.get("P", [""])[index]
+        if new_york_column_matches(candidate, party, source["majorCandidates"]["trump"]):
+            candidate_keys.append("trump")
+        elif new_york_column_matches(candidate, party, source["majorCandidates"]["harris"]):
+            candidate_keys.append("harris")
+        else:
+            key = "unmappedOther"
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, party, item):
+                    key = item["key"]
+                    break
+            candidate_keys.append(key)
+
+    by_county = defaultdict(lambda: defaultdict(int))
+    for county, votes in zip(detail_contest.get("P", []), detail_contest.get("V", [])):
+        county_name = county_names.get(str(county).lower()) or f"{county} County"
+        for index, key in enumerate(candidate_keys):
+            if index < len(votes):
+                by_county[county_name][key] += int(votes[index] or 0)
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        "unmappedOther": sum(
+            row["other"] - sum(row[item["key"]] for item in candidate_labels)
+            for row in result_rows
+        ),
+        "total": sum(row["total"] for row in result_rows),
+    }
+    reported_totals = defaultdict(int)
+    for key, votes in zip(candidate_keys, statewide_contest.get("V", [])):
+        reported_totals[key] += int(votes or 0)
+    expected_totals = {
+        "trump": reported_totals["trump"],
+        "harris": reported_totals["harris"],
+        **{item["key"]: reported_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": reported_totals["unmappedOther"],
+        "total": int(statewide_contest.get("T") or 0),
+    }
+    if parsed_totals != expected_totals:
+        raise ValueError(
+            "South Carolina ENR county totals do not match statewide summary totals: "
+            f"{parsed_totals} != {expected_totals}"
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_north_carolina_enr_zip(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    contest_key = str(source["contestKey"])
+    with zipfile.ZipFile(path) as archive:
+        counties = json.loads(archive.read("county.txt").decode("utf-8"))
+        statewide_results = json.loads(archive.read("results_0.txt").decode("utf-8"))
+
+        county_names = {
+            re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).upper(): name
+            for name in geometry_names_by_geoid(config).values()
+        }
+        candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+        result_rows = []
+        for county_info in counties:
+            county_id = str(county_info.get("cid"))
+            if county_id == "0":
+                continue
+            raw_county = str(county_info.get("cnm") or "").strip()
+            county = county_names.get(raw_county.upper()) or f"{raw_county.title()} County"
+            rows = json.loads(archive.read(f"results_{county_id}.txt").decode("utf-8"))
+            totals = defaultdict(int)
+            for row in rows:
+                if str(row.get("lid")) != contest_key:
+                    continue
+                candidate = row.get("bnm", "")
+                party = row.get("pty", "")
+                votes = int_text(row.get("vct"))
+                if new_york_column_matches(candidate, party, source["majorCandidates"]["trump"]):
+                    totals["trump"] += votes
+                elif new_york_column_matches(candidate, party, source["majorCandidates"]["harris"]):
+                    totals["harris"] += votes
+                else:
+                    key = "unmappedOther"
+                    for item in source.get("otherCandidates", []):
+                        if new_york_column_matches(candidate, party, item):
+                            key = item["key"]
+                            break
+                    totals[key] += votes
+
+            other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+            total = totals["trump"] + totals["harris"] + other
+            margin = totals["trump"] - totals["harris"]
+            result_rows.append(
+                {
+                    "county": county,
+                    "trump": totals["trump"],
+                    "trumpPct": pct(totals["trump"], total),
+                    "harris": totals["harris"],
+                    "harrisPct": pct(totals["harris"], total),
+                    "other": other,
+                    "otherPct": pct(other, total),
+                    **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                    "margin": margin,
+                    "marginPct": round((margin / total) * 100, 4) if total else 0,
+                    "total": total,
+                }
+            )
+
+    statewide_totals = defaultdict(int)
+    for row in statewide_results:
+        if str(row.get("lid")) != contest_key:
+            continue
+        candidate = row.get("bnm", "")
+        party = row.get("pty", "")
+        votes = int_text(row.get("vct"))
+        if new_york_column_matches(candidate, party, source["majorCandidates"]["trump"]):
+            statewide_totals["trump"] += votes
+        elif new_york_column_matches(candidate, party, source["majorCandidates"]["harris"]):
+            statewide_totals["harris"] += votes
+        else:
+            key = "unmappedOther"
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, party, item):
+                    key = item["key"]
+                    break
+            statewide_totals[key] += votes
+
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        "unmappedOther": sum(
+            row["other"] - sum(row[item["key"]] for item in candidate_labels)
+            for row in result_rows
+        ),
+    }
+    expected_totals = {
+        "trump": statewide_totals["trump"],
+        "harris": statewide_totals["harris"],
+        **{item["key"]: statewide_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": statewide_totals["unmappedOther"],
+    }
+    if parsed_totals != expected_totals:
+        raise ValueError(
+            "North Carolina ENR county totals do not match statewide result totals: "
+            f"{parsed_totals} != {expected_totals}"
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_oklahoma_enr_zip(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    race_id = int(source["raceId"])
+    with zipfile.ZipFile(path) as archive:
+        config_data = json.loads(archive.read("config.json").decode("utf-8-sig"))
+        election = json.loads(archive.read("election-sw.json").decode("utf-8-sig"))
+        statewide_results = json.loads(archive.read("results-sw.json").decode("utf-8-sig"))
+
+        county_options = config_data["counties"]["Options"]
+        county_values = config_data["counties"]["Values"]
+        county_names = {
+            re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).lower(): name
+            for name in geometry_names_by_geoid(config).values()
+        }
+        county_code_names = {
+            str(code): county_names.get(str(name).lower()) or f"{name} County"
+            for name, code in zip(county_options, county_values)
+            if code
+        }
+        race = next((item for item in election.get("races", []) if int(item.get("raceID")) == race_id), None)
+        if not race:
+            raise ValueError(f"Could not find Oklahoma ENR race {race_id!r}")
+
+        candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+        candidate_keys = []
+        for candidate in race.get("raceCandidates", []):
+            candidate_name = candidate.get("candName", "")
+            if new_york_column_matches(candidate_name, "", source["majorCandidates"]["trump"]):
+                candidate_keys.append("trump")
+            elif new_york_column_matches(candidate_name, "", source["majorCandidates"]["harris"]):
+                candidate_keys.append("harris")
+            else:
+                key = "unmappedOther"
+                for item in source.get("otherCandidates", []):
+                    if new_york_column_matches(candidate_name, "", item):
+                        key = item["key"]
+                        break
+                candidate_keys.append(key)
+
+        result_rows = []
+        for county_code, county in sorted(county_code_names.items(), key=lambda item: item[1]):
+            county_payload = json.loads(archive.read(f"results-cw-{county_code}.json").decode("utf-8-sig"))
+            race_results = next(
+                (item for item in county_payload.get("results", []) if int(item.get("raceID")) == race_id),
+                None,
+            )
+            if not race_results:
+                raise ValueError(f"Could not find Oklahoma county race {race_id!r} in county {county_code}")
+
+            totals = defaultdict(int)
+            for index, result in enumerate(race_results.get("candResults", [])):
+                if index < len(candidate_keys):
+                    totals[candidate_keys[index]] += int_text(result.get("totalVotes"))
+
+            other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+            total = totals["trump"] + totals["harris"] + other
+            reported_total = int_text(race_results.get("totResults", {}).get("totalVotes"))
+            if total != reported_total:
+                raise ValueError(
+                    f"Oklahoma county total mismatch for {county}: parsed {total} != reported {reported_total}"
+                )
+            margin = totals["trump"] - totals["harris"]
+            result_rows.append(
+                {
+                    "county": county,
+                    "trump": totals["trump"],
+                    "trumpPct": pct(totals["trump"], total),
+                    "harris": totals["harris"],
+                    "harrisPct": pct(totals["harris"], total),
+                    "other": other,
+                    "otherPct": pct(other, total),
+                    **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                    "margin": margin,
+                    "marginPct": round((margin / total) * 100, 4) if total else 0,
+                    "total": total,
+                }
+            )
+
+    statewide_race = next(
+        (item for item in statewide_results.get("results", []) if int(item.get("raceID")) == race_id),
+        None,
+    )
+    if not statewide_race:
+        raise ValueError(f"Could not find Oklahoma statewide race {race_id!r}")
+    statewide_totals = defaultdict(int)
+    for index, result in enumerate(statewide_race.get("candResults", [])):
+        if index < len(candidate_keys):
+            statewide_totals[candidate_keys[index]] += int_text(result.get("totalVotes"))
+
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        "unmappedOther": sum(
+            row["other"] - sum(row[item["key"]] for item in candidate_labels)
+            for row in result_rows
+        ),
+    }
+    expected_totals = {
+        "trump": statewide_totals["trump"],
+        "harris": statewide_totals["harris"],
+        **{item["key"]: statewide_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": statewide_totals["unmappedOther"],
+    }
+    if parsed_totals != expected_totals:
+        raise ValueError(
+            "Oklahoma ENR county totals do not match statewide result totals: "
+            f"{parsed_totals} != {expected_totals}"
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def rhode_island_town_from_precinct(value, town_county_map):
+    text = str(value or "").strip()
+    for town in sorted(town_county_map, key=len, reverse=True):
+        if text == town or text.startswith(f"{town} "):
+            return town
+    return None
+
+
+def certified_results_rhode_island_summary_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    column_index, rows = read_sheet_rows(path, source.get("sheet", "Candidate_Breakout"))
+    contest_name = source.get("contest", "Presidential Electors For:")
+    town_county_map = source["townCountyMap"]
+    federal_row_name = source.get("federalPrecinctRowName", "Federal Precincts")
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    by_county = defaultdict(lambda: defaultdict(int))
+
+    for row in rows:
+        contest = row[column_index["Contest"]] if len(row) > column_index["Contest"] else ""
+        if contest != contest_name:
+            continue
+        precinct_name = row[column_index["City/Town - Precinct"]] if len(row) > column_index["City/Town - Precinct"] else ""
+        candidate = row[column_index["Candidate"]] if len(row) > column_index["Candidate"] else ""
+        party = row[column_index["Party"]] if len(row) > column_index["Party"] else ""
+        votes = int_text(row[column_index["Total"]] if len(row) > column_index["Total"] else 0)
+        town = rhode_island_town_from_precinct(precinct_name, town_county_map)
+        if town:
+            county = town_county_map[town]
+        elif str(precinct_name).startswith("Federal Precinct"):
+            county = federal_row_name
+        else:
+            raise ValueError(f"Rhode Island precinct row does not map to a town or federal row: {precinct_name!r}")
+
+        if new_york_column_matches(candidate, party, source["majorCandidates"]["trump"]):
+            key = "trump"
+        elif new_york_column_matches(candidate, party, source["majorCandidates"]["harris"]):
+            key = "harris"
+        else:
+            key = "unmappedOther"
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, party, item):
+                    key = item["key"]
+                    break
+        by_county[county][key] += votes
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_south_dakota_canvass_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    try:
+        start = lines.index(source.get("contest", "Presidential Electors"))
+    except ValueError as error:
+        raise ValueError(f"Could not find South Dakota presidential electors table in {path}") from error
+
+    county_start = next((index for index in range(start, len(lines)) if lines[index] == "County"), None)
+    if county_start is None:
+        raise ValueError(f"Could not find South Dakota presidential county header in {path}")
+
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    pending_county = None
+    result_rows = []
+    reported_totals = None
+
+    for line in lines[county_start + 1 :]:
+        if line.startswith(source.get("nextContest", "United States Representative")):
+            break
+        numbers = re.findall(r"\d[\d,]*", line)
+        if not numbers:
+            pending_county = line
+            continue
+        if len(numbers) != 4:
+            continue
+
+        if line.startswith("Total"):
+            reported_totals = {
+                "harris": int_text(numbers[0]),
+                "libertarian": int_text(numbers[1]),
+                "trump": int_text(numbers[2]),
+                "independent": int_text(numbers[3]),
+            }
+            break
+
+        county_part = re.sub(r"\s+\d[\d,\s]*$", "", line).strip()
+        raw_county = county_part or pending_county
+        if not raw_county:
+            raise ValueError(f"South Dakota presidential row has votes without a county label: {line!r}")
+        county = county_names.get(raw_county.upper()) or raw_county
+        harris = int_text(numbers[0])
+        libertarian = int_text(numbers[1])
+        trump = int_text(numbers[2])
+        independent = int_text(numbers[3])
+        other = libertarian + independent
+        total = trump + harris + other
+        margin = trump - harris
+        result_rows.append(
+            {
+                "county": county,
+                "trump": trump,
+                "trumpPct": pct(trump, total),
+                "harris": harris,
+                "harrisPct": pct(harris, total),
+                "other": other,
+                "otherPct": pct(other, total),
+                "libertarian": libertarian,
+                "independent": independent,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+        pending_county = None
+
+    if reported_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            "libertarian": sum(row["libertarian"] for row in result_rows),
+            "independent": sum(row["independent"] for row in result_rows),
+        }
+        if parsed_totals != reported_totals:
+            raise ValueError(f"South Dakota parsed totals do not match PDF totals: {parsed_totals} != {reported_totals}")
 
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
@@ -2572,11 +3785,26 @@ CERTIFIED_RESULT_PARSERS = {
     "notConfigured": certified_results_not_configured,
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
+    "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
+    "maineCountyTownXlsx": certified_results_maine_county_town_xlsx,
+    "marylandCountyHtml": certified_results_maryland_county_html,
     "michiganCountyTab": certified_results_michigan_tab,
+    "montanaCanvassPdf": certified_results_montana_canvass_pdf,
+    "nationalCountyBaselineCsv": certified_results_national_county_baseline_csv,
+    "newJerseyPresidentPdf": certified_results_new_jersey_president_pdf,
+    "northCarolinaEnrZip": certified_results_north_carolina_enr_zip,
     "newYorkCountyCsv": certified_results_new_york_county_csv,
     "northDakotaStatewideCsv": certified_results_north_dakota_csv,
+    "oklahomaEnrZip": certified_results_oklahoma_enr_zip,
     "pennsylvaniaBulkCsv": certified_results_pennsylvania_bulk_csv,
+    "rhodeIslandSummaryXlsx": certified_results_rhode_island_summary_xlsx,
+    "southCarolinaEnrJson": certified_results_south_carolina_enr_json,
+    "southDakotaCanvassPdf": certified_results_south_dakota_canvass_pdf,
+    "tennesseePrecinctXlsx": certified_results_tennessee_precinct_xlsx,
+    "virginiaLocalityCsv": certified_results_virginia_locality_csv,
+    "washingtonCountyHtml": certified_results_washington_county_html,
+    "wyomingStatewideSummaryXlsx": certified_results_wyoming_statewide_summary_xlsx,
 }
 
 REVIEW_CHART_PARSERS = {
@@ -2673,6 +3901,8 @@ def build_state(config, *, download=False, force_download=False):
             "notes": (
                 "Certified result rows are not loaded for this state yet; source planner data is available."
                 if config["certifiedResults"].get("format") == "notConfigured"
+                else config["certifiedResults"].get("metadataNotes")
+                if config["certifiedResults"].get("metadataNotes")
                 else f"Aggregated from configured official {config['authority']} source files."
             ),
         },

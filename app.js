@@ -12,6 +12,7 @@ const MN_TURNOUT_DATA = MN_ELECTION_APP_DATA.turnoutData || { metadata: {}, rows
 const MN_HISTORICAL_BASELINE = MN_ELECTION_APP_DATA.historicalBaseline || null;
 const MN_COUNTIES_GEOJSON = window.MN_COUNTIES_GEOJSON || null;
 const STATE_APP_REGISTRY = window.STATE_APP_REGISTRY?.states || [];
+const STATE_REGISTRY_BY_CODE = new Map(STATE_APP_REGISTRY.map((entry) => [entry.code, entry]));
 let activeStateCode = "WI";
 let RESULTS = WI_RESULTS;
 let CANDIDATE_LABELS = WI_CANDIDATE_LABELS;
@@ -392,8 +393,7 @@ const APP_STATES = {
 
 function configuredStateGlobalsReady(entry) {
   const hasData = Boolean(entry.appDataGlobal && window[entry.appDataGlobal]);
-  const needsGeometry = Boolean(entry.geometryGlobal);
-  return hasData && (!needsGeometry || Boolean(window[entry.geometryGlobal]));
+  return hasData;
 }
 
 function loadScriptOnce(src) {
@@ -410,16 +410,7 @@ function loadScriptOnce(src) {
 }
 
 function loadConfiguredStateScripts() {
-  const scripts = [];
-  for (const entry of STATE_APP_REGISTRY) {
-    if (entry.appDataFile && !window[entry.appDataGlobal]) {
-      scripts.push(entry.appDataFile);
-    }
-    if (entry.geometryFile && entry.geometryGlobal && !window[entry.geometryGlobal]) {
-      scripts.push(entry.geometryFile);
-    }
-  }
-  return Promise.all([...new Set(scripts)].map(loadScriptOnce));
+  return Promise.resolve();
 }
 
 function capabilityReady(declared, ready) {
@@ -469,7 +460,7 @@ function configuredStateFromRegistry(entry) {
     capabilities: {
       sourcePlanner: Boolean(entry.sourcePlan),
       certifiedResults: capabilityReady(entry.capabilities?.certifiedResults, resultRows.length),
-      map: capabilityReady(entry.capabilities?.map, geometry),
+      map: capabilityReady(entry.capabilities?.map, geometry || (entry.geometryFile && entry.geometryGlobal)),
       reviewGraphs: capabilityReady(entry.capabilities?.reviewGraphs, reviewCharts),
       turnout: capabilityReady(entry.capabilities?.turnout, turnoutData?.rows?.length),
       historicalBaseline: capabilityReady(entry.capabilities?.historicalBaseline, historicalBaseline?.series?.length),
@@ -477,6 +468,8 @@ function configuredStateFromRegistry(entry) {
     resultRows,
     candidateLabels: payload.candidateLabels || [],
     countyGeometry: geometry,
+    geometryFile: entry.geometryFile,
+    geometryGlobal: entry.geometryGlobal,
     turnoutData,
     turnoutPolicy: entry.turnoutPolicy || {},
     etaAnalysis: payload.etaAnalysis || null,
@@ -502,6 +495,23 @@ function registerConfiguredStates() {
       APP_STATES[state.code] = state;
     }
   }
+}
+
+async function ensureConfiguredStateLoaded(code) {
+  const normalized = String(code || "").trim().toUpperCase();
+  if (APP_STATES[normalized]) {
+    return APP_STATES[normalized];
+  }
+  const entry = STATE_REGISTRY_BY_CODE.get(normalized);
+  if (!entry?.appDataFile) {
+    return null;
+  }
+  await loadScriptOnce(entry.appDataFile);
+  const state = configuredStateFromRegistry(entry);
+  if (state) {
+    APP_STATES[state.code] = state;
+  }
+  return state;
 }
 
 const DEFAULT_REVIEW_POLICY = {
@@ -718,9 +728,9 @@ const els = {
   auditVoteComparison: document.querySelector("#auditVoteComparison"),
 };
 
-function init() {
+async function init() {
   initializeThemeToggle();
-  initializeStateSelectors();
+  await initializeStateSelectors();
   organizeWorkspacePanels();
   renderSummary();
   renderEtaTests();
@@ -743,17 +753,23 @@ function init() {
   setAppTab(initialTabName(), { updateHash: false });
   initMap();
   applyInitialReviewRoute();
-  collectCounties({ quick: true });
+  if (!window.__STATIC_UI_VALIDATION__) {
+    collectCounties({ quick: true });
+  }
 }
 
 function wireControls() {
-  els.appStateSelect.addEventListener("change", () => switchActiveState(els.appStateSelect.value));
+  els.appStateSelect.addEventListener("change", () => {
+    switchActiveState(els.appStateSelect.value);
+  });
   els.collectBtn.addEventListener("click", () => collectCounties({ quick: false }));
   els.mapBtn.addEventListener("click", loadCountyBoundaries);
   els.exportBtn.addEventListener("click", exportCsv);
   els.coverageCsvBtn.addEventListener("click", exportCoverageCsv);
   els.sourceCsvBtn.addEventListener("click", exportSourceCsv);
-  els.sourceStateSelect.addEventListener("change", () => switchActiveState(els.sourceStateSelect.value));
+  els.sourceStateSelect.addEventListener("change", () => {
+    switchActiveState(els.sourceStateSelect.value);
+  });
   els.sourceCountySearch.addEventListener("input", renderSourceCountyRows);
   els.sourceStatusFilter.addEventListener("change", renderSourceCountyRows);
   els.sourcePlanCsvBtn.addEventListener("click", exportSourcePlanCsv);
@@ -907,7 +923,7 @@ function routeState() {
 
 function normalizedStateCode(code) {
   const normalized = String(code || "").trim().toUpperCase();
-  return APP_STATES[normalized] ? normalized : "";
+  return APP_STATES[normalized] || STATE_REGISTRY_BY_CODE.has(normalized) ? normalized : "";
 }
 
 function initialStateCode() {
@@ -954,16 +970,31 @@ function activeTabName() {
   return Array.from(els.appTabs).find((button) => button.classList.contains("active"))?.dataset.appTab || "dashboard";
 }
 
-function initializeStateSelectors() {
-  const options = Object.values(APP_STATES)
+function stateSelectorOptions() {
+  const states = [
+    ...Object.values(APP_STATES),
+    ...STATE_APP_REGISTRY.filter((entry) => !APP_STATES[entry.code]).map((entry) => ({
+      code: entry.code,
+      name: entry.name,
+      electionYear: entry.electionYear,
+    })),
+  ].sort((a, b) => a.code.localeCompare(b.code));
+  return states
     .map((state) => `<option value="${escapeAttr(state.code)}">${escapeText(state.name)} ${state.electionYear}</option>`)
     .join("");
-  els.appStateSelect.innerHTML = options;
-  els.sourceStateSelect.innerHTML = options;
-  setActiveState(initialStateCode(), { updateControls: true });
 }
 
-function switchActiveState(code, { updateRoute = true } = {}) {
+async function initializeStateSelectors() {
+  const options = stateSelectorOptions();
+  els.appStateSelect.innerHTML = options;
+  els.sourceStateSelect.innerHTML = options;
+  const initialCode = initialStateCode();
+  await ensureConfiguredStateLoaded(initialCode);
+  setActiveState(initialCode, { updateControls: true });
+}
+
+async function switchActiveState(code, { updateRoute = true } = {}) {
+  await ensureConfiguredStateLoaded(code);
   if (!APP_STATES[code] || code === activeStateCode) {
     setActiveState(activeStateCode, { updateControls: true });
     renderSourcePlanner();
@@ -1224,6 +1255,15 @@ async function loadCountyBoundaries() {
 
   const state = activeStateConfig();
   els.statusText.textContent = state.mapLoadingText || `Loading local ${state.name} ${state.countyLabel.toLowerCase()} boundaries...`;
+  if (!LOCAL_COUNTIES_GEOJSON && state.geometryFile && state.geometryGlobal) {
+    try {
+      await loadScriptOnce(state.geometryFile);
+      state.countyGeometry = window[state.geometryGlobal] || null;
+      LOCAL_COUNTIES_GEOJSON = state.countyGeometry;
+    } catch (error) {
+      console.warn(error);
+    }
+  }
   if (!LOCAL_COUNTIES_GEOJSON) {
     els.map.hidden = true;
     els.tileFallback.hidden = false;
@@ -3751,7 +3791,7 @@ function sleep(ms) {
 loadConfiguredStateScripts()
   .then(() => {
     registerConfiguredStates();
-    init();
+    return init();
   })
   .catch((error) => {
     console.error(error);
