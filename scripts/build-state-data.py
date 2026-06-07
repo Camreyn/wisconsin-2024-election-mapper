@@ -396,6 +396,71 @@ def certified_results_xlsx_precinct_aggregation(config):
     return result_rows, candidate_labels, precinct_rows
 
 
+def xlsx_indexed_vote(row, index):
+    return int_text(row[index] if index < len(row) else 0)
+
+
+def certified_results_california_president_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    rows = list(iter_worksheet_rows(path, source.get("sheet", "SOV Statewide Contest Details")))
+    columns = source["columns"]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+    reported_totals = None
+
+    for row in rows:
+        county = str((row[0] if row else "") or "").strip()
+        if not county or county == "Percent" or county.startswith("Percent"):
+            continue
+        if county == source.get("stateTotalsLabel", "State Totals"):
+            reported_totals = {
+                "harris": xlsx_indexed_vote(row, columns["harris"]),
+                "trump": xlsx_indexed_vote(row, columns["trump"]),
+                **{
+                    item["key"]: xlsx_indexed_vote(row, columns[item["column"]])
+                    for item in source.get("otherCandidates", [])
+                },
+            }
+            continue
+
+        harris = xlsx_indexed_vote(row, columns["harris"])
+        trump = xlsx_indexed_vote(row, columns["trump"])
+        other_values = {
+            item["key"]: xlsx_indexed_vote(row, columns[item["column"]])
+            for item in source.get("otherCandidates", [])
+        }
+        other = sum(other_values.values())
+        total = trump + harris + other
+        margin = trump - harris
+        result_rows.append(
+            {
+                "county": county,
+                "trump": trump,
+                "trumpPct": pct(trump, total),
+                "harris": harris,
+                "harrisPct": pct(harris, total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    if reported_totals:
+        parsed_totals = {
+            "harris": sum(row["harris"] for row in result_rows),
+            "trump": sum(row["trump"] for row in result_rows),
+            **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        }
+        if parsed_totals != reported_totals:
+            raise ValueError(f"California county totals do not match State Totals row: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_maine_county_town_xlsx(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -4010,6 +4075,7 @@ CERTIFIED_RESULT_PARSERS = {
     "notConfigured": certified_results_not_configured,
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
+    "californiaPresidentXlsx": certified_results_california_president_xlsx,
     "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,

@@ -10,6 +10,7 @@ const supportedCertifiedFormats = new Set([
   "notConfigured",
   "xlsxPrecinctAggregation",
   "alabamaPrecinctZip",
+  "californiaPresidentXlsx",
   "connecticutStatementText",
   "delawareCountyHtml",
   "floridaPrecinctZip",
@@ -298,6 +299,7 @@ function validateCertifiedResults(report) {
   if (
     format !== "notConfigured" &&
     format !== "xlsxPrecinctAggregation" &&
+    format !== "californiaPresidentXlsx" &&
     format !== "connecticutStatementText" &&
     !certified.majorCandidates
   ) {
