@@ -2954,6 +2954,98 @@ def certified_results_oregon_map_data_json(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_utah_statewide_canvass_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = set(geometry_names_by_geoid(config).values())
+    columns = source["columns"]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    expected_columns = source.get("expectedCandidateColumns", 10)
+    result_rows = []
+    pending_values = []
+    in_contest = False
+    contest_total = None
+    saw_candidate_totals = False
+    expecting_contest_total = False
+
+    for line in lines:
+        if line == source.get("contest", "U.S. President and Vice President"):
+            in_contest = True
+            continue
+        if not in_contest:
+            continue
+
+        values = [int_text(value) for value in re.findall(r"\d[\d,]*", line)]
+        if line == "Total Votes Cast":
+            if not saw_candidate_totals:
+                saw_candidate_totals = True
+            else:
+                expecting_contest_total = True
+            continue
+        if expecting_contest_total and len(values) == 1:
+            contest_total = values[0]
+            break
+        if line.startswith("Per Candidate") or line.startswith("%"):
+            continue
+
+        county_match = re.match(r"^(?P<county>.+?(?:County|Counl\)))\s+", line)
+        if county_match:
+            county = county_match.group("county").replace("Counl)", "County")
+            if county not in county_names:
+                raise ValueError(f"Unexpected Utah county row {county!r} in {path}")
+            if len(values) == expected_columns - 1 and pending_values:
+                values.insert(source.get("orphanInsertIndex", 3), pending_values.pop(0))
+            if len(values) != expected_columns:
+                raise ValueError(f"Expected {expected_columns} Utah candidate values for {county}, found {len(values)}: {values}")
+            totals = {
+                "trump": values[columns["trump"]],
+                "harris": values[columns["harris"]],
+                **{item["key"]: values[item["column"]] for item in source.get("otherCandidates", [])},
+            }
+            other_values = {item["key"]: totals[item["key"]] for item in candidate_labels}
+            other = sum(other_values.values())
+            total = totals["trump"] + totals["harris"] + other
+            margin = totals["trump"] - totals["harris"]
+            result_rows.append(
+                {
+                    "county": county,
+                    "trump": totals["trump"],
+                    "trumpPct": pct(totals["trump"], total),
+                    "harris": totals["harris"],
+                    "harrisPct": pct(totals["harris"], total),
+                    "other": other,
+                    "otherPct": pct(other, total),
+                    **other_values,
+                    "margin": margin,
+                    "marginPct": round((margin / total) * 100, 4) if total else 0,
+                    "total": total,
+                }
+            )
+            continue
+
+        if len(values) == 1 and not saw_candidate_totals:
+            pending_values.append(values[0])
+
+    if len(result_rows) != config["expected"]["countyRows"]:
+        raise ValueError(f"Expected {config['expected']['countyRows']} Utah county rows, found {len(result_rows)}")
+    if pending_values:
+        raise ValueError(f"Unconsumed Utah orphan PDF values: {pending_values}")
+    if contest_total != source.get("contestTotalVotes"):
+        raise ValueError(f"Utah contest total mismatch: {contest_total} != {source.get('contestTotalVotes')}")
+
+    expected_totals = source.get("statewideTotals", {})
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+    }
+    if expected_totals and parsed_totals != expected_totals:
+        raise ValueError(f"Utah parsed county totals do not match PDF totals: {parsed_totals} != {expected_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_pennsylvania_bulk_csv(config):
     source = config["certifiedResults"]
     office_code = source.get("officeCode", "USP")
@@ -4697,6 +4789,7 @@ CERTIFIED_RESULT_PARSERS = {
     "southCarolinaEnrJson": certified_results_south_carolina_enr_json,
     "southDakotaCanvassPdf": certified_results_south_dakota_canvass_pdf,
     "tennesseePrecinctXlsx": certified_results_tennessee_precinct_xlsx,
+    "utahStatewideCanvassPdf": certified_results_utah_statewide_canvass_pdf,
     "vermontMunicipalityCsv": certified_results_vermont_municipality_csv,
     "virginiaLocalityCsv": certified_results_virginia_locality_csv,
     "washingtonCountyHtml": certified_results_washington_county_html,

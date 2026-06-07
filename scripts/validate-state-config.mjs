@@ -36,6 +36,7 @@ const supportedCertifiedFormats = new Set([
   "southCarolinaEnrJson",
   "southDakotaCanvassPdf",
   "tennesseePrecinctXlsx",
+  "utahStatewideCanvassPdf",
   "vermontMunicipalityCsv",
   "virginiaLocalityCsv",
   "washingtonCountyHtml",
