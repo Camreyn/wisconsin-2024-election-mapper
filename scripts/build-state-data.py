@@ -880,6 +880,90 @@ def certified_results_new_york_county_csv(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_kansas_presidential_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    columns = source.get(
+        "columns",
+        {
+            "county": "County",
+            "precinct": "Precinct",
+            "race": "Race",
+            "candidate": "Candidate",
+            "party": "Party",
+            "votes": "Votes",
+        },
+    )
+    column_index, rows = read_sheet_rows(path, source.get("sheet", "2024 Presidential Results"))
+    by_county = defaultdict(lambda: defaultdict(int))
+    precinct_keys = set()
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    contest_name = source.get("contestName", "President / Vice President").upper()
+
+    for row in rows:
+        race = str(row[column_index[columns["race"]]] if len(row) > column_index[columns["race"]] else "").strip()
+        if race.upper() != contest_name:
+            continue
+        county = str(row[column_index[columns["county"]]] if len(row) > column_index[columns["county"]] else "").strip()
+        precinct = str(row[column_index[columns["precinct"]]] if len(row) > column_index[columns["precinct"]] else "").strip()
+        candidate = str(row[column_index[columns["candidate"]]] if len(row) > column_index[columns["candidate"]] else "").strip()
+        party = str(row[column_index[columns["party"]]] if len(row) > column_index[columns["party"]] else "").strip()
+        votes = int_text(row[column_index[columns["votes"]]] if len(row) > column_index[columns["votes"]] else 0)
+        if not county or not candidate:
+            continue
+        precinct_keys.add((county, precinct))
+
+        if new_york_column_matches(candidate, party, source["majorCandidates"]["trump"]):
+            by_county[county]["trump"] += votes
+        elif new_york_column_matches(candidate, party, source["majorCandidates"]["harris"]):
+            by_county[county]["harris"] += votes
+        else:
+            matched_other = False
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, party, item):
+                    by_county[county][item["key"]] += votes
+                    matched_other = True
+                    break
+            if not matched_other:
+                by_county[county]["unmappedOther"] += votes
+
+    result_rows = []
+    for county, totals in sorted(by_county.items()):
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    expected_totals = source.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            "other": sum(row["other"] for row in result_rows),
+            "total": sum(row["total"] for row in result_rows),
+        }
+        for item in candidate_labels:
+            parsed_totals[item["key"]] = sum(row[item["key"]] for row in result_rows)
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Kansas presidential workbook totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    return result_rows, candidate_labels, len(precinct_keys)
+
+
 def certified_results_virginia_locality_csv(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -4313,6 +4397,7 @@ CERTIFIED_RESULT_PARSERS = {
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
     "idahoCountyCsv": certified_results_idaho_county_csv,
     "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
+    "kansasPresidentialXlsx": certified_results_kansas_presidential_xlsx,
     "maineCountyTownXlsx": certified_results_maine_county_town_xlsx,
     "marylandCountyHtml": certified_results_maryland_county_html,
     "michiganCountyTab": certified_results_michigan_tab,
