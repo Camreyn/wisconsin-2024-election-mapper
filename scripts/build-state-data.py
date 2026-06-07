@@ -461,6 +461,99 @@ def certified_results_california_president_xlsx(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_iowa_canvass_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    county_prefixes = sorted(county_names, key=len, reverse=True)
+    columns = source["columns"]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+    current_county = None
+    reported_totals = None
+    statewide_pending = False
+    total_pattern = re.compile(r"^Total\s+(?P<values>(?:\d[\d,]*\s+){10}\d[\d,]*)$")
+
+    def row_totals(values):
+        parsed = {key: int_text(values[index]) for key, index in columns.items()}
+        candidate_total = parsed["harris"] + parsed["trump"] + sum(parsed[item["key"]] for item in candidate_labels)
+        if candidate_total + parsed["underVotes"] + parsed["overVotes"] != parsed["ballotsTotal"]:
+            raise ValueError(
+                "Iowa PDF row candidate, under-vote, and over-vote totals do not match row total: "
+                f"{candidate_total} + {parsed['underVotes']} + {parsed['overVotes']} != {parsed['ballotsTotal']}"
+            )
+        return parsed
+
+    for line in lines:
+        if line == source.get("contest", "President and Vice President"):
+            current_county = None
+            statewide_pending = False
+            continue
+        if line.startswith("TOTAL Election"):
+            current_county = None
+            statewide_pending = True
+            continue
+        if re.match(r"^Page \d+ of \d+$", line):
+            continue
+
+        match = total_pattern.match(line)
+        if match:
+            totals = row_totals(match.group("values").split())
+            if statewide_pending:
+                reported_totals = totals
+                break
+            if current_county:
+                other_values = {item["key"]: totals[item["key"]] for item in candidate_labels}
+                other = sum(other_values.values())
+                total = totals["trump"] + totals["harris"] + other
+                margin = totals["trump"] - totals["harris"]
+                result_rows.append(
+                    {
+                        "county": current_county,
+                        "trump": totals["trump"],
+                        "trumpPct": pct(totals["trump"], total),
+                        "harris": totals["harris"],
+                        "harrisPct": pct(totals["harris"], total),
+                        "other": other,
+                        "otherPct": pct(other, total),
+                        **other_values,
+                        "margin": margin,
+                        "marginPct": round((margin / total) * 100, 4) if total else 0,
+                        "total": total,
+                    }
+                )
+                current_county = None
+            continue
+
+        upper_line = line.upper()
+        for raw_county in county_prefixes:
+            if upper_line.startswith(f"{raw_county} "):
+                current_county = county_names[raw_county]
+                break
+
+    if not reported_totals:
+        raise ValueError(f"Could not find Iowa statewide presidential totals in {path}")
+
+    parsed_totals = {
+        "harris": sum(row["harris"] for row in result_rows),
+        "trump": sum(row["trump"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+    }
+    reported_candidate_totals = {
+        "harris": reported_totals["harris"],
+        "trump": reported_totals["trump"],
+        **{item["key"]: reported_totals[item["key"]] for item in candidate_labels},
+    }
+    if parsed_totals != reported_candidate_totals:
+        raise ValueError(f"Iowa parsed county totals do not match PDF totals: {parsed_totals} != {reported_candidate_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_maine_county_town_xlsx(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -4079,6 +4172,7 @@ CERTIFIED_RESULT_PARSERS = {
     "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
+    "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
     "maineCountyTownXlsx": certified_results_maine_county_town_xlsx,
     "marylandCountyHtml": certified_results_maryland_county_html,
     "michiganCountyTab": certified_results_michigan_tab,
