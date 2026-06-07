@@ -10,6 +10,7 @@ const supportedCertifiedFormats = new Set([
   "notConfigured",
   "xlsxPrecinctAggregation",
   "alabamaPrecinctZip",
+  "connecticutStatementText",
   "delawareCountyHtml",
   "floridaPrecinctZip",
   "maineCountyTownXlsx",
@@ -294,7 +295,12 @@ function validateCertifiedResults(report) {
   if (format === "xlsxPrecinctAggregation" && !certified.columns) {
     report.errors.push(issue("error", "certified-columns-missing", "XLSX certified results need certifiedResults.columns."));
   }
-  if (format !== "notConfigured" && format !== "xlsxPrecinctAggregation" && !certified.majorCandidates) {
+  if (
+    format !== "notConfigured" &&
+    format !== "xlsxPrecinctAggregation" &&
+    format !== "connecticutStatementText" &&
+    !certified.majorCandidates
+  ) {
     report.errors.push(issue("error", "certified-candidates-missing", `${format} certified results need majorCandidates rules.`));
   }
   if (loaded && Number(report.config.expected?.countyRows || 0) <= 0) {

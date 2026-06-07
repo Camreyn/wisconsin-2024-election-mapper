@@ -671,6 +671,149 @@ def certified_results_virginia_locality_csv(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def normalize_connecticut_town(value, aliases):
+    value = aliases.get(value, value)
+    return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+
+
+def parse_connecticut_town_sections(lines, section_kind):
+    town_rows = {}
+    first_header = {
+        "major": "Harris and Walz",
+        "writeInFive": "Ayyadurai and Ellis",
+        "writeInContinued": "Sonski and Onak",
+    }[section_kind]
+    number_count = 5 if section_kind in {"major", "writeInFive"} else 2
+    row_pattern = re.compile(rf"^(.+?)\s+((?:[\d,]+\s+){{{number_count - 1}}}[\d,]+)$")
+
+    for index, line in enumerate(lines):
+        if line.strip() != "Summarized by Town":
+            continue
+        context = " ".join(item.strip() for item in lines[max(0, index - 2) : index + 6])
+        if section_kind == "major":
+            if "Write-In" in context:
+                continue
+        elif section_kind == "writeInFive":
+            if "Write-In's Continued" in context or first_header not in context:
+                continue
+        elif section_kind == "writeInContinued":
+            if first_header not in context:
+                continue
+
+        start = None
+        for header_index in range(index + 1, min(index + 8, len(lines))):
+            if first_header in lines[header_index]:
+                start = header_index + 1
+                break
+        if start is None:
+            continue
+
+        for row_line in lines[start:]:
+            row_line = row_line.strip()
+            if not row_line:
+                continue
+            if row_line.startswith("Election Results for"):
+                break
+            if row_line.startswith("Total"):
+                break
+            match = row_pattern.match(row_line)
+            if not match:
+                continue
+            town = match.group(1).strip()
+            values = [int_text(value) for value in match.group(2).split()]
+            town_rows[town] = values
+
+    return town_rows
+
+
+def certified_results_connecticut_statement_text(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    map_path = local_source(config, source["townMapSourceId"])
+    county_names = geometry_names_by_geoid(config)
+    aliases = source.get("townAliases", {})
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+
+    subdivision_lookup = {}
+    subdivision_geojson = json.loads(map_path.read_text(encoding="utf-8"))
+    for feature in subdivision_geojson.get("features", []):
+        props = feature.get("properties", {})
+        state_code = str(props.get("STATE") or "")
+        county_code = str(props.get("COUNTY") or "").zfill(3)
+        county = county_names.get(f"{state_code}{county_code}")
+        basename = props.get("BASENAME") or props.get("NAME")
+        if county and basename:
+            subdivision_lookup[normalize_connecticut_town(basename, aliases)] = county
+
+    try:
+        statement_text = path.read_text(encoding="utf-8-sig")
+    except UnicodeDecodeError:
+        statement_text = path.read_text(encoding="utf-16")
+    lines = statement_text.splitlines()
+    senate_index = next(
+        (index for index, line in enumerate(lines) if line.strip() == "Election Results for United States Senator"),
+        len(lines),
+    )
+    presidential_lines = lines[:senate_index]
+    major_rows = parse_connecticut_town_sections(presidential_lines, "major")
+    write_in_five_rows = parse_connecticut_town_sections(presidential_lines, "writeInFive")
+    write_in_continued_rows = parse_connecticut_town_sections(presidential_lines, "writeInContinued")
+
+    if not major_rows:
+        raise ValueError(f"Connecticut statement source has no parsed town presidential rows: {path}")
+    if set(major_rows) != set(write_in_five_rows) or set(major_rows) != set(write_in_continued_rows):
+        raise ValueError("Connecticut statement write-in town rows do not match major-candidate town rows")
+
+    by_county = defaultdict(lambda: defaultdict(int))
+    missing = []
+    for town, values in major_rows.items():
+        county = subdivision_lookup.get(normalize_connecticut_town(town, aliases))
+        if not county:
+            missing.append(town)
+            continue
+        totals = by_county[county]
+        totals["harris"] += values[0]
+        totals["trump"] += values[1]
+        totals["stein"] += values[2]
+        totals["oliver"] += values[3]
+        totals["kennedy"] += values[4]
+        write_in_five = write_in_five_rows[town]
+        totals["ayyadurai"] += write_in_five[0]
+        totals["deLaCruz"] += write_in_five[1]
+        totals["fox"] += write_in_five[2]
+        totals["mcneil"] += write_in_five[3]
+        totals["futureMadamPotus"] += write_in_five[4]
+        write_in_continued = write_in_continued_rows[town]
+        totals["sonski"] += write_in_continued[0]
+        totals["west"] += write_in_continued[1]
+
+    if missing:
+        raise ValueError(f"Connecticut town rows could not be mapped to a planning region: {', '.join(sorted(missing))}")
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels)
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(major_rows)
+
+
 def normalize_vermont_municipality(value, aliases):
     value = aliases.get(value, value)
     value = value.replace("St.", "Saint").replace("W.", "West")
@@ -3867,6 +4010,7 @@ CERTIFIED_RESULT_PARSERS = {
     "notConfigured": certified_results_not_configured,
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
+    "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
     "maineCountyTownXlsx": certified_results_maine_county_town_xlsx,
