@@ -2425,6 +2425,104 @@ def certified_results_south_carolina_enr_json(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_indiana_enr_json(config):
+    source = config["certifiedResults"]
+    result_path = local_source(config, source["sourceId"])
+    settings_path = local_source(config, source["settingsSourceId"])
+    payload = json.loads(result_path.read_text(encoding="utf-8-sig"))
+    settings = json.loads(settings_path.read_text(encoding="utf-8-sig")).get("Root", {})
+    state_name = config["name"]
+
+    if settings.get("Certified") != "T":
+        raise ValueError(f"{state_name} ENR settings are not marked certified: {settings_path}")
+    if settings.get("ElectionType") != "G" or settings.get("CurrentElection") != source.get("electionDate", "11/05/2024"):
+        raise ValueError(f"{state_name} ENR settings do not describe the expected general election: {settings_path}")
+
+    root = payload.get("Root", {})
+    statewide_race = root.get("StatewideSummary", {}).get("Race", {})
+    office_category = root.get("OfficeCategory", {})
+    if str(office_category.get("OFFICECATEGORYID")) != str(source.get("officeCategoryId", "1019")):
+        raise ValueError(f"{state_name} ENR office category does not match the configured presidential category")
+
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+
+    def as_list(value):
+        if value is None:
+            return []
+        return value if isinstance(value, list) else [value]
+
+    def candidate_key(candidate):
+        name = str(candidate.get("NAME_ON_BALLOT") or candidate.get("CandidateName") or "")
+        party = str(candidate.get("PARTY") or candidate.get("PARTY_ABBREV") or "")
+        if new_york_column_matches(name, party, source["majorCandidates"]["trump"]):
+            return "trump"
+        if new_york_column_matches(name, party, source["majorCandidates"]["harris"]):
+            return "harris"
+        for item in source.get("otherCandidates", []):
+            if new_york_column_matches(name, party, item):
+                return item["key"]
+        return "unmappedOther"
+
+    reported_totals = defaultdict(int)
+    for candidate in as_list(statewide_race.get("Candidates", {}).get("Candidate")):
+        reported_totals[candidate_key(candidate)] += int(candidate.get("TOTAL") or candidate.get("TOTAL_VOTES") or 0)
+
+    county_names = geometry_names_by_geoid(config)
+    result_rows = []
+    parsed_totals = defaultdict(int)
+    for region in as_list(office_category.get("Regions", {}).get("Region")):
+        geoid = str(region.get("MAP_FIPS") or "")
+        county = county_names.get(geoid) or region.get("MAP_JURISDICTION_NAME")
+        if not county:
+            raise ValueError(f"{state_name} ENR region is missing a county name/FIPS")
+        totals = defaultdict(int)
+        candidates = as_list(region.get("RegionSummary", {}).get("Race", {}).get("Candidates", {}).get("Candidate"))
+        for candidate in candidates:
+            key = candidate_key(candidate)
+            votes = int(candidate.get("TOTAL") or candidate.get("TOTAL_VOTES") or 0)
+            totals[key] += votes
+            parsed_totals[key] += votes
+
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    parsed_totals = {
+        "trump": parsed_totals["trump"],
+        "harris": parsed_totals["harris"],
+        **{item["key"]: parsed_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": parsed_totals["unmappedOther"],
+    }
+    reported_totals = {
+        "trump": reported_totals["trump"],
+        "harris": reported_totals["harris"],
+        **{item["key"]: reported_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": reported_totals["unmappedOther"],
+    }
+    if parsed_totals != reported_totals:
+        raise ValueError(
+            f"{state_name} ENR county totals do not match statewide summary totals: "
+            f"{parsed_totals} != {reported_totals}"
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_total_results_contest_json(config):
     source = config["certifiedResults"]
     result_path = local_source(config, source["sourceId"])
@@ -5429,6 +5527,7 @@ CERTIFIED_RESULT_PARSERS = {
     "hawaiiCountySummaryPdfs": certified_results_hawaii_county_summary_pdfs,
     "idahoCountyCsv": certified_results_idaho_county_csv,
     "illinoisPrecinctCsv": certified_results_illinois_precinct_csv,
+    "indianaEnrJson": certified_results_indiana_enr_json,
     "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
     "kansasPresidentialXlsx": certified_results_kansas_presidential_xlsx,
     "kentuckyCertificationPdf": certified_results_kentucky_certification_pdf,
