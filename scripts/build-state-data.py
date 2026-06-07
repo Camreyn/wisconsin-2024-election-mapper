@@ -2188,6 +2188,122 @@ def certified_results_south_carolina_enr_json(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_total_results_contest_json(config):
+    source = config["certifiedResults"]
+    result_path = local_source(config, source["sourceId"])
+    contest_list_path = local_source(config, source["contestListSourceId"])
+    election_info_path = local_source(config, source["electionInfoSourceId"])
+    result_payload = json.loads(result_path.read_text(encoding="utf-8"))
+    contest_list = json.loads(contest_list_path.read_text(encoding="utf-8"))
+    election_info = json.loads(election_info_path.read_text(encoding="utf-8"))
+    state_name = config["name"]
+    contest_id = str(source["contestId"])
+
+    if not result_payload.get("isOfficial"):
+        raise ValueError(f"{state_name} TotalResults result payload is not marked official: {result_path}")
+    if not contest_list.get("isOfficial"):
+        raise ValueError(f"{state_name} TotalResults contest list is not marked official: {contest_list_path}")
+    if not election_info.get("isOfficial"):
+        raise ValueError(f"{state_name} TotalResults election info is not marked official: {election_info_path}")
+
+    contest_metadata = (contest_list.get("response", {}).get("contests", {}) or {}).get(contest_id)
+    result_contest = (result_payload.get("response", {}).get("contests", {}) or {}).get(contest_id)
+    if not contest_metadata or not result_contest:
+        raise ValueError(f"Could not find {state_name} TotalResults contest {contest_id!r}")
+
+    choices = contest_metadata.get("choices", {}) or {}
+    choice_map = {
+        str(source["majorCandidates"]["trump"]["choiceId"]): "trump",
+        str(source["majorCandidates"]["harris"]["choiceId"]): "harris",
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    for item in source.get("otherCandidates", []):
+        choice_map[str(item["choiceId"])] = item["key"]
+
+    for choice_id, key in choice_map.items():
+        if choice_id not in choices:
+            raise ValueError(f"{state_name} TotalResults choice {choice_id!r} for {key} is missing from contest metadata")
+
+    def location_key(value):
+        base = re.sub(r"\s+county$", "", value, flags=re.IGNORECASE).upper()
+        return re.sub(r"[^A-Z0-9]+", "", base)
+
+    county_names = {
+        location_key(name): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    location_names = {
+        str(location_id): str(location.get("locationName", "")).strip()
+        for location_id, location in (election_info.get("response", {}).get("locations", {}) or {}).items()
+    }
+
+    result_rows = []
+    reported_location_totals = defaultdict(int)
+    for location_id, location in (result_contest.get("locations", {}) or {}).items():
+        county_key = location_key(location_names.get(str(location_id), ""))
+        county = county_names.get(county_key)
+        if not county:
+            raise ValueError(f"Could not match {state_name} TotalResults location {location_id!r} ({county_key!r}) to geometry")
+
+        totals = defaultdict(int)
+        for choice in location.get("choices", []) or []:
+            key = choice_map.get(str(choice.get("choiceID")), "unmappedOther")
+            votes = int(choice.get("totalVotes") or 0)
+            totals[key] += votes
+            reported_location_totals[key] += votes
+
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        if total != int(location.get("totalVotes") or 0):
+            raise ValueError(f"{state_name} TotalResults county total mismatch for {county}: {total} != {location.get('totalVotes')}")
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    missing_counties = sorted(set(county_names.values()) - {row["county"] for row in result_rows})
+    if missing_counties:
+        raise ValueError(f"{state_name} TotalResults payload missing county rows: {', '.join(missing_counties)}")
+
+    reported_totals = defaultdict(int)
+    for choice in result_contest.get("choices", []) or []:
+        key = choice_map.get(str(choice.get("choiceID")), "unmappedOther")
+        reported_totals[key] += int(choice.get("totalVotes") or 0)
+    parsed_totals = {
+        "trump": reported_location_totals["trump"],
+        "harris": reported_location_totals["harris"],
+        **{item["key"]: reported_location_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": reported_location_totals["unmappedOther"],
+        "total": sum(row["total"] for row in result_rows),
+    }
+    expected_totals = {
+        "trump": reported_totals["trump"],
+        "harris": reported_totals["harris"],
+        **{item["key"]: reported_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": reported_totals["unmappedOther"],
+        "total": int(result_contest.get("totalVotes") or 0),
+    }
+    if parsed_totals != expected_totals:
+        raise ValueError(
+            f"{state_name} TotalResults county totals do not match statewide totals: "
+            f"{parsed_totals} != {expected_totals}"
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_north_carolina_enr_zip(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -5095,6 +5211,7 @@ CERTIFIED_RESULT_PARSERS = {
     "southCarolinaEnrJson": certified_results_south_carolina_enr_json,
     "southDakotaCanvassPdf": certified_results_south_dakota_canvass_pdf,
     "tennesseePrecinctXlsx": certified_results_tennessee_precinct_xlsx,
+    "totalResultsContestJson": certified_results_total_results_contest_json,
     "utahStatewideCanvassPdf": certified_results_utah_statewide_canvass_pdf,
     "vermontMunicipalityCsv": certified_results_vermont_municipality_csv,
     "virginiaLocalityCsv": certified_results_virginia_locality_csv,
