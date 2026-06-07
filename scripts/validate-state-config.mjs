@@ -15,6 +15,7 @@ const supportedCertifiedFormats = new Set([
   "connecticutStatementText",
   "delawareCountyHtml",
   "floridaPrecinctZip",
+  "hawaiiCountySummaryPdfs",
   "idahoCountyCsv",
   "iowaCanvassPdf",
   "kansasPresidentialXlsx",
@@ -307,6 +308,7 @@ function validateCertifiedResults(report) {
     format !== "californiaPresidentXlsx" &&
     format !== "coloradoCiveraCsv" &&
     format !== "connecticutStatementText" &&
+    format !== "hawaiiCountySummaryPdfs" &&
     format !== "idahoCountyCsv" &&
     format !== "iowaCanvassPdf" &&
     format !== "kansasPresidentialXlsx" &&

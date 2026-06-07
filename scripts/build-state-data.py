@@ -1780,6 +1780,98 @@ def certified_results_massachusetts_county_html(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def hawaii_statewide_presidential_totals(path, candidate_rules):
+    with path.open("r", encoding="utf-16", newline="") as handle:
+        rows = csv.reader(handle)
+        try:
+            next(rows)
+            header = next(rows)
+        except StopIteration as error:
+            raise ValueError(f"Could not read Hawaii statewide summary header from {path}") from error
+
+        column_index = {name.lstrip("#"): index for index, name in enumerate(header)}
+        required_columns = ["Contest Title", "Candidate Name", "Total Votes"]
+        missing_columns = [name for name in required_columns if name not in column_index]
+        if missing_columns:
+            raise ValueError(f"Hawaii statewide summary missing columns: {missing_columns}")
+
+        totals = defaultdict(int)
+        for row in rows:
+            if len(row) <= max(column_index.values()):
+                continue
+            if row[column_index["Contest Title"]] != "President and Vice President":
+                continue
+            candidate_name = re.sub(r"\s+", " ", row[column_index["Candidate Name"]]).upper()
+            matched_key = next(
+                (
+                    key
+                    for key, rule in candidate_rules.items()
+                    if rule["contains"].upper() in candidate_name
+                ),
+                None,
+            )
+            if matched_key:
+                totals[matched_key] += int_text(row[column_index["Total Votes"]])
+        return dict(totals)
+
+
+def certified_results_hawaii_county_summary_pdfs(config):
+    source = config["certifiedResults"]
+    candidate_rules = {
+        "harris": {"contains": "HARRIS", "pattern": r"\(D\)\s+HARRIS,\s+Kamala D\.\s+(\d[\d,]*)\s+\d+(?:\.\d+)?%"},
+        "trump": {"contains": "TRUMP", "pattern": r"\(R\)\s+TRUMP,\s+Donald J\.\s+(\d[\d,]*)\s+\d+(?:\.\d+)?%"},
+        "stein": {"contains": "STEIN", "pattern": r"\(G\)\s+STEIN,\s+Jill\s+(\d[\d,]*)\s+\d+(?:\.\d+)?%"},
+        "oliver": {"contains": "OLIVER", "pattern": r"\(L\)\s+OLIVER,\s+Chase\s+(\d[\d,]*)\s+\d+(?:\.\d+)?%"},
+        "deLaCruz": {"contains": "DE LA CRUZ", "pattern": r"\(SL\)\s+DE LA CRUZ,\s+Claudia\s+(\d[\d,]*)\s+\d+(?:\.\d+)?%"},
+        "sonski": {"contains": "SONSKI", "pattern": r"\(S\)\s+SONSKI,\s+Peter\s+(\d[\d,]*)\s+\d+(?:\.\d+)?%"},
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+
+    for county_source in source.get("countySources", []):
+        path = local_source(config, county_source["sourceId"])
+        text = re.sub(r"\s+", " ", extract_pdf_text(path))
+        totals = {}
+        for key, rule in candidate_rules.items():
+            match = re.search(rule["pattern"], text)
+            if not match:
+                raise ValueError(f"Could not find Hawaii {key} total in {path}")
+            totals[key] = int_text(match.group(1))
+
+        other_values = {item["key"]: totals[item["key"]] for item in candidate_labels}
+        other = sum(other_values.values())
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county_source["county"],
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    statewide_source_id = source.get("statewideSummarySourceId")
+    if statewide_source_id:
+        statewide_totals = hawaii_statewide_presidential_totals(local_source(config, statewide_source_id), candidate_rules)
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        }
+        if parsed_totals != statewide_totals:
+            raise ValueError(f"Hawaii county PDF totals do not match statewide summary: {parsed_totals} != {statewide_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_new_jersey_president_pdf(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -4501,6 +4593,7 @@ CERTIFIED_RESULT_PARSERS = {
     "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
+    "hawaiiCountySummaryPdfs": certified_results_hawaii_county_summary_pdfs,
     "idahoCountyCsv": certified_results_idaho_county_csv,
     "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
     "kansasPresidentialXlsx": certified_results_kansas_presidential_xlsx,
