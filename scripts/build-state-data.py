@@ -686,6 +686,99 @@ def certified_results_county_totals_csv(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_georgia_total_votes_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    contest_name = source.get("contestName", "President of the US")
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    county_lookup = {
+        re.sub(r"[^A-Z0-9]+", "", county.upper()): county
+        for county in geometry_names_by_geoid(config).values()
+    }
+    by_county = defaultdict(lambda: defaultdict(int))
+    reported_totals = defaultdict(int)
+
+    total_column_index, total_rows = read_sheet_rows(path, source.get("totalsSheet", "Total Votes"))
+    for row in total_rows:
+        if str(row[total_column_index["Office Name"]] or "").strip() != contest_name:
+            continue
+        candidate = str(row[total_column_index["Ballot Name"]] or "").strip()
+        votes = int_cell(row, total_column_index, "Total")
+        if new_york_column_matches(candidate, "", source["majorCandidates"]["trump"]):
+            reported_totals["trump"] += votes
+        elif new_york_column_matches(candidate, "", source["majorCandidates"]["harris"]):
+            reported_totals["harris"] += votes
+        else:
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, "", item):
+                    reported_totals[item["key"]] += votes
+                    break
+
+    column_index, rows = read_sheet_rows(path, source.get("countySheet", "County Results"))
+    source_rows = 0
+    for row in rows:
+        if str(row[column_index["Office Name"]] or "").strip() != contest_name:
+            continue
+        candidate = str(row[column_index["Ballot Name"]] or "").strip()
+        if candidate in {"Ballots Cast", "Total Votes"}:
+            continue
+        raw_county = str(row[column_index["County"]] or "").strip()
+        county_key = re.sub(r"[^A-Z0-9]+", "", raw_county.upper())
+        county = county_lookup.get(county_key)
+        if not county:
+            raise ValueError(f"Could not match Georgia county {raw_county!r} to geometry")
+        votes = int_cell(row, column_index, "Total")
+        source_rows += 1
+        if new_york_column_matches(candidate, "", source["majorCandidates"]["trump"]):
+            by_county[county]["trump"] += votes
+        elif new_york_column_matches(candidate, "", source["majorCandidates"]["harris"]):
+            by_county[county]["harris"] += votes
+        else:
+            matched = False
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, "", item):
+                    by_county[county][item["key"]] += votes
+                    matched = True
+                    break
+            if not matched:
+                by_county[county]["unmappedOther"] += votes
+
+    missing_counties = sorted(set(county_lookup.values()) - set(by_county))
+    if missing_counties:
+        raise ValueError(f"Georgia workbook missing county rows: {', '.join(missing_counties)}")
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+    }
+    if dict(parsed_totals) != dict(reported_totals):
+        raise ValueError(f"Georgia county totals do not match Total Votes sheet: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, source_rows
+
+
 def certified_results_illinois_precinct_csv(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -5330,6 +5423,7 @@ CERTIFIED_RESULT_PARSERS = {
     "civeraContestCountyCsv": certified_results_civera_contest_county_csv,
     "certifiedCountyTotalsCsv": certified_results_county_totals_csv,
     "connecticutStatementText": certified_results_connecticut_statement_text,
+    "georgiaTotalVotesXlsx": certified_results_georgia_total_votes_xlsx,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
     "hawaiiCountySummaryPdfs": certified_results_hawaii_county_summary_pdfs,

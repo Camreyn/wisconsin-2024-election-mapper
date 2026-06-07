@@ -1,7 +1,7 @@
 {
   "code": "GA",
   "name": "Georgia",
-  "authority": "Georgia election authorities via national county baseline",
+  "authority": "Georgia Secretary of State",
   "electionYear": 2024,
   "office": "President",
   "output": {
@@ -10,9 +10,9 @@
   },
   "sources": [
     {
-      "id": "national-2024-county-president-results",
-      "url": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-      "localFile": "data/national-2024-county-president-results.csv"
+      "id": "ga-2024-total-votes-results",
+      "url": "https://results.sos.ga.gov/cdn/results/09378a07-e6cf-4f66-be7c-ca4aa534f99a/Total%20Votes%20Results_3675bf50-5eeb-4407-b538-c04b909ccd08.xlsx",
+      "localFile": "data/ga-2024-total-votes-results.xlsx"
     },
     {
       "id": "ga-county-geometry",
@@ -29,28 +29,36 @@
     "expectedFeatures": 159
   },
   "certifiedResults": {
-    "format": "nationalCountyBaselineCsv",
-    "sourceId": "national-2024-county-president-results",
-    "stateName": "Georgia",
+    "format": "georgiaTotalVotesXlsx",
+    "sourceId": "ga-2024-total-votes-results",
+    "totalsSheet": "Total Votes",
+    "countySheet": "County Results",
+    "contestName": "President of the US",
     "majorCandidates": {
       "trump": {
-        "candidateContains": "votes_gop"
+        "candidateContains": "Donald J. Trump"
       },
       "harris": {
-        "candidateContains": "votes_dem"
+        "candidateContains": "Kamala D. Harris"
       }
     },
-    "metadataNotes": "Aggregated from the national 2024 county presidential baseline CSV. Source Planner marks this as a baseline import pending replacement by a native official state export where available.",
+    "metadataNotes": "Aggregated from the Georgia Secretary of State official public results Total Votes Excel report. The parser reads the County Results sheet for the President of the US contest and reconciles candidate county sums against the statewide Total Votes sheet.",
     "otherCandidates": [
       {
-        "key": "nationalOther",
-        "label": "Other candidates"
+        "key": "oliver",
+        "label": "Chase Oliver",
+        "candidateContains": "Chase Oliver"
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein",
+        "candidateContains": "Jill Stein"
       }
     ]
   },
   "reviewCharts": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ga-2024-total-votes-results",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -59,10 +67,10 @@
   },
   "turnout": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ga-2024-total-votes-results",
     "registrationDenominatorTiming": "notLoaded",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "notes": "Turnout is not loaded from the official Total Votes workbook because certified presidential county totals are currently used only for result mapping.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -88,40 +96,40 @@
     },
     "sourcePlan": {
       "certifiedResults": {
-        "title": "Georgia national baseline presidential county results",
-        "detail": "County-level presidential rows are imported from the public national 2024 county results baseline. This is the app floor for broad state coverage and should be replaced by a native official state export/parser when one is collected.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ga-app-data.js",
+        "title": "Georgia official presidential county results",
+        "detail": "County-level presidential rows are loaded from the Georgia Secretary of State official public results Total Votes Excel report. The parser uses the County Results sheet and reconciles candidate totals to the statewide Total Votes sheet.",
+        "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+        "localFile": "data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Downloaded from tonmcg/US_County_Level_Election_Results_08-24; repository README says the data are compiled from reputable public sources but are not authoritative.",
+        "sourceTimestampBasis": "Official Georgia SOS public results API marks the election isOfficialResults=true and exposes the Total Votes Excel report. Election payload lastUpdated is 2025-01-07T16:55:00.6358836Z.",
         "status": "Loaded"
       },
       "wardDetail": {
         "title": "Georgia precinct or reporting-unit detail",
-        "detail": "The baseline import is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ga-app-data.js",
+        "detail": "The official Total Votes workbook is county-level for this app import. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+        "localFile": "data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source checked during broad state import.",
+        "sourceTimestampBasis": "Official Total Votes workbook provides county rows for the presidential contest; precinct comparison rows are not mapped yet.",
         "status": "Needs precinct source"
       },
       "turnout": {
         "title": "Georgia turnout denominator",
-        "detail": "The baseline import does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ga-app-data.js",
+        "detail": "Turnout remains disabled until the official registration/turnout fields from the Georgia public results API are mapped into the app turnout model.",
+        "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+        "localFile": "data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
+        "sourceTimestampBasis": "Certified result import is limited to county presidential totals.",
         "status": "Needs denominator source"
       }
     },
     "sourceInventory": [
       {
-        "category": "Baseline presidential county results",
-        "file": "data/national-2024-county-president-results.csv; data/ga-app-data.js",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "usedFor": "Georgia 2024 presidential county result baseline.",
-        "confidence": "Public national county-level results baseline; not a substitute for a native official state parser."
+        "category": "Certified presidential county results",
+        "file": "data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
+        "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+        "usedFor": "Georgia 2024 presidential county totals.",
+        "confidence": "Official Georgia Secretary of State public results export. The election API marks the results official, and the workbook totals reconcile between County Results and Total Votes sheets."
       },
       {
         "category": "County boundaries",
@@ -135,16 +143,16 @@
       {
         "category": "National county baseline",
         "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "reason": "Useful for broad app coverage, but the repository itself notes that the compiled results are not authoritative. Promote this state to a native official source when possible.",
-        "status": "Baseline only",
-        "nextStep": "Collect a native official state export, add a parser if needed, and reconcile totals."
+        "reason": "Replaced by the Georgia Secretary of State official Total Votes Excel report.",
+        "status": "Replaced",
+        "nextStep": "Keep only as a comparison fallback if future reconciliation is needed."
       }
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
       "status": "Needs denominator source",
       "acceptedSource": "Not loaded yet.",
-      "warning": "Georgia turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "warning": "Georgia turnout should not be inferred from the certified county totals import until official denominator fields are mapped.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -161,7 +169,7 @@
   },
   "expected": {
     "countyRows": 159,
-    "precinctRows": 159,
+    "precinctRows": 636,
     "stateTotal": 5250047,
     "trump": 2663117,
     "harris": 2548017,

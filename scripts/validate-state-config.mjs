@@ -18,6 +18,7 @@ const supportedCertifiedFormats = new Set([
   "connecticutStatementText",
   "delawareCountyHtml",
   "floridaPrecinctZip",
+  "georgiaTotalVotesXlsx",
   "hawaiiCountySummaryPdfs",
   "idahoCountyCsv",
   "illinoisPrecinctCsv",
