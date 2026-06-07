@@ -554,6 +554,67 @@ def certified_results_iowa_canvass_pdf(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_idaho_county_csv(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    columns = source["columns"]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+    reported_totals = None
+
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            county = str(row.get(columns["county"], "") or "").strip()
+            if not county:
+                continue
+
+            totals = {
+                "trump": int_text(row.get(columns["trump"])),
+                "harris": int_text(row.get(columns["harris"])),
+                **{item["key"]: int_text(row.get(columns[item["column"]])) for item in source.get("otherCandidates", [])},
+            }
+            other = sum(totals[item["key"]] for item in candidate_labels)
+            total = totals["trump"] + totals["harris"] + other
+            reported_total = int_text(row.get(columns["totalVotesCast"]))
+            if reported_total and total != reported_total:
+                raise ValueError(f"Idaho candidate total mismatch for {county}: {total} != {reported_total}")
+
+            if county == source.get("totalsLabel", "Totals"):
+                reported_totals = {**totals, "total": reported_total}
+                continue
+
+            margin = totals["trump"] - totals["harris"]
+            result_rows.append(
+                {
+                    "county": county,
+                    "trump": totals["trump"],
+                    "trumpPct": pct(totals["trump"], total),
+                    "harris": totals["harris"],
+                    "harrisPct": pct(totals["harris"], total),
+                    "other": other,
+                    "otherPct": pct(other, total),
+                    **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                    "margin": margin,
+                    "marginPct": round((margin / total) * 100, 4) if total else 0,
+                    "total": total,
+                }
+            )
+
+    if not reported_totals:
+        raise ValueError(f"Could not find Idaho Totals row in {path}")
+
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        "total": sum(row["total"] for row in result_rows),
+    }
+    if parsed_totals != reported_totals:
+        raise ValueError(f"Idaho parsed county totals do not match CSV totals: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_maine_county_town_xlsx(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -4172,6 +4233,7 @@ CERTIFIED_RESULT_PARSERS = {
     "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
+    "idahoCountyCsv": certified_results_idaho_county_csv,
     "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
     "maineCountyTownXlsx": certified_results_maine_county_town_xlsx,
     "marylandCountyHtml": certified_results_maryland_county_html,
