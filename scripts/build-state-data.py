@@ -2329,6 +2329,114 @@ def certified_results_washington_county_html(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_nevada_statewide_html(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    document = path.read_text(encoding="utf-8")
+    contest_heading = re.search(
+        r"<strong>\s*President and Vice President of the United States\s*</strong>.*?"
+        r"<table[^>]*>(?P<table>.*?)</table>",
+        document,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    if not contest_heading:
+        raise ValueError(f"Could not find Nevada presidential results table in {path}")
+
+    table = contest_heading.group("table")
+    header_match = re.search(r"<thead>.*?<tr>(?P<header>.*?)</tr>.*?</thead>", table, flags=re.DOTALL | re.IGNORECASE)
+    if not header_match:
+        raise ValueError(f"Nevada presidential results table missing header in {path}")
+    headers = [clean_html_cell(value) for value in re.findall(r"<th[^>]*>(.*?)</th>", header_match.group("header"), flags=re.DOTALL)]
+    county_headers = headers[3:]
+    if not county_headers:
+        raise ValueError(f"Nevada presidential results table missing county columns in {path}")
+
+    county_lookup = {
+        re.sub(r"[^A-Z0-9]+", "", re.sub(r"\s+county$", "", name, flags=re.IGNORECASE).upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    county_columns = []
+    for county in county_headers:
+        key = re.sub(r"[^A-Z0-9]+", "", county.upper())
+        county_name = county_lookup.get(key)
+        if not county_name:
+            raise ValueError(f"Could not match Nevada county column {county!r} to geometry")
+        county_columns.append(county_name)
+
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    by_county = {county: defaultdict(int) for county in county_columns}
+    reported_totals = defaultdict(int)
+    row_pattern = re.compile(r"<tr>\s*(?P<row>.*?)\s*</tr>", flags=re.DOTALL | re.IGNORECASE)
+    for row_match in row_pattern.finditer(table):
+        cells = [clean_html_cell(value) for value in re.findall(r"<td[^>]*>(.*?)</td>", row_match.group("row"), flags=re.DOTALL)]
+        if len(cells) < len(headers):
+            continue
+        candidate = cells[0]
+        votes = [int_text(value) for value in cells[2 : 3 + len(county_columns)]]
+        statewide_total = votes[0]
+        county_votes = votes[1:]
+        if sum(county_votes) != statewide_total:
+            raise ValueError(f"Nevada statewide total mismatch for {candidate}: {sum(county_votes)} != {statewide_total}")
+
+        if new_york_column_matches(candidate, "", source["majorCandidates"]["trump"]):
+            key = "trump"
+        elif new_york_column_matches(candidate, "", source["majorCandidates"]["harris"]):
+            key = "harris"
+        else:
+            key = "unmappedOther"
+            for item in source.get("otherCandidates", []):
+                if new_york_column_matches(candidate, "", item):
+                    key = item["key"]
+                    break
+
+        reported_totals[key] += statewide_total
+        for county, count in zip(county_columns, county_votes):
+            by_county[county][key] += count
+
+    result_rows = []
+    for county in county_columns:
+        totals = by_county[county]
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    missing_counties = sorted(set(county_lookup.values()) - {row["county"] for row in result_rows})
+    if missing_counties:
+        raise ValueError(f"Nevada presidential results missing county rows: {', '.join(missing_counties)}")
+
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        "unmappedOther": sum(by_county[county]["unmappedOther"] for county in county_columns),
+    }
+    reported_totals = {
+        "trump": reported_totals["trump"],
+        "harris": reported_totals["harris"],
+        **{item["key"]: reported_totals[item["key"]] for item in candidate_labels},
+        "unmappedOther": reported_totals["unmappedOther"],
+    }
+    if parsed_totals != reported_totals:
+        raise ValueError(f"Nevada parsed county totals do not match table totals: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_south_carolina_enr_json(config):
     source = config["certifiedResults"]
     details_path = local_source(config, source["sourceId"])
@@ -4665,6 +4773,178 @@ def turnout_data_michigan_mvic(config):
     }
 
 
+def turnout_data_nebraska_canvass_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name, flags=re.IGNORECASE)
+        for name in geometry_names_by_geoid(config).values()
+    }
+
+    registered_by_county, registered_total = nebraska_voting_statistics_table(
+        lines,
+        "Number of Registered Voters",
+        "Total Voting by Method",
+        county_names,
+        expected_numbers=8,
+    )
+    ballots_by_county, ballots_total = nebraska_voting_statistics_table(
+        lines,
+        "Total Voting by Method",
+        "President and Vice President of the United States",
+        county_names,
+        expected_numbers=7,
+    )
+
+    if set(registered_by_county) != set(ballots_by_county):
+        missing_registered = sorted(set(ballots_by_county) - set(registered_by_county))
+        missing_ballots = sorted(set(registered_by_county) - set(ballots_by_county))
+        raise ValueError(
+            "Nebraska turnout county mismatch: "
+            f"missing registration={missing_registered}; missing ballots={missing_ballots}"
+        )
+    if len(registered_by_county) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Nebraska turnout parsed {len(registered_by_county)} county rows")
+
+    output_rows = []
+    for county in sorted(registered_by_county):
+        registered = registered_by_county[county]["total"]
+        ballots = ballots_by_county[county]["total"]
+        methods = ballots_by_county[county]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": f"{county} County",
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "pollingPlaceVoting": methods["pollingPlaceVoting"],
+                "earlyVoting": methods["earlyVoting"],
+                "allMailPrecincts": methods["allMailPrecincts"],
+                "provisionalBallot": methods["provisionalBallot"],
+                "militaryAndOverseas": methods["militaryAndOverseas"],
+                "newFormerResidentVoting": methods["newFormerResidentVoting"],
+            }
+        )
+
+    if sum(row["registeredVoters"] for row in output_rows) != registered_total["total"]:
+        raise ValueError("Nebraska turnout registration total does not match statewide total")
+    if sum(row["ballotsCast"] for row in output_rows) != ballots_total["total"]:
+        raise ValueError("Nebraska turnout ballots total does not match statewide total")
+
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": path.name,
+            "sourceUrl": source["url"],
+        },
+        "rows": output_rows,
+    }
+
+
+def nebraska_voting_statistics_table(lines, start_heading, end_heading, county_names, *, expected_numbers):
+    start = next(
+        (
+            index
+            for index, line in enumerate(lines)
+            if line == start_heading and index + 1 < len(lines) and not lines[index + 1].startswith(".")
+        ),
+        None,
+    )
+    if start is None:
+        raise ValueError(f"Could not find Nebraska voting statistics heading: {start_heading}")
+    end = next(
+        (
+            index
+            for index in range(start + 1, len(lines))
+            if lines[index].startswith(end_heading)
+        ),
+        None,
+    )
+    if end is None:
+        raise ValueError(f"Could not find Nebraska voting statistics end heading: {end_heading}")
+
+    rows = {}
+    statewide_total = None
+    pending_county = None
+    county_names_by_upper = {county.upper(): county for county in county_names}
+    number_pattern = re.compile(r"\d[\d,]*")
+    header_starts = (
+        "County ",
+        "General Election",
+        "Legal",
+        "Marijuana",
+        "Polling ",
+    )
+
+    for line in lines[start + 1 : end]:
+        if line.startswith(header_starts):
+            continue
+        numbers = number_pattern.findall(line)
+        if not numbers:
+            if line == "Statewide Total":
+                pending_county = "__STATEWIDE__"
+                continue
+            if line.upper() in county_names_by_upper:
+                pending_county = county_names_by_upper[line.upper()]
+            continue
+        if len(numbers) != expected_numbers:
+            continue
+
+        if line.startswith("Statewide Total") or pending_county == "__STATEWIDE__":
+            statewide_total = nebraska_voting_statistics_values(numbers, expected_numbers)
+            pending_county = None
+            continue
+
+        raw_county = pending_county if re.match(r"^\d", line) else re.sub(r"\s+\d[\d,\s]*$", "", line).strip()
+        if not raw_county:
+            continue
+        county = county_names_by_upper.get(raw_county.upper())
+        if not county:
+            continue
+        rows[county] = nebraska_voting_statistics_values(numbers, expected_numbers)
+        pending_county = None
+
+    if statewide_total is None:
+        raise ValueError(f"Nebraska voting statistics table missing statewide total: {start_heading}")
+    return rows, statewide_total
+
+
+def nebraska_voting_statistics_values(numbers, expected_numbers):
+    values = [int_text(value) for value in numbers]
+    if expected_numbers == 8:
+        return {
+            "precincts": values[0],
+            "republican": values[1],
+            "democratic": values[2],
+            "libertarian": values[3],
+            "legalMarijuanaNow": values[4],
+            "noLabelsNebraska": values[5],
+            "nonpartisan": values[6],
+            "total": values[7],
+        }
+    if expected_numbers == 7:
+        return {
+            "pollingPlaceVoting": values[0],
+            "earlyVoting": values[1],
+            "allMailPrecincts": values[2],
+            "provisionalBallot": values[3],
+            "militaryAndOverseas": values[4],
+            "newFormerResidentVoting": values[5],
+            "total": values[6],
+        }
+    raise ValueError(f"Unsupported Nebraska voting statistics width: {expected_numbers}")
+
+
 def extract_pdf_text(path):
     completed = subprocess.run(
         ["node", "scripts/extract-pdf-text.mjs", str(path)],
@@ -5538,6 +5818,7 @@ CERTIFIED_RESULT_PARSERS = {
     "missouriActualResultsPdf": certified_results_missouri_actual_results_pdf,
     "montanaCanvassPdf": certified_results_montana_canvass_pdf,
     "nebraskaCanvassPdf": certified_results_nebraska_canvass_pdf,
+    "nevadaStatewideHtml": certified_results_nevada_statewide_html,
     "nationalCountyBaselineCsv": certified_results_national_county_baseline_csv,
     "newJerseyPresidentPdf": certified_results_new_jersey_president_pdf,
     "northCarolinaEnrZip": certified_results_north_carolina_enr_zip,
@@ -5576,6 +5857,7 @@ TURNOUT_PARSERS = {
     "floridaPrecinctZipTurnout": turnout_data_florida_precinct_zip,
     "xlsxPrecinctRows": turnout_data_xlsx_precinct_rows,
     "michiganMvicCountyTurnout": turnout_data_michigan_mvic,
+    "nebraskaCanvassPdf": turnout_data_nebraska_canvass_pdf,
     "northDakotaTurnoutHtml": turnout_data_north_dakota_html,
     "pennsylvaniaVoteHistoryXlsx": turnout_data_pennsylvania_vote_history_xlsx,
 }
