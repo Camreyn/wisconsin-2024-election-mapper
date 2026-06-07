@@ -10,23 +10,41 @@ const supportedCertifiedFormats = new Set([
   "notConfigured",
   "xlsxPrecinctAggregation",
   "alabamaPrecinctZip",
+  "californiaPresidentXlsx",
+  "certifiedCountyTotalsCsv",
+  "clarityEnrJson",
+  "coloradoCiveraCsv",
+  "civeraContestCountyCsv",
+  "connecticutStatementText",
   "delawareCountyHtml",
   "floridaPrecinctZip",
+  "hawaiiCountySummaryPdfs",
+  "idahoCountyCsv",
+  "illinoisPrecinctCsv",
+  "iowaCanvassPdf",
+  "kansasPresidentialXlsx",
+  "kentuckyCertificationPdf",
   "maineCountyTownXlsx",
+  "massachusettsCountyHtml",
   "marylandCountyHtml",
   "michiganCountyTab",
+  "missouriActualResultsPdf",
   "montanaCanvassPdf",
+  "nebraskaCanvassPdf",
   "nationalCountyBaselineCsv",
   "newJerseyPresidentPdf",
   "northCarolinaEnrZip",
   "newYorkCountyCsv",
   "northDakotaStatewideCsv",
   "oklahomaEnrZip",
+  "oregonMapDataJson",
   "pennsylvaniaBulkCsv",
   "rhodeIslandSummaryXlsx",
   "southCarolinaEnrJson",
   "southDakotaCanvassPdf",
   "tennesseePrecinctXlsx",
+  "totalResultsContestJson",
+  "utahStatewideCanvassPdf",
   "vermontMunicipalityCsv",
   "virginiaLocalityCsv",
   "washingtonCountyHtml",
@@ -294,7 +312,21 @@ function validateCertifiedResults(report) {
   if (format === "xlsxPrecinctAggregation" && !certified.columns) {
     report.errors.push(issue("error", "certified-columns-missing", "XLSX certified results need certifiedResults.columns."));
   }
-  if (format !== "notConfigured" && format !== "xlsxPrecinctAggregation" && !certified.majorCandidates) {
+  if (
+    format !== "notConfigured" &&
+    format !== "xlsxPrecinctAggregation" &&
+    format !== "californiaPresidentXlsx" &&
+    format !== "coloradoCiveraCsv" &&
+    format !== "civeraContestCountyCsv" &&
+    format !== "connecticutStatementText" &&
+    format !== "hawaiiCountySummaryPdfs" &&
+    format !== "idahoCountyCsv" &&
+    format !== "iowaCanvassPdf" &&
+    format !== "kansasPresidentialXlsx" &&
+    format !== "kentuckyCertificationPdf" &&
+    format !== "massachusettsCountyHtml" &&
+    !certified.majorCandidates
+  ) {
     report.errors.push(issue("error", "certified-candidates-missing", `${format} certified results need majorCandidates rules.`));
   }
   if (loaded && Number(report.config.expected?.countyRows || 0) <= 0) {

@@ -1,7 +1,7 @@
 {
   "code": "UT",
   "name": "Utah",
-  "authority": "Utah election authorities via national county baseline",
+  "authority": "Utah Lieutenant Governor / Vote.Utah.gov",
   "electionYear": 2024,
   "office": "President",
   "output": {
@@ -13,6 +13,11 @@
       "id": "national-2024-county-president-results",
       "url": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
       "localFile": "data/national-2024-county-president-results.csv"
+    },
+    {
+      "id": "ut-2024-general-statewide-canvass",
+      "url": "https://vote.utah.gov/wp-content/uploads/2025/02/2024-General-Election-Statewide-Canvass-2.pdf",
+      "localFile": "data/ut-2024-general-statewide-canvass.pdf"
     },
     {
       "id": "ut-county-geometry",
@@ -29,28 +34,91 @@
     "expectedFeatures": 29
   },
   "certifiedResults": {
-    "format": "nationalCountyBaselineCsv",
-    "sourceId": "national-2024-county-president-results",
-    "stateName": "Utah",
+    "format": "utahStatewideCanvassPdf",
+    "sourceId": "ut-2024-general-statewide-canvass",
+    "contest": "U.S. President and Vice President",
+    "expectedCandidateColumns": 10,
+    "orphanInsertIndex": 3,
+    "columns": {
+      "west": 0,
+      "everylove": 1,
+      "skousen": 2,
+      "stein": 3,
+      "trump": 4,
+      "oliver": 5,
+      "harris": 6,
+      "deLaCruz": 7,
+      "bowman": 8,
+      "wilkerson": 9
+    },
+    "statewideTotals": {
+      "west": 2199,
+      "everylove": 2653,
+      "skousen": 8402,
+      "stein": 8222,
+      "trump": 883818,
+      "oliver": 16902,
+      "harris": 562566,
+      "deLaCruz": 3189,
+      "bowman": 59,
+      "wilkerson": 0
+    },
+    "contestTotalVotes": 1488494,
     "majorCandidates": {
       "trump": {
-        "candidateContains": "votes_gop"
+        "candidateContains": "Donald J. Trump"
       },
       "harris": {
-        "candidateContains": "votes_dem"
+        "candidateContains": "Kamala D. Harris"
       }
     },
-    "metadataNotes": "Aggregated from the national 2024 county presidential baseline CSV. Source Planner marks this as a baseline import pending replacement by a native official state export where available.",
+    "metadataNotes": "Aggregated from the official Utah 2024 General Election Statewide Canvass PDF. County candidate totals sum to 1,488,010; the canvass also reports 1,488,494 total votes cast in the contest.",
     "otherCandidates": [
       {
-        "key": "nationalOther",
-        "label": "Other candidates"
+        "key": "west",
+        "label": "Cornel Ronald West and Melina Abdullah (UNA)",
+        "column": 0
+      },
+      {
+        "key": "everylove",
+        "label": "Lucifer \"JustinCase\" Everylove (UNA)",
+        "column": 1
+      },
+      {
+        "key": "skousen",
+        "label": "Joel Skousen and Rik Combs (CON)",
+        "column": 2
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein and Rudolph Ware (GRN)",
+        "column": 3
+      },
+      {
+        "key": "oliver",
+        "label": "Chase Oliver and Mike ter Maat (LIB)",
+        "column": 5
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De La Cruz and Karina Alexandra Garcia (UNA)",
+        "column": 7
+      },
+      {
+        "key": "bowman",
+        "label": "Jay J Bowman and OE D. Bowman",
+        "column": 8
+      },
+      {
+        "key": "wilkerson",
+        "label": "Buddie Wilkerson and Arden (UNA)",
+        "column": 9
       }
     ]
   },
   "reviewCharts": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ut-2024-general-statewide-canvass",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -59,10 +127,10 @@
   },
   "turnout": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ut-2024-general-statewide-canvass",
     "registrationDenominatorTiming": "notLoaded",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "notes": "Turnout is not loaded from the statewide canvass PDF because it does not include registered-voter denominators.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -88,40 +156,40 @@
     },
     "sourcePlan": {
       "certifiedResults": {
-        "title": "Utah national baseline presidential county results",
-        "detail": "County-level presidential rows are imported from the public national 2024 county results baseline. This is the app floor for broad state coverage and should be replaced by a native official state export/parser when one is collected.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ut-app-data.js",
+        "title": "Utah 2024 General Election Statewide Canvass presidential county results",
+        "detail": "County-level presidential rows are parsed from the official Utah statewide canvass PDF published by Vote.Utah.gov. The parser reconciles candidate columns to the PDF totals and records the separate total votes cast in contest.",
+        "sourceUrl": "https://vote.utah.gov/wp-content/uploads/2025/02/2024-General-Election-Statewide-Canvass-2.pdf",
+        "localFile": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Downloaded from tonmcg/US_County_Level_Election_Results_08-24; repository README says the data are compiled from reputable public sources but are not authoritative.",
+        "sourceTimestampBasis": "Vote.Utah.gov 2024 election information page labels this PDF as the 2024 November General Election Statewide Canvass.",
         "status": "Loaded"
       },
       "wardDetail": {
         "title": "Utah precinct or reporting-unit detail",
-        "detail": "The baseline import is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ut-app-data.js",
+        "detail": "The statewide canvass source is county-level for the presidential race. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://vote.utah.gov/2024-election-information/",
+        "localFile": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source checked during broad state import.",
+        "sourceTimestampBasis": "Statewide canvass source is county-level for this parser.",
         "status": "Needs precinct source"
       },
       "turnout": {
         "title": "Utah turnout denominator",
-        "detail": "The baseline import does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ut-app-data.js",
+        "detail": "The statewide canvass PDF does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "sourceUrl": "https://vote.utah.gov/2024-election-information/",
+        "localFile": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
+        "sourceTimestampBasis": "Official statewide canvass lacks registered-voter denominator fields.",
         "status": "Needs denominator source"
       }
     },
     "sourceInventory": [
       {
-        "category": "Baseline presidential county results",
-        "file": "data/national-2024-county-president-results.csv; data/ut-app-data.js",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "usedFor": "Utah 2024 presidential county result baseline.",
-        "confidence": "Public national county-level results baseline; not a substitute for a native official state parser."
+        "category": "Presidential county results",
+        "file": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
+        "sourceUrl": "https://vote.utah.gov/wp-content/uploads/2025/02/2024-General-Election-Statewide-Canvass-2.pdf",
+        "usedFor": "Utah 2024 presidential county table, statewide candidate totals, CSV export, and Source Planner rows.",
+        "confidence": "Official Utah statewide canvass PDF published by Vote.Utah.gov."
       },
       {
         "category": "County boundaries",
@@ -135,16 +203,16 @@
       {
         "category": "National county baseline",
         "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "reason": "Useful for broad app coverage, but the repository itself notes that the compiled results are not authoritative. Promote this state to a native official source when possible.",
-        "status": "Baseline only",
-        "nextStep": "Collect a native official state export, add a parser if needed, and reconcile totals."
+        "reason": "Superseded for Utah by the official Vote.Utah.gov 2024 General Election Statewide Canvass PDF.",
+        "status": "Superseded",
+        "nextStep": "Keep the official statewide canvass PDF as the authoritative Utah presidential county source."
       }
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
       "status": "Needs denominator source",
       "acceptedSource": "Not loaded yet.",
-      "warning": "Utah turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "warning": "Utah turnout should not be inferred from the statewide canvass PDF because it lacks registered-voter denominators.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -162,10 +230,10 @@
   "expected": {
     "countyRows": 29,
     "precinctRows": 29,
-    "stateTotal": 1487951,
+    "stateTotal": 1488010,
     "trump": 883818,
     "harris": 562566,
-    "other": 41567,
+    "other": 41626,
     "reviewRows": 0,
     "turnoutRows": 0,
     "turnoutWarningRows": 0,

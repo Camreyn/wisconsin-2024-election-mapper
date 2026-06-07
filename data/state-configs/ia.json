@@ -1,7 +1,7 @@
 {
   "code": "IA",
   "name": "Iowa",
-  "authority": "Iowa election authorities via national county baseline",
+  "authority": "Iowa Secretary of State",
   "electionYear": 2024,
   "office": "President",
   "output": {
@@ -10,9 +10,9 @@
   },
   "sources": [
     {
-      "id": "national-2024-county-president-results",
-      "url": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-      "localFile": "data/national-2024-county-president-results.csv"
+      "id": "ia-2024-general-canvass-summary",
+      "url": "https://mccmeetingspublic.blob.core.usgovcloudapi.net/iowasttres-meet-970af300230e49f4a38af865c7c6f3e2/ITEM-Attachment-001-d44b1fc6731f443ca3c2a9f7d3823f2f.pdf",
+      "localFile": "data/ia-2024-general-canvass-summary.pdf"
     },
     {
       "id": "ia-county-geometry",
@@ -29,28 +29,53 @@
     "expectedFeatures": 99
   },
   "certifiedResults": {
-    "format": "nationalCountyBaselineCsv",
-    "sourceId": "national-2024-county-president-results",
-    "stateName": "Iowa",
-    "majorCandidates": {
-      "trump": {
-        "candidateContains": "votes_gop"
-      },
-      "harris": {
-        "candidateContains": "votes_dem"
-      }
+    "format": "iowaCanvassPdf",
+    "sourceId": "ia-2024-general-canvass-summary",
+    "contest": "President and Vice President",
+    "columns": {
+      "harris": 0,
+      "trump": 1,
+      "oliver": 2,
+      "ayyadurai": 3,
+      "deLaCruz": 4,
+      "stodden": 5,
+      "kennedy": 6,
+      "writeIn": 7,
+      "underVotes": 8,
+      "overVotes": 9,
+      "ballotsTotal": 10
     },
-    "metadataNotes": "Aggregated from the national 2024 county presidential baseline CSV. Source Planner marks this as a baseline import pending replacement by a native official state export where available.",
+    "metadataNotes": "Official Iowa Secretary of State 2024 General Election canvass summary PDF. County candidate totals are parsed from the President and Vice President Total rows and reconciled against the statewide Total row.",
     "otherCandidates": [
       {
-        "key": "nationalOther",
-        "label": "Other candidates"
+        "key": "oliver",
+        "label": "Chase Oliver"
+      },
+      {
+        "key": "ayyadurai",
+        "label": "Shiva Ayyadurai"
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De la Cruz"
+      },
+      {
+        "key": "stodden",
+        "label": "William P. Stodden"
+      },
+      {
+        "key": "kennedy",
+        "label": "Robert F. Kennedy Jr."
+      },
+      {
+        "key": "writeIn",
+        "label": "Write-in"
       }
     ]
   },
   "reviewCharts": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ia-2024-general-canvass-summary",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -59,10 +84,10 @@
   },
   "turnout": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ia-2024-general-canvass-summary",
     "registrationDenominatorTiming": "notLoaded",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "notes": "Iowa turnout is not loaded yet. The canvass summary PDF includes ballots cast for contest rows, but registered-voter denominators require a separate official registration or turnout source.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -88,40 +113,40 @@
     },
     "sourcePlan": {
       "certifiedResults": {
-        "title": "Iowa national baseline presidential county results",
-        "detail": "County-level presidential rows are imported from the public national 2024 county results baseline. This is the app floor for broad state coverage and should be replaced by a native official state export/parser when one is collected.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ia-app-data.js",
+        "title": "Iowa official presidential county results",
+        "detail": "County presidential totals are parsed from the Iowa Secretary of State 2024 General Election canvass summary PDF, using the President and Vice President county Total rows and reconciling them to the statewide Total row.",
+        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
+        "localFile": "data/ia-2024-general-canvass-summary.pdf; data/ia-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Downloaded from tonmcg/US_County_Level_Election_Results_08-24; repository README says the data are compiled from reputable public sources but are not authoritative.",
+        "sourceTimestampBasis": "Iowa Secretary of State canvass summary identifies the 2024 General Election held November 5, 2024 and a canvass date of December 2, 2024. Local copy was collected from the Iowa state board meeting attachment because the SOS CDN blocks command-line downloads.",
         "status": "Loaded"
       },
       "wardDetail": {
         "title": "Iowa precinct or reporting-unit detail",
-        "detail": "The baseline import is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ia-app-data.js",
+        "detail": "The loaded statewide canvass source is county-level for this pipeline. Review drilldowns need an official precinct or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
+        "localFile": "data/ia-2024-general-canvass-summary.pdf; data/ia-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source checked during broad state import.",
+        "sourceTimestampBasis": "State canvass summary was checked during Iowa official-source promotion.",
         "status": "Needs precinct source"
       },
       "turnout": {
         "title": "Iowa turnout denominator",
-        "detail": "The baseline import does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ia-app-data.js",
+        "detail": "The canvass summary includes contest vote totals, undervotes, and overvotes, but no registered-voter denominator. Turnout should stay disabled until an official registration or turnout source is mapped.",
+        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
+        "localFile": "data/ia-2024-general-canvass-summary.pdf; data/ia-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
+        "sourceTimestampBasis": "Official canvass summary lacks registered-voter denominator fields.",
         "status": "Needs denominator source"
       }
     },
     "sourceInventory": [
       {
-        "category": "Baseline presidential county results",
-        "file": "data/national-2024-county-president-results.csv; data/ia-app-data.js",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "usedFor": "Iowa 2024 presidential county result baseline.",
-        "confidence": "Public national county-level results baseline; not a substitute for a native official state parser."
+        "category": "Official presidential county results",
+        "file": "data/ia-2024-general-canvass-summary.pdf; data/ia-app-data.js",
+        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
+        "usedFor": "Iowa 2024 certified presidential county results.",
+        "confidence": "Official Iowa Secretary of State statewide canvass summary PDF, collected from the Iowa state board meeting attachment copy when the SOS CDN blocked command-line download."
       },
       {
         "category": "County boundaries",
@@ -135,16 +160,16 @@
       {
         "category": "National county baseline",
         "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "reason": "Useful for broad app coverage, but the repository itself notes that the compiled results are not authoritative. Promote this state to a native official source when possible.",
-        "status": "Baseline only",
-        "nextStep": "Collect a native official state export, add a parser if needed, and reconcile totals."
+        "reason": "Superseded for Iowa by the official Iowa Secretary of State 2024 General Election canvass summary PDF.",
+        "status": "Superseded",
+        "nextStep": "Keep the official canvass PDF parser as the authoritative Iowa presidential county source."
       }
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
       "status": "Needs denominator source",
       "acceptedSource": "Not loaded yet.",
-      "warning": "Iowa turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "warning": "Iowa turnout should not be inferred from presidential contest totals; use an official registration or turnout denominator source before enabling turnout.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -153,19 +178,19 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "Iowa reporting-unit row",
-    "reviewRowLabelPlural": "Iowa reporting-unit rows",
-    "reviewGraphTitlePrefix": "Iowa reporting unit",
+    "reviewRowLabel": "Iowa county row",
+    "reviewRowLabelPlural": "Iowa county rows",
+    "reviewGraphTitlePrefix": "Iowa county",
     "mapLoadingText": "Loading local Iowa county boundaries...",
     "noGeometryText": "Iowa county geometry is not loaded yet; showing the tile fallback."
   },
   "expected": {
     "countyRows": 99,
     "precinctRows": 99,
-    "stateTotal": 1656849,
+    "stateTotal": 1663506,
     "trump": 927019,
     "harris": 707278,
-    "other": 22552,
+    "other": 29209,
     "reviewRows": 0,
     "turnoutRows": 0,
     "turnoutWarningRows": 0,
