@@ -671,6 +671,88 @@ def certified_results_virginia_locality_csv(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def normalize_vermont_municipality(value, aliases):
+    value = aliases.get(value, value)
+    value = value.replace("St.", "Saint").replace("W.", "West")
+    return re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+
+
+def certified_results_vermont_municipality_csv(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    map_source = source["municipalityMapSourceId"]
+    map_path = local_source(config, map_source)
+    county_names = geometry_names_by_geoid(config)
+    aliases = source.get("municipalityAliases", {})
+    suffix_aliases = source.get("municipalitySuffixAliases", {})
+    columns = source["columns"]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+
+    subdivision_lookup = defaultdict(list)
+    subdivision_geojson = json.loads(map_path.read_text(encoding="utf-8"))
+    for feature in subdivision_geojson.get("features", []):
+        props = feature.get("properties", {})
+        county_code = str(props.get("COUNTY") or "").zfill(3)
+        state_code = str(props.get("STATE") or "")
+        county = county_names.get(f"{state_code}{county_code}")
+        basename = props.get("BASENAME")
+        full_name = props.get("NAME") or ""
+        if county and basename:
+            key = normalize_vermont_municipality(basename, aliases)
+            subdivision_lookup[key].append({"county": county, "name": full_name.lower()})
+
+    by_county = defaultdict(lambda: defaultdict(int))
+    missing = []
+    precinct_rows = 0
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            municipality = str(row.get(columns["municipality"], "")).strip()
+            if not municipality or municipality == source.get("partyRowLabel", ""):
+                continue
+            if municipality in source.get("skipRows", []):
+                continue
+            candidates = subdivision_lookup.get(normalize_vermont_municipality(municipality, aliases), [])
+            suffix = suffix_aliases.get(municipality)
+            if suffix:
+                candidates = [item for item in candidates if item["name"].endswith(suffix)]
+            if len(candidates) != 1:
+                missing.append(municipality)
+                continue
+
+            precinct_rows += 1
+            totals = by_county[candidates[0]["county"]]
+            totals["trump"] += int_text(row.get(columns["trump"]))
+            totals["harris"] += int_text(row.get(columns["harris"]))
+            for candidate in source.get("otherCandidates", []):
+                totals[candidate["key"]] += int_text(row.get(columns[candidate["column"]]))
+
+    if missing:
+        raise ValueError(f"Vermont municipality rows could not be mapped to a county: {', '.join(sorted(missing))}")
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels)
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, precinct_rows
+
+
 def geometry_names_by_geoid(config):
     geometry = config.get("geometry", {})
     source_id = geometry.get("sourceId")
@@ -3802,6 +3884,7 @@ CERTIFIED_RESULT_PARSERS = {
     "southCarolinaEnrJson": certified_results_south_carolina_enr_json,
     "southDakotaCanvassPdf": certified_results_south_dakota_canvass_pdf,
     "tennesseePrecinctXlsx": certified_results_tennessee_precinct_xlsx,
+    "vermontMunicipalityCsv": certified_results_vermont_municipality_csv,
     "virginiaLocalityCsv": certified_results_virginia_locality_csv,
     "washingtonCountyHtml": certified_results_washington_county_html,
     "wyomingStatewideSummaryXlsx": certified_results_wyoming_statewide_summary_xlsx,
