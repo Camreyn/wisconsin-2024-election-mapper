@@ -615,6 +615,79 @@ def certified_results_idaho_county_csv(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_illinois_precinct_csv(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    county_lookup = {
+        re.sub(r"[^A-Z0-9]+", "", re.sub(r"\s+county$", "", county, flags=re.IGNORECASE).upper()): county
+        for county in geometry_names_by_geoid(config).values()
+    }
+    jurisdiction_aliases = {
+        key.upper(): value
+        for key, value in source.get("jurisdictionAliases", {}).items()
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    excluded_candidates = [item.upper() for item in source.get("excludedCandidates", [])]
+    by_county = defaultdict(lambda: defaultdict(int))
+    source_rows = 0
+
+    def candidate_key(name):
+        upper_name = name.upper()
+        if any(excluded in upper_name for excluded in excluded_candidates):
+            return None
+        if new_york_column_matches(name, "", source["majorCandidates"]["trump"]):
+            return "trump"
+        if new_york_column_matches(name, "", source["majorCandidates"]["harris"]):
+            return "harris"
+        for item in source.get("otherCandidates", []):
+            if new_york_column_matches(name, "", item):
+                return item["key"]
+        return "unmappedOther"
+
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            if row.get("ContestName") != source.get("contestName", "PRESIDENT AND VICE PRESIDENT"):
+                continue
+            source_rows += 1
+            raw_jurisdiction = (row.get("JurisName") or "").strip()
+            county_name = jurisdiction_aliases.get(raw_jurisdiction.upper(), raw_jurisdiction)
+            county_key = re.sub(r"[^A-Z0-9]+", "", re.sub(r"\s+county$", "", county_name, flags=re.IGNORECASE).upper())
+            county = county_lookup.get(county_key)
+            if not county:
+                raise ValueError(f"Could not match Illinois jurisdiction {raw_jurisdiction!r} to county geometry")
+            key = candidate_key(row.get("CandidateName") or "")
+            if not key:
+                continue
+            by_county[county][key] += int_text(row.get("VoteCount"))
+
+    missing_counties = sorted(set(county_lookup.values()) - set(by_county))
+    if missing_counties:
+        raise ValueError(f"Illinois CSV missing county rows: {', '.join(missing_counties)}")
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, source_rows
+
+
 def certified_results_civera_contest_county_csv(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -5189,6 +5262,7 @@ CERTIFIED_RESULT_PARSERS = {
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
     "hawaiiCountySummaryPdfs": certified_results_hawaii_county_summary_pdfs,
     "idahoCountyCsv": certified_results_idaho_county_csv,
+    "illinoisPrecinctCsv": certified_results_illinois_precinct_csv,
     "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
     "kansasPresidentialXlsx": certified_results_kansas_presidential_xlsx,
     "kentuckyCertificationPdf": certified_results_kentucky_certification_pdf,

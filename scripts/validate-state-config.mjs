@@ -19,6 +19,7 @@ const supportedCertifiedFormats = new Set([
   "floridaPrecinctZip",
   "hawaiiCountySummaryPdfs",
   "idahoCountyCsv",
+  "illinoisPrecinctCsv",
   "iowaCanvassPdf",
   "kansasPresidentialXlsx",
   "kentuckyCertificationPdf",
