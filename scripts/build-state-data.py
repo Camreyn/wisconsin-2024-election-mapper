@@ -615,6 +615,77 @@ def certified_results_idaho_county_csv(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_county_totals_csv(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    columns = source["columns"]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    county_lookup = {
+        re.sub(r"[^A-Z0-9]+", "", county.upper()): county
+        for county in geometry_names_by_geoid(config).values()
+    }
+    reported_totals = None
+    result_rows = []
+
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            raw_county = str(row.get(columns["county"], "") or "").strip()
+            if not raw_county:
+                continue
+            totals = {
+                "trump": int_text(row.get(columns["trump"])),
+                "harris": int_text(row.get(columns["harris"])),
+                **{item["key"]: int_text(row.get(columns[item["column"]])) for item in source.get("otherCandidates", [])},
+            }
+            other = sum(totals[item["key"]] for item in candidate_labels)
+            total = totals["trump"] + totals["harris"] + other
+            reported_total = int_text(row.get(columns["totalVotesCast"]))
+            if reported_total and total != reported_total:
+                raise ValueError(f"Candidate total mismatch for {raw_county}: {total} != {reported_total}")
+
+            if raw_county == source.get("totalsLabel", "Totals"):
+                reported_totals = {**totals, "total": reported_total or total}
+                continue
+
+            county_key = re.sub(r"[^A-Z0-9]+", "", raw_county.upper())
+            county = county_lookup.get(county_key)
+            if not county:
+                raise ValueError(f"Could not match county totals CSV row {raw_county!r} to geometry")
+
+            margin = totals["trump"] - totals["harris"]
+            result_rows.append(
+                {
+                    "county": county,
+                    "trump": totals["trump"],
+                    "trumpPct": pct(totals["trump"], total),
+                    "harris": totals["harris"],
+                    "harrisPct": pct(totals["harris"], total),
+                    "other": other,
+                    "otherPct": pct(other, total),
+                    **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                    "margin": margin,
+                    "marginPct": round((margin / total) * 100, 4) if total else 0,
+                    "total": total,
+                }
+            )
+
+    missing_counties = sorted(set(county_lookup.values()) - {row["county"] for row in result_rows})
+    if missing_counties:
+        raise ValueError(f"County totals CSV missing county rows: {', '.join(missing_counties)}")
+
+    if reported_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+            "total": sum(row["total"] for row in result_rows),
+        }
+        if parsed_totals != reported_totals:
+            raise ValueError(f"Parsed county totals do not match CSV totals: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_illinois_precinct_csv(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -5257,6 +5328,7 @@ CERTIFIED_RESULT_PARSERS = {
     "clarityEnrJson": certified_results_south_carolina_enr_json,
     "coloradoCiveraCsv": certified_results_civera_contest_county_csv,
     "civeraContestCountyCsv": certified_results_civera_contest_county_csv,
+    "certifiedCountyTotalsCsv": certified_results_county_totals_csv,
     "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,
