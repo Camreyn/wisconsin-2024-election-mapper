@@ -13,6 +13,7 @@ const supportedCertifiedFormats = new Set([
   "californiaPresidentXlsx",
   "clarityEnrJson",
   "coloradoCiveraCsv",
+  "civeraContestCountyCsv",
   "connecticutStatementText",
   "delawareCountyHtml",
   "floridaPrecinctZip",
@@ -312,6 +313,7 @@ function validateCertifiedResults(report) {
     format !== "xlsxPrecinctAggregation" &&
     format !== "californiaPresidentXlsx" &&
     format !== "coloradoCiveraCsv" &&
+    format !== "civeraContestCountyCsv" &&
     format !== "connecticutStatementText" &&
     format !== "hawaiiCountySummaryPdfs" &&
     format !== "idahoCountyCsv" &&
