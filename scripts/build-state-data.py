@@ -964,6 +964,81 @@ def certified_results_kansas_presidential_xlsx(config):
     return result_rows, candidate_labels, len(precinct_keys)
 
 
+def certified_results_kentucky_certification_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    county_lookup = {
+        re.sub(r"\s+county$", "", county, flags=re.IGNORECASE).lower(): county
+        for county in geometry_names_by_geoid(config).values()
+    }
+    aliases = {key.lower(): value.lower() for key, value in source.get("countyAliases", {}).items()}
+    candidate_columns = source["candidateColumns"]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    by_county = {}
+    reported_totals = None
+    in_president_section = False
+
+    row_pattern = re.compile(r"^(.+?)\s+((?:[\d,]+\s+){%d}[\d,]+)$" % (len(candidate_columns) - 1))
+    for raw_line in extract_pdf_text(path).splitlines():
+        line = raw_line.strip()
+        if line == "President and Vice President of the United States":
+            in_president_section = True
+            continue
+        if not in_president_section:
+            continue
+        if line.startswith("United States Representative"):
+            break
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        raw_county = match.group(1).strip()
+        values = [int_text(value) for value in match.group(2).split()]
+        if raw_county == "Total Votes":
+            reported_totals = dict(zip(candidate_columns, values))
+            continue
+        lookup_key = re.sub(r"\s+", " ", raw_county.lower())
+        county = county_lookup.get(lookup_key) or county_lookup.get(aliases.get(lookup_key, ""))
+        if not county:
+            continue
+        by_county[county] = dict(zip(candidate_columns, values))
+
+    if reported_totals is None:
+        raise ValueError(f"Could not find Kentucky presidential Total Votes row in {path}")
+    missing_counties = sorted(set(county_lookup.values()) - set(by_county))
+    if missing_counties:
+        raise ValueError(f"Kentucky certification PDF missing county rows: {', '.join(missing_counties)}")
+
+    parsed_totals = {
+        key: sum(totals[key] for totals in by_county.values())
+        for key in candidate_columns
+    }
+    if parsed_totals != reported_totals:
+        raise ValueError(f"Kentucky county totals do not match PDF Total Votes row: {parsed_totals} != {reported_totals}")
+
+    result_rows = []
+    for county, totals in by_county.items():
+        other = sum(totals[item["key"]] for item in candidate_labels)
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_virginia_locality_csv(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -5000,6 +5075,7 @@ CERTIFIED_RESULT_PARSERS = {
     "idahoCountyCsv": certified_results_idaho_county_csv,
     "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
     "kansasPresidentialXlsx": certified_results_kansas_presidential_xlsx,
+    "kentuckyCertificationPdf": certified_results_kentucky_certification_pdf,
     "maineCountyTownXlsx": certified_results_maine_county_town_xlsx,
     "massachusettsCountyHtml": certified_results_massachusetts_county_html,
     "marylandCountyHtml": certified_results_maryland_county_html,

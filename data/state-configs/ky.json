@@ -1,7 +1,7 @@
 {
   "code": "KY",
   "name": "Kentucky",
-  "authority": "Kentucky election authorities via national county baseline",
+  "authority": "Kentucky State Board of Elections",
   "electionYear": 2024,
   "office": "President",
   "output": {
@@ -10,9 +10,9 @@
   },
   "sources": [
     {
-      "id": "national-2024-county-president-results",
-      "url": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-      "localFile": "data/national-2024-county-president-results.csv"
+      "id": "ky-2024-general-election-certification",
+      "url": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
+      "localFile": "data/ky-2024-general-election-certification.pdf"
     },
     {
       "id": "ky-county-geometry",
@@ -29,28 +29,97 @@
     "expectedFeatures": 120
   },
   "certifiedResults": {
-    "format": "nationalCountyBaselineCsv",
-    "sourceId": "national-2024-county-president-results",
-    "stateName": "Kentucky",
-    "majorCandidates": {
-      "trump": {
-        "candidateContains": "votes_gop"
-      },
-      "harris": {
-        "candidateContains": "votes_dem"
-      }
+    "format": "kentuckyCertificationPdf",
+    "sourceId": "ky-2024-general-election-certification",
+    "candidateColumns": [
+      "trump",
+      "harris",
+      "kennedy",
+      "stein",
+      "oliver",
+      "ayyadurai",
+      "sonski",
+      "deLaCruz",
+      "west",
+      "soderna",
+      "bowman",
+      "kishore",
+      "cheng",
+      "kelley",
+      "fox",
+      "mcneil",
+      "futureMadamPotus"
+    ],
+    "countyAliases": {
+      "larue": "larue"
     },
-    "metadataNotes": "Aggregated from the national 2024 county presidential baseline CSV. Source Planner marks this as a baseline import pending replacement by a native official state export where available.",
+    "metadataNotes": "Official Kentucky State Board of Elections 2024 General Election Certification as amended on December 9, 2024. The parser reads the President and Vice President county rows from the certification PDF and reconciles them against the PDF Total Votes row.",
     "otherCandidates": [
       {
-        "key": "nationalOther",
-        "label": "Other candidates"
+        "key": "kennedy",
+        "label": "Robert F. Kennedy Jr."
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein"
+      },
+      {
+        "key": "oliver",
+        "label": "Chase Oliver"
+      },
+      {
+        "key": "ayyadurai",
+        "label": "Shiva Ayyadurai"
+      },
+      {
+        "key": "sonski",
+        "label": "Peter Sonski"
+      },
+      {
+        "key": "deLaCruz",
+        "label": "Claudia De La Cruz"
+      },
+      {
+        "key": "west",
+        "label": "Cornel West"
+      },
+      {
+        "key": "soderna",
+        "label": "James Soderna"
+      },
+      {
+        "key": "bowman",
+        "label": "Jay Bowman"
+      },
+      {
+        "key": "kishore",
+        "label": "Joseph Kishore"
+      },
+      {
+        "key": "cheng",
+        "label": "John Cheng"
+      },
+      {
+        "key": "kelley",
+        "label": "Billy Kelley Jr."
+      },
+      {
+        "key": "fox",
+        "label": "Cherunda Fox"
+      },
+      {
+        "key": "mcneil",
+        "label": "Andre Ramon McNeil Sr."
+      },
+      {
+        "key": "futureMadamPotus",
+        "label": "Future Madam POTUS"
       }
     ]
   },
   "reviewCharts": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ky-2024-general-election-certification",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -59,10 +128,10 @@
   },
   "turnout": {
     "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "sourceId": "ky-2024-general-election-certification",
     "registrationDenominatorTiming": "notLoaded",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "notes": "Turnout is not loaded yet. The official certification PDF includes presidential candidate votes by county but does not include registered-voter denominators.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -88,40 +157,40 @@
     },
     "sourcePlan": {
       "certifiedResults": {
-        "title": "Kentucky national baseline presidential county results",
-        "detail": "County-level presidential rows are imported from the public national 2024 county results baseline. This is the app floor for broad state coverage and should be replaced by a native official state export/parser when one is collected.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ky-app-data.js",
+        "title": "Kentucky official presidential county results",
+        "detail": "County-level presidential rows are parsed from the official Kentucky State Board of Elections 2024 General Election Certification as amended on December 9, 2024. The parser reconciles county candidate sums against the PDF Total Votes row.",
+        "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
+        "localFile": "data/ky-2024-general-election-certification.pdf; data/ky-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Downloaded from tonmcg/US_County_Level_Election_Results_08-24; repository README says the data are compiled from reputable public sources but are not authoritative.",
+        "sourceTimestampBasis": "Official Kentucky State Board of Elections certification PDF for the November 5, 2024 General Election, amended on December 9, 2024.",
         "status": "Loaded"
       },
       "wardDetail": {
         "title": "Kentucky precinct or reporting-unit detail",
-        "detail": "The baseline import is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ky-app-data.js",
+        "detail": "The certification PDF is county-level for this parser. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
+        "localFile": "data/ky-2024-general-election-certification.pdf; data/ky-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source checked during broad state import.",
+        "sourceTimestampBasis": "Certification PDF is county-level for the presidential contest.",
         "status": "Needs precinct source"
       },
       "turnout": {
         "title": "Kentucky turnout denominator",
-        "detail": "The baseline import does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/ky-app-data.js",
+        "detail": "The certification PDF includes presidential vote totals by county but no registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
+        "localFile": "data/ky-2024-general-election-certification.pdf; data/ky-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
+        "sourceTimestampBasis": "Certification PDF lacks registered-voter denominator fields.",
         "status": "Needs denominator source"
       }
     },
     "sourceInventory": [
       {
-        "category": "Baseline presidential county results",
-        "file": "data/national-2024-county-president-results.csv; data/ky-app-data.js",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "usedFor": "Kentucky 2024 presidential county result baseline.",
-        "confidence": "Public national county-level results baseline; not a substitute for a native official state parser."
+        "category": "Certified presidential county results",
+        "file": "data/ky-2024-general-election-certification.pdf; data/ky-app-data.js",
+        "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
+        "usedFor": "Kentucky 2024 presidential county results.",
+        "confidence": "Official Kentucky State Board of Elections certification PDF; county rows reconcile to the PDF Total Votes row."
       },
       {
         "category": "County boundaries",
@@ -135,16 +204,16 @@
       {
         "category": "National county baseline",
         "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "reason": "Useful for broad app coverage, but the repository itself notes that the compiled results are not authoritative. Promote this state to a native official source when possible.",
-        "status": "Baseline only",
-        "nextStep": "Collect a native official state export, add a parser if needed, and reconcile totals."
+        "reason": "Replaced by the official Kentucky State Board of Elections certification PDF and kentuckyCertificationPdf parser.",
+        "status": "Replaced",
+        "nextStep": "Keep only as a broad national fallback for states without official-source parsers."
       }
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
       "status": "Needs denominator source",
       "acceptedSource": "Not loaded yet.",
-      "warning": "Kentucky turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "warning": "Kentucky turnout should not be inferred from the certification presidential vote totals because registered-voter denominators are not mapped.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -162,10 +231,10 @@
   "expected": {
     "countyRows": 120,
     "precinctRows": 120,
-    "stateTotal": 2073309,
+    "stateTotal": 2074530,
     "trump": 1337494,
     "harris": 704043,
-    "other": 31772,
+    "other": 32993,
     "reviewRows": 0,
     "turnoutRows": 0,
     "turnoutWarningRows": 0,

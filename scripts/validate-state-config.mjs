@@ -21,6 +21,7 @@ const supportedCertifiedFormats = new Set([
   "idahoCountyCsv",
   "iowaCanvassPdf",
   "kansasPresidentialXlsx",
+  "kentuckyCertificationPdf",
   "maineCountyTownXlsx",
   "massachusettsCountyHtml",
   "marylandCountyHtml",
@@ -319,6 +320,7 @@ function validateCertifiedResults(report) {
     format !== "idahoCountyCsv" &&
     format !== "iowaCanvassPdf" &&
     format !== "kansasPresidentialXlsx" &&
+    format !== "kentuckyCertificationPdf" &&
     format !== "massachusettsCountyHtml" &&
     !certified.majorCandidates
   ) {
