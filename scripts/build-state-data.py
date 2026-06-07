@@ -615,6 +615,83 @@ def certified_results_idaho_county_csv(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_colorado_civera_csv(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if len(rows) < 3:
+        raise ValueError(f"Colorado results CSV has too few rows: {path}")
+
+    header = rows[0]
+    columns = source["columns"]
+    column_index = {name: index for index, name in enumerate(header)}
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+    reported_totals = None
+
+    def row_totals(row):
+        totals = {
+            "harris": int_text(row[column_index[columns["harris"]]]),
+            "trump": int_text(row[column_index[columns["trump"]]]),
+            **{
+                item["key"]: int_text(row[column_index[columns[item["column"]]]])
+                for item in source.get("otherCandidates", [])
+            },
+        }
+        other = sum(totals[item["key"]] for item in candidate_labels)
+        total = totals["harris"] + totals["trump"] + other
+        reported_total = int_text(row[column_index[columns["totalVotesCast"]]])
+        if total != reported_total:
+            raise ValueError(f"Colorado candidate total mismatch for {row[1]}: {total} != {reported_total}")
+        return totals, total
+
+    for row in rows[2:]:
+        if len(row) < len(header):
+            continue
+        row_type = str(row[0] or "").strip()
+        county = str(row[1] or "").strip()
+        if row_type not in {"State", "County"}:
+            continue
+        totals, total = row_totals(row)
+        if row_type == "State":
+            reported_totals = {**totals, "total": total}
+            continue
+
+        other_values = {item["key"]: totals[item["key"]] for item in candidate_labels}
+        other = sum(other_values.values())
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    if not reported_totals:
+        raise ValueError(f"Could not find Colorado State row in {path}")
+
+    parsed_totals = {
+        "harris": sum(row["harris"] for row in result_rows),
+        "trump": sum(row["trump"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        "total": sum(row["total"] for row in result_rows),
+    }
+    if parsed_totals != reported_totals:
+        raise ValueError(f"Colorado parsed county totals do not match CSV state row: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_maine_county_town_xlsx(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -4230,6 +4307,7 @@ CERTIFIED_RESULT_PARSERS = {
     "xlsxPrecinctAggregation": certified_results_xlsx_precinct_aggregation,
     "alabamaPrecinctZip": certified_results_alabama_precinct_zip,
     "californiaPresidentXlsx": certified_results_california_president_xlsx,
+    "coloradoCiveraCsv": certified_results_colorado_civera_csv,
     "connecticutStatementText": certified_results_connecticut_statement_text,
     "delawareCountyHtml": certified_results_delaware_county_html,
     "floridaPrecinctZip": certified_results_florida_precinct_zip,

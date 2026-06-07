@@ -11,6 +11,7 @@ const supportedCertifiedFormats = new Set([
   "xlsxPrecinctAggregation",
   "alabamaPrecinctZip",
   "californiaPresidentXlsx",
+  "coloradoCiveraCsv",
   "connecticutStatementText",
   "delawareCountyHtml",
   "floridaPrecinctZip",
@@ -302,6 +303,7 @@ function validateCertifiedResults(report) {
     format !== "notConfigured" &&
     format !== "xlsxPrecinctAggregation" &&
     format !== "californiaPresidentXlsx" &&
+    format !== "coloradoCiveraCsv" &&
     format !== "connecticutStatementText" &&
     format !== "idahoCountyCsv" &&
     format !== "iowaCanvassPdf" &&
