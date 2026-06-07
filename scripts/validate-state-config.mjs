@@ -19,6 +19,7 @@ const supportedCertifiedFormats = new Set([
   "iowaCanvassPdf",
   "kansasPresidentialXlsx",
   "maineCountyTownXlsx",
+  "massachusettsCountyHtml",
   "marylandCountyHtml",
   "michiganCountyTab",
   "montanaCanvassPdf",
@@ -309,6 +310,7 @@ function validateCertifiedResults(report) {
     format !== "idahoCountyCsv" &&
     format !== "iowaCanvassPdf" &&
     format !== "kansasPresidentialXlsx" &&
+    format !== "massachusettsCountyHtml" &&
     !certified.majorCandidates
   ) {
     report.errors.push(issue("error", "certified-candidates-missing", `${format} certified results need majorCandidates rules.`));

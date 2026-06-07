@@ -1674,6 +1674,112 @@ def certified_results_maryland_county_html(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_massachusetts_county_html(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    document = path.read_text(encoding="utf-8", errors="replace").replace("\n", " ")
+    table_match = re.search(
+        r"<table[^>]*id=[\"']precinct_data[\"'][^>]*>(.*?)</table>",
+        document,
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    if not table_match:
+        raise ValueError(f"Could not find Massachusetts PD43+ county table in {path}")
+
+    rows = []
+    for row_html in re.findall(r"<tr[^>]*>(.*?)</tr>", table_match.group(1), flags=re.DOTALL | re.IGNORECASE):
+        cells = [
+            clean_html_cell(cell)
+            for cell in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", row_html, flags=re.DOTALL | re.IGNORECASE)
+        ]
+        if cells:
+            rows.append(cells)
+    if not rows:
+        raise ValueError(f"Could not find Massachusetts PD43+ table rows in {path}")
+
+    header = rows[0]
+    column_index = {name: index for index, name in enumerate(header)}
+    required_columns = ["Harris/ Walz", "Trump/ Vance", "All Others", "Blanks", "Total Votes Cast"]
+    missing_columns = [name for name in required_columns if name not in column_index]
+    if missing_columns:
+        raise ValueError(f"Massachusetts PD43+ table missing columns: {missing_columns}")
+
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+    reported_totals = None
+    reported_blanks = 0
+    reported_total_votes_cast = 0
+
+    for cells in rows[1:]:
+        if len(cells) < len(header):
+            continue
+        county = cells[0]
+        totals = {
+            "harris": int_text(cells[column_index["Harris/ Walz"]]),
+            "trump": int_text(cells[column_index["Trump/ Vance"]]),
+            "allOthers": int_text(cells[column_index["All Others"]]),
+        }
+        for item in source.get("otherCandidates", []):
+            totals[item["key"]] = int_text(cells[column_index[item["columnHeader"]]])
+        blanks = int_text(cells[column_index["Blanks"]])
+        total_votes_cast = int_text(cells[column_index["Total Votes Cast"]])
+        other = totals["allOthers"] + sum(totals[item["key"]] for item in candidate_labels if item["key"] != "allOthers")
+        candidate_total = totals["trump"] + totals["harris"] + other
+        if candidate_total + blanks != total_votes_cast:
+            raise ValueError(
+                f"Massachusetts PD43+ total mismatch for {county}: "
+                f"{candidate_total} + {blanks} != {total_votes_cast}"
+            )
+
+        if county == "Totals":
+            reported_totals = {**totals, "other": other, "total": candidate_total}
+            reported_blanks = blanks
+            reported_total_votes_cast = total_votes_cast
+            continue
+
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], candidate_total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], candidate_total),
+                "other": other,
+                "otherPct": pct(other, candidate_total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / candidate_total) * 100, 4) if candidate_total else 0,
+                "total": candidate_total,
+            }
+        )
+
+    if reported_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            "other": sum(row["other"] for row in result_rows),
+            "total": sum(row["total"] for row in result_rows),
+            **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        }
+        expected_totals = {
+            "trump": reported_totals["trump"],
+            "harris": reported_totals["harris"],
+            "other": reported_totals["other"],
+            "total": reported_totals["total"],
+            **{item["key"]: reported_totals[item["key"]] for item in candidate_labels},
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Massachusetts county totals do not match PD43+ totals row: {parsed_totals} != {expected_totals}")
+        if parsed_totals["total"] + reported_blanks != reported_total_votes_cast:
+            raise ValueError(
+                "Massachusetts PD43+ statewide candidate total plus blanks does not match Total Votes Cast: "
+                f"{parsed_totals['total']} + {reported_blanks} != {reported_total_votes_cast}"
+            )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_new_jersey_president_pdf(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -4399,6 +4505,7 @@ CERTIFIED_RESULT_PARSERS = {
     "iowaCanvassPdf": certified_results_iowa_canvass_pdf,
     "kansasPresidentialXlsx": certified_results_kansas_presidential_xlsx,
     "maineCountyTownXlsx": certified_results_maine_county_town_xlsx,
+    "massachusettsCountyHtml": certified_results_massachusetts_county_html,
     "marylandCountyHtml": certified_results_maryland_county_html,
     "michiganCountyTab": certified_results_michigan_tab,
     "montanaCanvassPdf": certified_results_montana_canvass_pdf,
