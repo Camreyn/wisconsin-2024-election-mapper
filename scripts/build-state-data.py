@@ -3047,6 +3047,118 @@ def certified_results_utah_statewide_canvass_pdf(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_missouri_actual_results_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    county_names = set(geometry_names_by_geoid(config).values())
+    first_table = {}
+    final_write_in = {}
+    first_totals = None
+    final_totals = None
+    table = None
+    first_row_pattern = re.compile(r"^(?P<name>[A-Za-z. ]+?)\s+(?P<values>(?:\d+\s+){6}\d+)$")
+    final_row_pattern = re.compile(r"^(?P<name>[A-Za-z. ]+?)\s+(?P<write_in>\d+)\s+(?P<total>\d+)$")
+
+    def county_name(raw_name):
+        name = source.get("mergeRows", {}).get(raw_name, raw_name)
+        if name == "St. Louis":
+            return "St. Louis County"
+        if name == "St. Louis City":
+            return "St. Louis city"
+        if name in county_names:
+            return name
+        return f"{name} County"
+
+    for line in lines:
+        if line == "U.S. President":
+            if not first_totals:
+                table = "first"
+            elif not final_totals:
+                table = "final"
+            continue
+
+        if table == "first":
+            match = first_row_pattern.match(line)
+            if not match:
+                continue
+            values = [int_text(value) for value in match.group("values").split()]
+            if match.group("name") == "Total":
+                first_totals = values
+                table = None
+                continue
+            county = county_name(match.group("name"))
+            if county not in county_names:
+                raise ValueError(f"Unexpected Missouri county row {county!r} from {match.group('name')!r}")
+            for key, value in zip(source["firstTableColumns"], values):
+                first_table.setdefault(county, defaultdict(int))[key] += value
+            continue
+
+        if table == "final":
+            match = final_row_pattern.match(line)
+            if not match:
+                continue
+            if match.group("name") == "Total":
+                final_totals = {
+                    "madamPotus": int_text(match.group("write_in")),
+                    "total": int_text(match.group("total")),
+                }
+                table = None
+                break
+            county = county_name(match.group("name"))
+            if county not in county_names:
+                raise ValueError(f"Unexpected Missouri final county row {county!r} from {match.group('name')!r}")
+            final_write_in[county] = final_write_in.get(county, 0) + int_text(match.group("write_in"))
+
+    if not first_totals or not final_totals:
+        raise ValueError(f"Could not find Missouri presidential total rows in {path}")
+
+    result_rows = []
+    for county, totals in first_table.items():
+        totals["madamPotus"] += final_write_in.get(county, 0)
+        other_values = {item["key"]: totals[item["key"]] for item in candidate_labels}
+        other = sum(other_values.values())
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    if len(result_rows) != config["expected"]["countyRows"]:
+        raise ValueError(f"Expected {config['expected']['countyRows']} Missouri county rows, found {len(result_rows)}")
+
+    expected_totals = {
+        **{key: first_totals[index] for index, key in enumerate(source["firstTableColumns"])},
+        "madamPotus": final_totals["madamPotus"],
+    }
+    parsed_totals = {
+        "trump": sum(row["trump"] for row in result_rows),
+        "harris": sum(row["harris"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+    }
+    parsed_total = sum(row["total"] for row in result_rows)
+    if parsed_totals != expected_totals or parsed_total != final_totals["total"]:
+        raise ValueError(
+            "Missouri parsed county totals do not match PDF totals: "
+            f"{parsed_totals} / {parsed_total} != {expected_totals} / {final_totals['total']}"
+        )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_pennsylvania_bulk_csv(config):
     source = config["certifiedResults"]
     office_code = source.get("officeCode", "USP")
@@ -4778,6 +4890,7 @@ CERTIFIED_RESULT_PARSERS = {
     "massachusettsCountyHtml": certified_results_massachusetts_county_html,
     "marylandCountyHtml": certified_results_maryland_county_html,
     "michiganCountyTab": certified_results_michigan_tab,
+    "missouriActualResultsPdf": certified_results_missouri_actual_results_pdf,
     "montanaCanvassPdf": certified_results_montana_canvass_pdf,
     "nationalCountyBaselineCsv": certified_results_national_county_baseline_csv,
     "newJerseyPresidentPdf": certified_results_new_jersey_president_pdf,
