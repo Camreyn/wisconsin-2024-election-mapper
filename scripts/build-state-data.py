@@ -2483,6 +2483,117 @@ def certified_results_south_dakota_canvass_pdf(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_nebraska_canvass_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    contest = source.get("contest", "President and Vice President of the United States")
+    starts = [index for index, line in enumerate(lines) if line == contest]
+    start = next((index for index in starts if index > 100), None)
+    if start is None:
+        raise ValueError(f"Could not find Nebraska presidential contest table in {path}")
+
+    next_contest = source.get("nextContest", "Results by Congressional District")
+    end = next(
+        (
+            index
+            for index in range(start + 1, len(lines) - 1)
+            if lines[index] == contest and lines[index + 1].startswith(next_contest)
+        ),
+        None,
+    )
+    if end is None:
+        raise ValueError(f"Could not find Nebraska presidential contest page boundary in {path}")
+
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    other_keys = [item["key"] for item in candidate_labels]
+    number_pattern = re.compile(r"\d[\d,]*")
+    header_lines = {
+        "Cornel West Jill Stein",
+        "County (Republican) (Democratic) (Libertarian) NOW) (BY PETITION) Scatterings",
+    }
+    result_rows = []
+    reported_totals = None
+    pending_county = None
+
+    for line in lines[start + 1 : end]:
+        numbers = number_pattern.findall(line)
+        if line.startswith("Total") and len(numbers) == 6:
+            reported_totals = {
+                "trump": int_text(numbers[0]),
+                "harris": int_text(numbers[1]),
+                "oliver": int_text(numbers[2]),
+                "west": int_text(numbers[3]),
+                "stein": int_text(numbers[4]),
+                "writeIn": int_text(numbers[5]),
+            }
+            continue
+
+        if len(numbers) == 6:
+            raw_county = (
+                pending_county
+                if re.match(r"^\d", line)
+                else re.sub(r"\s+\d[\d,\s]*$", "", line).strip()
+            )
+            if not raw_county:
+                raise ValueError(f"Nebraska presidential row has votes without a county label: {line!r}")
+            county = county_names.get(raw_county.upper()) or raw_county
+            totals = {
+                "trump": int_text(numbers[0]),
+                "harris": int_text(numbers[1]),
+                "oliver": int_text(numbers[2]),
+                "west": int_text(numbers[3]),
+                "stein": int_text(numbers[4]),
+                "writeIn": int_text(numbers[5]),
+            }
+            other = sum(totals[key] for key in other_keys)
+            total = totals["trump"] + totals["harris"] + other
+            margin = totals["trump"] - totals["harris"]
+            result_rows.append(
+                {
+                    "county": county,
+                    "trump": totals["trump"],
+                    "trumpPct": pct(totals["trump"], total),
+                    "harris": totals["harris"],
+                    "harrisPct": pct(totals["harris"], total),
+                    "other": other,
+                    "otherPct": pct(other, total),
+                    **{key: totals[key] for key in other_keys},
+                    "margin": margin,
+                    "marginPct": round((margin / total) * 100, 4) if total else 0,
+                    "total": total,
+                }
+            )
+            pending_county = None
+            continue
+
+        if (
+            not numbers
+            and line not in header_lines
+            and "Donald J. Trump" not in line
+            and "Kamala D. Harris" not in line
+            and not line.startswith("& JD")
+            and not line.startswith("County")
+            and not line.startswith("General Election")
+        ):
+            pending_county = line
+
+    if reported_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in result_rows),
+            "harris": sum(row["harris"] for row in result_rows),
+            **{key: sum(row[key] for row in result_rows) for key in other_keys},
+        }
+        if parsed_totals != reported_totals:
+            raise ValueError(f"Nebraska parsed totals do not match PDF totals: {parsed_totals} != {reported_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def michigan_result_rows(path):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         first_line = handle.readline()
@@ -4034,6 +4145,8 @@ def extract_pdf_text(path):
         cwd=ROOT,
         check=True,
         capture_output=True,
+        encoding="utf-8",
+        errors="replace",
         text=True,
     )
     return completed.stdout
@@ -4892,6 +5005,7 @@ CERTIFIED_RESULT_PARSERS = {
     "michiganCountyTab": certified_results_michigan_tab,
     "missouriActualResultsPdf": certified_results_missouri_actual_results_pdf,
     "montanaCanvassPdf": certified_results_montana_canvass_pdf,
+    "nebraskaCanvassPdf": certified_results_nebraska_canvass_pdf,
     "nationalCountyBaselineCsv": certified_results_national_county_baseline_csv,
     "newJerseyPresidentPdf": certified_results_new_jersey_president_pdf,
     "northCarolinaEnrZip": certified_results_north_carolina_enr_zip,

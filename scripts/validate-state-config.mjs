@@ -26,6 +26,7 @@ const supportedCertifiedFormats = new Set([
   "michiganCountyTab",
   "missouriActualResultsPdf",
   "montanaCanvassPdf",
+  "nebraskaCanvassPdf",
   "nationalCountyBaselineCsv",
   "newJerseyPresidentPdf",
   "northCarolinaEnrZip",
