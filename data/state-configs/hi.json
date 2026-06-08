@@ -115,12 +115,12 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "hi-2024-general-hawaii-county-summary",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "hawaiiCountySummaryPdfs",
+    "sourceId": "hi-2024-general-statewide-summary-pdf",
+    "registrationDenominatorTiming": "final",
     "sourceLevel": "county",
-    "notes": "Hawaii county summary PDFs include registration and turnout totals, but turnout is not loaded until a turnout parser is mapped and validated across all county summary files.",
-    "warningRequired": true
+    "notes": "County turnout is loaded from the official Hawaii Office of Elections county summary PDFs. Rows include total registration, total turnout, mail turnout, and in-person turnout.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -140,7 +140,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -163,13 +163,13 @@
         "status": "Needs precinct parser"
       },
       "turnout": {
-        "title": "Hawaii turnout denominator",
-        "detail": "The county summary PDFs include county registration and turnout totals, but turnout remains disabled until the parser maps those fields for every county summary and adds a validation target.",
-        "sourceUrl": "https://files.hawaii.gov/elections/files/results/2024/General/coh.pdf",
+        "title": "Hawaii county summary registration and turnout tables",
+        "detail": "Official Hawaii Office of Elections county summary PDFs provide county total registration, total turnout, mail turnout, and in-person turnout. The importer loads the four county summary PDFs used for certified county presidential results.",
+        "sourceUrl": "https://elections.hawaii.gov/election-results/",
         "localFile": "data/hi-2024-general-coh.pdf; data/hi-2024-general-cch.pdf; data/hi-2024-general-cok.pdf; data/hi-2024-general-com.pdf; data/hi-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Hawaii county summary PDFs expose registration and turnout fields.",
-        "status": "Needs turnout parser"
+        "sourceTimestampBasis": "Official Hawaii Office of Elections 2024 General Election county summary PDFs.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -193,6 +193,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Hawaii county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/hi-2024-general-coh.pdf; data/hi-2024-general-cch.pdf; data/hi-2024-general-cok.pdf; data/hi-2024-general-com.pdf; data/hi-app-data.js",
+        "sourceUrl": "https://elections.hawaii.gov/election-results/",
+        "usedFor": "Hawaii county turnout graph and turnout coverage rows.",
+        "confidence": "Official Hawaii Office of Elections county summary PDFs."
       }
     ],
     "checkedNotUsable": [
@@ -213,9 +220,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs turnout parser",
-      "acceptedSource": "Hawaii county summary PDFs expose county registration and turnout totals but are not loaded yet.",
-      "warning": "Hawaii turnout remains disabled until the official county summary turnout fields are parsed and validated.",
+      "status": "Loaded",
+      "acceptedSource": "Official Hawaii Office of Elections county summary PDFs.",
+      "warning": "Hawaii turnout uses official county registration and turnout fields, with mail and in-person turnout preserved from the summary PDFs.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -238,7 +245,7 @@
     "harris": 313044,
     "other": 9996,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 4,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

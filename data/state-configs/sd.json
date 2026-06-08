@@ -15,6 +15,11 @@
       "localFile": "data/sd-2024-general-election-canvass-with-cert.pdf"
     },
     {
+      "id": "sd-2024-post-election-audit-election-returns",
+      "url": "https://sdsos.gov/elections-voting/assets/2024%20Assets/Post-Election-Audit-General/ElectionReturns2024.pdf",
+      "localFile": "data/sd-2024-post-election-audit-election-returns.pdf"
+    },
+    {
       "id": "sd-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2746%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/sd-counties.geojson"
@@ -63,12 +68,17 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "sd-2024-general-election-canvass-with-cert",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "southDakotaElectionReturnsPdf",
+    "sourceId": "sd-2024-post-election-audit-election-returns",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the canvass PDF because the presidential county table does not include registered-voter denominators.",
-    "warningRequired": true
+    "notes": "South Dakota county turnout comes from the official SOS Election Returns and Registration Figures PDF. The importer reads the 2024 General Election Voter Turnout table and validates the published statewide registered-voter and votes-cast totals.",
+    "warningRequired": false,
+    "statewideTotals": {
+      "registeredVoters": 624175,
+      "ballotsCast": 436478
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -88,7 +98,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -111,13 +121,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "South Dakota turnout denominator",
-        "detail": "The canvass PDF presidential table does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://sdsos.gov/elections-voting/election-resources/election-history/2024_Election_History.aspx",
-        "localFile": "data/sd-2024-general-election-canvass-with-cert.pdf; data/sd-app-data.js",
+        "title": "South Dakota official county turnout",
+        "detail": "Official South Dakota SOS Election Returns and Registration Figures PDF. The importer reads the 2024 General Election Voter Turnout table, captures county registered voters and votes cast, and validates against the published statewide totals.",
+        "sourceUrl": "https://sdsos.gov/elections-voting/assets/2024%20Assets/Post-Election-Audit-General/ElectionReturns2024.pdf",
+        "localFile": "data/sd-2024-post-election-audit-election-returns.pdf; data/sd-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass presidential table lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official South Dakota SOS Election Returns and Registration Figures PDF for the 2024 General Election.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -127,6 +137,13 @@
         "sourceUrl": "https://sdsos.gov/elections-voting/election-resources/election-history/2024_Election_History.aspx",
         "usedFor": "South Dakota county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
         "confidence": "Official South Dakota Secretary of State 2024 General Election Canvass and Certificate PDF."
+      },
+      {
+        "category": "Official county turnout denominator",
+        "file": "data/sd-2024-post-election-audit-election-returns.pdf; data/sd-app-data.js",
+        "sourceUrl": "https://sdsos.gov/elections-voting/assets/2024%20Assets/Post-Election-Audit-General/ElectionReturns2024.pdf",
+        "usedFor": "South Dakota county turnout rows with registered-voter denominators.",
+        "confidence": "Official South Dakota Secretary of State Election Returns and Registration Figures PDF."
       },
       {
         "category": "County boundaries",
@@ -143,17 +160,25 @@
         "reason": "Superseded for South Dakota by the official South Dakota Secretary of State 2024 General Election Canvass and Certificate PDF.",
         "status": "Superseded",
         "nextStep": "Keep the official SOS canvass PDF as the authoritative South Dakota presidential county source."
+      },
+      {
+        "category": "Canvass PDF for turnout denominator",
+        "sourceUrl": "https://sdsos.gov/elections-voting/election-resources/election-history/2024_Election_History.aspx",
+        "reason": "The canvass presidential table has county candidate votes but no registered-voter denominator. Turnout now uses the official Election Returns and Registration Figures PDF.",
+        "status": "Superseded",
+        "nextStep": "Use data/sd-2024-post-election-audit-election-returns.pdf for South Dakota turnout rows."
       }
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "South Dakota turnout should not be inferred from presidential votes because the canvass presidential table lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Official South Dakota SOS Election Returns and Registration Figures PDF.",
+      "warning": "South Dakota turnout uses final county registered-voter denominators and total votes cast from the official SOS turnout table.",
       "requiredFields": [
         "county",
         "ballotsCast",
         "registeredVoters",
+        "registrationDenominatorTiming",
         "sourceUrl"
       ]
     },
@@ -172,7 +197,7 @@
     "harris": 146859,
     "other": 9982,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 66,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

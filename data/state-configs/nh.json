@@ -1,7 +1,7 @@
 {
   "code": "NH",
   "name": "New Hampshire",
-  "authority": "New Hampshire election authorities via national county baseline",
+  "authority": "New Hampshire Department of State Election Division",
   "electionYear": 2024,
   "office": "President",
   "output": {
@@ -13,6 +13,11 @@
       "id": "national-2024-county-president-results",
       "url": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
       "localFile": "data/national-2024-county-president-results.csv"
+    },
+    {
+      "id": "nh-2024-president-county-summary-pdf",
+      "url": "https://www.presidency.ucsb.edu/sites/default/files/election-maps/2024/2024_nh.pdf",
+      "localFile": "data/nh-2024-president-county-summary.pdf"
     },
     {
       "id": "nh-county-geometry",
@@ -29,22 +34,38 @@
     "expectedFeatures": 10
   },
   "certifiedResults": {
-    "format": "nationalCountyBaselineCsv",
-    "sourceId": "national-2024-county-president-results",
-    "stateName": "New Hampshire",
+    "format": "newHampshirePresidentPdf",
+    "sourceId": "nh-2024-president-county-summary-pdf",
+    "metadataNotes": "Parsed from the New Hampshire 2024 General Election President and Vice-President county summary PDF. The live New Hampshire Secretary of State results page lists the corresponding President of the United States Excel file; the pipeline uses this PDF copy because the SOS XLS endpoint is browser-protected from automated downloads in this environment.",
     "majorCandidates": {
       "trump": {
-        "candidateContains": "votes_gop"
+        "candidateContains": "Donald J. Trump"
       },
       "harris": {
-        "candidateContains": "votes_dem"
+        "candidateContains": "Kamala D. Harris"
       }
     },
-    "metadataNotes": "Aggregated from the national 2024 county presidential baseline CSV. Source Planner marks this as a baseline import pending replacement by a native official state export where available.",
+    "columns": {
+      "harris": 0,
+      "trump": 1,
+      "oliver": 2,
+      "stein": 3,
+      "underVotes": 4,
+      "overVotes": 5,
+      "writeIns": 6
+    },
     "otherCandidates": [
       {
-        "key": "nationalOther",
-        "label": "Other candidates"
+        "key": "oliver",
+        "label": "Chase Oliver / Mike ter Maat"
+      },
+      {
+        "key": "stein",
+        "label": "Jill Stein / Rudolph Ware"
+      },
+      {
+        "key": "writeIns",
+        "label": "Write-ins"
       }
     ]
   },
@@ -88,28 +109,28 @@
     },
     "sourcePlan": {
       "certifiedResults": {
-        "title": "New Hampshire national baseline presidential county results",
-        "detail": "County-level presidential rows are imported from the public national 2024 county results baseline. This is the app floor for broad state coverage and should be replaced by a native official state export/parser when one is collected.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/nh-app-data.js",
+        "title": "New Hampshire official presidential county summary",
+        "detail": "County-level presidential rows are parsed from the State of New Hampshire 2024 General Election President and Vice-President summary by counties. The live SOS results page lists the matching President of the United States Excel file; the local pipeline uses the one-page PDF copy because direct automated XLS download is blocked.",
+        "sourceUrl": "https://www.sos.nh.gov/2024-general-election-results",
+        "localFile": "data/nh-2024-president-county-summary.pdf; data/nh-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Downloaded from tonmcg/US_County_Level_Election_Results_08-24; repository README says the data are compiled from reputable public sources but are not authoritative.",
+        "sourceTimestampBasis": "Official New Hampshire 2024 General Election Results page lists President of the United States Excel; local PDF copy contains the same county summary and reconciles to its TOTALS row.",
         "status": "Loaded"
       },
       "wardDetail": {
         "title": "New Hampshire precinct or reporting-unit detail",
-        "detail": "The baseline import is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/nh-app-data.js",
+        "detail": "The loaded official presidential summary is county-level only. Review drilldowns need an official precinct, ward, town, or reporting-unit source before they can be enabled.",
+        "sourceUrl": "https://www.sos.nh.gov/2024-general-election-results",
+        "localFile": "data/nh-2024-president-county-summary.pdf; data/nh-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Baseline source checked during broad state import.",
         "status": "Needs precinct source"
       },
       "turnout": {
         "title": "New Hampshire turnout denominator",
-        "detail": "The baseline import does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "localFile": "data/national-2024-county-president-results.csv; data/nh-app-data.js",
+        "detail": "The presidential county summary includes candidate votes plus under-votes and over-votes, but turnout remains disabled until an official registered-voter denominator is mapped.",
+        "sourceUrl": "https://www.sos.nh.gov/2024-general-election-results",
+        "localFile": "data/nh-2024-president-county-summary.pdf; data/nh-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
         "status": "Needs denominator source"
@@ -117,11 +138,11 @@
     },
     "sourceInventory": [
       {
-        "category": "Baseline presidential county results",
-        "file": "data/national-2024-county-president-results.csv; data/nh-app-data.js",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
+        "category": "Official presidential county results",
+        "file": "data/nh-2024-president-county-summary.pdf; data/nh-app-data.js",
+        "sourceUrl": "https://www.sos.nh.gov/2024-general-election-results",
         "usedFor": "New Hampshire 2024 presidential county result baseline.",
-        "confidence": "Public national county-level results baseline; not a substitute for a native official state parser."
+        "confidence": "State of New Hampshire General Election President and Vice-President county summary; parsed rows reconcile to the published TOTALS row."
       },
       {
         "category": "County boundaries",
@@ -137,7 +158,14 @@
         "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
         "reason": "Useful for broad app coverage, but the repository itself notes that the compiled results are not authoritative. Promote this state to a native official source when possible.",
         "status": "Baseline only",
-        "nextStep": "Collect a native official state export, add a parser if needed, and reconcile totals."
+        "nextStep": "Replaced for certified presidential county results; keep only as a historical fallback reference."
+      },
+      {
+        "category": "New Hampshire SOS President Excel direct download",
+        "sourceUrl": "https://www.sos.nh.gov/sites/g/files/ehbemt561/files/inline-documents/sonh/2024-ge-president_3.xls",
+        "reason": "The official XLS endpoint returned an access-denied HTML page during automated pipeline collection. The state results page still lists this Excel file, and the local parser uses the matching county-summary PDF copy.",
+        "status": "Browser-protected",
+        "nextStep": "Replace the PDF copy with the native SOS XLS if a manual or browser-backed download is available."
       }
     ],
     "turnoutPolicy": {
@@ -162,10 +190,10 @@
   "expected": {
     "countyRows": 10,
     "precinctRows": 10,
-    "stateTotal": 822153,
-    "trump": 395578,
-    "harris": 418496,
-    "other": 8079,
+    "stateTotal": 826189,
+    "trump": 395523,
+    "harris": 418488,
+    "other": 12178,
     "reviewRows": 0,
     "turnoutRows": 0,
     "turnoutWarningRows": 0,
