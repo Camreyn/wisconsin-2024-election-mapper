@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "Turnout-first source audit",
-    "checked_at": "2026-06-07",
+    "checked_at": "2026-06-08",
     "row_count": 50,
     "schema": [
       "state",
@@ -48,7 +48,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports 40 mapped State House District turnout rows from the official ENR CSV. HD99 Federal Overseas Absentee is documented and excluded because it has no district polygon.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "AL",
@@ -68,7 +68,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App already imports county turnout from official results plus registration workbook; precinct-level denominator support is not loaded.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "AR",
@@ -88,27 +88,27 @@
       "status": "loaded",
       "confidence": "medium",
       "caveats": "App imports the official statewide registered-voter and total-ballots-cast turnout object with warnings; county-level denominator rows still need a separate official source.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "AZ",
       "source_priority": 1,
-      "authority": "Arizona Secretary of State plus county election departments",
-      "source_title": "County official summary/canvass reports with registered voters and turnout",
-      "source_url": "https://www.coconino.az.gov/DocumentCenter/View/65675/OfficialResultsSummaryCountingGroups",
-      "source_level": "county-local summary, sometimes precinct/counting group",
+      "authority": "Arizona Secretary of State",
+      "source_title": "Voter Registration Statistics - Historical Election Information",
+      "source_url": "https://azsos.gov/elections/election-information/voter-registration-statistics",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
-      "has_vote_method": true,
-      "vote_method_fields": "counting groups where county report includes them",
+      "has_vote_method": false,
+      "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "county pdf/html",
-      "parser_fit": "county-local collection; no single statewide parser identified",
-      "status": "county_local_required",
-      "confidence": "medium",
-      "caveats": "State canvass loaded in app is county-level and lacks denominators; official county reports can satisfy turnout but must be collected county by county.",
-      "checked_at": "2026-06-07"
+      "format": "html table normalized to csv",
+      "parser_fit": "loaded: statewideTurnoutCsv",
+      "status": "loaded_statewide_only",
+      "confidence": "high",
+      "caveats": "App imports one statewide warning row from the SOS historical election table; county-local official reports remain the follow-up for county or precinct turnout detail.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "CA",
@@ -128,7 +128,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "Registered-voter totals are based on the 15-day Report of Registration and exclude later same-day registrations.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "CO",
@@ -148,7 +148,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports the 2024 General Election county turnout table calculated as a percentage of registered voters and validates the published statewide totals.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "CT",
@@ -168,7 +168,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App parses 169 official town turnout columns from Statement of Vote pages 157-162 and rolls them up to Census planning-region geometry. Rows are warning-labeled because the denominator is the active official checklist while the turnout section also reports same-day registration activity.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "DE",
@@ -188,7 +188,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports the official report-page summary as a single statewide-only turnout row. County-level turnout denominator rows were not exposed in the loaded report, so rows are warning-labeled as statewide-only coverage.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "FL",
@@ -208,27 +208,27 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App already imports precinct turnout rows from official precinct-level results.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "GA",
       "source_priority": 1,
-      "authority": "Georgia Secretary of State plus county election departments",
-      "source_title": "County official Statement of Votes Cast reports",
+      "authority": "Georgia Secretary of State",
+      "source_title": "Georgia November General Election public results turnout join",
       "source_url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
-      "source_level": "county-local precinct",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": false,
       "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "county pdf/html",
-      "parser_fit": "county-local collection; no single statewide denominator file identified",
-      "status": "county_local_required",
+      "format": "statewideTurnoutCsv",
+      "parser_fit": "loaded: statewideTurnoutCsv; county-local collection still needed for lower-level rows",
+      "status": "loaded_statewide_only",
       "confidence": "medium",
-      "caveats": "State ENR source is official but county SOV reports, such as Fulton, expose precinct registered voters and cards/voters cast.",
-      "checked_at": "2026-06-07"
+      "caveats": "Loaded as a statewide-only warning row by joining the official public results portal totalVoters denominator to the sum of official Total Votes workbook county President Ballots Cast rows. County-level registration denominator detail remains a follow-up.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "HI",
@@ -248,7 +248,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports county registration, turnout, mail turnout, and in-person turnout from the four official county summary PDFs; Kalawao is not a separate presidential county result row in the loaded Hawaii data.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "IA",
@@ -262,13 +262,13 @@
       "has_eligible_voters": false,
       "has_vote_method": true,
       "vote_method_fields": "Election Day voters; absentee voters",
-      "denominator_timing": "final",
-      "format": "pdf",
-      "parser_fit": "new pdf table parser",
-      "status": "usable_candidate",
+      "denominator_timing": "preElectionDay",
+      "format": "pdf-derived csv",
+      "parser_fit": "loaded: iowaTurnoutCsv",
+      "status": "loaded",
       "confidence": "high",
-      "caveats": "Report distinguishes active and inactive voter denominators; choose denominator policy before enabling turnout.",
-      "checked_at": "2026-06-07"
+      "caveats": "App imports 99 county rows from a local CSV derived from the official PDF text, uses active plus inactive voters as the denominator, and validates county sums against the report Total row. Rows are warning-labeled because the denominator is an Election Day snapshot.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "ID",
@@ -288,27 +288,27 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "Official turnout table includes county election-day registrations, registered voters, ballots cast, and turnout.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "IL",
       "source_priority": 1,
-      "authority": "Illinois State Board of Elections plus county election authorities",
-      "source_title": "County official abstracts / Statements of Votes Cast with turnout statistics",
-      "source_url": "https://www.dupagecounty.gov/Election/Documents/Election%20Results/2024GE%20Official%20Abstract%20of%20Votes%20Full.pdf",
-      "source_level": "county-local precinct",
+      "authority": "Illinois State Board of Elections",
+      "source_title": "2024 General Election PRESIDENT AND VICE PRESIDENT CSV",
+      "source_url": "https://www.elections.il.gov/electionoperations/ElectionVoteTotalsCounty.aspx?ID=9huvqbsiUWA%3D",
+      "source_level": "precinct",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
-      "has_vote_method": true,
-      "vote_method_fields": "early voting ballots; vote by mail ballots; polling ballots; provisional ballots where county SOV exposes them",
+      "has_vote_method": false,
+      "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "county pdf",
-      "parser_fit": "county-local collection",
-      "status": "county_local_required",
+      "format": "illinoisPrecinctCsv",
+      "parser_fit": "loaded partial: illinoisPrecinctCsv",
+      "status": "loaded_partial",
       "confidence": "medium",
-      "caveats": "A statewide precinct denominator file was not found; official county abstracts can expose precinct registered voters and vote-method ballots.",
-      "checked_at": "2026-06-07"
+      "caveats": "Official statewide CSV exposes precinct Registration and presidential contest vote rows. App uses candidate, write-in, blank, over-vote, and under-vote rows as contest-level ballots cast, with caution labels. Rows with zero or missing Registration are excluded, so coverage is partial.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "IN",
@@ -328,7 +328,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "Statewide official county report is available; precinct-level denominator source would need county-local reports.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "KS",
@@ -348,14 +348,14 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports county ballots cast, registered voters, and turnout percentage from the official workbook 2024 Turnout sheet; precinct-level denominator support is not loaded.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "KY",
       "source_priority": 1,
       "authority": "Kentucky State Board of Elections",
-      "source_title": "Turnout reports",
-      "source_url": "https://elect.ky.gov/Resources/Pages/Turnout.aspx",
+      "source_title": "Voter Turnout Report For the 2024 General Election",
+      "source_url": "https://elect.ky.gov/Resources/Documents/2024G%20Voter%20Turnout%20by%20County.pdf",
       "source_level": "county",
       "has_ballots_cast": true,
       "has_registered_voters": true,
@@ -363,32 +363,32 @@
       "has_vote_method": false,
       "vote_method_fields": "",
       "denominator_timing": "postElectionDay",
-      "format": "web-linked report",
-      "parser_fit": "new parser after direct 2024 file is selected",
-      "status": "usable_candidate",
-      "confidence": "medium",
-      "caveats": "SBE warns turnout reports are run after registration rolls reopen, so denominator timing should be labeled postElectionDay.",
-      "checked_at": "2026-06-07"
+      "format": "pdf",
+      "parser_fit": "loaded: kentuckyTurnoutPdf",
+      "status": "loaded",
+      "confidence": "high",
+      "caveats": "App imports 120 county rows with total registered voters, number voting, and party registration/voting columns. Rows are warning-labeled because SBE says turnout reports are run after registration rolls reopen.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "LA",
       "source_priority": 1,
       "authority": "Louisiana Secretary of State",
-      "source_title": "GeauxVote graphical live election results turnout view",
-      "source_url": "https://voterportal.sos.la.gov/graphical",
-      "source_level": "state/parish candidate",
+      "source_title": "Votes Race By Parish - Presidential Electors",
+      "source_url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20241105/VotesRaceByParish/Votes_67190.htm",
+      "source_level": "county",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": false,
       "vote_method_fields": "",
-      "denominator_timing": "unknown",
-      "format": "scripted web portal",
-      "parser_fit": "browser/scripted export required",
-      "status": "source_needs_review",
-      "confidence": "medium",
-      "caveats": "Portal exposes voters, voted, and turnout but needs election/parish URL parameters or browser capture before importer work.",
-      "checked_at": "2026-06-07"
+      "denominator_timing": "final",
+      "format": "json",
+      "parser_fit": "loaded: louisianaPresidentParishJson",
+      "status": "loaded",
+      "confidence": "high",
+      "caveats": "App imports 64 parish rows from official SOS presidential race JSON using VoterCountQualified and VoterCountVoted, and validates statewide denominator and ballots-cast totals.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "MA",
@@ -396,19 +396,19 @@
       "authority": "Massachusetts Secretary of the Commonwealth",
       "source_title": "Voter Turnout Statistics and Early/Mail Voting Statistics",
       "source_url": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/voter-turnout-statistics.htm",
-      "source_level": "state/city-town linked downloads",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
-      "has_vote_method": true,
-      "vote_method_fields": "mail; early; election day in detailed city/town downloads",
+      "has_vote_method": false,
+      "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "html/download",
-      "parser_fit": "new parser; collect detailed early/mail download",
-      "status": "usable_candidate",
+      "format": "html-derived csv",
+      "parser_fit": "loaded: statewideTurnoutCsv",
+      "status": "loaded_statewide_only",
       "confidence": "medium",
-      "caveats": "Statewide turnout table is obvious; detailed city/town vote-method files should be downloaded from the early voting statistics page.",
-      "checked_at": "2026-06-07"
+      "caveats": "App imports one statewide warning row from the official voter turnout statistics table. Detailed city/town turnout and vote-method downloads remain a follow-up before claiming local coverage.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "MD",
@@ -428,7 +428,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports official county turnout rows from the SBE PDF with Election Day, early voting, vote-by-mail, and provisional counts. Rows are warning-labeled because the denominator is eligible voters rather than registered voters.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "ME",
@@ -448,7 +448,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports 16 county turnout rows by joining official active registered/enrolled voter counts as of November 5, 2024 to the official corrected presidential workbook TBC county totals. Rows are warning-labeled because this is a county-level join rather than precinct-level turnout.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "MI",
@@ -468,7 +468,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App already joins official MVIC turnout export to SOS registration totals; source requires browser-backed download.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "MN",
@@ -488,7 +488,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App already imports precinct turnout using REG7AM plus EDR as denominator and TOTVOTING as ballots cast.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "MO",
@@ -508,7 +508,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports county registered voters, active voters, inactive voters, actual voters, and turnout percentage; Kansas City is merged into Jackson County for county-geometry alignment.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "MS",
@@ -528,7 +528,7 @@
       "status": "source_needs_review",
       "confidence": "low",
       "caveats": "Official results page is identified, but search did not confirm registered-voter denominator fields in the county recapitulation report.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "MT",
@@ -548,7 +548,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports county turnout rows from the official SOS canvass voting information table; precinct-level denominator support is not loaded.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "NC",
@@ -568,7 +568,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App joins official history_stats_20241105.zip to voter_stats_20241105.zip by county, precinct, and VTD. All rows are warning-labeled because voter_stats is a Nov. 5 registration snapshot.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "ND",
@@ -588,7 +588,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App already imports county turnout rows from official SOS turnout detail page.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "NE",
@@ -608,27 +608,27 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App joins the canvass Voting Statistics registered-voter table to the Total Voting by Method table by county.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "NH",
       "source_priority": 1,
-      "authority": "New Hampshire Secretary of State plus town clerks",
-      "source_title": "Presidential Election Voter Turnout Charts / town turnout files",
-      "source_url": "https://www.sos.nh.gov/elections",
-      "source_level": "town",
+      "authority": "New Hampshire Secretary of State",
+      "source_title": "2024 General Election Ballots Cast and Names on Checklist",
+      "source_url": "https://www.sos.nh.gov/2024-general-election-results",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": false,
       "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "linked charts/pdf",
-      "parser_fit": "collect direct 2024 turnout chart file",
-      "status": "source_needs_review",
+      "format": "statewideTurnoutCsv",
+      "parser_fit": "loaded: statewideTurnoutCsv; direct Excel capture remains a follow-up for county/town rows",
+      "status": "loaded_statewide_only",
       "confidence": "medium",
-      "caveats": "SOS election page links voter turnout charts, but direct 2024 file URL was not captured in this pass.",
-      "checked_at": "2026-06-07"
+      "caveats": "Loaded as a statewide-only warning row. The official SOS page lists Ballots Cast and Names on Checklist Excel sources, but the direct SOS Excel endpoint remains browser-protected in this environment.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "NJ",
@@ -648,27 +648,27 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "Official PDF gives registered voters, ballots cast, rejected ballots, and election district count by county.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "NM",
       "source_priority": 1,
       "authority": "New Mexico Secretary of State",
-      "source_title": "2024 General Election statewide voter turnout dashboard",
+      "source_title": "2024 General Election Statewide Voter Turnout",
       "source_url": "https://electionresults.sos.nm.gov/Default.aspx?eid=2882",
-      "source_level": "state/county dashboard",
+      "source_level": "statewide",
       "has_ballots_cast": true,
-      "has_registered_voters": true,
-      "has_eligible_voters": false,
+      "has_registered_voters": false,
+      "has_eligible_voters": true,
       "has_vote_method": false,
       "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "ENR dashboard/export",
-      "parser_fit": "export inspection needed",
-      "status": "source_needs_review",
-      "confidence": "medium",
-      "caveats": "Official dashboard exposes voter turnout; media/result export endpoint needs inspection for machine-readable denominator rows.",
-      "checked_at": "2026-06-07"
+      "format": "html dashboard normalized to csv",
+      "parser_fit": "loaded: statewideTurnoutCsv",
+      "status": "loaded_statewide_only",
+      "confidence": "high",
+      "caveats": "App imports one statewide warning row using the source's Eligible Voters denominator rather than registered voters; county-level denominator export remains a follow-up.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "NV",
@@ -688,7 +688,7 @@
       "status": "usable_candidate",
       "confidence": "medium",
       "caveats": "Search result came through a UAT host, but the path identifies the SOS 2024 Turnout Reporting page; verify production URL and final file link.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "NY",
@@ -708,27 +708,27 @@
       "status": "usable_candidate",
       "confidence": "medium",
       "caveats": "Enrollment file provides denominator; ballots-cast totals must be joined from certified result/source already loaded for county results.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "OH",
       "source_priority": 1,
-      "authority": "Ohio Secretary of State plus county boards of elections",
-      "source_title": "County official Statement of Votes Cast precinct turnout reports",
-      "source_url": "https://boe.woodcountyohio.gov/boe/Election_Results/2024/Official%202024_11%20Pct%20StatementOfVotesCastRPT.pdf",
-      "source_level": "county-local precinct",
+      "authority": "Ohio Secretary of State",
+      "source_title": "November 5, 2024 General Election Official Canvass - Statewide Races Precinct-Level Workbook",
+      "source_url": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precinct-level.xlsx",
+      "source_level": "precinct",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": false,
       "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "county pdf",
-      "parser_fit": "county-local collection",
-      "status": "county_local_required",
-      "confidence": "medium",
-      "caveats": "Ohio SOS has official results, but precinct registered-voter turnout appears in county board SOV PDFs rather than one statewide file.",
-      "checked_at": "2026-06-07"
+      "format": "xlsx",
+      "parser_fit": "loaded: ohioPrecinctTurnoutXlsx",
+      "status": "loaded",
+      "confidence": "high",
+      "caveats": "App imports 8,878 official precinct rows from the President and Vice President sheet and validates registered-voter and ballots-counted totals against the workbook Total row.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "OK",
@@ -748,7 +748,7 @@
       "status": "loaded",
       "confidence": "medium",
       "caveats": "App joins official OKER presidential race total votes and vote-method splits to the official November 1 county registration PDF; rows are warning-labeled because the denominator is pre-election and the numerator is presidential race votes.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "OR",
@@ -768,7 +768,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports county rows from the official Oregon SOS archive PDF. The county table column is labeled Eligible, but the statewide total matches the PDF's Total registered voters line; numerator is Ballots Returned.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "PA",
@@ -788,7 +788,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App already imports county turnout rows from official vote-history/registration workbook.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "RI",
@@ -808,27 +808,27 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App joins official workbook precinct labels from Reg_Voters and Ballots_Cast; statewide federal reporting rows in the results source remain separate from county geometry.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "SC",
       "source_priority": 1,
-      "authority": "South Carolina State Election Commission plus county election offices",
-      "source_title": "County official Election Results reports with statistics panels",
+      "authority": "South Carolina State Election Commission",
+      "source_title": "2024 General Election ENR statewide presidential summary",
       "source_url": "https://www.enr-scvotes.org/SC/122436/web.345435/#/summary",
-      "source_level": "county-local or ENR county",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
-      "has_vote_method": true,
-      "vote_method_fields": "Election Day; early voting; absentee mail; failsafe; provisional where county report exposes them",
-      "denominator_timing": "final",
-      "format": "ENR/json plus county pdf",
-      "parser_fit": "inspect ENR turnout fields or collect county PDFs",
-      "status": "source_needs_review",
-      "confidence": "medium",
-      "caveats": "SEC annual report and county PDFs confirm statewide turnout/registered-voter data exists; exact statewide machine-readable source still needs capture.",
-      "checked_at": "2026-06-07"
+      "has_vote_method": false,
+      "vote_method_fields": "",
+      "denominator_timing": "unknown",
+      "format": "ENR/static json",
+      "parser_fit": "loaded: southCarolinaEnrStatewideTurnout",
+      "status": "loaded_statewide_only",
+      "confidence": "high",
+      "caveats": "Loaded as one statewide warning row from ENR TV registered voters and BC ballots cast. County detail feed still lacks county registered-voter denominators, so county turnout remains a follow-up.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "SD",
@@ -848,7 +848,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports county registered-voter and votes-cast rows from the official SOS Election Returns and Registration Figures PDF and validates the published statewide totals.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "TN",
@@ -868,67 +868,67 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports 95 official county turnout rows with registered voters, total votes cast, absentee by mail voters, and early voters from the linked November 5, 2024 turnout PDF.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "TX",
       "source_priority": 1,
       "authority": "Texas Secretary of State",
-      "source_title": "Election Results/Data: early voting, election-day turnout, and registration figures",
-      "source_url": "https://www.sos.state.tx.us/elections/historical/index.shtml",
-      "source_level": "county/state split across reports",
+      "source_title": "Turnout and Voter Registration Figures (1970-current)",
+      "source_url": "https://www.sos.state.tx.us/elections/historical/70-92.shtml",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
-      "has_vote_method": true,
-      "vote_method_fields": "early voting; election day",
+      "has_vote_method": false,
+      "vote_method_fields": "",
       "denominator_timing": "preElectionDay",
-      "format": "html/csv/download",
-      "parser_fit": "join early/election-day turnout with registration figures; county-level completeness needs review",
-      "status": "source_needs_review",
+      "format": "html-derived csv",
+      "parser_fit": "loaded: statewideTurnoutCsv",
+      "status": "loaded_statewide_only",
       "confidence": "medium",
-      "caveats": "SOS provides registration and turnout figures, but county-level final turnout may require combining multiple official reports or county canvass files.",
-      "checked_at": "2026-06-07"
+      "caveats": "App imports one statewide warning row from the official historical turnout table. County-level turnout denominator rows remain a follow-up before claiming county coverage.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "UT",
       "source_priority": 1,
       "authority": "Utah Lieutenant Governor / Vote.Utah.gov",
-      "source_title": "2024 Official General Election Certification and county Clarity summaries",
-      "source_url": "https://vote.utah.gov/2024-election-information/",
-      "source_level": "county dashboard/pdf candidate",
+      "source_title": "2024 County Canvass Certifications and Results - November 2024 General Election",
+      "source_url": "https://vote.utah.gov/county-canvass-certifications-and-results-november-2024-general-election/",
+      "source_level": "county partial",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": false,
       "vote_method_fields": "",
       "denominator_timing": "final",
-      "format": "pdf/Clarity ENR",
-      "parser_fit": "inspect county Clarity statistics panels or certification attachments",
-      "status": "source_needs_review",
+      "format": "countyTurnoutCsv",
+      "parser_fit": "loaded partial: countyTurnoutCsv from official county canvass PDFs",
+      "status": "loaded_partial",
       "confidence": "medium",
-      "caveats": "County Clarity summaries expose registered voters and turnout for some Utah counties; statewide official file location needs direct capture.",
-      "checked_at": "2026-06-07"
+      "caveats": "Loaded 24 of 29 county rows from official county canvass PDFs. Davis, Duchesne, Sanpete, Uintah, and Wayne require manual/OCR follow-up because their PDFs did not expose extractable registered-voter and ballots-cast totals in this pass.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "VA",
       "source_priority": 1,
       "authority": "Virginia Department of Elections",
-      "source_title": "2024 November General Official Results plus registered-voter statistics",
-      "source_url": "https://enr.elections.virginia.gov/results/public/Virginia/elections/2024NovemberGeneral",
-      "source_level": "locality/precinct candidate",
+      "source_title": "Registration/Turnout Reports",
+      "source_url": "https://www.elections.virginia.gov/resultsreports/registrationturnout-statistics/?lv=true",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": true,
-      "vote_method_fields": "early voting locations where locality ENR report exposes them",
-      "denominator_timing": "preElectionDay",
-      "format": "ENR/json plus registration PDF",
-      "parser_fit": "join ENR turnout/statistics to registration counts",
-      "status": "source_needs_review",
-      "confidence": "medium",
-      "caveats": "Official ENR and registration PDFs are available, but the exact app-ready turnout export needs inspection.",
-      "checked_at": "2026-06-07"
+      "vote_method_fields": "absenteeVoting",
+      "denominator_timing": "final",
+      "format": "html table normalized to csv",
+      "parser_fit": "loaded: statewideTurnoutCsv",
+      "status": "loaded_statewide_only",
+      "confidence": "high",
+      "caveats": "App imports one statewide warning row. The official summary includes total registered, total voting, turnout rate, and absentee voting included in total voting, but not locality-level denominators.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "VT",
@@ -948,7 +948,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports the official county summary table with registered voters, total votes cast including absentee, turnout, and absentee counts; town/district rows are available in the PDF but not imported yet.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "WA",
@@ -968,7 +968,7 @@
       "status": "loaded",
       "confidence": "high",
       "caveats": "App imports 39 county rows from the official reconciliation workbook using Active Voters as the denominator; the annual report's county turnout percentages reconcile to Ballots Counted divided by Active Voters, so rows carry an active-denominator warning.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "WI",
@@ -988,47 +988,47 @@
       "status": "partial_loaded",
       "confidence": "high",
       "caveats": "Statewide WEC ward results lack denominator fields; more county/municipal canvass reports are needed for full turnout coverage.",
-      "checked_at": "2026-06-07"
+      "checked_at": "2026-06-08"
     },
     {
       "state": "WV",
       "source_priority": 1,
       "authority": "West Virginia Secretary of State",
-      "source_title": "Historical Election Results and Turnout / 2024 General Election",
-      "source_url": "https://sos.wv.gov/elections/election-data/historical-election-results-and-turnout",
-      "source_level": "county",
+      "source_title": "2024 General Election ENR statewide ballots cast plus November 30 voter registration total",
+      "source_url": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
+      "source_level": "statewide",
       "has_ballots_cast": true,
       "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": false,
       "vote_method_fields": "",
-      "denominator_timing": "final",
-      "format": "linked pdf/html",
-      "parser_fit": "collect direct 2024 turnout file and parse",
-      "status": "usable_candidate",
+      "denominator_timing": "postElectionDay",
+      "format": "csv join",
+      "parser_fit": "loaded: statewideTurnoutCsv",
+      "status": "loaded_statewide_only",
       "confidence": "medium",
-      "caveats": "SOS certification notes county turnout rates and Election Day registration totals; direct source file URL should be captured.",
-      "checked_at": "2026-06-07"
+      "caveats": "App imports one statewide warning row by joining statewide ENR ballots cast to the official post-election voter registration total; county-level turnout denominators remain a follow-up.",
+      "checked_at": "2026-06-08"
     },
     {
       "state": "WY",
       "source_priority": 1,
       "authority": "Wyoming Secretary of State",
-      "source_title": "2024 Official General Election Results and county precinct-by-precinct summaries",
-      "source_url": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
-      "source_level": "county/precinct candidate",
+      "source_title": "Wyoming Voter Registration and Voter Turnout Statistics",
+      "source_url": "https://sos.wyo.gov/Elections/Docs/VoterProfile.pdf",
+      "source_level": "statewide",
       "has_ballots_cast": true,
-      "has_registered_voters": false,
+      "has_registered_voters": true,
       "has_eligible_voters": false,
       "has_vote_method": false,
       "vote_method_fields": "",
-      "denominator_timing": "unknown",
-      "format": "zip/xlsx/pdf",
-      "parser_fit": "inspect official PbP workbooks for registered-voter denominator fields",
-      "status": "source_needs_review",
+      "denominator_timing": "preElectionDay",
+      "format": "pdf normalized to csv",
+      "parser_fit": "loaded: statewideTurnoutCsv",
+      "status": "loaded_statewide_only",
       "confidence": "medium",
-      "caveats": "Official ZIP has precinct-by-precinct workbooks, but this pass did not confirm denominator fields inside those workbooks.",
-      "checked_at": "2026-06-07"
+      "caveats": "App imports one statewide warning row. The denominator is the close-of-business day-before-election registration count and excludes Election Day registrations, so turnout can exceed 100% of that denominator.",
+      "checked_at": "2026-06-08"
     }
   ]
 }

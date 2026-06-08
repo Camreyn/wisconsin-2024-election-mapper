@@ -15,6 +15,11 @@
       "localFile": "data/ma-2024-president-general-election.html"
     },
     {
+      "id": "ma-2024-state-election-statewide-turnout",
+      "url": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/voter-turnout-statistics.htm",
+      "localFile": "data/ma-2024-state-election-statewide-turnout.csv"
+    },
+    {
       "id": "ma-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2725%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ma-counties.geojson"
@@ -80,11 +85,20 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ma-2024-president-general-election",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Massachusetts turnout is not loaded yet. The PD43+ county result table has blanks and total votes cast, but no registered-voter denominator.",
+    "format": "statewideTurnoutCsv",
+    "sourceId": "ma-2024-state-election-statewide-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "Voter Turnout Statistics",
+    "sourceAuthority": "Massachusetts Secretary of the Commonwealth",
+    "coverageStatus": "statewide-only",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 5142343,
+      "ballotsCast": 3512930
+    },
+    "notes": "Massachusetts Secretary of the Commonwealth statewide voter turnout table reports 2024 State Election registered voters, total votes cast, and turnout percentage. County and city/town turnout rows remain a follow-up, so this row is labeled statewide-only.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -105,7 +119,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -128,13 +142,13 @@
         "status": "Needs parser mapping"
       },
       "turnout": {
-        "title": "Massachusetts turnout denominator",
-        "detail": "The PD43+ county table includes blanks and Total Votes Cast but does not include registered-voter denominators. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
-        "sourceUrl": "https://electionstats.state.ma.us/elections/view/165300",
-        "localFile": "data/ma-2024-president-general-election.html; data/ma-app-data.js",
+        "title": "Massachusetts official statewide turnout",
+        "detail": "A statewide-only turnout row is loaded from the Secretary of the Commonwealth voter turnout statistics table for the 2024 State Election. County and city/town detail remain a follow-up.",
+        "sourceUrl": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/voter-turnout-statistics.htm",
+        "localFile": "data/ma-2024-state-election-statewide-turnout.csv; data/ma-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "PD43+ county results table lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official turnout page table row: 2024 State Election.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -144,6 +158,13 @@
         "sourceUrl": "https://electionstats.state.ma.us/elections/view/165300",
         "usedFor": "Massachusetts certified 2024 presidential county result table.",
         "confidence": "Official Massachusetts Secretary of the Commonwealth PD43+ election results database."
+      },
+      {
+        "category": "Official statewide turnout",
+        "file": "data/ma-2024-state-election-statewide-turnout.csv; data/ma-app-data.js",
+        "sourceUrl": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/voter-turnout-statistics.htm",
+        "usedFor": "Massachusetts statewide-only turnout row and Source Planner turnout status.",
+        "confidence": "Massachusetts Secretary of the Commonwealth voter turnout statistics table."
       },
       {
         "category": "County boundaries",
@@ -164,9 +185,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Massachusetts turnout should not be inferred from the PD43+ county result table because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Massachusetts Secretary of the Commonwealth Voter Turnout Statistics table, 2024 State Election row.",
+      "warning": "Massachusetts turnout is statewide-only. County and city/town turnout denominator rows are not loaded yet.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -189,8 +210,8 @@
     "harris": 2126518,
     "other": 95847,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 14

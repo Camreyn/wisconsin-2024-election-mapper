@@ -15,6 +15,11 @@
       "localFile": "data/tx-2024-general-county.json"
     },
     {
+      "id": "tx-2024-general-statewide-turnout",
+      "url": "https://www.sos.state.tx.us/elections/historical/70-92.shtml",
+      "localFile": "data/tx-2024-general-statewide-turnout.csv"
+    },
+    {
       "id": "tx-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2748%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/tx-counties.geojson"
@@ -66,11 +71,21 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "tx-2024-general-county-json",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout remains disabled at the New York-level baseline because this promotion loads certified presidential county result totals only.",
+    "format": "statewideTurnoutCsv",
+    "sourceId": "tx-2024-general-statewide-turnout",
+    "registrationDenominatorTiming": "preElectionDay",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "Turnout and Voter Registration Figures (1970-current)",
+    "sourceAuthority": "Texas Secretary of State",
+    "coverageStatus": "statewide-only",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 18623931,
+      "ballotsCast": 11388674,
+      "votingAgePopulation": 22938482
+    },
+    "notes": "Texas Secretary of State historical turnout table reports statewide registered voters, voting-age population, turnout, and turnout percentages for the 2024 November presidential election. County-level turnout denominator rows are not loaded, so the app marks this as statewide-only.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -91,7 +106,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -114,13 +129,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Texas turnout denominator",
-        "detail": "The official county result JSON does not load a registered-voter denominator into the app. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://results.texas-election.com/static/data/election/49664/1012/County.json",
-        "localFile": "data/tx-2024-general-county.json; data/tx-app-data.js",
+        "title": "Texas official statewide turnout",
+        "detail": "A statewide-only turnout row is loaded from the Texas Secretary of State historical turnout table for the 2024 November presidential election. County-level turnout denominators remain a follow-up.",
+        "sourceUrl": "https://www.sos.state.tx.us/elections/historical/70-92.shtml",
+        "localFile": "data/tx-2024-general-statewide-turnout.csv; data/tx-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Certified result promotion is limited to presidential county vote totals.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official historical turnout page row: 2024 - November (Presidential).",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -130,6 +145,13 @@
         "sourceUrl": "https://results.texas-election.com/static/data/election/49664/1012/County.json",
         "usedFor": "Texas 2024 presidential county results.",
         "confidence": "Texas Secretary of State official election results portal static county JSON."
+      },
+      {
+        "category": "Official statewide turnout",
+        "file": "data/tx-2024-general-statewide-turnout.csv; data/tx-app-data.js",
+        "sourceUrl": "https://www.sos.state.tx.us/elections/historical/70-92.shtml",
+        "usedFor": "Texas statewide-only turnout row and Source Planner turnout status.",
+        "confidence": "Texas Secretary of State historical turnout table; row reconciles to the statewide presidential turnout figure reported for 2024 November."
       },
       {
         "category": "County boundaries",
@@ -142,9 +164,9 @@
     "checkedNotUsable": [],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Texas turnout should not be inferred from certified presidential vote totals alone because registered-voter denominators are not loaded.",
+      "status": "Loaded",
+      "acceptedSource": "Texas Secretary of State Turnout and Voter Registration Figures (1970-current), 2024 November presidential row.",
+      "warning": "Texas turnout is statewide-only. It should not be read as county coverage until official county-level turnout denominator rows are mapped.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -167,8 +189,8 @@
     "harris": 4835250,
     "other": 159827,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 254

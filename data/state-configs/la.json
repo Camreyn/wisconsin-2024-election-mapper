@@ -134,12 +134,21 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "la-2024-president-parish-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "louisianaPresidentParishJson",
+    "sourceId": "la-2024-president-votes-by-parish",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in this county-result promotion. The Louisiana SOS JSON includes qualified and voted fields that can be mapped in a later turnout pass.",
-    "warningRequired": true
+    "sourceTitle": "Votes Race By Parish - Presidential Electors",
+    "sourceAuthority": "Louisiana Secretary of State",
+    "coverageStatus": "loaded",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 3046376,
+      "ballotsCast": 2021164
+    },
+    "notes": "Louisiana Secretary of State presidential race parish JSON exposes VoterCountQualified and VoterCountVoted for each parish. The app uses VoterCountQualified as the registered-voter denominator and VoterCountVoted as ballots cast.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -159,7 +168,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -182,13 +191,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Louisiana turnout denominator",
-        "detail": "The official Louisiana SOS JSON exposes qualified and voted fields, but this pass only loads presidential parish results. Turnout remains disabled until those fields are mapped and validated as the accepted denominator.",
+        "title": "Louisiana official parish turnout",
+        "detail": "Turnout rows are parsed from the official Louisiana Secretary of State presidential race parish JSON. Each parish row includes VoterCountQualified and VoterCountVoted, which are used as the denominator and ballots-cast fields.",
         "sourceUrl": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20241105/VotesRaceByParish/Votes_67190.htm",
         "localFile": "data/la-2024-president-votes-by-parish.json; data/la-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Louisiana Secretary of State JSON checked during county-result promotion.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Louisiana Secretary of State JSON fields: VoterCountQualified and VoterCountVoted.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -198,6 +207,13 @@
         "sourceUrl": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20241105/VotesRaceByParish/Votes_67190.htm",
         "usedFor": "Louisiana certified 2024 presidential parish results.",
         "confidence": "Official Louisiana Secretary of State election results data endpoint."
+      },
+      {
+        "category": "Official parish turnout",
+        "file": "data/la-2024-president-votes-by-parish.json; data/la-app-data.js",
+        "sourceUrl": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20241105/VotesRaceByParish/Votes_67190.htm",
+        "usedFor": "Louisiana parish turnout graph and coverage rows.",
+        "confidence": "Official Louisiana Secretary of State election results data endpoint; VoterCountQualified and VoterCountVoted totals reconcile to the statewide presidential multiparish JSON."
       },
       {
         "category": "Parish boundaries",
@@ -218,9 +234,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Louisiana turnout is not enabled until the official qualified/voted fields are mapped and validated separately from the certified-results load.",
+      "status": "Loaded",
+      "acceptedSource": "Louisiana Secretary of State presidential race parish JSON VoterCountQualified and VoterCountVoted fields.",
+      "warning": "Louisiana turnout uses official qualified/voted fields from the presidential race parish JSON, not the sum of presidential candidate votes.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -243,7 +259,7 @@
     "harris": 766870,
     "other": 31600,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 64,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

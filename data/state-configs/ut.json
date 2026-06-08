@@ -20,6 +20,11 @@
       "localFile": "data/ut-2024-general-statewide-canvass.pdf"
     },
     {
+      "id": "ut-2024-county-turnout",
+      "url": "https://vote.utah.gov/county-canvass-certifications-and-results-november-2024-general-election/",
+      "localFile": "data/ut-2024-county-turnout.csv"
+    },
+    {
       "id": "ut-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2749%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ut-counties.geojson"
@@ -126,11 +131,20 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ut-2024-general-statewide-canvass",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "countyTurnoutCsv",
+    "sourceId": "ut-2024-county-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the statewide canvass PDF because it does not include registered-voter denominators.",
+    "sourceTitle": "2024 County Canvass Certifications and Results - November 2024 General Election",
+    "sourceAuthority": "Utah Lieutenant Governor / Vote.Utah.gov",
+    "coverageStatus": "partial",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 1543710,
+      "ballotsCast": 1316270
+    },
+    "notes": "Loaded as partial county-level turnout from official Vote.Utah.gov county canvass PDFs. The extract includes 24 of 29 counties where the PDFs expose registered voters and total ballots through text extraction, audit-form totals, or precinct statistics; Davis, Duchesne, Sanpete, Uintah, and Wayne remain missing.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -151,7 +165,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -174,13 +188,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Utah turnout denominator",
-        "detail": "The statewide canvass PDF does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://vote.utah.gov/2024-election-information/",
-        "localFile": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
+        "title": "Utah partial county turnout",
+        "detail": "County turnout is partially loaded from official Vote.Utah.gov county canvass PDFs. The app imports 24 counties where registered voters and total ballots are extractable; Davis, Duchesne, Sanpete, Uintah, and Wayne remain missing and the UI labels the coverage as partial.",
+        "sourceUrl": "https://vote.utah.gov/county-canvass-certifications-and-results-november-2024-general-election/",
+        "localFile": "data/ut-2024-county-turnout.csv; data/ut-2024-county-canvass-pdfs/*.pdf; data/ut-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official statewide canvass lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Vote.Utah.gov county canvass page links county PDF certifications and results for the November 2024 General Election.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -190,6 +204,13 @@
         "sourceUrl": "https://vote.utah.gov/wp-content/uploads/2025/02/2024-General-Election-Statewide-Canvass-2.pdf",
         "usedFor": "Utah 2024 presidential county table, statewide candidate totals, CSV export, and Source Planner rows.",
         "confidence": "Official Utah statewide canvass PDF published by Vote.Utah.gov."
+      },
+      {
+        "category": "Partial county turnout",
+        "file": "data/ut-2024-county-turnout.csv; data/ut-2024-county-canvass-pdfs/*.pdf; data/ut-app-data.js",
+        "sourceUrl": "https://vote.utah.gov/county-canvass-certifications-and-results-november-2024-general-election/",
+        "usedFor": "Utah county turnout warning rows for 24 of 29 counties.",
+        "confidence": "Official Vote.Utah.gov county canvass PDFs. Marked partial because five county PDFs did not expose extractable registered-voter and ballots-cast totals in this pass."
       },
       {
         "category": "County boundaries",
@@ -210,9 +231,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Utah turnout should not be inferred from the statewide canvass PDF because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Official Vote.Utah.gov county canvass PDF turnout summaries for 24 counties.",
+      "warning": "Utah turnout is partial county coverage. Missing counties are Davis, Duchesne, Sanpete, Uintah, and Wayne; statewide conclusions should not be drawn from the partial row set.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -235,8 +256,8 @@
     "harris": 562566,
     "other": 41626,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 24,
+    "turnoutWarningRows": 24,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 29

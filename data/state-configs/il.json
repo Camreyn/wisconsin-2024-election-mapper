@@ -78,11 +78,21 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "illinoisPrecinctCsv",
     "sourceId": "il-2024-president-county-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded yet. The official presidential CSV includes precinct registration values and candidate votes, but the app has not mapped an official county turnout denominator source.",
+    "contestName": "PRESIDENT AND VICE PRESIDENT",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "precinct",
+    "sourceTitle": "2024 General Election PRESIDENT AND VICE PRESIDENT CSV",
+    "sourceAuthority": "Illinois State Board of Elections",
+    "coverageStatus": "partial",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 7210422,
+      "ballotsCast": 5018709
+    },
+    "notes": "Loaded from the official Illinois State Board of Elections precinct CSV for PRESIDENT AND VICE PRESIDENT. Ballots cast are contest-level totals, including candidate, write-in, blank, over-vote, and under-vote rows. Rows with zero or missing Registration are excluded, so coverage is partial and the app shows caution labels.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -103,7 +113,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -126,13 +136,13 @@
         "status": "Needs comparison contest"
       },
       "turnout": {
-        "title": "Illinois turnout denominator",
-        "detail": "The presidential CSV includes precinct registration values and candidate votes, but turnout remains disabled until an official county turnout denominator workflow is mapped and reconciled.",
+        "title": "Illinois official precinct turnout proxy",
+        "detail": "Turnout is loaded from the official Illinois State Board of Elections presidential precinct CSV. The denominator is the Registration field; ballots cast are the contest-level sum of candidate, write-in, blank, over-vote, and under-vote rows. Rows with zero or missing Registration are excluded, so the app labels coverage as partial.",
         "sourceUrl": "https://www.elections.il.gov/electionoperations/ElectionVoteTotalsCounty.aspx?ID=9huvqbsiUWA%3D",
         "localFile": "data/il-2024-president-county-results.csv; data/il-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential CSV has precinct registration values, but the app has not loaded county turnout denominators.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official presidential CSV includes precinct Registration and vote rows for candidates, write-ins, blank ballots, over-votes, and under-votes.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -142,6 +152,13 @@
         "sourceUrl": "https://www.elections.il.gov/electionoperations/ElectionVoteTotalsCounty.aspx?ID=9huvqbsiUWA%3D",
         "usedFor": "Illinois 2024 presidential county results.",
         "confidence": "Official Illinois State Board of Elections 2024 General Election PRESIDENT AND VICE PRESIDENT CSV."
+      },
+      {
+        "category": "Precinct turnout denominator",
+        "file": "data/il-2024-president-county-results.csv; data/il-app-data.js",
+        "sourceUrl": "https://www.elections.il.gov/electionoperations/ElectionVoteTotalsCounty.aspx?ID=9huvqbsiUWA%3D",
+        "usedFor": "Illinois precinct turnout warning rows.",
+        "confidence": "Official Illinois State Board of Elections CSV includes Registration and presidential contest vote rows. Ballots cast are contest-level sums, including blank, over-vote, and under-vote rows. Marked partial because some source rows have zero or missing Registration."
       },
       {
         "category": "County boundaries",
@@ -162,9 +179,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Illinois turnout should not be inferred from presidential candidate vote totals until county turnout denominators are explicitly mapped.",
+      "status": "Loaded",
+      "acceptedSource": "Official Illinois State Board of Elections PRESIDENT AND VICE PRESIDENT precinct CSV Registration field plus contest-level vote rows.",
+      "warning": "Illinois turnout rows use presidential contest ballots, including blank, over-vote, and under-vote rows, as the ballots-cast numerator. Rows with zero or missing Registration are excluded, so treat as partial contest-turnout coverage.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -187,8 +204,8 @@
     "harris": 3062863,
     "other": 137837,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 7802,
+    "turnoutWarningRows": 7802,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 102

@@ -15,6 +15,11 @@
       "localFile": "data/wy-2024-general-results.zip"
     },
     {
+      "id": "wy-2024-voter-profile-turnout",
+      "url": "https://sos.wyo.gov/Elections/Docs/VoterProfile.pdf",
+      "localFile": "data/wy-2024-voter-profile-turnout.csv"
+    },
+    {
       "id": "wy-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2756%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/wy-counties.geojson"
@@ -69,11 +74,19 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "wy-2024-general-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the statewide candidate summary because it does not include registered-voter denominators.",
+    "format": "statewideTurnoutCsv",
+    "sourceId": "wy-2024-voter-profile-turnout",
+    "registrationDenominatorTiming": "preElectionDay",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "Wyoming Voter Registration and Voter Turnout Statistics",
+    "sourceAuthority": "Wyoming Secretary of State",
+    "coverageStatus": "statewide-only",
+    "statewideTotals": {
+      "registeredVoters": 256251,
+      "ballotsCast": 271123
+    },
+    "notes": "Loaded as a statewide-only warning row from the Wyoming Secretary of State voter profile. The registered-voter denominator is the close-of-business day-before-election count and excludes Election Day registrations, so turnout can exceed 100% of that denominator.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -94,7 +107,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -117,13 +130,13 @@
         "status": "Needs parser mapping"
       },
       "turnout": {
-        "title": "Wyoming turnout denominator",
-        "detail": "The statewide candidate summary does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
-        "localFile": "data/wy-2024-general-results.zip; data/wy-app-data.js",
+        "title": "Wyoming statewide turnout profile",
+        "detail": "Statewide turnout is loaded from the Wyoming Secretary of State voter profile. The denominator is the day-before-election registered-voter count and excludes Election Day registrations, so the app labels the row as statewide-only and warning-required.",
+        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/VoterProfile.pdf",
+        "localFile": "data/wy-2024-voter-profile-turnout.csv; data/wy-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official statewide candidate summary lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Wyoming Secretary of State voter profile PDF is revised 11/2024 and defines registered voters as close-of-business day-before-election counts.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -140,6 +153,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Wyoming county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Statewide turnout",
+        "file": "data/wy-2024-voter-profile-turnout.csv; data/wy-app-data.js",
+        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/VoterProfile.pdf",
+        "usedFor": "One statewide turnout row with warning labels.",
+        "confidence": "Official Wyoming Secretary of State voter registration and turnout statistics PDF."
       }
     ],
     "checkedNotUsable": [
@@ -152,12 +172,12 @@
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Wyoming turnout should not be inferred from the statewide candidate summary because it lacks registered-voter denominators.",
+      "route": "officialStatewideTurnoutProfile",
+      "status": "Loaded",
+      "acceptedSource": "Wyoming Secretary of State Voter Registration and Voter Turnout Statistics PDF.",
+      "warning": "Statewide-only row uses the day-before-election registered-voter count, which excludes Election Day registrations; do not treat the denominator-limited over-100% value as fraud evidence.",
       "requiredFields": [
-        "county",
+        "state",
         "ballotsCast",
         "registeredVoters",
         "sourceUrl"
@@ -178,8 +198,8 @@
     "harris": 69527,
     "other": 6888,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 23

@@ -20,6 +20,11 @@
       "localFile": "data/nh-2024-president-county-summary.pdf"
     },
     {
+      "id": "nh-2024-statewide-turnout",
+      "url": "https://www.sos.nh.gov/2024-general-election-results",
+      "localFile": "data/nh-2024-statewide-turnout.csv"
+    },
+    {
       "id": "nh-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2733%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/nh-counties.geojson"
@@ -79,11 +84,20 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "format": "statewideTurnoutCsv",
+    "sourceId": "nh-2024-statewide-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "2024 General Election Ballots Cast and Names on Checklist",
+    "sourceAuthority": "New Hampshire Secretary of State",
+    "coverageStatus": "statewide-only",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 962937,
+      "ballotsCast": 834651
+    },
+    "notes": "Loaded as a statewide-only warning row from the New Hampshire Secretary of State 2024 General Election Results page, which lists Ballots Cast and Names on Checklist Excel sources. The direct SOS Excel endpoint is browser-protected in this environment, so the app stores a normalized statewide extract.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -104,7 +118,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -127,13 +141,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "New Hampshire turnout denominator",
-        "detail": "The presidential county summary includes candidate votes plus under-votes and over-votes, but turnout remains disabled until an official registered-voter denominator is mapped.",
+        "title": "New Hampshire statewide turnout",
+        "detail": "Statewide turnout is loaded with a warning from the New Hampshire Secretary of State 2024 General Election Results page. The source page lists Ballots Cast and Names on Checklist Excel files; the app stores a normalized statewide extract because the direct SOS Excel endpoint is browser-protected in this environment.",
         "sourceUrl": "https://www.sos.nh.gov/2024-general-election-results",
-        "localFile": "data/nh-2024-president-county-summary.pdf; data/nh-app-data.js",
+        "localFile": "data/nh-2024-statewide-turnout.csv; data/nh-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official New Hampshire 2024 General Election Results page lists Ballots Cast and Names on Checklist Excel sources.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -143,6 +157,13 @@
         "sourceUrl": "https://www.sos.nh.gov/2024-general-election-results",
         "usedFor": "New Hampshire 2024 presidential county result baseline.",
         "confidence": "State of New Hampshire General Election President and Vice-President county summary; parsed rows reconcile to the published TOTALS row."
+      },
+      {
+        "category": "Statewide turnout",
+        "file": "data/nh-2024-statewide-turnout.csv; data/nh-app-data.js",
+        "sourceUrl": "https://www.sos.nh.gov/2024-general-election-results",
+        "usedFor": "New Hampshire statewide turnout caution row.",
+        "confidence": "Official New Hampshire Secretary of State result page lists Ballots Cast and Names on Checklist Excel sources; stored as a normalized statewide extract because the direct Excel endpoint is browser-protected here."
       },
       {
         "category": "County boundaries",
@@ -170,11 +191,10 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "New Hampshire turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "New Hampshire Secretary of State 2024 General Election Results Ballots Cast and Names on Checklist sources.",
+      "warning": "New Hampshire turnout is statewide-only until the browser-protected SOS Excel files are captured and parsed at county or town level.",
       "requiredFields": [
-        "county",
         "ballotsCast",
         "registeredVoters",
         "sourceUrl"
@@ -195,8 +215,8 @@
     "harris": 418488,
     "other": 12178,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 10

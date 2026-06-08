@@ -20,6 +20,11 @@
       "localFile": "data/oh-2024-statewide-race-summary.xlsx"
     },
     {
+      "id": "oh-2024-statewide-races-precinct-level-xlsx",
+      "url": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precinct-level.xlsx",
+      "localFile": "data/oh-2024-statewide-races-precinct-level.xlsx"
+    },
+    {
       "id": "oh-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2739%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/oh-counties.geojson"
@@ -122,12 +127,25 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
-    "warningRequired": true
+    "format": "ohioPrecinctTurnoutXlsx",
+    "sourceId": "oh-2024-statewide-races-precinct-level-xlsx",
+    "sheetName": "President and Vice President",
+    "headerRow": 2,
+    "totalRow": 3,
+    "dataStartRow": 5,
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "precinct",
+    "sourceTitle": "November 5, 2024 General Election Official Canvass - Statewide Races Precinct-Level Workbook",
+    "sourceAuthority": "Ohio Secretary of State",
+    "coverageStatus": "loaded",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 8159946,
+      "ballotsCast": 5851387
+    },
+    "notes": "Ohio Secretary of State official canvass precinct-level workbook supplies Registered Voters, Ballots Counted, and Official Voter Turnout for each precinct row on the President and Vice President sheet.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -147,7 +165,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -170,13 +188,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Ohio turnout denominator",
-        "detail": "The official presidential summary workbook includes registered-voter and ballots-counted columns, but turnout remains disabled until the dedicated turnout workbook is mapped into the app's turnout schema.",
-        "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/turnout-by-county.xlsx",
-        "localFile": "data/oh-2024-statewide-race-summary.xlsx; data/oh-app-data.js",
+        "title": "Ohio official precinct turnout",
+        "detail": "Turnout rows are parsed from the Ohio Secretary of State official statewide-races precinct-level workbook. The President and Vice President sheet provides Registered Voters, Ballots Counted, and Official Voter Turnout for each precinct row.",
+        "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precinct-level.xlsx",
+        "localFile": "data/oh-2024-statewide-races-precinct-level.xlsx; data/oh-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Workbook title row: November 5, 2024 General Election Official Canvass.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -186,6 +204,13 @@
         "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-race-summary.xlsx",
         "usedFor": "Ohio 2024 presidential county result baseline.",
         "confidence": "Ohio Secretary of State November 5, 2024 General Election Official Canvass workbook; parsed county rows reconcile to the workbook Total row."
+      },
+      {
+        "category": "Official precinct turnout",
+        "file": "data/oh-2024-statewide-races-precinct-level.xlsx; data/oh-app-data.js",
+        "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precinct-level.xlsx",
+        "usedFor": "Ohio precinct-level turnout graph and coverage rows.",
+        "confidence": "Ohio Secretary of State November 5, 2024 General Election Official Canvass precinct workbook; parsed rows reconcile to the workbook Total row for registered voters and ballots counted."
       },
       {
         "category": "County boundaries",
@@ -213,11 +238,12 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Ohio turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Ohio Secretary of State November 5, 2024 General Election Official Canvass statewide-races precinct-level workbook.",
+      "warning": "Ohio turnout uses the official canvass Registered Voters and Ballots Counted fields from the precinct workbook; vote-method turnout fields are not exposed in this source.",
       "requiredFields": [
         "county",
+        "ward",
         "ballotsCast",
         "registeredVoters",
         "sourceUrl"
@@ -238,7 +264,7 @@
     "harris": 2533699,
     "other": 53973,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 8878,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

@@ -25,6 +25,11 @@
       "localFile": "data/wv-2024-general-election-details.json"
     },
     {
+      "id": "wv-2024-statewide-turnout",
+      "url": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
+      "localFile": "data/wv-2024-statewide-turnout.csv"
+    },
+    {
       "id": "wv-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2754%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/wv-counties.geojson"
@@ -85,11 +90,20 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "wv-2024-general-election-details",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the ENR presidential result JSON because it does not include registered-voter denominators.",
+    "format": "statewideTurnoutCsv",
+    "sourceId": "wv-2024-statewide-turnout",
+    "registrationDenominatorTiming": "postElectionDay",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "2024 General Election ENR statewide ballots cast plus November 30 voter registration total",
+    "sourceAuthority": "West Virginia Secretary of State",
+    "coverageStatus": "statewide-only",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 1212660,
+      "ballotsCast": 770587
+    },
+    "notes": "West Virginia statewide-only turnout joins official ENR statewide ballots cast to the Secretary of State November 30, 2024 voter registration total. County-level turnout denominators remain a follow-up.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -110,7 +124,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -133,13 +147,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "West Virginia turnout denominator",
-        "detail": "The loaded ENR presidential result JSON does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "title": "West Virginia official statewide turnout",
+        "detail": "A statewide-only turnout row is loaded by joining official ENR statewide ballots cast to the Secretary of State November 30, 2024 voter registration total. County-level turnout denominators remain a follow-up.",
         "sourceUrl": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
-        "localFile": "data/wv-2024-general-election-sum.json; data/wv-2024-general-election-details.json; data/wv-app-data.js",
+        "localFile": "data/wv-2024-general-election-sum.json; data/wv-2024-statewide-turnout.csv; data/wv-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official ENR presidential result JSON lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official ENR summary BC field plus Secretary of State November 30, 2024 voter registration total.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -149,6 +163,13 @@
         "sourceUrl": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
         "usedFor": "West Virginia county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
         "confidence": "Official West Virginia Secretary of State Clarity ENR static JSON for the 2024 General Election."
+      },
+      {
+        "category": "Official statewide turnout",
+        "file": "data/wv-2024-general-election-sum.json; data/wv-2024-statewide-turnout.csv; data/wv-app-data.js",
+        "sourceUrl": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
+        "usedFor": "West Virginia statewide-only turnout row and Source Planner turnout status.",
+        "confidence": "Official West Virginia Secretary of State ENR statewide ballots-cast field joined to the official November 30, 2024 voter registration total."
       },
       {
         "category": "County boundaries",
@@ -169,9 +190,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "West Virginia turnout should not be inferred from the ENR presidential result JSON because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "West Virginia Secretary of State ENR statewide ballots cast plus November 30, 2024 voter registration total.",
+      "warning": "West Virginia turnout is statewide-only and uses a post-election registration denominator. County-level turnout denominator rows are not loaded yet.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -194,8 +215,8 @@
     "harris": 214309,
     "other": 14525,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 55

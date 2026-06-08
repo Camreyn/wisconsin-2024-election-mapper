@@ -15,6 +15,11 @@
       "localFile": "data/ky-2024-general-election-certification.pdf"
     },
     {
+      "id": "ky-2024-general-voter-turnout-by-county",
+      "url": "https://elect.ky.gov/Resources/Documents/2024G%20Voter%20Turnout%20by%20County.pdf",
+      "localFile": "data/ky-2024-general-voter-turnout-by-county.pdf"
+    },
+    {
       "id": "ky-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2721%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ky-counties.geojson"
@@ -127,11 +132,25 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ky-2024-general-election-certification",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "kentuckyTurnoutPdf",
+    "sourceId": "ky-2024-general-voter-turnout-by-county",
+    "registrationDenominatorTiming": "postElectionDay",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded yet. The official certification PDF includes presidential candidate votes by county but does not include registered-voter denominators.",
+    "sourceTitle": "Voter Turnout Report For the 2024 General Election",
+    "sourceAuthority": "Kentucky State Board of Elections",
+    "coverageStatus": "loaded",
+    "statewideTotals": {
+      "registeredVoters": 3548136,
+      "ballotsCast": 2086320,
+      "demRegisteredVoters": 1508617,
+      "demBallotsCast": 845131,
+      "repRegisteredVoters": 1659088,
+      "repBallotsCast": 1072657,
+      "otherRegisteredVoters": 380431,
+      "otherBallotsCast": 168532
+    },
+    "notes": "Official Kentucky SBE turnout report by county. Kentucky notes turnout reports are run after registration rolls reopen, so the registered-voter denominator is labeled post-election and warning-required.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -152,7 +171,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -175,13 +194,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Kentucky turnout denominator",
-        "detail": "The certification PDF includes presidential vote totals by county but no registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
-        "localFile": "data/ky-2024-general-election-certification.pdf; data/ky-app-data.js",
+        "title": "Kentucky official county turnout",
+        "detail": "County turnout rows are parsed from the official Kentucky State Board of Elections Voter Turnout Report for the 2024 General Election. The report includes total registered voters, number voting, and party registration/voting columns by county. Kentucky's turnout page says reports are run after registration rolls reopen, so these rows are warning-labeled as post-election denominators.",
+        "sourceUrl": "https://elect.ky.gov/Resources/Documents/2024G%20Voter%20Turnout%20by%20County.pdf",
+        "localFile": "data/ky-2024-general-voter-turnout-by-county.pdf; data/ky-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Certification PDF lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Kentucky SBE turnout PDF is dated January 6, 2025 and titled Voter Turnout Report For the 2024 General Election.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -198,6 +217,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Kentucky county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "County turnout",
+        "file": "data/ky-2024-general-voter-turnout-by-county.pdf; data/ky-app-data.js",
+        "sourceUrl": "https://elect.ky.gov/Resources/Documents/2024G%20Voter%20Turnout%20by%20County.pdf",
+        "usedFor": "Kentucky county turnout rows, registered-voter denominators, ballots cast, party registration/voting columns, and Source Planner turnout rows.",
+        "confidence": "Official Kentucky State Board of Elections turnout report for the 2024 General Election; parsed county sums reconcile to the PDF Totals row."
       }
     ],
     "checkedNotUsable": [
@@ -211,9 +237,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Kentucky turnout should not be inferred from the certification presidential vote totals because registered-voter denominators are not mapped.",
+      "status": "Loaded",
+      "acceptedSource": "Official Kentucky State Board of Elections Voter Turnout Report For the 2024 General Election.",
+      "warning": "Kentucky turnout rows use a post-election registered-voter denominator because the SBE turnout page says reports are run after registration rolls reopen.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -236,8 +262,8 @@
     "harris": 704043,
     "other": 32993,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 120,
+    "turnoutWarningRows": 120,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 120

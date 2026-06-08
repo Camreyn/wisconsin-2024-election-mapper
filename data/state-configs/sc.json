@@ -92,11 +92,21 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "southCarolinaEnrStatewideTurnout",
     "sourceId": "sc-2024-general-election-sum",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded because the ENR presidential result feeds do not include app-ready registered-voter denominators.",
+    "contestKey": "20500",
+    "registrationDenominatorTiming": "unknown",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "South Carolina 2024 General Election ENR summary",
+    "sourceAuthority": "South Carolina State Election Commission",
+    "coverageStatus": "statewide-only",
+    "statewideTotals": {
+      "registeredVoters": 3343423,
+      "ballotsCast": 2566404,
+      "presidentialVotes": 2548140
+    },
+    "notes": "Official South Carolina ENR statewide summary provides registered voters and ballots cast for the presidential contest, but the county detail feed does not expose county registered-voter denominators. Loaded as statewide-only with a caution label.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -117,7 +127,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -140,13 +150,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "South Carolina turnout denominator",
-        "detail": "The ENR presidential result feeds include county vote totals but do not provide mapped registered-voter denominators for the app turnout module. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "title": "South Carolina official statewide turnout",
+        "detail": "The official ENR statewide presidential summary reports registered voters and ballots cast. County rows remain unavailable because the county detail feed does not expose registered-voter denominators, so this is loaded as statewide-only with caution labels.",
         "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
         "localFile": "data/sc-2024-general-election-sum.json; data/sc-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "ENR summary feed was checked during official-source promotion; it reports contest votes but not app-ready registration denominators.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "State-linked ENR current version file /SC/122436/current_ver.txt returned 359624; static JSON summary reports the statewide 2024 General Election registered voters and ballots cast.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -163,6 +173,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "South Carolina county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Statewide turnout",
+        "file": "data/sc-2024-general-election-sum.json; data/sc-app-data.js",
+        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
+        "usedFor": "South Carolina statewide turnout row, registered-voter denominator, ballots cast, turnout percentage, and Source Planner rows.",
+        "confidence": "Official South Carolina State Election Commission ENR static JSON. County detail is not enabled for turnout because county registered-voter denominator fields are not exposed in the mapped feed."
       }
     ],
     "checkedNotUsable": [
@@ -176,11 +193,10 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "South Carolina turnout should not be inferred from the ENR presidential result feeds because they lack app-ready registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Official South Carolina State Election Commission ENR statewide presidential summary.",
+      "warning": "South Carolina turnout is statewide-only. The mapped ENR county detail feed lacks county registered-voter denominators, so county coverage remains missing.",
       "requiredFields": [
-        "county",
         "ballotsCast",
         "registeredVoters",
         "sourceUrl"
@@ -201,8 +217,8 @@
     "harris": 1028452,
     "other": 35941,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 46

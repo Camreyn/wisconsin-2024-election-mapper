@@ -15,6 +15,11 @@
       "localFile": "data/ga-2024-total-votes-results.xlsx"
     },
     {
+      "id": "ga-2024-statewide-turnout",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-statewide-turnout.csv"
+    },
+    {
       "id": "ga-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2713%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ga-counties.geojson"
@@ -66,11 +71,20 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ga-2024-total-votes-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the official Total Votes workbook because certified presidential county totals are currently used only for result mapping.",
+    "format": "statewideTurnoutCsv",
+    "sourceId": "ga-2024-statewide-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "Georgia November General Election public results turnout join",
+    "sourceAuthority": "Georgia Secretary of State",
+    "coverageStatus": "statewide-only",
+    "voteMethodFields": [],
+    "statewideTotals": {
+      "registeredVoters": 7219868,
+      "ballotsCast": 5297264
+    },
+    "notes": "Loaded as a statewide-only warning row by joining the Georgia Secretary of State public results portal totalVoters denominator to the sum of official Total Votes workbook county President Ballots Cast rows. County-level registration denominator detail remains a follow-up.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -91,7 +105,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -114,13 +128,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Georgia turnout denominator",
-        "detail": "Turnout remains disabled until the official registration/turnout fields from the Georgia public results API are mapped into the app turnout model.",
+        "title": "Georgia statewide turnout denominator",
+        "detail": "Statewide turnout is loaded with a warning by joining the Georgia Secretary of State public results portal totalVoters denominator to the sum of official Total Votes workbook county President Ballots Cast rows. County-level turnout denominators remain a follow-up.",
         "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
-        "localFile": "data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
+        "localFile": "data/ga-2024-statewide-turnout.csv; data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Certified result import is limited to county presidential totals.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Georgia SOS public results API marks the election isOfficialResults=true and exposes election totalVoters; the workbook provides official county President Ballots Cast rows.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -130,6 +144,13 @@
         "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
         "usedFor": "Georgia 2024 presidential county totals.",
         "confidence": "Official Georgia Secretary of State public results export. The election API marks the results official, and the workbook totals reconcile between County Results and Total Votes sheets."
+      },
+      {
+        "category": "Statewide turnout denominator",
+        "file": "data/ga-2024-statewide-turnout.csv; data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
+        "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+        "usedFor": "Georgia statewide turnout caution row.",
+        "confidence": "Official Georgia Secretary of State public results portal denominator joined to official workbook county ballots-cast rows. Labeled statewide-only because county denominator rows are not loaded."
       },
       {
         "category": "County boundaries",
@@ -150,11 +171,10 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Georgia turnout should not be inferred from the certified county totals import until official denominator fields are mapped.",
+      "status": "Loaded",
+      "acceptedSource": "Georgia Secretary of State public results portal totalVoters denominator plus official Total Votes workbook county President Ballots Cast rows.",
+      "warning": "Georgia turnout is statewide-only and uses a joined official denominator/numerator source; it should not be treated as county-level turnout evidence.",
       "requiredFields": [
-        "county",
         "ballotsCast",
         "registeredVoters",
         "sourceUrl"
@@ -175,8 +195,8 @@
     "harris": 2548017,
     "other": 38913,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 159

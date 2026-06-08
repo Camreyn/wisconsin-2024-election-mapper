@@ -15,6 +15,11 @@
       "localFile": "data/ia-2024-general-canvass-summary.pdf"
     },
     {
+      "id": "ia-2024-general-turnout",
+      "url": "https://sos.iowa.gov/elections/pdf/2024/general/turnout.pdf",
+      "localFile": "data/ia-2024-general-turnout.csv"
+    },
+    {
       "id": "ia-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2719%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ia-counties.geojson"
@@ -83,11 +88,27 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ia-2024-general-canvass-summary",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "iowaTurnoutCsv",
+    "sourceId": "ia-2024-general-turnout",
+    "registrationDenominatorTiming": "preElectionDay",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Iowa turnout is not loaded yet. The canvass summary PDF includes ballots cast for contest rows, but registered-voter denominators require a separate official registration or turnout source.",
+    "sourceTitle": "2024 General Election Turnout Report",
+    "sourceAuthority": "Iowa Secretary of State",
+    "coverageStatus": "loaded",
+    "voteMethodFields": [
+      "electionDayVoters",
+      "absenteeVoters"
+    ],
+    "statewideTotals": {
+      "electionDayVoters": 992112,
+      "absenteeVoters": 681899,
+      "ballotsCast": 1674011,
+      "activeVoters": 1698438,
+      "inactiveVoters": 558336,
+      "registeredVoters": 2256774
+    },
+    "notes": "Iowa Secretary of State turnout report gives county Election Day voters, absentee voters, total voters, active voters as of 11/5/2024, inactive voters as of 11/5/2024, and turnout percentages. The app uses active plus inactive voters as the registered-voter denominator and warning-labels rows because the denominator is an Election Day snapshot.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -108,7 +129,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -131,13 +152,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Iowa turnout denominator",
-        "detail": "The canvass summary includes contest vote totals, undervotes, and overvotes, but no registered-voter denominator. Turnout should stay disabled until an official registration or turnout source is mapped.",
-        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
-        "localFile": "data/ia-2024-general-canvass-summary.pdf; data/ia-app-data.js",
+        "title": "Iowa official county turnout",
+        "detail": "County turnout rows are parsed from the Iowa Secretary of State 2024 General Election Turnout Report. The report gives Election Day voters, absentee voters, total voters, active voters, inactive voters, and turnout percentages by county.",
+        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/turnout.pdf",
+        "localFile": "data/ia-2024-general-turnout.csv; data/ia-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass summary lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Report title: 2024 General Election Turnout Report; registration columns are labeled as of 11/5/2024.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -147,6 +168,13 @@
         "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
         "usedFor": "Iowa 2024 certified presidential county results.",
         "confidence": "Official Iowa Secretary of State statewide canvass summary PDF, collected from the Iowa state board meeting attachment copy when the SOS CDN blocked command-line download."
+      },
+      {
+        "category": "Official county turnout",
+        "file": "data/ia-2024-general-turnout.csv; data/ia-app-data.js",
+        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/turnout.pdf",
+        "usedFor": "Iowa county turnout graph and coverage rows.",
+        "confidence": "Official Iowa Secretary of State turnout report; local CSV is derived from the official PDF text because the SOS CDN blocks command-line and browser downloads. Parsed county rows reconcile to the published Total row."
       },
       {
         "category": "County boundaries",
@@ -167,9 +195,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Iowa turnout should not be inferred from presidential contest totals; use an official registration or turnout denominator source before enabling turnout.",
+      "status": "Loaded",
+      "acceptedSource": "Iowa Secretary of State 2024 General Election Turnout Report.",
+      "warning": "Iowa turnout uses active plus inactive voters as of November 5, 2024 from the official turnout report as the denominator. Rows are warning-labeled because the denominator is an Election Day snapshot and active-voter turnout can exceed 100% when inactive voters or new county registrants participate.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -192,8 +220,8 @@
     "harris": 707278,
     "other": 29209,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 99,
+    "turnoutWarningRows": 99,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 99

@@ -15,6 +15,11 @@
       "localFile": "data/va-2024-president-results.csv"
     },
     {
+      "id": "va-2024-statewide-turnout",
+      "url": "https://www.elections.virginia.gov/resultsreports/registrationturnout-statistics/?lv=true",
+      "localFile": "data/va-2024-statewide-turnout.csv"
+    },
+    {
       "id": "va-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2751%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/va-counties.geojson"
@@ -81,11 +86,22 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "va-2024-president-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Virginia turnout is not loaded yet. The certified contest CSV includes candidate votes and total votes cast but does not include registered-voter denominators.",
+    "format": "statewideTurnoutCsv",
+    "sourceId": "va-2024-statewide-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "Registration/Turnout Reports",
+    "sourceAuthority": "Virginia Department of Elections",
+    "coverageStatus": "statewide-only",
+    "voteMethodFields": [
+      "absenteeVoting"
+    ],
+    "statewideTotals": {
+      "registeredVoters": 6434637,
+      "ballotsCast": 4535314
+    },
+    "notes": "Loaded as a statewide-only warning row from the Virginia Department of Elections Registration/Turnout Reports summary. The source also reports absentee voting included in total voting.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -106,7 +122,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -129,13 +145,13 @@
         "status": "Needs parser mapping"
       },
       "turnout": {
-        "title": "Virginia turnout denominator",
-        "detail": "The certified contest CSV includes candidate votes and total votes cast, but no locality registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
-        "sourceUrl": "https://historical.elections.virginia.gov/contest/161256",
-        "localFile": "data/va-2024-president-results.csv; data/va-app-data.js",
+        "title": "Virginia statewide registration and turnout summary",
+        "detail": "Statewide turnout is loaded from the Virginia Department of Elections Registration/Turnout Reports page. The source reports total registered, total voting, turnout rate, and absentee voting included in total voting.",
+        "sourceUrl": "https://www.elections.virginia.gov/resultsreports/registrationturnout-statistics/?lv=true",
+        "localFile": "data/va-2024-statewide-turnout.csv; data/va-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential contest CSV lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Virginia Department of Elections page says turnout figures are published after the election is certified.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -152,6 +168,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Virginia county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Statewide turnout",
+        "file": "data/va-2024-statewide-turnout.csv; data/va-app-data.js",
+        "sourceUrl": "https://www.elections.virginia.gov/resultsreports/registrationturnout-statistics/?lv=true",
+        "usedFor": "One statewide turnout row with warning labels and absentee voting method field.",
+        "confidence": "Official Virginia Department of Elections Registration/Turnout Reports page."
       }
     ],
     "checkedNotUsable": [
@@ -164,12 +187,12 @@
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Virginia turnout should not be inferred from the certified contest CSV because it lacks registered-voter denominators.",
+      "route": "officialStatewideRegistrationTurnoutSummary",
+      "status": "Loaded",
+      "acceptedSource": "Virginia Department of Elections Registration/Turnout Reports.",
+      "warning": "Statewide-only turnout is useful for state context but should not be compared as locality-level turnout.",
       "requiredFields": [
-        "county",
+        "state",
         "ballotsCast",
         "registeredVoters",
         "sourceUrl"
@@ -190,8 +213,8 @@
     "harris": 2335395,
     "other": 95461,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 133

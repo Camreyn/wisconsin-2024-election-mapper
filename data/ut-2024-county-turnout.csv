@@ -1,0 +1,25 @@
+county,registeredVoters,ballotsCast,sourceFile,extractionMethod
+Beaver,3793,3253,data/ut-2024-county-canvass-pdfs/G24_Canvass_Beaver.pdf,header-total-ballots
+Box Elder,33569,29668,data/ut-2024-county-canvass-pdfs/G24_Canvass_Box-Elder.pdf,audit-form
+Cache,72011,62148,data/ut-2024-county-canvass-pdfs/G24_Canvass_Cache.pdf,summary-statistics
+Carbon,11479,9610,data/ut-2024-county-canvass-pdfs/G24_Canvass_Carbon.pdf,audit-form
+Daggett,651,557,data/ut-2024-county-canvass-pdfs/G24_Canvass_Daggett.pdf,audit-form
+Emery,5885,5077,data/ut-2024-county-canvass-pdfs/G24_Canvass_Emery.pdf,audit-form
+Garfield,3216,2857,data/ut-2024-county-canvass-pdfs/G24_Canvass_Garfield.pdf,audit-form
+Grand,5872,5371,data/ut-2024-county-canvass-pdfs/G24_Canvass_Grand.pdf,audit-form
+Iron,32149,28457,data/ut-2024-county-canvass-pdfs/G24_Canvass_Iron.pdf,precinct-statistics-sum-50
+Juab,7506,6616,data/ut-2024-county-canvass-pdfs/G24_Canvass_Juab.pdf,audit-form
+Kane,5106,4560,data/ut-2024-county-canvass-pdfs/G24_Canvass_Kane.pdf,audit-form
+Millard,7382,6500,data/ut-2024-county-canvass-pdfs/G24_Canvass_Millard.pdf,audit-form
+Morgan,8009,7005,data/ut-2024-county-canvass-pdfs/G24_Canvass_Morgan.pdf,audit-form
+Piute,1094,977,data/ut-2024-county-canvass-pdfs/G24_Canvass_Piute.pdf,audit-form
+Rich,1585,1465,data/ut-2024-county-canvass-pdfs/G24_Canvass_Rich.pdf,audit-form
+Salt Lake,614757,521789,data/ut-2024-county-canvass-pdfs/G24_Canvass_Salt-Lake.pdf,audit-form
+San Juan,7618,6441,data/ut-2024-county-canvass-pdfs/G24_Canvass_San-Juan.pdf,audit-form
+Sevier,12449,11072,data/ut-2024-county-canvass-pdfs/G24_Canvass_Sevier.pdf,audit-form
+Summit,29718,26482,data/ut-2024-county-canvass-pdfs/G24_Canvass_Summit.pdf,audit-form
+Tooele,41656,34652,data/ut-2024-county-canvass-pdfs/G24_Canvass_Tooele.pdf,audit-form
+Utah,368875,308985,data/ut-2024-county-canvass-pdfs/G24_Canvass_Utah_No-Precinct.pdf,audit-form
+Wasatch,21875,18979,data/ut-2024-county-canvass-pdfs/G24_Canvass_Wasatch.pdf,audit-form
+Washington,112656,99137,data/ut-2024-county-canvass-pdfs/G24_Canvass_Washington.pdf,audit-form
+Weber,134799,114612,data/ut-2024-county-canvass-pdfs/G24_Canvass_Weber.pdf,audit-form
