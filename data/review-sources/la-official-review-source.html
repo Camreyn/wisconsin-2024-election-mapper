@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <base href="/static/">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex">
+    <title>Louisiana Secretary of State - Text-Based Election Results</title>
+
+    <link href="/staticcssbundle?v=cp66_Z0B9Se5zm1tFvVWXnm2o997_l74k-BVDB6m7vA1" rel="stylesheet"/>
+
+
+    <link rel="icon" href="/favicon.ico" />
+
+    <noscript>
+        This site requires JavaScript to be available.
+    </noscript>
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SY4F1KM3M7"></script>
+    <script type="text/javascript" src="/AnalyticsGTagSetup" id="analyticsGTagSetup"></script>
+    <script nonce="x6HmULYTAMcQl7FUAptpy6RqF8w=">
+        var configuration = {
+            
+            dataUrl: '/ElectionResults/ElectionResults/Data',
+            errorUrl: '/ElectionResults/ElectionResults/ReportErrorStatic',
+            humanReadableExcelUrl: 'https://s3-us-west-2.amazonaws.com/mediaresults.sos.la.gov/HumanReadableElectionResults/{0}/Election+Results+({1}).xlsx',
+            louisianaUtcOffset:'-5'
+        };
+    </script>
+</head>
+
+<body ng-app="electionResultsApp" ng-controller="staticPageController" ng-strict-di>
+    <div class="container-fluid">
+        <h1 ng-cloak class="hidden-xs text-center" ng-show="isSubViewVisible">Louisiana Secretary of State</h1>
+        <h2 ng-cloak class="visible-xs text-center" ng-show="isSubViewVisible">Louisiana Secretary of State</h2>
+        <div ng-hide="isSubViewVisible">Loading...</div>
+        <div ui-view ng-show="isSubViewVisible" class="text-center"></div>
+
+        <br />
+        <div ng-cloak ng-show="isSubViewVisible" class="copyright">Copyright &copy; 2026 Louisiana Department of State</div>
+    </div>
+
+    <script src="/bundles/isBrowserSupported?v=ZOhkVuGTOV8aJgkuLEqbOTBWeauNYMRT9ONif4w6xos1"></script>
+
+    <script src="/bundles/thirdPartyResults?v=hhoEw6QQYZqE8WHraZJo9DK6gw6IHgjBz3wDDYv9AV01"></script>
+
+    <script src="/bundles/staticresults?v=AmoBrbwPS5am6MfFwT0bgJ1AzLTkr6AiLoJGAdehvI41"></script>
+
+    <script type="text/javascript" src="/AnalyticsScript" id="analyticsScript" ></script>
+
+</body>
+
+</html>

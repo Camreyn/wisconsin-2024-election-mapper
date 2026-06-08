@@ -1,0 +1,77 @@
+[
+  {
+    "id": "01000000-d884-2e72-6367-08dcda4b86b5",
+    "name": "President of the US",
+    "file": "data/ga-2024-general-president-of-the-us-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-d102-08dcda4b86d5",
+    "name": "US House of Representatives - District 1",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-1-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-591a-08dcda4b8737",
+    "name": "US House of Representatives - District 2",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-2-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-563f-08dcda4b8b12",
+    "name": "US House of Representatives - District 3",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-3-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-e484-08dcda4b9be1",
+    "name": "US House of Representatives - District 4",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-4-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-8e53-08dcda4b8ff0",
+    "name": "US House of Representatives - District 5",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-5-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-15bb-08dcda4b92f0",
+    "name": "US House of Representatives - District 6",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-6-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-302d-08dcda4b8ddb",
+    "name": "US House of Representatives - District 7",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-7-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-5082-08dcda4b86fd",
+    "name": "US House of Representatives - District 8",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-8-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-803e-08dcda4b87d0",
+    "name": "US House of Representatives - District 9",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-9-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-fd50-08dcda4b8827",
+    "name": "US House of Representatives - District 10",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-10-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-605f-08dcda4b8884",
+    "name": "US House of Representatives - District 11",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-11-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-8858-08dcda4b89eb",
+    "name": "US House of Representatives - District 12",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-12-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-dbd0-08dcda4b8fe0",
+    "name": "US House of Representatives - District 13",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-13-detail.json"
+  },
+  {
+    "id": "01000000-d884-2e72-24df-08dcda4b8b5f",
+    "name": "US House of Representatives - District 14",
+    "file": "data/ga-2024-general-us-house-of-representatives-district-14-detail.json"
+  }
+]
