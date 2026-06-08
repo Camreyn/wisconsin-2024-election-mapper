@@ -1,0 +1,288 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" ng-app="EnrApp" ng-strict-di>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta property="og:type" content="website" />
+    <title>Indiana Election Results</title>
+
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
+
+    <link rel="stylesheet" href="Content/bootstrap.min.css" />
+    <link rel="stylesheet" href="Content/material-design-iconic-font.min.css" />
+    <link rel="stylesheet" href="Content/slick.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,600,400" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="Content/EnrStyles/enrMap.css" />
+    <link rel="stylesheet" href="Content/EnrStyles/enrCircularProgressBar.css" />
+    <link rel="stylesheet" href="Content/EnrStyles/enrPartyBadge.css" />
+    <link rel="stylesheet" href="Content/EnrStyles/enrOfficeSelection.css" />
+    <link rel="stylesheet" href="Content/EnrStyles/enrTicker.css" />
+    <link rel="stylesheet" href="Content/EnrStyles/enrNavBar.css" />
+    <link rel="stylesheet" href="Content/EnrStyles/enrDetailsPane.css" />
+    <link rel="stylesheet" href="Content/EnrStyles/enrStyles.css" />
+    <link href="favicon.ico" rel="icon" type="image/x-icon" />
+
+    <script src="Scripts/ThirdParty/jquery-3.7.1.min.js"></script>
+    <script src="Scripts/ThirdParty/modernizr.js"></script>
+    <script src="Scripts/EnrAngular/Initialization/isBrowserSupported.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118907088-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'UA-118907088-2');
+
+        function PlayPause(PlayPause) {
+            if (PlayPause.title == 'Pause') {
+                PlayPause.title = 'Play'
+            } else {
+                PlayPause.title = 'Pause'
+            }
+
+        }
+
+    </script>
+    <noscript>
+        <meta http-equiv="refresh" content="0; url=error.html" />
+    </noscript>
+</head>
+
+<body ng-controller="MainController">
+
+    <busy-working></busy-working>
+
+    <div id="divCountyModel"
+         ng-mouseenter="modelMouseEnter($event)"
+         ng-mouseleave="modelMouseLeave($event)"
+         class="modal-container"
+         ng-style="{'left': modelLeft,'top':modelTop}"
+         ng-class='{modalactive: !modelhidden}'>
+        <enr-county-model></enr-county-model>
+    </div>
+
+    <style>
+        .modal-container {
+            width: 40%;
+            position: absolute;
+            /*left: 74%;
+            top: 30%;*/
+            z-index: 1001;
+            opacity: 0;
+            border-radius: 3px;
+            background: white;
+            border: 1px solid teal;
+            transform: translate(0,-200%);
+            -webkit-transform: translate(0,-200%);
+            transition: opacity ease-in-out .3s, transform ease-in-out .3s;
+            -webkit-transition: opacity ease-in-out .3s, transform ease-in-out .3s;
+        }
+
+
+        .modalactive {
+            opacity: 1;
+            transform: translate(0,0);
+            -webkit-transform: translate(0,0);
+        }
+    </style>
+
+    <div ng-if="isSplash">
+        <enr-splash></enr-splash>
+    </div>
+
+<div id="divMainContainer" class="container-fluid" ng-hide="isSplash">
+    <div id="divStatus" role="status" aria-live="assertive"></div>
+    <a class="skip-link" href="#topBanner" target="_self">Skip to main content</a>
+    <div class="row" ng-if="isShow">
+        <div class="col-md-12 col-no-padding">
+            <enr-ticker ticker-data="TickerData" ticker-data-r="TickerDataR"></enr-ticker>
+        </div>
+    </div>
+    <div class="row" ng-if="isShow && !isTopBanner && TickerData !== undefined">
+        <div class="col-md-12" id="divInfoText">
+            <!--hidden-->
+            <span class="info-text ">
+                The top two candidates in terms of votes received are shown here. Additional candidates for this office can be found in the detailed views below.
+            </span>
+        </div>
+    </div>
+    <div id="topBanner" class="row" ng-if="!isTopBanner && !isSplash">
+        <div class="col-md-12 col-no-padding">
+            <enr-nav-bar></enr-nav-bar>
+        </div>
+    </div>
+    <div class="row flex-container-row election-row-bottom-border" ng-if="!isTopBanner" id="divLogoSection">
+        <div class="flex-container-row">
+            <img alt="" src="Content/Images/State Seal.png" class="img-responsive state-img">
+            <div class="title-block election-row-right-border ">
+                <h2 class="election-title">Indiana Election Results</h2>
+                <span class="election-title-date"><span ng-bind="::ElectionDate | date: 'MMMM d, yyyy'"></span></span>
+                <div ng-if="(electionType =='P' || electionType =='G') && isShow" style="font-size: smaller"
+                     class="election-title-message">
+                    Results for the November 2024 General Election are final, <br />subject to pending local recounts/special elections.
+                    <br />For more information about the {{spanElectionType}}, <a aria-label="Click here for more information about the {{spanElectionType}}" href="{{electionResultsDocument}}" target="_blank">click here</a>.
+                    <br />For Newton County Special Election Results, <a aria-label="Click here for more information about elections" href="Content/documents/Newton County Special Election Results -South Newton School Board, District 5.pdf" target="_blank">click here</a>.
+                </div>
+                <div ng-if="(electionType =='P' || electionType =='G') && !isShow" style="font-size: smaller"
+                     class="election-title-message">
+                    Results for the November 2024 General Election are final, <br />subject to pending local recounts/special elections.
+                    <br />For more information about the primary, <a aria-label="Click here for more information about elections" href="{{electionResultsDocument}}" target="_blank">click here</a>.
+                    <br />For Newton County Special Election Results, <a aria-label="Click here for more information about elections" href="Content/documents/Newton County Special Election Results -South Newton School Board, District 5.pdf" target="_blank">click here</a>.
+                </div>
+            </div>
+        </div>
+
+        <div class="title-block flex-container-row" style="margin-right: auto;">
+            <div>
+                <enr-circular-progress-bar display-color="#4675d0" display-percent="::ReportingMeterValue" progress-changes="false"/>
+            </div>
+            <div class="title ">
+                <span class="circle-meter-value" ng-bind="::PercentReporting"></span>
+                <br />
+                <div class="circle-meter-label circle-meter-sm">
+                    of
+                    <span ng-bind="::TotalPrecincts | number"></span>
+                    Precincts Reporting
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-container-column" id="primaryBadges" ng-show="IsPrimary && showOfficeList">
+            <div class="flex-container-row">
+                <a aria-label="Democrat" href="#" ng-class="badgeClassD" ng-click="onPrimaryPartyChanged('D')" ng-style="{'background':'#006699'}">D</a>
+                <a aria-label="Republican" href="#" ng-class="badgeClassR" ng-click="onPrimaryPartyChanged('R')" ng-style="{'background':'#cd3333'}">R</a>
+                <enr-ref-select></enr-ref-select>
+            </div>
+            <div class="btn-label">SELECT ONE</div>
+        </div>
+
+        <div class="title-block flex-container-row" ng-if="isShow" style="margin-left: 1em; margin-right: 2em;">
+            <div class="timer">
+                <enr-circular-progress-button ng-if="isShow" display-color="#02d6a1" display-percent="RefreshMeterValue()" progress-changes="true" ng-click="ToggleCountdownPause()"/>
+            </div>
+            <div class="title">
+                <span class="circle-meter-value" ng-bind="(SecondsTilRefresh() * 1000) || '' | date:'mm:ss'"></span>
+                <br />
+                <span class="circle-meter-label">Next Update</span>
+
+                <div class="election-title-message election-message">
+                    Last Updated:
+                    <br class="visible-md visible-sm visible-lg" />
+                    <span ng-bind="::VersionTimestamp | lastUpdatedTimestamp"></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row" ng-if="!isTopBanner" ng-class="(showMap ? '' : 'hidden')">
+        <div ng-class="'col-md-2 col-sm-12 col-xs-12 col-no-padding' + (showOfficeList ? '' : ' hidden')">
+            <enr-office-selection list-data="::OfficeListData" default-map="DefaultMap" special-election-color="::SpecialElectionColor"></enr-office-selection>
+        </div>
+        <div class="col-no-padding col-md-6 col-lg-5 col-sm-12 col-xs-12">
+            <a class="skip-link" href="#divDetailsPane" target="_self">Skip to details pane</a>
+            <!---->
+            <enr-map map-geo="MapGeoData" map-colors="MapColorsData" election-data="MapElectionData" referendums-map="DefaultMap"></enr-map>
+        </div>
+        <div class="col-sm-12 col-xs-12" ng-class="'col-md-' + (showOfficeList ? '4' : '6') + ' col-lg-' + (showOfficeList ? '5' : '7') +' col-no-padding'">
+            <enr-details-pane></enr-details-pane>
+        </div>
+    </div>
+    <div class="row" ng-if="!isTopBanner && showVoterStatistics">
+        <enr-voter-statistics></enr-voter-statistics>
+    </div>
+    <div class="row" ng-if="!isTopBanner && showDownloadResults">
+        <enr-download-results></enr-download-results>
+    </div>
+
+    <div class="row" ng-if="!isTopBanner" id="divFooter">
+        <footer class="col-md-12 ">
+            <img alt="" src="Content/Images/FirstTuesday Logo.png" />
+            © Copyright 1989 - {{currentYear}}. Quest Information Systems, Inc. All Rights Reserved.
+        </footer>
+    </div>
+</div>
+
+    <div>
+        <script src="Scripts/ThirdParty/angular.min.js"></script>
+        <script src="Scripts/ThirdParty/bootstrap.min.js"></script>
+        <script src="Scripts/ThirdParty/d3.min.js"></script>
+        <script src="Scripts/ThirdParty/progressbar.min.js"></script>
+        <script src="Scripts/ThirdParty/topojson.min.js"></script>
+        <script src="Scripts/ThirdParty/slick.js"></script>
+        <script src="Scripts/ThirdParty/slick-angular.js"></script>
+        <script src="Scripts/ThirdParty/flowtype.js"></script>
+        <script src="Scripts/ThirdParty/encoding-indexes.js"></script>
+        <script src="Scripts/ThirdParty/encoding.js"></script>
+        <script src="Scripts/ThirdParty/FileSaver.js"></script>
+
+        <script src="Scripts/EnrAngular/Initialization/initApp.js"></script>
+
+        <script src="Scripts/EnrAngular/EnrMap/enrMap.js"></script>
+        <script src="Scripts/EnrAngular/EnrMap/mapClassGenerator.js"></script>
+        <script src="Scripts/EnrAngular/EnrMap/mapRegionLeaderCalculator.js"></script>
+        <script src="Scripts/EnrAngular/EnrMap/mapFillColorCalculator.js"></script>
+        <script src="Scripts/EnrAngular/EnrMap/mapSvgPathBuilder.js"></script>
+        <script src="Scripts/EnrAngular/EnrMap/mapSelectedRegion.js"></script>
+        <script src="Scripts/EnrAngular/EnrMap/enrCountyModel.js"></script>
+        <script src="Scripts/EnrAngular/EnrMap/enrTextPath.js"></script>
+
+        <script src="Scripts/EnrAngular/EnrDetailsPane/enrDetailsPane.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsContactInfo.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsOfficeDescription.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsNoResultsReported.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsCandidateSummary.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsCountyBreakdown.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsReferendumsList.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsOfficeRaceVotes.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsReferendumVotes.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsData.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/detailsAddressInjector.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/enrOffices.js"></script>
+        <script src="Scripts/EnrAngular/EnrDetailsPane/enrSplash.js"></script>
+
+        <script src="Scripts/EnrAngular/Services/d3Service.js"></script>
+        <script src="Scripts/EnrAngular/Services/topoJsonService.js"></script>
+        <script src="Scripts/EnrAngular/Services/progressBarLibService.js"></script>
+        <script src="Scripts/EnrAngular/Services/jsonDataFetcher.js"></script>
+        <script src="Scripts/EnrAngular/Services/secondsCountdown.js"></script>
+        <script src="Scripts/EnrAngular/Services/errorHandler.js"></script>
+        <script src="Scripts/EnrAngular/Services/enrModeManager.js"></script>
+        <script src="Scripts/EnrAngular/Services/detailsViewModeManager.js"></script>
+        <script src="Scripts/EnrAngular/Services/officeJsonRegionFilter.js"></script>
+        <script src="Scripts/EnrAngular/Services/participationCalculator.js"></script>
+        <script src="Scripts/EnrAngular/Services/regionsJsonParser.js"></script>
+        <script src="Scripts/EnrAngular/Services/regionPropertiesParser.js"></script>
+        <script src="Scripts/EnrAngular/Services/primaryService.js"></script>
+        <script src="Scripts/EnrAngular/Services/gradientService.js"></script>
+        <script src="Scripts/EnrAngular/Services/selectedOfficeService.js"></script>
+        <script src="Scripts/EnrAngular/Services/sortDataService.js"></script>
+        <script src="Scripts/EnrAngular/Services/exportService.js"></script>
+
+        <script src="Scripts/EnrAngular/Directives/enrPartyBadge.js"></script>
+        <script src="Scripts/EnrAngular/Directives/enrCircularProgressBar.js"></script>
+        <script src="Scripts/EnrAngular/Directives/enrCircularProgressButton.js"></script>
+        <script src="Scripts/EnrAngular/Directives/enrOfficeSelection.js"></script>
+        <script src="Scripts/EnrAngular/Directives/enrTicker.js"></script>
+        <script src="Scripts/EnrAngular/Directives/enrNavBar.js"></script>
+        <script src="Scripts/EnrAngular/Directives/busyWorking.js"></script>
+        <script src="Scripts/EnrAngular/Directives/enrVoterStatistics.js"></script>
+        <script src="Scripts/EnrAngular/Directives/enrDownloadResults.js"></script>
+
+        <script src="Scripts/EnrAngular/Filters/arrayIndexOrDefault.js"></script>
+        <script src="Scripts/EnrAngular/Filters/percentage.js"></script>
+        <script src="Scripts/EnrAngular/Filters/phoneNumber.js"></script>
+        <script src="Scripts/EnrAngular/Filters/lastUpdatedTimestamp.js"></script>
+        <script src="Scripts/EnrAngular/Filters/partyCode.js"></script>
+        <script src="Scripts/EnrAngular/Filters/orderByLastName.js"></script>
+        <script src="Scripts/EnrAngular/Filters/candidatesFilter.js"></script>
+        <script src="Scripts/EnrAngular/Filters/districtNumber.js"></script>
+        <script src="Scripts/EnrAngular/Initialization/enrMainController.js?version=1.0"></script>
+    </div>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0852ae9aaf5aa6d',t:'MTc4MDg5MzA5Mw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+
+</html>

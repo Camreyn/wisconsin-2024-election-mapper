@@ -1,0 +1,809 @@
+{
+  "checkedAt": "2026-06-08",
+  "rows": [
+    {
+      "state": "AK",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct plus district-level rows",
+      "existingLocalFiles": "data/ak-2024-general-enr-by-precinct.csv (3645454 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map President and U.S. Representative rows from ENRbyPrecinct.csv into review rows.",
+      "captures": []
+    },
+    {
+      "state": "AR",
+      "lane": "portal-capture",
+      "auditCollectionStatus": "official_portal_identified_no_download",
+      "rowLevel": "county in current payload; precinct export not exposed",
+      "existingLocalFiles": "data/ar-2024-general-fed-results.json (93794 bytes)",
+      "capturedFiles": "data/review-sources/ar-config.json; data/review-sources/ar-election-list.json; data/review-sources/ar-index-_rT17pbd.js; data/review-sources/ar-2024-general-election-info.json; data/review-sources/ar-2024-general-contest-search-list.json; data/review-sources/ar-official-review-source.html",
+      "captureStatus": "source page captured",
+      "nextStep": "Inspect TotalResults network payloads for precinct endpoints; if unavailable, use SOS guidance to request 2024 precinct data.",
+      "captures": [
+        {
+          "label": "Arkansas TotalResults app config",
+          "url": "https://enr.totalresults.com/arkansas/config.json",
+          "localFile": "data/review-sources/ar-config.json",
+          "httpStatus": "local",
+          "finalUrl": "https://enr.totalresults.com/arkansas/config.json",
+          "contentType": "",
+          "bytes": 804,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official Arkansas ENR config used to identify the TotalResults client id and API endpoints.",
+          "dataKind": "source-page"
+        },
+        {
+          "label": "Arkansas TotalResults election list",
+          "url": "https://enr-results-api.totalresults.com/Election/GetElectionList?cid=arkansas",
+          "localFile": "data/review-sources/ar-election-list.json",
+          "httpStatus": "local",
+          "finalUrl": "https://enr-results-api.totalresults.com/Election/GetElectionList?cid=arkansas",
+          "contentType": "",
+          "bytes": 2691,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official TotalResults election list showing 1846 as the 2024 General election id.",
+          "dataKind": "source-page"
+        },
+        {
+          "label": "Arkansas TotalResults app bundle",
+          "url": "https://enr.totalresults.com/arkansas/assets/index-_rT17pbd.js",
+          "localFile": "data/review-sources/ar-index-_rT17pbd.js",
+          "httpStatus": "local",
+          "finalUrl": "https://enr.totalresults.com/arkansas/assets/index-_rT17pbd.js",
+          "contentType": "",
+          "bytes": 1572657,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official Arkansas ENR app bundle containing the TotalResults API route definitions.",
+          "dataKind": "source-page"
+        },
+        {
+          "label": "Arkansas 2024 General election info",
+          "url": "https://enr-results-api.totalresults.com/Election/GetElectionInfo?cId=arkansas&electionID=1846",
+          "localFile": "data/review-sources/ar-2024-general-election-info.json",
+          "httpStatus": "local",
+          "finalUrl": "https://enr-results-api.totalresults.com/Election/GetElectionInfo?cId=arkansas&electionID=1846",
+          "contentType": "",
+          "bytes": 167233,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official TotalResults election metadata for the 2024 general election.",
+          "dataKind": "source-page"
+        },
+        {
+          "label": "Arkansas 2024 General contest search list",
+          "url": "https://enr-results-api.totalresults.com/Contest/GetContestSearchList?cid=arkansas&electionID=1846",
+          "localFile": "data/review-sources/ar-2024-general-contest-search-list.json",
+          "httpStatus": "local",
+          "finalUrl": "https://enr-results-api.totalresults.com/Contest/GetContestSearchList?cid=arkansas&electionID=1846",
+          "contentType": "",
+          "bytes": 482020,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official TotalResults contest metadata for identifying President and U.S. House contests.",
+          "dataKind": "source-page"
+        },
+        {
+          "label": "AR official portal/source page capture",
+          "url": "https://enr.totalresults.com/arkansas",
+          "localFile": "data/review-sources/ar-official-review-source.html",
+          "httpStatus": "local",
+          "finalUrl": "https://enr.totalresults.com/arkansas",
+          "contentType": "",
+          "bytes": 605,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "AZ",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_sources_partially_collected",
+      "rowLevel": "county-local precinct/counting group",
+      "existingLocalFiles": "data/az-2024-county-source-manifest.json (20731 bytes); data/az-2024-county-source-status.json (23061 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Complete county-by-county report collection and normalize report-specific precinct sections.",
+      "captures": []
+    },
+    {
+      "state": "CA",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_required",
+      "rowLevel": "county-local precinct",
+      "existingLocalFiles": "data/ca-2024-president-by-county.xlsx (18188 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect county SOV or precinct result files from county election offices; statewide SOS SOV is county-level.",
+      "captures": []
+    },
+    {
+      "state": "CO",
+      "lane": "review-needed",
+      "auditCollectionStatus": "statewide_precinct_source_identified",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/co-2024-president-county-results.csv (206269 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Download the Colorado Secretary of State precinct-level results package and map President plus a statewide/congressional comparison contest.",
+      "captures": []
+    },
+    {
+      "state": "CT",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "town",
+      "existingLocalFiles": "data/ct-2024-statement-of-vote.txt (227694 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map a statewide down-ballot contest from the Statement of Vote text to the same town rows.",
+      "captures": []
+    },
+    {
+      "state": "DE",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "election district",
+      "existingLocalFiles": "data/de-2024-general-election-report.html (5164476 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map President and a statewide comparison race from the official report page election-district rows.",
+      "captures": []
+    },
+    {
+      "state": "GA",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_required",
+      "rowLevel": "county-local precinct",
+      "existingLocalFiles": "data/ga-2024-total-votes-results.xlsx (304640 bytes)",
+      "capturedFiles": "data/review-sources/ga-official-review-source.html",
+      "captureStatus": "source page captured",
+      "nextStep": "Collect official county SOV reports or identify a statewide precinct export behind the SOS portal.",
+      "captures": [
+        {
+          "label": "GA official portal/source page capture",
+          "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+          "localFile": "data/review-sources/ga-official-review-source.html",
+          "httpStatus": "local",
+          "finalUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+          "contentType": "",
+          "bytes": 10619,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "HI",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/hi-2024-general-media.txt (3950518 bytes); data/hi-2024-general-precinct.pdf (3370521 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map President and U.S. Senate or another statewide contest from media.txt/precinct.pdf.",
+      "captures": []
+    },
+    {
+      "state": "IA",
+      "lane": "review-needed",
+      "auditCollectionStatus": "official_source_not_found",
+      "rowLevel": "unknown",
+      "existingLocalFiles": "data/ia-2024-general-canvass-summary.pdf (644223 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Search Iowa SOS and county auditor sites for official precinct-level general-election canvass/result exports.",
+      "captures": []
+    },
+    {
+      "state": "ID",
+      "lane": "portal-capture",
+      "auditCollectionStatus": "official_portal_identified_needs_capture",
+      "rowLevel": "portal result rows",
+      "existingLocalFiles": "data/id-2024-president-county-results.csv (3756 bytes)",
+      "capturedFiles": "data/id-2024-president-precinct-results.csv; data/id-2024-us-house-district-1-precinct-results.csv; data/id-2024-us-house-district-2-precinct-results.csv; data/review-sources/id-official-review-source.html",
+      "captureStatus": "data captured",
+      "nextStep": "Inspect canvass.sos.idaho.gov network exports for precinct or reporting-unit contest rows.",
+      "captures": [
+        {
+          "label": "Idaho 2024 President precinct results CSV",
+          "url": "https://canvass.sos.idaho.gov/eng/contests/download/19439/show_granularity_dt_id:7/.csv",
+          "localFile": "data/id-2024-president-precinct-results.csv",
+          "httpStatus": "local",
+          "finalUrl": "https://canvass.sos.idaho.gov/eng/contests/download/19439/show_granularity_dt_id:7/.csv",
+          "contentType": "",
+          "bytes": 65116,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official Idaho SOS canvass export at precinct granularity.",
+          "dataKind": "data"
+        },
+        {
+          "label": "Idaho 2024 U.S. House District 1 precinct results CSV",
+          "url": "https://canvass.sos.idaho.gov/eng/contests/download/19440/show_granularity_dt_id:7/.csv",
+          "localFile": "data/id-2024-us-house-district-1-precinct-results.csv",
+          "httpStatus": "local",
+          "finalUrl": "https://canvass.sos.idaho.gov/eng/contests/download/19440/show_granularity_dt_id:7/.csv",
+          "contentType": "",
+          "bytes": 26435,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official Idaho SOS canvass export at precinct granularity.",
+          "dataKind": "data"
+        },
+        {
+          "label": "Idaho 2024 U.S. House District 2 precinct results CSV",
+          "url": "https://canvass.sos.idaho.gov/eng/contests/download/19441/show_granularity_dt_id:7/.csv",
+          "localFile": "data/id-2024-us-house-district-2-precinct-results.csv",
+          "httpStatus": "local",
+          "finalUrl": "https://canvass.sos.idaho.gov/eng/contests/download/19441/show_granularity_dt_id:7/.csv",
+          "contentType": "",
+          "bytes": 27266,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official Idaho SOS canvass export at precinct granularity.",
+          "dataKind": "data"
+        },
+        {
+          "label": "ID official portal/source page capture",
+          "url": "https://canvass.sos.idaho.gov/eng/contests/view/19439/",
+          "localFile": "data/review-sources/id-official-review-source.html",
+          "httpStatus": "local",
+          "finalUrl": "https://canvass.sos.idaho.gov/eng/contests/view/19439/",
+          "contentType": "",
+          "bytes": 2864139,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "IL",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/il-2024-president-county-results.csv (5560651 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect/map a down-ballot contest at the same precinct grain.",
+      "captures": []
+    },
+    {
+      "state": "IN",
+      "lane": "portal-capture",
+      "auditCollectionStatus": "official_portal_identified_needs_capture",
+      "rowLevel": "unknown ENR detail",
+      "existingLocalFiles": "data/in-2024-general-president-results.json (760654 bytes)",
+      "capturedFiles": "data/review-sources/in-official-review-source.html",
+      "captureStatus": "source page captured",
+      "nextStep": "Inspect Indiana ENR archive payloads for precinct/detail endpoints beyond the county presidential payload.",
+      "captures": [
+        {
+          "label": "IN official portal/source page capture",
+          "url": "https://enr.indianavoters.in.gov/archive/2024General/index.html",
+          "localFile": "data/review-sources/in-official-review-source.html",
+          "httpStatus": "local",
+          "finalUrl": "https://enr.indianavoters.in.gov/archive/2024General/index.html",
+          "contentType": "",
+          "bytes": 16910,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "KS",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/ks-2024-presidential-results.xlsx (773382 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map precinct President rows and collect a same-grain down-ballot workbook or sheet.",
+      "captures": []
+    },
+    {
+      "state": "KY",
+      "lane": "source-discovery-needed",
+      "auditCollectionStatus": "state_or_county_source_needed",
+      "rowLevel": "unknown",
+      "existingLocalFiles": "data/ky-2024-general-election-certification.pdf (352441 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Search Kentucky SBE and county clerk/SBE result downloads for official precinct-level 2024 general files.",
+      "captures": []
+    },
+    {
+      "state": "LA",
+      "lane": "portal-capture",
+      "auditCollectionStatus": "official_portal_identified_needs_capture",
+      "rowLevel": "precinct in GeauxVote portal",
+      "existingLocalFiles": "data/la-2024-president-parish-results.csv (3974 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "not captured",
+      "nextStep": "Capture official precinct-level race JSON for President plus a comparison contest from the Voter Portal.",
+      "captures": [
+        {
+          "label": "LA official portal/source page capture",
+          "url": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/",
+          "localFile": "data/review-sources/la-official-review-source.html",
+          "httpStatus": "",
+          "finalUrl": "",
+          "contentType": "",
+          "bytes": 0,
+          "captured": false,
+          "reason": "fetch failed",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "MA",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "municipality/PD43+ rows",
+      "existingLocalFiles": "data/ma-2024-president-general-election.html (264641 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map President and U.S. Senate or another statewide race from PD43+ municipal rows.",
+      "captures": []
+    },
+    {
+      "state": "MD",
+      "lane": "direct-official-target",
+      "auditCollectionStatus": "official_precinct_source_identified",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/md-2024-president-county-breakdown.html (121600 bytes)",
+      "capturedFiles": "data/md-2024-general-all-precincts.csv; data/md-2024-state-precinct-reference.xlsx; data/review-sources/md-election-data-index.html",
+      "captureStatus": "data captured",
+      "nextStep": "Download official precinct-level 2024 general election files and map President plus Senate.",
+      "captures": [
+        {
+          "label": "Maryland 2024 General Election all precinct results CSV",
+          "url": "https://elections.maryland.gov/elections/archive/2024/election_data/PG24_AllPrecincts.csv",
+          "localFile": "data/md-2024-general-all-precincts.csv",
+          "httpStatus": "local",
+          "finalUrl": "https://elections.maryland.gov/elections/archive/2024/election_data/PG24_AllPrecincts.csv",
+          "contentType": "",
+          "bytes": 17317785,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official SBE raw election data file with precinct rows, contest names, candidates, parties, and vote-method columns.",
+          "dataKind": "data"
+        },
+        {
+          "label": "Maryland 2024 General Election state precinct reference",
+          "url": "https://elections.maryland.gov/elections/archive/2024/Polling%20Places%20AEMS%20PG24.xlsx",
+          "localFile": "data/md-2024-state-precinct-reference.xlsx",
+          "httpStatus": "local",
+          "finalUrl": "https://elections.maryland.gov/elections/archive/2024/Polling%20Places%20AEMS%20PG24.xlsx",
+          "contentType": "",
+          "bytes": 274079,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official SBE precinct reference workbook for the 2024 general election.",
+          "dataKind": "data"
+        },
+        {
+          "label": "Maryland 2024 election data index",
+          "url": "https://elections.maryland.gov/elections/archive/2024/election_data/index.html",
+          "localFile": "data/review-sources/md-election-data-index.html",
+          "httpStatus": "local",
+          "finalUrl": "https://elections.maryland.gov/elections/archive/2024/election_data/index.html",
+          "contentType": "",
+          "bytes": 68940,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official SBE page that links statewide and county raw election data files.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "ME",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "municipality",
+      "existingLocalFiles": "data/me-2024-president-county-town-final-corrected.xlsx (60242 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect or map a same-municipality down-ballot workbook if available.",
+      "captures": []
+    },
+    {
+      "state": "MO",
+      "lane": "source-discovery-needed",
+      "auditCollectionStatus": "state_or_county_source_needed",
+      "rowLevel": "unknown/county-local",
+      "existingLocalFiles": "data/mo-2024-general-actual-results.pdf (2023297 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Search Missouri SOS and county election authority result files for official precinct-level 2024 general data.",
+      "captures": []
+    },
+    {
+      "state": "MS",
+      "lane": "review-needed",
+      "auditCollectionStatus": "official_source_needs_review",
+      "rowLevel": "county in loaded recap; precinct source unknown",
+      "existingLocalFiles": "data/ms-2024-election-recap-sheets.csv (176954 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Inspect Mississippi SOS downloads and county election commission files for precinct-level recap/reporting-unit data.",
+      "captures": []
+    },
+    {
+      "state": "MT",
+      "lane": "source-discovery-needed",
+      "auditCollectionStatus": "state_or_county_source_needed",
+      "rowLevel": "unknown/county-local",
+      "existingLocalFiles": "data/mt-2024-general-election-report-state-canvass.pdf (445925 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Search Montana SOS and county election offices for precinct-level 2024 general returns.",
+      "captures": []
+    },
+    {
+      "state": "NC",
+      "lane": "direct-official-target",
+      "auditCollectionStatus": "official_precinct_source_identified",
+      "rowLevel": "precinct sort",
+      "existingLocalFiles": "data/nc-2024-general-enr-results.zip (466320 bytes)",
+      "capturedFiles": "data/nc-2024-general-results-precinct.zip; data/review-sources/nc-historical-election-results-data.html",
+      "captureStatus": "data captured",
+      "nextStep": "Download official precinct-sort data and map President plus a statewide comparison contest.",
+      "captures": [
+        {
+          "label": "North Carolina 2024 General Election precinct results ZIP",
+          "url": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/results_pct_20241105.zip",
+          "localFile": "data/nc-2024-general-results-precinct.zip",
+          "httpStatus": "local",
+          "finalUrl": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/results_pct_20241105.zip",
+          "contentType": "",
+          "bytes": 3741131,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official NCSBE results data file. Includes per-precinct vote counts by contest and voting method.",
+          "dataKind": "data"
+        },
+        {
+          "label": "North Carolina historical election results data page",
+          "url": "https://www.ncsbe.gov/results-data/election-results/historical-election-results-data",
+          "localFile": "data/review-sources/nc-historical-election-results-data.html",
+          "httpStatus": "local",
+          "finalUrl": "https://www.ncsbe.gov/results-data/election-results/historical-election-results-data",
+          "contentType": "",
+          "bytes": 100874,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Official NCSBE source page documenting results data and precinct-sort limitations.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "NE",
+      "lane": "source-discovery-needed",
+      "auditCollectionStatus": "state_or_county_source_needed",
+      "rowLevel": "unknown/county-local",
+      "existingLocalFiles": "data/ne-2024-general-canvass-book.pdf (3223182 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Search Nebraska SOS and county election offices for precinct-level 2024 general result files.",
+      "captures": []
+    },
+    {
+      "state": "NH",
+      "lane": "review-needed",
+      "auditCollectionStatus": "official_town_source_needed",
+      "rowLevel": "town",
+      "existingLocalFiles": "data/nh-2024-president-county-summary.pdf (17861 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Locate official SOS town-level general-election result files for President and a comparison contest.",
+      "captures": []
+    },
+    {
+      "state": "NJ",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_required",
+      "rowLevel": "county-local precinct/municipality",
+      "existingLocalFiles": "data/nj-2024-official-general-results-president.pdf (97746 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect county official precinct/municipal result files; state official PDF is county-level.",
+      "captures": []
+    },
+    {
+      "state": "NM",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct in Civera CSV",
+      "existingLocalFiles": "data/nm-2024-president-county-results.csv (88297 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map Civera precinct rows and collect a same-grain comparison contest export.",
+      "captures": []
+    },
+    {
+      "state": "NV",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_or_archive_required",
+      "rowLevel": "unknown/county-local",
+      "existingLocalFiles": "data/nv-2024-official-statewide-general-election-results.html (145670 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Search Nevada SOS/county election offices or archived SOS downloads for precinct-level 2024 general data.",
+      "captures": []
+    },
+    {
+      "state": "NY",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_required",
+      "rowLevel": "county-local precinct/election district",
+      "existingLocalFiles": "data/ny-2024-president-results-by-county.csv (5608 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect county board precinct/election-district result files; NYS export currently loaded is county-level.",
+      "captures": []
+    },
+    {
+      "state": "OH",
+      "lane": "direct-official-target",
+      "auditCollectionStatus": "official_precinct_source_identified",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/oh-2024-statewide-race-summary.xlsx (259601 bytes)",
+      "capturedFiles": "data/oh-2024-statewide-races-precinct-level.xlsx",
+      "captureStatus": "data captured",
+      "nextStep": "Download or archive-fetch the official workbook and map President plus Senate.",
+      "captures": [
+        {
+          "label": "Ohio statewide races precinct-level workbook",
+          "url": "https://web.archive.org/web/20241207004035if_/https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precint-level.xlsx",
+          "localFile": "data/oh-2024-statewide-races-precinct-level.xlsx",
+          "httpStatus": "local",
+          "finalUrl": "https://web.archive.org/web/20241207004035if_/https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precint-level.xlsx",
+          "contentType": "",
+          "bytes": 23053730,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Archived binary capture of the official Ohio SOS precinct-level workbook; live asset currently redirects to the data portal shell.",
+          "dataKind": "data"
+        }
+      ]
+    },
+    {
+      "state": "OK",
+      "lane": "portal-capture",
+      "auditCollectionStatus": "official_portal_identified_needs_capture",
+      "rowLevel": "unknown OKER detail",
+      "existingLocalFiles": "data/ok-2024-general-enr-results.zip (174695 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "not captured",
+      "nextStep": "Inspect OKER static files for precinct/detail results beyond county ENR payloads.",
+      "captures": [
+        {
+          "label": "OK official portal/source page capture",
+          "url": "https://results.okelections.gov/OKER/?elecDate=20241105",
+          "localFile": "data/review-sources/ok-official-review-source.html",
+          "httpStatus": "",
+          "finalUrl": "",
+          "contentType": "",
+          "bytes": 0,
+          "captured": false,
+          "reason": "fetch failed",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "OR",
+      "lane": "review-needed",
+      "auditCollectionStatus": "official_export_needs_precinct_parameters",
+      "rowLevel": "unknown export grain",
+      "existingLocalFiles": "data/or-2024-president-county-mapdata.json (182863 bytes)",
+      "capturedFiles": "data/review-sources/or-official-review-source.html",
+      "captureStatus": "source page captured",
+      "nextStep": "Inspect Oregon ResultsExport/API parameters for precinct-level President and comparison contest rows.",
+      "captures": [
+        {
+          "label": "OR official portal/source page capture",
+          "url": "https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107",
+          "localFile": "data/review-sources/or-official-review-source.html",
+          "httpStatus": "local",
+          "finalUrl": "https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107",
+          "contentType": "",
+          "bytes": 93165,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "RI",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/ri-2024-general-election-summary.xlsx (1128000 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map Candidate_Breakout precinct rows to a comparison contest.",
+      "captures": []
+    },
+    {
+      "state": "SC",
+      "lane": "portal-capture",
+      "auditCollectionStatus": "official_portal_identified_needs_capture",
+      "rowLevel": "unknown ENR detail",
+      "existingLocalFiles": "data/sc-2024-general-election-details.json (55654 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "not captured",
+      "nextStep": "Inspect ENR static JSON for precinct/detail records or collect county reports.",
+      "captures": [
+        {
+          "label": "SC official portal/source page capture",
+          "url": "https://www.enr-scvotes.org/SC/122436/web.345435/",
+          "localFile": "data/review-sources/sc-official-review-source.html",
+          "httpStatus": "",
+          "finalUrl": "",
+          "contentType": "",
+          "bytes": 0,
+          "captured": false,
+          "reason": "fetch failed",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "SD",
+      "lane": "source-discovery-needed",
+      "auditCollectionStatus": "state_or_county_source_needed",
+      "rowLevel": "unknown",
+      "existingLocalFiles": "data/sd-2024-general-election-canvass-with-cert.pdf (801624 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Search South Dakota SOS and county auditor files for precinct-level 2024 general returns.",
+      "captures": []
+    },
+    {
+      "state": "TN",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct",
+      "existingLocalFiles": "data/tn-2024-general-all-by-precinct.xlsx (1015612 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map President and a down-ballot contest from the all-by-precinct workbook.",
+      "captures": []
+    },
+    {
+      "state": "TX",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_required",
+      "rowLevel": "county-local precinct",
+      "existingLocalFiles": "data/tx-2024-general-county.json (1818450 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect county official precinct returns; statewide SOS data currently loaded is county-level.",
+      "captures": []
+    },
+    {
+      "state": "UT",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_or_clarity_required",
+      "rowLevel": "county-local precinct",
+      "existingLocalFiles": "data/ut-2024-general-statewide-canvass.pdf (3087129 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect county Clarity exports or county official precinct reports for President and comparison contests.",
+      "captures": []
+    },
+    {
+      "state": "VA",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct/locality",
+      "existingLocalFiles": "data/va-2024-president-results.csv (148282 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map precinct rows and collect/map a same-grain comparison contest export.",
+      "captures": []
+    },
+    {
+      "state": "VT",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "municipality",
+      "existingLocalFiles": "data/vt-2024-president-municipality-results.csv (11742 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Collect/map a same-municipality statewide down-ballot contest.",
+      "captures": []
+    },
+    {
+      "state": "WA",
+      "lane": "county-local-needed",
+      "auditCollectionStatus": "county_local_required",
+      "rowLevel": "county-local precinct",
+      "existingLocalFiles": "data/wa-2024-president-county-results.html (177283 bytes)",
+      "capturedFiles": "data/review-sources/wa-official-review-source.html",
+      "captureStatus": "source page captured",
+      "nextStep": "Collect county official precinct result files; SOS page currently loaded is county-level.",
+      "captures": [
+        {
+          "label": "WA official portal/source page capture",
+          "url": "https://results.vote.wa.gov/results/20241105/president-vice-president_bycounty.html",
+          "localFile": "data/review-sources/wa-official-review-source.html",
+          "httpStatus": "local",
+          "finalUrl": "https://results.vote.wa.gov/results/20241105/president-vice-president_bycounty.html",
+          "contentType": "",
+          "bytes": 177283,
+          "captured": true,
+          "reason": "already captured",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "WV",
+      "lane": "portal-capture",
+      "auditCollectionStatus": "official_portal_identified_needs_capture",
+      "rowLevel": "unknown ENR detail",
+      "existingLocalFiles": "data/wv-2024-general-election-details.json (53299 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "not captured",
+      "nextStep": "Inspect Clarity ENR static files for precinct/detail records or collect county files.",
+      "captures": [
+        {
+          "label": "WV official portal/source page capture",
+          "url": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
+          "localFile": "data/review-sources/wv-official-review-source.html",
+          "httpStatus": "",
+          "finalUrl": "",
+          "contentType": "",
+          "bytes": 0,
+          "captured": false,
+          "reason": "fetch failed",
+          "notes": "Captured page shell/source page for endpoint inspection; may still require browser or API-specific extraction.",
+          "dataKind": "source-page"
+        }
+      ]
+    },
+    {
+      "state": "WY",
+      "lane": "already-local-row-source",
+      "auditCollectionStatus": "local_row_source_collected",
+      "rowLevel": "precinct-by-precinct workbooks",
+      "existingLocalFiles": "data/wy-2024-general-results.zip (771175 bytes)",
+      "capturedFiles": "",
+      "captureStatus": "already present or needs parser/source discovery",
+      "nextStep": "Map county precinct-by-precinct workbooks inside the official ZIP to President plus comparison contest rows.",
+      "captures": []
+    }
+  ],
+  "summary": {
+    "already present or needs parser/source discovery": 30,
+    "source page captured": 5,
+    "data captured": 4,
+    "not captured": 4
+  }
+}
