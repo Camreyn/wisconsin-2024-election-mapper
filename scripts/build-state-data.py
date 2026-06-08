@@ -4907,6 +4907,109 @@ def turnout_data_not_configured(config):
     }
 
 
+def turnout_data_alaska_enr_house_district(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    contest_title = turnout.get("contestTitle", "U.S. President / Vice President")
+    district_label_prefix = turnout.get("districtLabelPrefix", "State House District")
+    exclude_districts = set(str(value).zfill(2) for value in turnout.get("excludeDistricts", []))
+    expected_districts = {str(index).zfill(2) for index in range(1, config.get("expected", {}).get("countyRows", 0) + 1)}
+    method_columns = turnout.get(
+        "methodColumns",
+        {
+            "electionDayBallots": "Election Day_ballots",
+            "absenteeBallots": "Absentee_ballots",
+            "earlyVotingBallots": "Early Voting_ballots",
+            "questionBallots": "Question_ballots",
+            "remoteBallots": "Remote_ballots",
+        },
+    )
+
+    def district_code(row):
+        precinct_id = str(row.get("Pct_Id") or "").strip()
+        if precinct_id:
+            return precinct_id.split("-")[0].zfill(2)
+        match = re.match(r"District\s+(\d+)\s+-\s+", str(row.get("Precinct_name") or ""))
+        return match.group(1).zfill(2) if match else ""
+
+    by_district = defaultdict(lambda: defaultdict(int))
+    excluded = defaultdict(lambda: defaultdict(int))
+    seen_rows = set()
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            if row.get("Contest_title") != contest_title:
+                continue
+            district = district_code(row)
+            if not district:
+                raise ValueError(f"Alaska turnout row does not map to a district: {row.get('Precinct_name')!r}")
+            row_key = (district, row.get("Pct_Id") or "", row.get("Precinct_name") or "")
+            if row_key in seen_rows:
+                continue
+            seen_rows.add(row_key)
+            target = excluded[district] if district in exclude_districts else by_district[district]
+            target["registeredVoters"] += int_text(row.get("Reg_voters"))
+            target["ballotsCast"] += int_text(row.get("total_ballots"))
+            target["underVotes"] += int_text(row.get("total_under_votes"))
+            target["overVotes"] += int_text(row.get("total_over_votes"))
+            for output_key, column in method_columns.items():
+                target[output_key] += int_text(row.get(column))
+
+    missing = sorted(expected_districts - set(by_district))
+    extra = sorted(set(by_district) - expected_districts)
+    if missing or extra:
+        raise ValueError(f"Alaska turnout district mismatch: missing={missing}; extra={extra}")
+
+    output_rows = []
+    for district in sorted(by_district, key=int):
+        totals = by_district[district]
+        district_name = f"{district_label_prefix} {int(district)}"
+        row = {
+            "county": district_name,
+            "municipality": district_name,
+            "ward": district_name,
+            "ballotsCast": totals["ballotsCast"],
+            "registeredVoters": totals["registeredVoters"],
+            "turnoutPct": round2((totals["ballotsCast"] / totals["registeredVoters"]) * 100)
+            if totals["registeredVoters"]
+            else None,
+            "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+            "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+            "sourceUrl": source["url"],
+            "sourceLevel": turnout["sourceLevel"],
+            "sourceTitle": turnout.get("sourceTitle"),
+            "sourceAuthority": turnout.get("sourceAuthority", config.get("authority")),
+            "coverageStatus": turnout.get("coverageStatus", "loaded"),
+            "voteMethodFields": turnout.get("voteMethodFields", []),
+            "notes": turnout["notes"],
+            "warningRequired": turnout["warningRequired"],
+            "underVotes": totals["underVotes"],
+            "overVotes": totals["overVotes"],
+        }
+        for output_key in method_columns:
+            row[output_key] = totals[output_key]
+        output_rows.append(row)
+
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {key: sum(row[key] for row in output_rows) for key in expected_totals}
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Alaska turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    excluded_totals = turnout.get("excludedDistrictTotals", {})
+    if excluded_totals:
+        parsed_excluded = {
+            district: {key: values[key] for key in totals}
+            for district, totals in excluded.items()
+            if district in exclude_districts
+            for values in [dict(totals)]
+        }
+        if parsed_excluded != excluded_totals:
+            raise ValueError(f"Alaska excluded turnout totals do not match expected totals: {parsed_excluded} != {excluded_totals}")
+
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
 def turnout_data_xlsx_precinct_rows(config):
     turnout = config["turnout"]
     path = local_source(config, turnout["sourceId"])
@@ -6152,6 +6255,191 @@ def turnout_data_tennessee_turnout_pdf(config):
     return turnout_payload(config, turnout, path, source, output_rows)
 
 
+def turnout_data_oregon_registration_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_lookup = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).upper(): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    row_pattern = re.compile(
+        r"^(?P<county>[A-Za-z ]+?)\s+"
+        r"(?P<registered>\d[\d,]*)\s+"
+        r"(?P<ballots>\d[\d,]*)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%$"
+    )
+    total_pattern = re.compile(
+        r"^(?P<registered>\d[\d,]*)\s+"
+        r"(?P<ballots>\d[\d,]*)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%$"
+    )
+
+    try:
+        table_start = next(
+            index
+            for index in range(len(lines) - 5)
+            if lines[index] == "VOTER REGISTRATION AND PARTICIPATION BY COUNTY"
+            and lines[index + 2] == "Total"
+            and lines[index + 3] == "Number Ballots Percent"
+            and lines[index + 4] == "County Eligible Returned Voting"
+        )
+    except StopIteration as exc:
+        raise ValueError(f"Could not locate Oregon county turnout table in {path}") from exc
+
+    output_rows = []
+    reported_total = None
+    for line in lines[table_start + 5 :]:
+        total_match = total_pattern.match(line)
+        if total_match:
+            reported_total = {
+                "registeredVoters": int_text(total_match.group("registered")),
+                "ballotsCast": int_text(total_match.group("ballots")),
+            }
+            break
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        county = county_lookup.get(match.group("county").upper())
+        if not county:
+            raise ValueError(f"Unexpected Oregon turnout county row {match.group('county')!r}")
+        registered = int_text(match.group("registered"))
+        ballots = int_text(match.group("ballots"))
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "sourceTitle": turnout.get("sourceTitle"),
+                "sourceAuthority": turnout.get("sourceAuthority", config.get("authority")),
+                "coverageStatus": turnout.get("coverageStatus", "loaded"),
+            }
+        )
+
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Oregon turnout parsed {len(output_rows)} county rows")
+    if not reported_total:
+        raise ValueError(f"Could not locate Oregon turnout total row in {path}")
+    parsed_total = {
+        "registeredVoters": sum(row["registeredVoters"] for row in output_rows),
+        "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+    }
+    if parsed_total != reported_total:
+        raise ValueError(f"Oregon turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_north_carolina_voter_history_join(config):
+    turnout = config["turnout"]
+    history_source = source_map(config)[turnout["sourceId"]]
+    voter_source = source_map(config)[turnout["registrationSourceId"]]
+
+    def read_zip_rows(source_id, member):
+        path = local_source(config, source_id)
+        with zipfile.ZipFile(path) as archive:
+            with archive.open(member) as raw:
+                text = (line.decode("utf-8-sig").replace("\0", "") for line in raw)
+                yield from csv.DictReader(text, delimiter="\t")
+
+    def row_key(row):
+        return (
+            str(row["county_desc"]).strip().upper(),
+            str(row["precinct_abbrv"]).strip(),
+            str(row["vtd_abbrv"]).strip(),
+        )
+
+    county_lookup = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).upper(): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    registered_by_key = defaultdict(int)
+    for row in read_zip_rows(turnout["registrationSourceId"], turnout.get("registrationMember", "voter_stats_20241105.txt")):
+        registered_by_key[row_key(row)] += int(row["total_voters"] or 0)
+
+    ballots_by_key = defaultdict(int)
+    methods_by_key = defaultdict(lambda: defaultdict(int))
+    for row in read_zip_rows(turnout["sourceId"], turnout.get("historyMember", "history_stats_20241105.txt")):
+        key = row_key(row)
+        ballots = int(row["total_voters"] or 0)
+        method = str(row.get("voting_method_desc") or "").strip().upper()
+        ballots_by_key[key] += ballots
+        methods_by_key[key][method] += ballots
+
+    missing_denominators = sorted(set(ballots_by_key) - set(registered_by_key))
+    if missing_denominators:
+        raise ValueError(f"North Carolina turnout missing denominator rows for {len(missing_denominators)} keys")
+
+    method_field_map = {
+        "EARLYVOTE": "earlyVote",
+        "EV-CURB": "earlyVotingCurbside",
+        "ABS-MAIL": "absenteeByMail",
+        "IN-PERSON": "electionDayInPerson",
+        "CURBSIDE": "electionDayCurbside",
+        "TRANSFER": "electionDayTransfer",
+        "PROV": "provisional",
+    }
+    output_rows = []
+    for county_raw, precinct, vtd in sorted(registered_by_key):
+        county = county_lookup.get(county_raw)
+        if not county:
+            raise ValueError(f"Unexpected North Carolina county row {county_raw!r}")
+        registered = registered_by_key[(county_raw, precinct, vtd)]
+        ballots = ballots_by_key[(county_raw, precinct, vtd)]
+        row = {
+            "county": county,
+            "municipality": county,
+            "ward": f"Precinct {precinct} / VTD {vtd}",
+            "precinct": precinct,
+            "vtd": vtd,
+            "ballotsCast": ballots,
+            "registeredVoters": registered,
+            "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+            "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+            "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+            "sourceUrl": f"{history_source['url']} ; {voter_source['url']}",
+            "sourceLevel": turnout["sourceLevel"],
+            "sourceTitle": turnout.get("sourceTitle"),
+            "sourceAuthority": turnout.get("sourceAuthority", config.get("authority")),
+            "coverageStatus": turnout.get("coverageStatus", "loaded"),
+            "voteMethodFields": turnout.get("voteMethodFields", []),
+            "notes": turnout["notes"],
+            "warningRequired": turnout["warningRequired"],
+        }
+        methods = methods_by_key[(county_raw, precinct, vtd)]
+        for method_label, field in method_field_map.items():
+            row[field] = methods[method_label]
+        row["earlyVoting"] = row["earlyVote"] + row["earlyVotingCurbside"]
+        row["electionDay"] = row["electionDayInPerson"] + row["electionDayCurbside"] + row["electionDayTransfer"]
+        output_rows.append(row)
+
+    expected_totals = turnout.get("statewideTotals", {})
+    parsed_totals = {
+        "registeredVoters": sum(row["registeredVoters"] for row in output_rows),
+        "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+        "earlyVoting": sum(row["earlyVoting"] for row in output_rows),
+        "absenteeByMail": sum(row["absenteeByMail"] for row in output_rows),
+        "electionDay": sum(row["electionDay"] for row in output_rows),
+        "provisional": sum(row["provisional"] for row in output_rows),
+    }
+    if expected_totals and parsed_totals != expected_totals:
+        raise ValueError(f"North Carolina turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+    if len(output_rows) != config.get("expected", {}).get("turnoutRows"):
+        raise ValueError(f"North Carolina turnout parsed {len(output_rows)} rows")
+
+    return turnout_payload(config, turnout, local_source(config, turnout["sourceId"]), history_source, output_rows)
+
+
 def turnout_data_oklahoma_enr_registration_pdf(config):
     turnout = config["turnout"]
     result_path = local_source(config, turnout["sourceId"])
@@ -6495,7 +6783,10 @@ def turnout_data_washington_reconciliation_xlsx(config):
     path = local_source(config, turnout["sourceId"])
     source = source_map(config)[turnout["sourceId"]]
     column_index, rows = read_sheet_rows(path, turnout.get("sheet", "Data"))
-    county_names = set(geometry_names_by_geoid(config).values())
+    county_names = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE): name
+        for name in geometry_names_by_geoid(config).values()
+    }
     by_county = {}
     total_row = None
 
@@ -6513,7 +6804,7 @@ def turnout_data_washington_reconciliation_xlsx(config):
             continue
         if county not in county_names:
             continue
-        by_county[county] = {
+        by_county[county_names[county]] = {
             "activeVoters": value(row, "Active Voters"),
             "inactiveVoters": value(row, "Inactive Voter"),
             "creditedVotersInEms": value(row, "Credited voters in EMS"),
@@ -6530,9 +6821,10 @@ def turnout_data_washington_reconciliation_xlsx(config):
             "pollsiteCounted": value(row, "Pollsite Counted"),
         }
 
-    if set(by_county) != county_names:
-        missing = sorted(county_names - set(by_county))
-        extra = sorted(set(by_county) - county_names)
+    expected_counties = set(county_names.values())
+    if set(by_county) != expected_counties:
+        missing = sorted(expected_counties - set(by_county))
+        extra = sorted(set(by_county) - expected_counties)
         raise ValueError(f"Washington turnout county mismatch: missing={missing}; extra={extra}")
     if total_row is None:
         raise ValueError("Washington turnout source is missing z-Totals row")
@@ -7709,6 +8001,7 @@ REVIEW_CHART_PARSERS = {
 
 TURNOUT_PARSERS = {
     "notConfigured": turnout_data_not_configured,
+    "alaskaEnrHouseDistrictTurnout": turnout_data_alaska_enr_house_district,
     "alabamaPrecinctZipTurnout": turnout_data_alabama_precinct_zip,
     "arkansasTotalResultsStatewideJson": turnout_data_arkansas_total_results_statewide_json,
     "californiaParticipationPdf": turnout_data_california_participation_pdf,
@@ -7728,8 +8021,10 @@ TURNOUT_PARSERS = {
     "montanaCanvassPdf": turnout_data_montana_canvass_pdf,
     "nebraskaCanvassPdf": turnout_data_nebraska_canvass_pdf,
     "newJerseyTurnoutPdf": turnout_data_new_jersey_turnout_pdf,
+    "northCarolinaVoterHistoryJoin": turnout_data_north_carolina_voter_history_join,
     "northDakotaTurnoutHtml": turnout_data_north_dakota_html,
     "oklahomaEnrRegistrationPdf": turnout_data_oklahoma_enr_registration_pdf,
+    "oregonRegistrationTurnoutPdf": turnout_data_oregon_registration_turnout_pdf,
     "pennsylvaniaVoteHistoryXlsx": turnout_data_pennsylvania_vote_history_xlsx,
     "rhodeIslandSummaryXlsx": turnout_data_rhode_island_summary_xlsx,
     "southDakotaElectionReturnsPdf": turnout_data_south_dakota_election_returns_pdf,

@@ -68,6 +68,7 @@ const supportedReviewFormats = new Set([
   "pennsylvaniaBulkCsvPrecinctComparison",
 ]);
 const supportedTurnoutFormats = new Set([
+  "alaskaEnrHouseDistrictTurnout",
   "alabamaPrecinctZipTurnout",
   "arkansasTotalResultsStatewideJson",
   "californiaParticipationPdf",
@@ -88,8 +89,10 @@ const supportedTurnoutFormats = new Set([
   "montanaCanvassPdf",
   "nebraskaCanvassPdf",
   "newJerseyTurnoutPdf",
+  "northCarolinaVoterHistoryJoin",
   "northDakotaTurnoutHtml",
   "oklahomaEnrRegistrationPdf",
+  "oregonRegistrationTurnoutPdf",
   "pennsylvaniaVoteHistoryXlsx",
   "rhodeIslandSummaryXlsx",
   "southDakotaElectionReturnsPdf",

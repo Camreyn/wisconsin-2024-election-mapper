@@ -15,6 +15,21 @@
       "localFile": "data/nc-2024-general-enr-results.zip"
     },
     {
+      "id": "nc-2024-general-history-stats",
+      "url": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/history_stats_20241105.zip",
+      "localFile": "data/nc-2024-general-history-stats.zip"
+    },
+    {
+      "id": "nc-2024-general-voter-stats",
+      "url": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/voter_stats_20241105.zip",
+      "localFile": "data/nc-2024-general-voter-stats.zip"
+    },
+    {
+      "id": "nc-2024-general-absentee-counts-state",
+      "url": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/absentee_counts_state_20241105.csv",
+      "localFile": "data/nc-2024-general-absentee-counts-state.csv"
+    },
+    {
       "id": "nc-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2737%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/nc-counties.geojson"
@@ -95,11 +110,32 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "nc-2024-general-enr-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded because the ENR presidential result files do not include app-ready registered-voter denominators.",
+    "format": "northCarolinaVoterHistoryJoin",
+    "sourceId": "nc-2024-general-history-stats",
+    "registrationSourceId": "nc-2024-general-voter-stats",
+    "historyMember": "history_stats_20241105.txt",
+    "registrationMember": "voter_stats_20241105.txt",
+    "registrationDenominatorTiming": "preElectionDay",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "precinct/VTD",
+    "sourceTitle": "2024 General Election Turnout history_stats and voter_stats",
+    "sourceAuthority": "North Carolina State Board of Elections",
+    "coverageStatus": "loaded",
+    "voteMethodFields": [
+      "earlyVoting",
+      "absenteeByMail",
+      "electionDay",
+      "provisional"
+    ],
+    "statewideTotals": {
+      "registeredVoters": 7854464,
+      "ballotsCast": 5705861,
+      "earlyVoting": 4214782,
+      "absenteeByMail": 298076,
+      "electionDay": 1175854,
+      "provisional": 17149
+    },
+    "notes": "Official NCSBE history_stats rows are joined to voter_stats denominators by county, precinct, and VTD. Denominators are warning-labeled because voter_stats is a Nov. 5, 2024 registration snapshot; turnout method columns are aggregated from NCSBE voting_method_desc values.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -120,7 +156,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -143,13 +179,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "North Carolina turnout denominator",
-        "detail": "The ENR presidential result files include vote totals but do not provide the app-ready registered-voter denominator mapping. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://er.ncsbe.gov/contest_details.html?contest_id=1393&county_id=0&election_dt=11%2F05%2F2024",
-        "localFile": "data/nc-2024-general-enr-results.zip; data/nc-app-data.js",
+        "title": "North Carolina official precinct/VTD turnout",
+        "detail": "Precinct/VTD turnout rows are loaded by joining official NCSBE history_stats turnout rows to official voter_stats registration denominator rows by county, precinct, and VTD. Vote-method columns are aggregated from NCSBE history voting_method_desc values.",
+        "sourceUrl": "https://www.ncsbe.gov/results-data/voter-turnout/2024-general-election-turnout",
+        "localFile": "data/nc-2024-general-history-stats.zip; data/nc-2024-general-voter-stats.zip; data/nc-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "ENR county result files were checked during official-source promotion; turnout denominator extraction is not enabled.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "NCSBE 2024 General Election Turnout page cites history_stats_20241105.zip as the overall turnout source; official S3 public files also provide voter_stats_20241105.zip for denominators.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -166,6 +202,20 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "North Carolina county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Official turnout numerator and vote method source",
+        "file": "data/nc-2024-general-history-stats.zip; data/nc-app-data.js",
+        "sourceUrl": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/history_stats_20241105.zip",
+        "usedFor": "North Carolina precinct/VTD ballots-cast rows and vote-method columns.",
+        "confidence": "Official NCSBE public-file ZIP cited by the NCSBE 2024 General Election Turnout page."
+      },
+      {
+        "category": "Official turnout denominator source",
+        "file": "data/nc-2024-general-voter-stats.zip; data/nc-app-data.js",
+        "sourceUrl": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/voter_stats_20241105.zip",
+        "usedFor": "North Carolina precinct/VTD registered-voter denominator rows joined to history_stats.",
+        "confidence": "Official NCSBE public-file ZIP for the 2024 General Election ENRS data folder."
       }
     ],
     "checkedNotUsable": [
@@ -179,9 +229,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "North Carolina turnout should not be inferred from the ENR presidential result files because they lack app-ready registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "NCSBE history_stats_20241105.zip joined to voter_stats_20241105.zip by county, precinct, and VTD.",
+      "warning": "North Carolina denominators are from the official voter_stats Nov. 5 registration snapshot and are labeled pre-election. Use the warning label when comparing turnout percentages.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -204,8 +254,8 @@
     "harris": 2715375,
     "other": 85343,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 3250,
+    "turnoutWarningRows": 3250,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 100

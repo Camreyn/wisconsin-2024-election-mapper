@@ -111,11 +111,51 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "alaskaEnrHouseDistrictTurnout",
     "sourceId": "ak-2024-general-enr-by-precinct",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded in this New York-level pass. The official Alaska ENR CSV includes registered-voter and ballot fields that can be mapped in a later turnout upgrade.",
+    "contestTitle": "U.S. President / Vice President",
+    "districtLabelPrefix": "State House District",
+    "excludeDistricts": [
+      "99"
+    ],
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "precinct plus district-level voting-method rows aggregated to house district",
+    "sourceTitle": "Official Alaska 2024 General Election ENR by Precinct",
+    "sourceAuthority": "Alaska Division of Elections",
+    "coverageStatus": "loaded",
+    "voteMethodFields": [
+      "electionDayBallots",
+      "absenteeBallots",
+      "earlyVotingBallots",
+      "questionBallots",
+      "remoteBallots"
+    ],
+    "statewideTotals": {
+      "registeredVoters": 610272,
+      "ballotsCast": 340580,
+      "underVotes": 1996,
+      "overVotes": 808,
+      "electionDayBallots": 177498,
+      "absenteeBallots": 77109,
+      "earlyVotingBallots": 71187,
+      "questionBallots": 14786,
+      "remoteBallots": 0
+    },
+    "excludedDistrictTotals": {
+      "99": {
+        "registeredVoters": 806,
+        "ballotsCast": 401,
+        "underVotes": 0,
+        "overVotes": 0,
+        "electionDayBallots": 0,
+        "absenteeBallots": 401,
+        "earlyVotingBallots": 0,
+        "questionBallots": 0,
+        "remoteBallots": 0
+      }
+    },
+    "notes": "Official Alaska ENR by-precinct rows are aggregated to the 40 mapped State House Districts. The numerator is total ballots for the presidential contest, including under-votes and over-votes. HD99 Federal Overseas Absentee is documented but excluded because it has no mapped district polygon.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -136,7 +176,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -159,13 +199,13 @@
         "status": "Needs parser mapping"
       },
       "turnout": {
-        "title": "Alaska turnout denominator",
-        "detail": "The official ENR CSV includes registered-voter and ballot fields, but this pass only loads certified presidential district totals. Turnout remains disabled until those fields are mapped and validated as the accepted denominator.",
+        "title": "Alaska official house district turnout",
+        "detail": "The official ENR by-precinct CSV includes registered-voter and ballot fields. Turnout rows are aggregated to the same 40 mapped State House Districts used for Alaska results, including district-level early-voting and questioned-ballot rows.",
         "sourceUrl": "https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv",
         "localFile": "data/ak-2024-general-enr-by-precinct.csv; data/ak-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official ENR by-precinct CSV checked during Alaska load.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official ENR by-precinct CSV collected from the Alaska Division of Elections 2024 General Election results page, which says Results Status: Official and Page last updated January 29, 2025 at 2:58 pm.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -182,6 +222,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/Legislative/MapServer",
         "usedFor": "Alaska house district polygon map.",
         "confidence": "U.S. Census TIGERweb geography."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/ak-2024-general-enr-by-precinct.csv; data/ak-app-data.js",
+        "sourceUrl": "https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv",
+        "usedFor": "Alaska 2024 registered voters, total ballots, under-votes, over-votes, and voting-method ballots aggregated to State House District turnout rows.",
+        "confidence": "Official Alaska Division of Elections ENR by-precinct CSV; parser uses one presidential row per precinct or district voting-method row and validates mapped district totals."
       }
     ],
     "checkedNotUsable": [
@@ -202,9 +249,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Alaska turnout is not enabled until the official registered-voter and ballot fields are mapped and validated separately from the certified-results load.",
+      "status": "Loaded",
+      "acceptedSource": "Alaska Division of Elections official 2024 General Election ENR by-precinct CSV.",
+      "warning": "Alaska turnout is aggregated to mapped State House Districts. HD99 Federal Overseas Absentee is documented and excluded from the 40-row map-aligned turnout table because it has no district polygon.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -227,8 +274,8 @@
     "harris": 139690,
     "other": 13679,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 40,
+    "turnoutWarningRows": 40,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 40

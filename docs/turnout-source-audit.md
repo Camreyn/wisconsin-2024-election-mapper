@@ -7,10 +7,10 @@ This audit captures Leif's highest-priority missing data for all 50 states: ball
 ## Coverage Summary
 
 - County Local Required: 4
-- Loaded: 26
+- Loaded: 30
 - Partial Loaded: 1
 - Source Needs Review: 9
-- Usable Candidate: 10
+- Usable Candidate: 6
 
 Known-good loaded states remain AL, FL, MI, MN, ND, and PA. Wisconsin is partial because the WEC statewide ward results do not include denominator fields and only some local turnout rows have been imported.
 
@@ -22,6 +22,7 @@ The quickest wins are states marked `usable_candidate`: they appear to have offi
 
 | State | Status | Source Level | Parser Fit | Caveat |
 | --- | --- | --- | --- | --- |
+| AK | Loaded | precinct plus district-level voting-method rows aggregated to house district | loaded: alaskaEnrHouseDistrictTurnout | App imports 40 mapped State House District turnout rows from the official ENR CSV. HD99 Federal Overseas Absentee is documented and excluded because it has no district polygon. |
 | AL | Loaded | county | loaded: alabamaPrecinctZipTurnout | App already imports county turnout from official results plus registration workbook; precinct-level denominator support is not loaded. |
 | AR | Loaded | statewide | loaded: arkansasTotalResultsStatewideJson | App imports the official statewide registered-voter and total-ballots-cast turnout object with warnings; county-level denominator rows still need a separate official source. |
 | CA | Loaded | county | loaded: californiaParticipationPdf | Registered-voter totals are based on the 15-day Report of Registration and exclude later same-day registrations. |
@@ -39,30 +40,29 @@ The quickest wins are states marked `usable_candidate`: they appear to have offi
 | MN | Loaded | precinct | loaded: xlsxPrecinctRows | App already imports precinct turnout using REG7AM plus EDR as denominator and TOTVOTING as ballots cast. |
 | MO | Loaded | county | loaded: missouriVoterTurnoutPdf | App imports county registered voters, active voters, inactive voters, actual voters, and turnout percentage; Kansas City is merged into Jackson County for county-geometry alignment. |
 | MT | Loaded | county | loaded: montanaCanvassPdf | App imports county turnout rows from the official SOS canvass voting information table; precinct-level denominator support is not loaded. |
+| NC | Loaded | precinct/VTD | loaded: northCarolinaVoterHistoryJoin | App joins official history_stats_20241105.zip to voter_stats_20241105.zip by county, precinct, and VTD. All rows are warning-labeled because voter_stats is a Nov. 5 registration snapshot. |
 | ND | Loaded | county | loaded: northDakotaTurnoutHtml | App already imports county turnout rows from official SOS turnout detail page. |
 | NE | Loaded | county | loaded: nebraskaCanvassPdf | App joins the canvass Voting Statistics registered-voter table to the Total Voting by Method table by county. |
 | NJ | Loaded | county | loaded: newJerseyTurnoutPdf | Official PDF gives registered voters, ballots cast, rejected ballots, and election district count by county. |
 | OK | Loaded | county | loaded: oklahomaEnrRegistrationPdf | App joins official OKER presidential race total votes and vote-method splits to the official November 1 county registration PDF; rows are warning-labeled because the denominator is pre-election and the numerator is presidential race votes. |
+| OR | Loaded | county | loaded: oregonRegistrationTurnoutPdf | App imports county rows from the official Oregon SOS archive PDF. The county table column is labeled Eligible, but the statewide total matches the PDF's Total registered voters line; numerator is Ballots Returned. |
 | PA | Loaded | county | loaded: pennsylvaniaVoteHistoryXlsx | App already imports county turnout rows from official vote-history/registration workbook. |
 | RI | Loaded | precinct | loaded: rhodeIslandSummaryXlsx | App joins official workbook precinct labels from Reg_Voters and Ballots_Cast; statewide federal reporting rows in the results source remain separate from county geometry. |
 | SD | Loaded | county | loaded: southDakotaElectionReturnsPdf | App imports county registered-voter and votes-cast rows from the official SOS Election Returns and Registration Figures PDF and validates the published statewide totals. |
 | TN | Loaded | county | loaded: tennesseeTurnoutPdf | App imports 95 official county turnout rows with registered voters, total votes cast, absentee by mail voters, and early voters from the linked November 5, 2024 turnout PDF. |
 | VT | Loaded | county | loaded: vermontVoterTurnoutPdf | App imports the official county summary table with registered voters, total votes cast including absentee, turnout, and absentee counts; town/district rows are available in the PDF but not imported yet. |
+| WA | Loaded | county | loaded: washingtonReconciliationXlsx | App imports 39 county rows from the official reconciliation workbook using Active Voters as the denominator; the annual report's county turnout percentages reconcile to Ballots Counted divided by Active Voters, so rows carry an active-denominator warning. |
 | WI | Partial Loaded | ward/reporting-unit/county mixed | partial loaded: import-turnout.py CSV path | Statewide WEC ward results lack denominator fields; more county/municipal canvass reports are needed for full turnout coverage. |
 
 ## Usable Candidates
 
 | State | Status | Source Level | Parser Fit | Caveat |
 | --- | --- | --- | --- | --- |
-| AK | Usable Candidate | precinct within house district | new parser: enumerate HD PDFs and extract precinct registered-voter/voters-cast rows | Search surfaced official district PDFs with Registered Voters, Voters Cast, and turnout by precinct; statewide collection needs all district PDF URLs enumerated. |
 | IA | Usable Candidate | county | new pdf table parser | Report distinguishes active and inactive voter denominators; choose denominator policy before enabling turnout. |
 | KY | Usable Candidate | county | new parser after direct 2024 file is selected | SBE warns turnout reports are run after registration rolls reopen, so denominator timing should be labeled postElectionDay. |
 | MA | Usable Candidate | state/city-town linked downloads | new parser; collect detailed early/mail download | Statewide turnout table is obvious; detailed city/town vote-method files should be downloaded from the early voting statistics page. |
-| NC | Usable Candidate | county/state by voting method | new download/parser mapping | Official page focuses on turnout by voting method; direct downloadable data endpoint should be captured. |
 | NV | Usable Candidate | county/state | download final official turnout file | Search result came through a UAT host, but the path identifies the SOS 2024 Turnout Reporting page; verify production URL and final file link. |
 | NY | Usable Candidate | county | join enrollment county file to certified county results | Enrollment file provides denominator; ballots-cast totals must be joined from certified result/source already loaded for county results. |
-| OR | Usable Candidate | state/county linked statistics | collect 2024 county statistics download | General Election turnout history gives statewide rows; county-level file should be collected from the official election history/statistics page. |
-| WA | Usable Candidate | state/county in annual report | collect county table from annual report or turnout data page | Statewide turnout and vote-return-method split are official; county denominator table should be extracted from annual report or linked data. |
 | WV | Usable Candidate | county | collect direct 2024 turnout file and parse | SOS certification notes county turnout rates and Election Day registration totals; direct source file URL should be captured. |
 
 ## Parser Needed

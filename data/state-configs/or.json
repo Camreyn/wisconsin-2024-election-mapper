@@ -20,6 +20,11 @@
       "localFile": "data/or-2024-general-statewide-export.csv"
     },
     {
+      "id": "or-2024-voter-registration-turnout-statistics",
+      "url": "https://records.sos.state.or.us/ORSOSWebDrawer/Recordhtml/13735459",
+      "localFile": "data/or-2024-voter-registration-turnout-statistics.pdf"
+    },
+    {
       "id": "or-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2741%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/or-counties.geojson"
@@ -90,12 +95,16 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "or-2024-president-statewide-export",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "oregonRegistrationTurnoutPdf",
+    "sourceId": "or-2024-voter-registration-turnout-statistics",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Oregon turnout is not loaded yet. The certified presidential result sources used here expose candidate votes but not county registered-voter denominators.",
-    "warningRequired": true
+    "sourceTitle": "2024 November General Election Official Voter Registration Statistics",
+    "sourceAuthority": "Oregon Secretary of State Elections Division",
+    "coverageStatus": "loaded",
+    "notes": "Official Oregon SOS county table labeled Voter Registration and Participation by County. The PDF's county column is labeled Eligible, but the statewide total matches the same PDF's Total registered voters line; the numerator is Ballots Returned.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -115,7 +124,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -138,13 +147,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Oregon turnout denominator",
-        "detail": "The certified presidential result sources expose candidate votes but no county registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
-        "sourceUrl": "https://results.oregonvotes.gov/ResultsExport.aspx?eid=107",
-        "localFile": "data/or-2024-general-statewide-export.csv; data/or-app-data.js",
+        "title": "Oregon 2024 General Election county turnout",
+        "detail": "County turnout rows are parsed from the official Oregon Secretary of State voter registration and participation statistics PDF. The table supplies county registered-voter totals, ballots returned, and turnout percentages for the November 5, 2024 General Election.",
+        "sourceUrl": "https://records.sos.state.or.us/ORSOSWebDrawer/Recordhtml/13735459",
+        "localFile": "data/or-2024-voter-registration-turnout-statistics.pdf; data/or-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential result exports lack county registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Oregon Secretary of State archive record titled 2024 November General Election Official Voter Registration Statistics(2).PDF.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -161,6 +170,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Oregon county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/or-2024-voter-registration-turnout-statistics.pdf; data/or-app-data.js",
+        "sourceUrl": "https://records.sos.state.or.us/ORSOSWebDrawer/Recordhtml/13735459",
+        "usedFor": "Oregon county turnout rows with registered voters, ballots returned, and turnout percentages.",
+        "confidence": "Official Oregon Secretary of State archived voter registration and participation statistics PDF; county rows reconcile to the PDF's statewide total."
       }
     ],
     "checkedNotUsable": [
@@ -181,9 +197,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Oregon turnout should not be inferred from the certified presidential result exports because they lack registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Oregon SOS 2024 November General Election Official Voter Registration Statistics PDF.",
+      "warning": "Oregon turnout uses the official ballots-returned numerator from the voter registration and participation statistics table.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -206,7 +222,7 @@
     "harris": 1240600,
     "other": 84413,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 36,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,
