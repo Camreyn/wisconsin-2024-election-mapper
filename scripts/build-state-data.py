@@ -6490,6 +6490,105 @@ def turnout_data_rhode_island_summary_xlsx(config):
     return turnout_payload(config, turnout, path, source, output_rows)
 
 
+def turnout_data_washington_reconciliation_xlsx(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    column_index, rows = read_sheet_rows(path, turnout.get("sheet", "Data"))
+    county_names = set(geometry_names_by_geoid(config).values())
+    by_county = {}
+    total_row = None
+
+    def value(row, column):
+        return int_text(row[column_index[column]])
+
+    for row in rows:
+        if row[column_index["Year"]] != turnout.get("year", config["electionYear"]):
+            continue
+        if str(row[column_index["Election Type"]] or "").strip() != turnout.get("electionType", "General"):
+            continue
+        county = str(row[column_index["County"]] or "").strip()
+        if county == "z-Totals":
+            total_row = row
+            continue
+        if county not in county_names:
+            continue
+        by_county[county] = {
+            "activeVoters": value(row, "Active Voters"),
+            "inactiveVoters": value(row, "Inactive Voter"),
+            "creditedVotersInEms": value(row, "Credited voters in EMS"),
+            "validBallots": value(row, "Valid Ballots"),
+            "ballotsIssued": value(row, "Ballots Issued"),
+            "ballotsReturned": value(row, "Ballots Returned"),
+            "ballotsCounted": value(row, "Ballots Counted"),
+            "ballotsRejected": value(row, "Ballots Rejected"),
+            "uocavaBallotsCounted": value(row, "UOCAVA Ballots Counted"),
+            "provisionalBallotsCounted": value(row, "Provisional Ballots Counted"),
+            "receivedByDropBox": value(row, " Received by dropbox"),
+            "receivedByMail": value(row, "Received by mail"),
+            "regularMailBallotsCounted": value(row, "Regular Mail Ballots Counted"),
+            "pollsiteCounted": value(row, "Pollsite Counted"),
+        }
+
+    if set(by_county) != county_names:
+        missing = sorted(county_names - set(by_county))
+        extra = sorted(set(by_county) - county_names)
+        raise ValueError(f"Washington turnout county mismatch: missing={missing}; extra={extra}")
+    if total_row is None:
+        raise ValueError("Washington turnout source is missing z-Totals row")
+
+    expected_totals = turnout.get("statewideTotals") or {
+        "activeVoters": value(total_row, "Active Voters"),
+        "inactiveVoters": value(total_row, "Inactive Voter"),
+        "ballotsCounted": value(total_row, "Ballots Counted"),
+        "validBallots": value(total_row, "Valid Ballots"),
+        "ballotsReturned": value(total_row, "Ballots Returned"),
+        "ballotsRejected": value(total_row, "Ballots Rejected"),
+        "receivedByDropBox": value(total_row, " Received by dropbox"),
+        "receivedByMail": value(total_row, "Received by mail"),
+    }
+    parsed_totals = {key: sum(row[key] for row in by_county.values()) for key in expected_totals}
+    if parsed_totals != expected_totals:
+        raise ValueError(f"Washington turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    output_rows = []
+    for county, totals in sorted(by_county.items()):
+        registered = totals["activeVoters"]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": totals["ballotsCounted"],
+                "registeredVoters": registered,
+                "turnoutPct": round2((totals["ballotsCounted"] / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "activeRegisteredVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "sourceTitle": turnout.get("sourceTitle"),
+                "sourceAuthority": turnout.get("sourceAuthority", config.get("authority")),
+                "coverageStatus": turnout.get("coverageStatus", "loaded"),
+                "voteMethodFields": turnout.get("voteMethodFields", []),
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "inactiveRegisteredVoters": totals["inactiveVoters"],
+                "creditedVotersInEms": totals["creditedVotersInEms"],
+                "validBallots": totals["validBallots"],
+                "ballotsIssued": totals["ballotsIssued"],
+                "ballotsReturned": totals["ballotsReturned"],
+                "ballotsRejected": totals["ballotsRejected"],
+                "uocavaBallotsCounted": totals["uocavaBallotsCounted"],
+                "provisionalBallotsCounted": totals["provisionalBallotsCounted"],
+                "receivedByDropBox": totals["receivedByDropBox"],
+                "receivedByMail": totals["receivedByMail"],
+                "regularMailBallotsCounted": totals["regularMailBallotsCounted"],
+                "pollsiteCounted": totals["pollsiteCounted"],
+            }
+        )
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
 def rhode_island_town_from_label(label, town_county):
     for town in sorted(town_county, key=len, reverse=True):
         if label == town or label.startswith(f"{town} "):
@@ -7636,6 +7735,7 @@ TURNOUT_PARSERS = {
     "southDakotaElectionReturnsPdf": turnout_data_south_dakota_election_returns_pdf,
     "tennesseeTurnoutPdf": turnout_data_tennessee_turnout_pdf,
     "vermontVoterTurnoutPdf": turnout_data_vermont_voter_turnout_pdf,
+    "washingtonReconciliationXlsx": turnout_data_washington_reconciliation_xlsx,
 }
 
 HISTORICAL_BASELINE_PARSERS = {

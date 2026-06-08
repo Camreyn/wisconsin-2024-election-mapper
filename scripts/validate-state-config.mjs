@@ -95,6 +95,7 @@ const supportedTurnoutFormats = new Set([
   "southDakotaElectionReturnsPdf",
   "tennesseeTurnoutPdf",
   "vermontVoterTurnoutPdf",
+  "washingtonReconciliationXlsx",
 ]);
 const supportedHistoricalFormats = new Set([
   "officialCountyResultText",
