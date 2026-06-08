@@ -1990,8 +1990,11 @@ function etaTestResults() {
   const turnoutCoverage = turnoutCoverageRows();
   const turnoutRows = TURNOUT_DATA?.metadata?.rows || 0;
   const turnoutWarningRows = TURNOUT_DATA?.metadata?.warningRows || 0;
+  const completeCount = turnoutCoverage.filter((row) => row.status === "complete").length;
   const partialCount = turnoutCoverage.filter((row) => row.status === "partial").length;
+  const statewideOnlyCount = turnoutCoverage.filter((row) => row.status === "statewide-only").length;
   const missingCount = turnoutCoverage.filter((row) => row.status === "missing").length;
+  const turnoutStatus = turnoutRows ? (missingCount ? "Partial" : "Loaded") : turnoutPolicy.status;
 
   return [
     {
@@ -2015,10 +2018,10 @@ function etaTestResults() {
     {
       name: "Turnout analysis",
       definition: "Compares ballots cast with a registered-voter or eligible-voter denominator. Turnout results remain partial when those denominators are missing or provisional.",
-      status: turnoutRows ? "Partial" : turnoutPolicy.status,
-      statusClass: turnoutRows ? "partial" : "needs-data",
+      status: turnoutStatus,
+      statusClass: turnoutRows ? (missingCount ? "partial" : "pass") : "needs-data",
       detail: turnoutRows
-        ? `Partial turnout analysis is running for ${formatNumber(turnoutRows)} imported source rows from county/municipal reports. Coverage: ${partialCount} partial ${partialCount === 1 ? "county" : "counties"}, ${missingCount} counties still missing. Required fields for more imports: ${turnoutPolicy.requiredFields.join(", ")}.`
+        ? `Turnout analysis is running for ${formatNumber(turnoutRows)} imported source rows. Coverage: ${completeCount} complete ${completeCount === 1 ? "county" : "counties"}, ${partialCount} partial ${partialCount === 1 ? "county" : "counties"}, ${statewideOnlyCount} statewide-only ${statewideOnlyCount === 1 ? "county" : "counties"}, ${missingCount} counties still missing. Required fields for more imports: ${turnoutPolicy.requiredFields.join(", ")}.`
         : `Not run. ${turnoutPolicy.acceptedSource} Required fields: ${turnoutPolicy.requiredFields.join(", ")}.`,
       warning: turnoutWarningRows
         ? `${formatNumber(turnoutWarningRows)} imported turnout rows use pre-Election-Day or unknown registration denominators. ${turnoutPolicy.warning}`
@@ -2039,11 +2042,12 @@ function renderCoverageTracker() {
   const rows = turnoutCoverageRows();
   const partial = rows.filter((row) => row.status === "partial").length;
   const complete = rows.filter((row) => row.status === "complete").length;
+  const statewideOnly = rows.filter((row) => row.status === "statewide-only").length;
   const missing = rows.filter((row) => row.status === "missing").length;
   const turnoutRows = TURNOUT_DATA?.metadata?.rows || 0;
   const warningRows = TURNOUT_DATA?.metadata?.warningRows || 0;
 
-  els.coverageSummary.textContent = `${formatNumber(turnoutRows)} turnout source rows imported. ${complete} complete counties, ${partial} partial counties, ${missing} missing counties. ${warningRows ? `${formatNumber(warningRows)} rows carry denominator warnings.` : ""}`;
+  els.coverageSummary.textContent = `${formatNumber(turnoutRows)} turnout source rows imported. ${complete} complete counties, ${partial} partial counties, ${statewideOnly} statewide-only counties, ${missing} missing counties. ${warningRows ? `${formatNumber(warningRows)} rows carry denominator warnings.` : ""}`;
   els.coverageList.innerHTML = rows
     .map(
       (row) => `
@@ -2064,39 +2068,46 @@ function renderConfidenceSummary() {
   const rows = turnoutCoverageRows();
   const turnoutRows = TURNOUT_DATA?.metadata?.rows || 0;
   const warningRows = TURNOUT_DATA?.metadata?.warningRows || 0;
+  const complete = rows.filter((row) => row.status === "complete").length;
   const partial = rows.filter((row) => row.status === "partial").length;
+  const statewideOnly = rows.filter((row) => row.status === "statewide-only").length;
   const missing = rows.filter((row) => row.status === "missing").length;
 
   const wardRows = ACTIVE_ETA_ANALYSIS?.wardRows || 0;
-  els.dataVersionSummary.textContent = `Data version: ${DATA_VERSION_LABEL}. Current bundle has ${formatNumber(RESULTS.length)} certified county result rows, ${formatNumber(wardRows)} ward-analysis rows, and ${formatNumber(turnoutRows)} imported turnout rows across ${partial} counties. ${missing} counties still need turnout denominators.`;
+  els.dataVersionSummary.textContent = `Data version: ${DATA_VERSION_LABEL}. Current bundle has ${formatNumber(RESULTS.length)} certified county result rows, ${formatNumber(wardRows)} ward-analysis rows, and ${formatNumber(turnoutRows)} imported turnout rows across ${complete + partial} counties, with ${statewideOnly} counties covered only by statewide turnout totals. ${missing} counties still need turnout denominators.`;
   els.confidenceBadges.innerHTML = [
     confidenceBadge(`Official ${activeStateConfig().authority} county totals`, "strong"),
     confidenceBadge(`Official ${activeReviewGraphTitlePrefix()} vote graphs`, "strong"),
     confidenceBadge("Accurate calculations, limited conclusions", "review"),
-    confidenceBadge(`${formatNumber(turnoutRows)} partial turnout rows`, "partial"),
+    confidenceBadge(`${formatNumber(turnoutRows)} turnout rows`, missing ? "partial" : "strong"),
     confidenceBadge(`${formatNumber(warningRows)} denominator-warning rows`, warningRows ? "warning" : "strong"),
+    confidenceBadge(`${statewideOnly} statewide-only turnout counties`, statewideOnly ? "warning" : "strong"),
     confidenceBadge(`${missing} turnout counties missing`, missing ? "missing" : "strong"),
   ].join("");
 }
 
 function renderCoverageTable() {
   const rows = turnoutCoverageRows();
+  const complete = rows.filter((row) => row.status === "complete").length;
   const partial = rows.filter((row) => row.status === "partial").length;
+  const statewideOnly = rows.filter((row) => row.status === "statewide-only").length;
   const missing = rows.filter((row) => row.status === "missing").length;
 
-  els.coverageTableSummary.textContent = `${partial} counties have imported turnout rows; ${missing} still need denominator data. Vote-result coverage is complete for all ${RESULTS.length} counties.`;
+  els.coverageTableSummary.textContent = `${complete} counties have complete turnout rows, ${partial} have partial turnout rows, ${statewideOnly} have statewide-only turnout, and ${missing} still need denominator data. Vote-result coverage is complete for all ${RESULTS.length} counties.`;
   els.coverageTableRows.innerHTML = rows
     .map((row) => {
       const sourceLinks = row.sources?.length
         ? row.sources.map((source, index) => `<a href="${source}" target="_blank" rel="noreferrer">Turnout ${index + 1}: ${formatSourceHost(source)}</a>`).join("")
         : "<span>No turnout denominator source imported</span>";
       const warning = row.status === "missing" ? "No turnout rows" : row.warnings ? `Yes - ${formatNumber(row.warnings)} row${row.warnings === 1 ? "" : "s"}` : "No warning rows";
+      const statusTone = row.status === "missing" ? "missing" : row.status === "complete" ? "strong" : "partial";
+      const statusLabel = row.status === "missing" ? "Missing" : row.status === "complete" ? "Complete" : row.status === "statewide-only" ? "Statewide only" : "Partial";
       return `
         <tr>
           <td>${row.county}</td>
           <td><span class="confidence-pill strong">Official</span></td>
           <td>
-            <span class="confidence-pill ${row.status === "missing" ? "missing" : "partial"}">${row.status === "missing" ? "Missing" : "Partial"}</span>
+            <span class="confidence-pill ${statusTone}">${statusLabel}</span>
             <p class="coverage-cell-note">${row.status === "missing" ? "No turnout denominator rows imported" : row.detail}</p>
           </td>
           <td>${warning}</td>
@@ -2622,14 +2633,41 @@ function confidenceBadge(label, tone) {
 
 function turnoutCoverageRows() {
   const rows = TURNOUT_DATA?.rows || [];
+  const statewideRows = rows.filter((row) => row.sourceLevel === "statewide" || row.coverageStatus === "statewide-only");
+  const statewideSources = [...new Set(statewideRows.map((row) => row.sourceUrl).filter(Boolean))];
+  const statewideWarnings = statewideRows.filter((row) => row.warningRequired).length;
+  const statewideDenominatorTypes = [...new Set(statewideRows.map((row) => row.denominatorType).filter(Boolean))];
+  const statewideDenominatorTimings = [...new Set(statewideRows.map((row) => row.registrationDenominatorTiming).filter(Boolean))];
   const byCounty = new Map();
   rows.forEach((row) => {
     const key = normalizeCounty(row.county);
-    const current = byCounty.get(key) || { rows: 0, municipalities: new Set(), warnings: 0, countyLevelRows: 0, sources: new Set() };
+    const current = byCounty.get(key) || {
+      rows: 0,
+      municipalities: new Set(),
+      warnings: 0,
+      countyLevelRows: 0,
+      sources: new Set(),
+      sourceLevels: new Set(),
+      denominatorTypes: new Set(),
+      denominatorTimings: new Set(),
+      coverageStatuses: new Set(),
+    };
     current.rows += 1;
     current.municipalities.add(row.municipality || "Unknown municipality");
     if (row.sourceUrl) {
       current.sources.add(row.sourceUrl);
+    }
+    if (row.sourceLevel) {
+      current.sourceLevels.add(row.sourceLevel);
+    }
+    if (row.denominatorType) {
+      current.denominatorTypes.add(row.denominatorType);
+    }
+    if (row.registrationDenominatorTiming) {
+      current.denominatorTimings.add(row.registrationDenominatorTiming);
+    }
+    if (row.coverageStatus) {
+      current.coverageStatuses.add(row.coverageStatus);
     }
     if (row.warningRequired) {
       current.warnings += 1;
@@ -2643,20 +2681,44 @@ function turnoutCoverageRows() {
   return RESULTS.map((countyRow) => {
     const data = byCounty.get(normalizeCounty(countyRow.county));
     if (!data) {
+      if (statewideRows.length) {
+        const denominatorTypes = statewideDenominatorTypes.join(", ") || "registeredVoters";
+        const denominatorTimings = statewideDenominatorTimings.join(", ") || "unknown";
+        return {
+          county: countyRow.county,
+          status: "statewide-only",
+          detail: `${formatNumber(statewideRows.length)} official statewide turnout row${statewideRows.length === 1 ? "" : "s"} available; no county-level turnout denominator row imported for this county; denominator ${denominatorTypes}, timing ${denominatorTimings}; ${formatNumber(statewideWarnings)} warning rows`,
+          rows: 0,
+          warnings: statewideWarnings,
+          localAreaCount: 0,
+          countyLevelRows: 0,
+          sourceLevels: ["statewide"],
+          denominatorTypes: statewideDenominatorTypes,
+          denominatorTimings: statewideDenominatorTimings,
+          sources: statewideSources,
+        };
+      }
       return {
         county: countyRow.county,
         status: "missing",
         detail: "No turnout denominator rows imported",
       };
     }
+    const status = data.coverageStatuses.has("statewide-only") || data.sourceLevels.has("statewide") ? "statewide-only" : data.coverageStatuses.has("partial") ? "partial" : "complete";
+    const sourceLevels = [...data.sourceLevels].join(", ") || "unknown";
+    const denominatorTypes = [...data.denominatorTypes].join(", ") || "registeredVoters";
+    const denominatorTimings = [...data.denominatorTimings].join(", ") || "unknown";
     return {
       county: countyRow.county,
-      status: "partial",
-      detail: `${formatNumber(data.rows)} turnout row${data.rows === 1 ? "" : "s"} from ${data.municipalities.size} local area${data.municipalities.size === 1 ? "" : "s"}${data.countyLevelRows ? `; ${formatNumber(data.countyLevelRows)} county-level row${data.countyLevelRows === 1 ? "" : "s"}` : ""}; ${formatNumber(data.warnings)} warning rows`,
+      status,
+      detail: `${formatNumber(data.rows)} turnout row${data.rows === 1 ? "" : "s"} from ${data.municipalities.size} local area${data.municipalities.size === 1 ? "" : "s"}${data.countyLevelRows ? `; ${formatNumber(data.countyLevelRows)} county-level row${data.countyLevelRows === 1 ? "" : "s"}` : ""}; source level ${sourceLevels}; denominator ${denominatorTypes}, timing ${denominatorTimings}; ${formatNumber(data.warnings)} warning rows`,
       rows: data.rows,
       warnings: data.warnings,
       localAreaCount: data.municipalities.size,
       countyLevelRows: data.countyLevelRows,
+      sourceLevels: [...data.sourceLevels],
+      denominatorTypes: [...data.denominatorTypes],
+      denominatorTimings: [...data.denominatorTimings],
       sources: [...data.sources],
     };
   });

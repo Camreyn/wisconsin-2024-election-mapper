@@ -126,12 +126,14 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "rhodeIslandSummaryXlsx",
     "sourceId": "ri-2024-general-election-summary",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Rhode Island turnout is not loaded in this New York-level pass. The official workbook includes registration and ballots-cast sheets that can be mapped in a later turnout upgrade.",
-    "warningRequired": true
+    "registrationDenominatorTiming": "final",
+    "sourceLevel": "precinct",
+    "notes": "Official Rhode Island Board of Elections workbook. Turnout rows join Reg_Voters to Ballots_Cast by city/town precinct and include Election Day, mail, and early voting columns.",
+    "warningRequired": false,
+    "registrationSheet": "Reg_Voters",
+    "ballotsSheet": "Ballots_Cast"
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -151,7 +153,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -174,22 +176,22 @@
         "status": "Needs parser mapping"
       },
       "turnout": {
-        "title": "Rhode Island turnout denominator",
-        "detail": "The official workbook includes Reg_Voters and Ballots_Cast sheets, but this pass does not wire turnout. Turnout should stay disabled until those sheets are mapped and validated at county/reporting-row level.",
+        "title": "Rhode Island registration and ballots-cast workbook sheets",
+        "detail": "Official Board of Elections General Election Summary workbook includes Reg_Voters and Ballots_Cast sheets. The importer joins precinct labels and loads 414 precinct-level turnout rows with Election Day, mail, and early vote fields.",
         "sourceUrl": "https://elections.ri.gov/elections/previous-election-results",
         "localFile": "data/ri-2024-general-election-summary.xlsx; data/ri-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Turnout sheets are present in the official workbook but not yet parsed by the app.",
-        "status": "Needs parser mapping"
+        "sourceTimestampBasis": "Official Rhode Island Board of Elections previous election results workbook.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
       {
-        "category": "Certified presidential results",
+        "category": "Official turnout denominator",
         "file": "data/ri-2024-general-election-summary.xlsx; data/ri-app-data.js",
         "sourceUrl": "https://elections.ri.gov/elections/previous-election-results",
-        "usedFor": "Rhode Island 2024 presidential county/reporting-row results.",
-        "confidence": "Official Rhode Island Board of Elections Excel summary workbook."
+        "usedFor": "Rhode Island precinct turnout graph and turnout coverage rows.",
+        "confidence": "Official Rhode Island Board of Elections workbook sheets."
       },
       {
         "category": "County boundaries",
@@ -217,9 +219,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs parser mapping",
-      "acceptedSource": "Official workbook contains Reg_Voters and Ballots_Cast sheets, but they are not mapped yet.",
-      "warning": "Rhode Island turnout should not be displayed until the official registration and ballots-cast workbook sheets are parsed and validated.",
+      "status": "Loaded",
+      "acceptedSource": "Official Rhode Island Board of Elections General Election Summary workbook Reg_Voters and Ballots_Cast sheets.",
+      "warning": "Rhode Island turnout is joined by official workbook precinct labels and uses registered-voter denominators from the Reg_Voters sheet.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -242,7 +244,7 @@
     "harris": 285156,
     "other": 13824,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 414,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

@@ -67,12 +67,12 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "montanaCanvassPdf",
     "sourceId": "mt-2024-general-election-report-state-canvass",
-    "registrationDenominatorTiming": "notLoaded",
+    "registrationDenominatorTiming": "final",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded yet. The Montana canvass PDF includes county registered voter and ballots-cast totals, but the turnout parser has not been mapped to the app turnout schema.",
-    "warningRequired": true
+    "notes": "County turnout is loaded from the official Montana Secretary of State 2024 Statewide General Election Canvass voting information table.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -92,7 +92,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -116,12 +116,12 @@
       },
       "turnout": {
         "title": "Montana canvass voting information",
-        "detail": "The official canvass PDF includes county registered-voter and ballots-cast totals. Turnout remains disabled until that page is mapped to the app turnout parser.",
+        "detail": "County registered-voter and votes-cast totals are parsed from the official Montana Secretary of State 2024 Statewide General Election Canvass voting information table.",
         "sourceUrl": "https://sosmt.gov/elections/results",
         "localFile": "data/mt-2024-general-election-report-state-canvass.pdf; data/mt-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official canvass page 1 contains the voting information table.",
-        "status": "Needs parser mapping"
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -131,6 +131,13 @@
         "sourceUrl": "https://sosmt.gov/elections/results",
         "usedFor": "Montana county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
         "confidence": "Official Montana Secretary of State 2024 Statewide General Election Canvass PDF."
+      },
+      {
+        "category": "County turnout and registration",
+        "file": "data/mt-2024-general-election-report-state-canvass.pdf; data/mt-app-data.js",
+        "sourceUrl": "https://sosmt.gov/elections/results",
+        "usedFor": "Montana county votes cast, registered-voter denominators, turnout graph rows, and Source Planner turnout status.",
+        "confidence": "Official Montana Secretary of State 2024 Statewide General Election Canvass PDF voting information table."
       },
       {
         "category": "County boundaries",
@@ -151,9 +158,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs parser mapping",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Montana turnout should not be inferred from presidential votes. The official canvass PDF includes registered-voter and ballots-cast fields, but those rows have not been mapped into turnoutData yet.",
+      "status": "Loaded",
+      "acceptedSource": "Official Montana Secretary of State 2024 Statewide General Election Canvass voting information table.",
+      "warning": "",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -176,7 +183,7 @@
     "harris": 231906,
     "other": 18978,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 56,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

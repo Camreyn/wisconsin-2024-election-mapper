@@ -564,6 +564,7 @@ def certified_results_idaho_county_csv(config):
 
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         for row in csv.DictReader(handle):
+            row = {str(key).replace("\r\n", "\n"): value for key, value in row.items()}
             county = str(row.get(columns["county"], "") or "").strip()
             if not county:
                 continue
@@ -575,13 +576,14 @@ def certified_results_idaho_county_csv(config):
             }
             other = sum(totals[item["key"]] for item in candidate_labels)
             total = totals["trump"] + totals["harris"] + other
+            if county == source.get("totalsLabel", "Totals"):
+                reported_total = int_text(row.get(columns["totalVotesCast"]))
+                reported_totals = {"total": reported_total} if total == 0 else {**totals, "total": reported_total}
+                continue
+
             reported_total = int_text(row.get(columns["totalVotesCast"]))
             if reported_total and total != reported_total:
                 raise ValueError(f"Idaho candidate total mismatch for {county}: {total} != {reported_total}")
-
-            if county == source.get("totalsLabel", "Totals"):
-                reported_totals = {**totals, "total": reported_total}
-                continue
 
             margin = totals["trump"] - totals["harris"]
             result_rows.append(
@@ -609,6 +611,8 @@ def certified_results_idaho_county_csv(config):
         **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
         "total": sum(row["total"] for row in result_rows),
     }
+    if set(reported_totals) == {"total"}:
+        parsed_totals = {"total": parsed_totals["total"]}
     if parsed_totals != reported_totals:
         raise ValueError(f"Idaho parsed county totals do not match CSV totals: {parsed_totals} != {reported_totals}")
 
@@ -1506,6 +1510,26 @@ def certified_results_connecticut_statement_text(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(major_rows)
 
 
+def connecticut_subdivision_lookup(config, map_source_id, aliases):
+    map_path = local_source(config, map_source_id)
+    county_names = geometry_names_by_geoid(config)
+    subdivision_lookup = {}
+    subdivision_geojson = json.loads(map_path.read_text(encoding="utf-8"))
+    for feature in subdivision_geojson.get("features", []):
+        props = feature.get("properties", {})
+        state_code = str(props.get("STATE") or "")
+        county_code = str(props.get("COUNTY") or "").zfill(3)
+        county = county_names.get(f"{state_code}{county_code}")
+        basename = props.get("BASENAME") or props.get("NAME")
+        if not county or not basename or basename == "County subdivisions not defined":
+            continue
+        subdivision_lookup[normalize_connecticut_town(basename, aliases)] = {
+            "county": county,
+            "town": basename,
+        }
+    return subdivision_lookup
+
+
 def normalize_vermont_municipality(value, aliases):
     value = aliases.get(value, value)
     value = value.replace("St.", "Saint").replace("W.", "West")
@@ -1650,6 +1674,70 @@ def certified_results_national_county_baseline_csv(config):
                     "total": total,
                 }
             )
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_texas_county_json(config):
+    source = config["certifiedResults"]
+    data = json.loads(local_source(config, source["sourceId"]).read_text(encoding="utf-8"))
+    office_id = str(source.get("officeId", "1001"))
+    geoid_names = geometry_names_by_geoid(config)
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    result_rows = []
+
+    for geoid, county_data in data.items():
+        race = county_data.get("Races", {}).get(office_id)
+        if not race:
+            continue
+        county = geoid_names.get(str(geoid).zfill(5))
+        if not county:
+            raise ValueError(f"Could not match Texas county GEOID {geoid!r} to geometry")
+
+        totals = defaultdict(int)
+        for candidate in race.get("C", {}).values():
+            name = str(candidate.get("N", ""))
+            party = str(candidate.get("P", ""))
+            votes = int_text(candidate.get("V"))
+            if new_york_column_matches(name, party, source["majorCandidates"]["trump"]):
+                totals["trump"] += votes
+            elif new_york_column_matches(name, party, source["majorCandidates"]["harris"]):
+                totals["harris"] += votes
+            else:
+                matched_other = False
+                for item in source.get("otherCandidates", []):
+                    if new_york_column_matches(name, party, item):
+                        totals[item["key"]] += votes
+                        matched_other = True
+                        break
+                if not matched_other:
+                    totals["unmappedOther"] += votes
+
+        other = sum(totals[item["key"]] for item in candidate_labels) + totals["unmappedOther"]
+        total = totals["trump"] + totals["harris"] + other
+        reported_total = int_text(race.get("T"))
+        if reported_total and total != reported_total:
+            raise ValueError(f"Texas candidate total mismatch for {county}: {total} != {reported_total}")
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **{item["key"]: totals[item["key"]] for item in candidate_labels},
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    missing_counties = sorted(set(geoid_names.values()) - {row["county"] for row in result_rows})
+    if missing_counties:
+        raise ValueError(f"Texas county JSON missing county rows: {', '.join(missing_counties)}")
+
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
@@ -1906,11 +1994,13 @@ def certified_results_maryland_county_html(config):
     if not table_matches:
         raise ValueError(f"Could not find Maryland county breakdown table in {path}")
 
-    geometry_names = {
-        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).lower(): name
-        for name in geometry_names_by_geoid(config).values()
-    }
+    geometry_names = {}
+    for name in geometry_names_by_geoid(config).values():
+        geometry_names[name.lower()] = name
+        geometry_names[re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).lower()] = name
     geometry_names["baltimore city"] = "Baltimore city"
+    geometry_names["saint mary's"] = "St. Mary's County"
+    geometry_names["saint mary's county"] = "St. Mary's County"
     rows = []
     current_header = None
     for table_match in table_matches:
@@ -2747,6 +2837,75 @@ def certified_results_total_results_contest_json(config):
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
 
+def certified_results_new_hampshire_president_pdf(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    columns = source["columns"]
+    row_pattern = re.compile(r"^(?P<label>[A-Za-z]+)\s+(?P<values>(?:\d+\s+){6}\d+)$")
+    result_rows = []
+    reported_totals = None
+
+    def parse_values(raw_values):
+        values = [int_text(value) for value in raw_values.split()]
+        return {key: values[index] for key, index in columns.items()}
+
+    for line in lines:
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        label = match.group("label")
+        totals = parse_values(match.group("values"))
+        if label == "TOTALS":
+            reported_totals = totals
+            continue
+        county = county_names.get(label.upper())
+        if not county:
+            continue
+        other_values = {item["key"]: totals[item["key"]] for item in candidate_labels}
+        other = sum(other_values.values())
+        total = totals["trump"] + totals["harris"] + other
+        margin = totals["trump"] - totals["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": totals["trump"],
+                "trumpPct": pct(totals["trump"], total),
+                "harris": totals["harris"],
+                "harrisPct": pct(totals["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "underVotes": totals["underVotes"],
+                "overVotes": totals["overVotes"],
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    if not reported_totals:
+        raise ValueError(f"New Hampshire PDF missing TOTALS row: {path}")
+
+    parsed_totals = {
+        "harris": sum(row["harris"] for row in result_rows),
+        "trump": sum(row["trump"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+        "underVotes": sum(row["underVotes"] for row in result_rows),
+        "overVotes": sum(row["overVotes"] for row in result_rows),
+    }
+    expected_totals = {key: reported_totals[key] for key in parsed_totals}
+    if parsed_totals != expected_totals:
+        raise ValueError(f"New Hampshire county totals do not match PDF TOTALS row: {parsed_totals} != {expected_totals}")
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
 def certified_results_north_carolina_enr_zip(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -2845,6 +3004,77 @@ def certified_results_north_carolina_enr_zip(config):
             "North Carolina ENR county totals do not match statewide result totals: "
             f"{parsed_totals} != {expected_totals}"
         )
+
+    return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
+
+
+def certified_results_ohio_statewide_race_summary_xlsx(config):
+    source = config["certifiedResults"]
+    path = local_source(config, source["sourceId"])
+    rows = list(iter_worksheet_rows(path, source.get("sheetName", "President and Vice President")))
+    if len(rows) < 5:
+        raise ValueError(f"Ohio summary workbook has too few rows: {path}")
+
+    header = rows[source.get("headerRow", 2) - 1]
+    total_row = rows[source.get("totalRow", 3) - 1]
+    counties = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+
+    def find_column(rule):
+        needle = rule["candidateContains"].lower()
+        for index, value in enumerate(header):
+            if value is not None and needle in str(value).lower():
+                return index
+        raise ValueError(f"Could not find Ohio candidate column containing {rule['candidateContains']!r}")
+
+    candidate_rules = {
+        "harris": source["majorCandidates"]["harris"],
+        "trump": source["majorCandidates"]["trump"],
+        **{item["key"]: item for item in source.get("otherCandidates", [])},
+    }
+    candidate_columns = {key: find_column(rule) for key, rule in candidate_rules.items()}
+    candidate_labels = [{"key": item["key"], "label": item["label"]} for item in source.get("otherCandidates", [])]
+    reported_totals = {key: int_text(total_row[index]) for key, index in candidate_columns.items()}
+    result_rows = []
+
+    for row in rows[source.get("dataStartRow", 5) - 1 :]:
+        raw_county = row[0] if row else None
+        if not raw_county:
+            continue
+        county = counties.get(str(raw_county).upper())
+        if not county:
+            continue
+
+        values = {key: int_text(row[index]) for key, index in candidate_columns.items()}
+        other_values = {item["key"]: values[item["key"]] for item in candidate_labels}
+        other = sum(other_values.values())
+        total = values["trump"] + values["harris"] + other
+        margin = values["trump"] - values["harris"]
+        result_rows.append(
+            {
+                "county": county,
+                "trump": values["trump"],
+                "trumpPct": pct(values["trump"], total),
+                "harris": values["harris"],
+                "harrisPct": pct(values["harris"], total),
+                "other": other,
+                "otherPct": pct(other, total),
+                **other_values,
+                "margin": margin,
+                "marginPct": round((margin / total) * 100, 4) if total else 0,
+                "total": total,
+            }
+        )
+
+    parsed_totals = {
+        "harris": sum(row["harris"] for row in result_rows),
+        "trump": sum(row["trump"] for row in result_rows),
+        **{item["key"]: sum(row[item["key"]] for row in result_rows) for item in candidate_labels},
+    }
+    if parsed_totals != reported_totals:
+        raise ValueError(f"Ohio county totals do not match workbook Total row: {parsed_totals} != {reported_totals}")
 
     return sorted(result_rows, key=lambda item: item["county"]), candidate_labels, len(result_rows)
 
@@ -4773,6 +5003,1512 @@ def turnout_data_michigan_mvic(config):
     }
 
 
+def turnout_data_montana_canvass_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    try:
+        start = lines.index("Number of Registered Votes Voter")
+    except ValueError as error:
+        raise ValueError(f"Could not find Montana turnout table in {path}") from error
+
+    end = next(
+        (index for index in range(start + 1, len(lines)) if lines[index].startswith("Page 1 of")),
+        None,
+    )
+    if end is None:
+        raise ValueError(f"Could not find Montana turnout table boundary in {path}")
+
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    row_pattern = re.compile(
+        r"^(?P<county>[A-Z][A-Z\s]+?)\s+"
+        r"(?P<precincts>\d+)\s+(?P<registered>\d+)\s+(?P<ballots>\d+)\s+"
+        r"(?P<turnout>\d+(?:\.\d+)?)%$"
+    )
+    total_pattern = re.compile(
+        r"^Total\s+(?P<precincts>\d+)\s+(?P<registered>\d+)\s+(?P<ballots>\d+)\s+"
+        r"(?P<turnout>\d+(?:\.\d+)?)%$"
+    )
+    output_rows = []
+    reported_total = None
+
+    for line in lines[start + 1 : end]:
+        total_match = total_pattern.match(line)
+        if total_match:
+            reported_total = {key: int_text(value) for key, value in total_match.groupdict().items() if key != "turnout"}
+            continue
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        raw_county = match.group("county")
+        county = county_names.get(raw_county) or f"{raw_county.title()} County"
+        registered = int_text(match.group("registered"))
+        ballots = int_text(match.group("ballots"))
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "precincts": int_text(match.group("precincts")),
+            }
+        )
+
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Montana turnout parsed {len(output_rows)} county rows")
+    if reported_total:
+        parsed_total = {
+            "precincts": sum(row["precincts"] for row in output_rows),
+            "registered": sum(row["registeredVoters"] for row in output_rows),
+            "ballots": sum(row["ballotsCast"] for row in output_rows),
+        }
+        if parsed_total != reported_total:
+            raise ValueError(f"Montana turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": path.name,
+            "sourceUrl": source["url"],
+        },
+        "rows": output_rows,
+    }
+
+
+def turnout_data_california_participation_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    county_prefixes = sorted(
+        ((re.sub(r"\s+COUNTY$", "", name, flags=re.IGNORECASE), name) for name in geometry_names_by_geoid(config).values()),
+        key=lambda item: len(item[0]),
+        reverse=True,
+    )
+    total_pattern = re.compile(
+        r"^State Total\s+(?P<precincts>\d[\d,]*)\s+(?P<eligible>\d[\d,]*)\s+"
+        r"(?P<registered>\d[\d,]*)\s+(?P<precinctVotes>\d[\d,]*)\s+"
+        r"(?P<voteByMail>\d[\d,]*)\s+(?P<ballots>\d[\d,]*)$"
+    )
+    output_rows = []
+    reported_total = None
+
+    for line in lines:
+        total_match = total_pattern.match(line)
+        if total_match:
+            reported_total = {key: int_text(value) for key, value in total_match.groupdict().items()}
+            continue
+        county = None
+        values = []
+        for bare_county, full_county in county_prefixes:
+            normalized_line = line.upper()
+            normalized_county = bare_county.upper()
+            if not (normalized_line.startswith(f"{normalized_county} ") or normalized_line.startswith(f"{normalized_county} * ")):
+                continue
+            county = full_county
+            remainder = line[len(bare_county) :].strip()
+            if remainder.startswith("*"):
+                remainder = remainder[1:].strip()
+            values = re.findall(r"\d[\d,]*", remainder)
+            break
+        if county is None or len(values) < 6:
+            continue
+        precincts, eligible, registered, precinct_votes, vote_by_mail, ballots = [int_text(value) for value in values[:6]]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "eligibleVoters": eligible,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": "registeredVoters",
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "precinctVotes": precinct_votes,
+                "voteByMailVotes": vote_by_mail,
+                "precincts": precincts,
+            }
+        )
+
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"California turnout parsed {len(output_rows)} county rows")
+    if reported_total:
+        parsed_total = {
+            "precincts": sum(row["precincts"] for row in output_rows),
+            "eligible": sum(row["eligibleVoters"] for row in output_rows),
+            "registered": sum(row["registeredVoters"] for row in output_rows),
+            "precinctVotes": sum(row["precinctVotes"] for row in output_rows),
+            "voteByMail": sum(row["voteByMailVotes"] for row in output_rows),
+            "ballots": sum(row["ballotsCast"] for row in output_rows),
+        }
+        if parsed_total != reported_total:
+            raise ValueError(f"California turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_colorado_general_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    try:
+        start = next(
+            index
+            for index, line in enumerate(lines)
+            if line == "2024 General Election Turnout"
+            and index + 1 < len(lines)
+            and lines[index + 1] == "(calculated as a percentage of registered voters)"
+        )
+        table_start = next(
+            index
+            for index in range(start, len(lines))
+            if lines[index] == "County Registered Voters Ballots Cast Turnout %"
+        )
+        end = next(index for index in range(table_start + 1, len(lines)) if lines[index].startswith("Total "))
+    except StopIteration as exc:
+        raise ValueError(f"Could not locate Colorado general-election registered-voter turnout table in {path}") from exc
+
+    county_lookup = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).upper(): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    row_pattern = re.compile(
+        r"^(?P<county>[A-Za-z ]+?)\s+"
+        r"(?P<registered>[\d,]+)\s+"
+        r"(?P<ballots>[\d,]+)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%$"
+    )
+    total_pattern = re.compile(r"^Total\s+(?P<registered>[\d,]+)\s+(?P<ballots>[\d,]+)\s+(?P<pct>\d+(?:\.\d+)?)%$")
+    reported_total_match = total_pattern.match(lines[end])
+    reported_total = {
+        "registeredVoters": int_text(reported_total_match.group("registered")),
+        "ballotsCast": int_text(reported_total_match.group("ballots")),
+    } if reported_total_match else None
+
+    output_rows = []
+    for line in lines[table_start + 1 : end]:
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        county = county_lookup.get(match.group("county").upper())
+        if not county:
+            raise ValueError(f"Unexpected Colorado turnout county row {match.group('county')!r}")
+        registered = int_text(match.group("registered"))
+        ballots = int_text(match.group("ballots"))
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Colorado turnout parsed {len(output_rows)} county rows")
+    if reported_total:
+        parsed_total = {
+            "registeredVoters": sum(row["registeredVoters"] for row in output_rows),
+            "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+        }
+        if parsed_total != reported_total:
+            raise ValueError(f"Colorado turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "registeredVoters": sum(row["registeredVoters"] for row in output_rows),
+            "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Colorado turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_indiana_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    row_pattern = re.compile(
+        r"^(?P<county>[A-Za-z][A-Za-z. ]+?)\s+(?P<registered>\d[\d,]*)\s+"
+        r"(?P<ballots>\d[\d,]*)\s+\d+\s*%\s+(?P<electionDay>\d[\d,]*)\s+"
+        r"(?P<absentee>\d[\d,]*)\s+\d+\s*%$"
+    )
+    output_rows = []
+    for line in lines:
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        raw_county = match.group("county").strip()
+        county = county_names.get(raw_county.upper())
+        if not county:
+            continue
+        registered = int_text(match.group("registered"))
+        ballots = int_text(match.group("ballots"))
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": "registeredVoters",
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "electionDayVotes": int_text(match.group("electionDay")),
+                "absenteeVotes": int_text(match.group("absentee")),
+            }
+        )
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Indiana turnout parsed {len(output_rows)} county rows")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_new_jersey_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = {
+        re.sub(r"\s+COUNTY$", "", name.upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    row_pattern = re.compile(
+        r"^(?P<county>[A-Za-z ]+?)\s+(?P<registered>\d[\d,]*)\s+"
+        r"(?P<ballots>\d[\d,]*)\s+(?P<rejected>\d[\d,]*)\s+\d+%\s+"
+        r"(?P<districts>\d[\d,]*)$"
+    )
+    total_rejected_pattern = re.compile(r"^(?P<rejected>\d[\d,]*)\s+\d+%$")
+    total_pattern = re.compile(r"^TOTAL\s+(?P<registered>\d[\d,]*)\s+(?P<ballots>\d[\d,]*)\s+(?P<districts>\d[\d,]*)$")
+    output_rows = []
+    reported_total = None
+    pending_total_rejected = None
+    for line in lines:
+        total_rejected_match = total_rejected_pattern.match(line)
+        if total_rejected_match:
+            pending_total_rejected = int_text(total_rejected_match.group("rejected"))
+            continue
+        total_match = total_pattern.match(line)
+        if total_match:
+            reported_total = {key: int_text(value) for key, value in total_match.groupdict().items()}
+            if pending_total_rejected is not None:
+                reported_total["rejected"] = pending_total_rejected
+            continue
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        raw_county = match.group("county").strip()
+        county = county_names.get(raw_county.upper())
+        if not county:
+            continue
+        registered = int_text(match.group("registered"))
+        ballots = int_text(match.group("ballots"))
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": "registeredVoters",
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "rejectedBallots": int_text(match.group("rejected")),
+                "electionDistricts": int_text(match.group("districts")),
+            }
+        )
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"New Jersey turnout parsed {len(output_rows)} county rows")
+    if reported_total:
+        parsed_total = {
+            "registered": sum(row["registeredVoters"] for row in output_rows),
+            "ballots": sum(row["ballotsCast"] for row in output_rows),
+            "districts": sum(row["electionDistricts"] for row in output_rows),
+            "rejected": sum(row["rejectedBallots"] for row in output_rows),
+        }
+        if parsed_total != reported_total:
+            raise ValueError(f"New Jersey turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_connecticut_statement_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    aliases = turnout.get("townAliases", {})
+    subdivision_lookup = connecticut_subdivision_lookup(config, turnout["townMapSourceId"], aliases)
+    town_lookup = {
+        re.sub(r"[^a-z0-9]+", "", value["town"].lower()): value
+        for value in subdivision_lookup.values()
+    }
+
+    pages = turnout.get("pages", [157, 158, 159, 160, 161, 162])
+    pdf_pages = extract_pdf_items(path, min(pages), max(pages))
+    page_map = {page["pageNumber"]: page["items"] for page in pdf_pages}
+    town_rows = {}
+
+    def numeric_value(value):
+        return int_text(value.replace("%", ""))
+
+    for page_number in pages:
+        items = page_map.get(page_number)
+        if not items:
+            raise ValueError(f"Connecticut turnout page {page_number} was not extracted from {path}")
+        town_columns = []
+        for item in items:
+            value = item["value"]
+            town_key = re.sub(r"[^a-z0-9]+", "", value.lower())
+            if 75 <= item["y"] <= 95 and town_key in town_lookup:
+                town_columns.append({"x": item["x"], "town": town_lookup[town_key]["town"]})
+        town_columns = sorted(town_columns, key=lambda item: item["x"])
+        if not town_columns:
+            raise ValueError(f"Connecticut turnout page {page_number} has no town columns")
+
+        min_x = min(item["x"] for item in town_columns) - 1
+        max_x = max(item["x"] for item in town_columns) + 1
+
+        def values_by_column(y_min, y_max, *, percent=False):
+            values = {}
+            pattern = r"^\d+(?:\.\d+)?%$" if percent else r"^\d[\d,]*$"
+            for item in items:
+                if not (min_x <= item["x"] <= max_x and y_min <= item["y"] <= y_max):
+                    continue
+                if not re.match(pattern, item["value"]):
+                    continue
+                column = min(town_columns, key=lambda town: abs(town["x"] - item["x"]))
+                if abs(column["x"] - item["x"]) > 1.5:
+                    continue
+                values[column["town"]] = float(item["value"].replace("%", "")) if percent else numeric_value(item["value"])
+            missing = [column["town"] for column in town_columns if column["town"] not in values]
+            if missing:
+                raise ValueError(
+                    f"Connecticut turnout page {page_number} missing values for: {', '.join(missing)}"
+                )
+            return values
+
+        checked_by_town = values_by_column(205, 230)
+        registered_by_town = values_by_column(155, 175)
+        turnout_pct_by_town = values_by_column(265, 280, percent=True)
+        for column in town_columns:
+            town = column["town"]
+            if town in town_rows:
+                raise ValueError(f"Connecticut turnout town was parsed twice: {town}")
+            checked = checked_by_town[town]
+            registered = registered_by_town[town]
+            reported_pct = turnout_pct_by_town[town]
+            computed_pct = round2((checked / registered) * 100) if registered else None
+            if computed_pct is not None and abs(computed_pct - reported_pct) > 0.01:
+                raise ValueError(
+                    f"Connecticut turnout percent mismatch for {town}: {computed_pct} != {reported_pct}"
+                )
+            town_rows[town] = {
+                "ballotsCast": checked,
+                "registeredVoters": registered,
+            }
+
+    if len(town_rows) != 169:
+        raise ValueError(f"Connecticut turnout parsed {len(town_rows)} town rows")
+
+    by_county = defaultdict(lambda: defaultdict(int))
+    missing = []
+    for town, row in town_rows.items():
+        mapped = town_lookup.get(re.sub(r"[^a-z0-9]+", "", town.lower()))
+        if not mapped:
+            missing.append(town)
+            continue
+        totals = by_county[mapped["county"]]
+        totals["ballotsCast"] += row["ballotsCast"]
+        totals["registeredVoters"] += row["registeredVoters"]
+        totals["townRows"] += 1
+    if missing:
+        raise ValueError(f"Connecticut turnout towns could not be mapped: {', '.join(sorted(missing))}")
+
+    output_rows = []
+    for county, totals in sorted(by_county.items()):
+        registered = totals["registeredVoters"]
+        ballots = totals["ballotsCast"]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": f"{county} planning region",
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceTitle": turnout.get("sourceTitle"),
+                "sourceAuthority": config.get("authority"),
+                "coverageStatus": turnout.get("coverageStatus", "loaded"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "townRows": totals["townRows"],
+            }
+        )
+
+    expected_totals = turnout.get("statewideTotals", {})
+    parsed_totals = {
+        "registeredVoters": sum(row["registeredVoters"] for row in output_rows),
+        "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+    }
+    if expected_totals and parsed_totals != expected_totals:
+        raise ValueError(f"Connecticut turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Connecticut turnout rolled up to {len(output_rows)} planning-region rows")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_maryland_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_lookup = {}
+    for name in geometry_names_by_geoid(config).values():
+        bare_name = re.sub(r"\s+County$", "", name, flags=re.IGNORECASE)
+        county_lookup[name.upper()] = name
+        county_lookup[bare_name.upper()] = name
+    county_lookup["BALTIMORE CITY"] = "Baltimore city"
+    county_lookup["SAINT MARY'S"] = "St. Mary's County"
+
+    row_pattern = re.compile(
+        r"^(?P<county>[A-Za-z][A-Za-z' .]+?)\s+"
+        r"(?P<electionDay>[\d,]+)\s+"
+        r"(?P<early>[\d,]+)\s+"
+        r"(?P<mail>[\d,]+)\s+"
+        r"(?P<provisional>[\d,]+)\s+"
+        r"(?P<eligible>[\d,]+)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%$"
+    )
+    total_pattern = re.compile(
+        r"^TOTAL\s+"
+        r"(?P<electionDay>[\d,]+)\s+"
+        r"(?P<early>[\d,]+)\s+"
+        r"(?P<mail>[\d,]+)\s+"
+        r"(?P<provisional>[\d,]+)\s+"
+        r"(?P<eligible>[\d,]+)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%$"
+    )
+    output_rows = []
+    reported_total = None
+    in_statewide_table = False
+
+    for line in lines:
+        if line == "Statewide":
+            in_statewide_table = True
+            continue
+        if not in_statewide_table or line.startswith("LBE "):
+            continue
+        total_match = total_pattern.match(line)
+        if total_match:
+            reported_total = {key: int_text(total_match.group(key)) for key in ["electionDay", "early", "mail", "provisional", "eligible"]}
+            break
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        county = county_lookup.get(match.group("county").strip().upper())
+        if not county:
+            raise ValueError(f"Unexpected Maryland turnout county row {match.group('county')!r}")
+        election_day = int_text(match.group("electionDay"))
+        early = int_text(match.group("early"))
+        mail = int_text(match.group("mail"))
+        provisional = int_text(match.group("provisional"))
+        eligible = int_text(match.group("eligible"))
+        ballots = election_day + early + mail + provisional
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "eligibleVoters": eligible,
+                "turnoutPct": round2((ballots / eligible) * 100) if eligible else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "eligibleVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "electionDayVotes": election_day,
+                "earlyVotes": early,
+                "voteByMailVotes": mail,
+                "provisionalVotes": provisional,
+            }
+        )
+
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Maryland turnout parsed {len(output_rows)} county rows")
+    if reported_total:
+        parsed_total = {
+            "electionDay": sum(row["electionDayVotes"] for row in output_rows),
+            "early": sum(row["earlyVotes"] for row in output_rows),
+            "mail": sum(row["voteByMailVotes"] for row in output_rows),
+            "provisional": sum(row["provisionalVotes"] for row in output_rows),
+            "eligible": sum(row["eligibleVoters"] for row in output_rows),
+        }
+        if parsed_total != reported_total:
+            raise ValueError(f"Maryland turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "eligibleVoters": sum(row["eligibleVoters"] for row in output_rows),
+            "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+            "electionDayVotes": sum(row["electionDayVotes"] for row in output_rows),
+            "earlyVotes": sum(row["earlyVotes"] for row in output_rows),
+            "voteByMailVotes": sum(row["voteByMailVotes"] for row in output_rows),
+            "provisionalVotes": sum(row["provisionalVotes"] for row in output_rows),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Maryland turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_south_dakota_election_returns_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    try:
+        start = next(
+            index
+            for index, line in enumerate(lines)
+            if line == "2024 GENERAL ELECTION" and index + 1 < len(lines) and lines[index + 1] == "Voter Turnout"
+        )
+        end = next(index for index in range(start, len(lines)) if lines[index].startswith("TOTAL "))
+    except StopIteration as exc:
+        raise ValueError(f"Could not locate South Dakota general-election turnout table in {path}") from exc
+
+    section_lines = lines[start : end + 1]
+    for index, line in enumerate(section_lines):
+        if line == "Oglala":
+            section_lines[index] = ""
+            lakota_index = next(
+                (
+                    later_index
+                    for later_index in range(index + 1, len(section_lines))
+                    if section_lines[later_index].startswith("Lakota ")
+                ),
+                None,
+            )
+            if lakota_index is not None:
+                section_lines[lakota_index] = f"Oglala {section_lines[lakota_index]}"
+            break
+
+    county_lookup = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    county_pattern = "|".join(re.escape(name) for name in sorted(county_lookup, key=len, reverse=True))
+    row_pattern = re.compile(
+        rf"(?P<county>{county_pattern})\s+"
+        r"(?P<registered>[\d,]+)\s+"
+        r"(?P<ballots>[\d,]+)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%"
+    )
+    total_match = re.match(
+        r"^TOTAL\s+(?P<registered>[\d,]+)\s+(?P<ballots>[\d,]+)\s+(?P<pct>\d+(?:\.\d+)?)%$",
+        lines[end],
+    )
+    reported_total = {
+        "registeredVoters": int_text(total_match.group("registered")),
+        "ballotsCast": int_text(total_match.group("ballots")),
+    } if total_match else None
+
+    section_text = " ".join(line for line in section_lines if line)
+    output_rows = []
+    for match in row_pattern.finditer(section_text):
+        county = county_lookup[match.group("county")]
+        registered = int_text(match.group("registered"))
+        ballots = int_text(match.group("ballots"))
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"South Dakota turnout parsed {len(output_rows)} county rows")
+    if reported_total:
+        parsed_total = {
+            "registeredVoters": sum(row["registeredVoters"] for row in output_rows),
+            "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+        }
+        if parsed_total != reported_total:
+            raise ValueError(f"South Dakota turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "registeredVoters": sum(row["registeredVoters"] for row in output_rows),
+            "ballotsCast": sum(row["ballotsCast"] for row in output_rows),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"South Dakota turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_idaho_turnout_html(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    text = path.read_text(encoding="utf-8", errors="replace")
+    data_match = next(
+        (
+            match
+            for match in re.finditer(r'"data":(\{.*?\}),"columns":', text, flags=re.DOTALL)
+            if "Election Day Registrations" in match.group(1)
+        ),
+        None,
+    )
+    if not data_match:
+        raise ValueError(f"Could not find Idaho turnout data table in {path}")
+    data = json.loads(data_match.group(1))
+    output_rows = []
+    for index, county in enumerate(data["County"]):
+        if county == "Statewide":
+            continue
+        registered = int_text(data["Registered Voters"][index])
+        ballots = int_text(data["Ballots Cast"][index])
+        output_rows.append(
+            {
+                "county": f"{county} County",
+                "municipality": f"{county} County",
+                "ward": f"{county} County",
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": "registeredVoters",
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "electionDayRegistrations": int_text(data["Election Day Registrations"][index]),
+            }
+        )
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Idaho turnout parsed {len(output_rows)} county rows")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_kansas_turnout_xlsx(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    columns = turnout.get(
+        "columns",
+        {
+            "county": "County",
+            "ballots": "Ballots Cast",
+            "registered": "Registered Voters",
+        },
+    )
+    column_index, rows = read_sheet_rows(path, turnout.get("sheet", "2024 Turnout"))
+    output_rows = []
+    for row in rows:
+        county = str(row[column_index[columns["county"]]] if len(row) > column_index[columns["county"]] else "").strip()
+        if not county or county.upper() == "TOTAL":
+            continue
+        ballots = int_text(row[column_index[columns["ballots"]]] if len(row) > column_index[columns["ballots"]] else 0)
+        registered = int_text(row[column_index[columns["registered"]]] if len(row) > column_index[columns["registered"]] else 0)
+        if ballots <= 0 and registered <= 0:
+            continue
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": "registeredVoters",
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Kansas turnout parsed {len(output_rows)} county rows")
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_arkansas_total_results_statewide_json(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not payload.get("isOfficial"):
+        raise ValueError(f"Arkansas turnout payload is not marked official: {path}")
+
+    totals = payload.get("turnout") or {}
+    ballots = int_text(totals.get("totalBallotsCast"))
+    registered = int_text(totals.get("registeredVoters"))
+    if not ballots or not registered:
+        raise ValueError(f"Arkansas turnout payload missing statewide ballots/registered totals: {path}")
+
+    output_rows = [
+        {
+            "county": "Statewide",
+            "municipality": "Statewide",
+            "ward": "Statewide",
+            "ballotsCast": ballots,
+            "registeredVoters": registered,
+            "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+            "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+            "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+            "coverageStatus": "statewide-only",
+            "sourceUrl": source["url"],
+            "sourceLevel": turnout["sourceLevel"],
+            "notes": turnout["notes"],
+            "warningRequired": turnout["warningRequired"],
+        }
+    ]
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_delaware_report_html(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    document = path.read_text(encoding="utf-8", errors="replace")
+    match = re.search(
+        r">(?P<ballots>[\d,]+)\s+of\s+(?P<registered>[\d,]+)\s+Registered Votes<",
+        document,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        raise ValueError(f"Could not find Delaware statewide turnout line in {path}")
+    ballots = int_text(match.group("ballots"))
+    registered = int_text(match.group("registered"))
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {"registeredVoters": registered, "ballotsCast": ballots}
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Delaware turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    output_rows = [
+        {
+            "county": "Statewide",
+            "municipality": "Statewide",
+            "ward": "Statewide",
+            "ballotsCast": ballots,
+            "registeredVoters": registered,
+            "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+            "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+            "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+            "coverageStatus": "statewide-only",
+            "sourceUrl": source["url"],
+            "sourceLevel": turnout["sourceLevel"],
+            "notes": turnout["notes"],
+            "warningRequired": turnout["warningRequired"],
+        }
+    ]
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_missouri_voter_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = set(geometry_names_by_geoid(config).values())
+    row_pattern = re.compile(
+        r"^(?P<name>[A-Za-z. ]+?)\s+"
+        r"(?P<registered>\d+)\s+"
+        r"(?P<active>\d+)\s+"
+        r"(?P<inactive>\d+)\s+"
+        r"(?P<actual>\d+)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%$"
+    )
+    total_pattern = re.compile(
+        r"^(?P<registered>\d+)\s+"
+        r"(?P<active>\d+)\s+"
+        r"(?P<inactive>\d+)\s+"
+        r"(?P<actual>\d+)\s+"
+        r"(?P<pct>\d+(?:\.\d+)?)%$"
+    )
+    by_county = defaultdict(lambda: defaultdict(int))
+    reported_total = None
+
+    def county_name(raw_name):
+        name = turnout.get("mergeRows", {}).get(raw_name, raw_name)
+        if name == "St. Louis":
+            return "St. Louis County"
+        if name == "St. Louis City":
+            return "St. Louis city"
+        if name in county_names:
+            return name
+        return f"{name} County"
+
+    for line in lines:
+        total_match = total_pattern.match(line)
+        if total_match:
+            reported_total = {key: int_text(total_match.group(key)) for key in ["registered", "active", "inactive", "actual"]}
+            continue
+        match = row_pattern.match(line)
+        if not match:
+            continue
+        county = county_name(match.group("name"))
+        if county not in county_names:
+            raise ValueError(f"Unexpected Missouri turnout county row {county!r} from {match.group('name')!r}")
+        by_county[county]["registered"] += int_text(match.group("registered"))
+        by_county[county]["active"] += int_text(match.group("active"))
+        by_county[county]["inactive"] += int_text(match.group("inactive"))
+        by_county[county]["actual"] += int_text(match.group("actual"))
+
+    if len(by_county) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Missouri turnout parsed {len(by_county)} county rows")
+    if reported_total:
+        parsed_total = {
+            "registered": sum(row["registered"] for row in by_county.values()),
+            "active": sum(row["active"] for row in by_county.values()),
+            "inactive": sum(row["inactive"] for row in by_county.values()),
+            "actual": sum(row["actual"] for row in by_county.values()),
+        }
+        if parsed_total != reported_total:
+            raise ValueError(f"Missouri turnout totals do not match PDF totals: {parsed_total} != {reported_total}")
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "registeredVoters": sum(row["registered"] for row in by_county.values()),
+            "activeVoters": sum(row["active"] for row in by_county.values()),
+            "inactiveVoters": sum(row["inactive"] for row in by_county.values()),
+            "ballotsCast": sum(row["actual"] for row in by_county.values()),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Missouri turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    output_rows = []
+    for county, totals in sorted(by_county.items()):
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": totals["actual"],
+                "registeredVoters": totals["registered"],
+                "turnoutPct": round2((totals["actual"] / totals["registered"]) * 100) if totals["registered"] else None,
+                "activeVoters": totals["active"],
+                "inactiveVoters": totals["inactive"],
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_vermont_voter_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_lookup = {
+        re.sub(r"\s+county$", "", name, flags=re.IGNORECASE).upper(): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    same_line_pattern = re.compile(
+        r"^(?P<county>[A-Z ]+?)\s+"
+        r"(?P<registered>[\d,]+)\s+"
+        r"(?P<ballots>[\d,]+)\s+"
+        r"\d+%\s+"
+        r"(?P<absentee>[\d,]+)\s+"
+        r"[\d.]+%$"
+    )
+    values_pattern = re.compile(
+        r"^(?P<registered>[\d,]+)\s+"
+        r"(?P<ballots>[\d,]+)\s+"
+        r"\d+%\s+"
+        r"(?P<absentee>[\d,]+)\s+"
+        r"[\d.]+%$"
+    )
+    county_pattern = re.compile(r"^[A-Z ]+$")
+    by_county = {}
+    pending_values = None
+    in_summary = False
+
+    def add_county(raw_county, values):
+        county = county_lookup.get(raw_county.strip().upper())
+        if not county:
+            raise ValueError(f"Unexpected Vermont turnout county row {raw_county!r}")
+        by_county[county] = values
+
+    for line in lines:
+        if line == "County":
+            in_summary = True
+            continue
+        if not in_summary:
+            continue
+        if line == "State Total":
+            break
+        match = same_line_pattern.match(line)
+        if match:
+            add_county(
+                match.group("county"),
+                {
+                    "registered": int_text(match.group("registered")),
+                    "ballots": int_text(match.group("ballots")),
+                    "absentee": int_text(match.group("absentee")),
+                },
+            )
+            pending_values = None
+            continue
+        match = values_pattern.match(line)
+        if match:
+            pending_values = {
+                "registered": int_text(match.group("registered")),
+                "ballots": int_text(match.group("ballots")),
+                "absentee": int_text(match.group("absentee")),
+            }
+            continue
+        if pending_values and county_pattern.match(line):
+            add_county(line, pending_values)
+            pending_values = None
+
+    if len(by_county) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Vermont turnout parsed {len(by_county)} county rows")
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "registeredVoters": sum(row["registered"] for row in by_county.values()),
+            "ballotsCast": sum(row["ballots"] for row in by_county.values()),
+            "absenteeVotesCast": sum(row["absentee"] for row in by_county.values()),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Vermont turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    output_rows = []
+    for county, totals in sorted(by_county.items()):
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": totals["ballots"],
+                "registeredVoters": totals["registered"],
+                "turnoutPct": round2((totals["ballots"] / totals["registered"]) * 100) if totals["registered"] else None,
+                "absenteeVotesCast": totals["absentee"],
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_tennessee_turnout_pdf(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    county_names = {
+        re.sub(r"\s+County$", "", name, flags=re.IGNORECASE): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    county_prefixes = sorted(county_names, key=len, reverse=True)
+    by_county = {}
+    total_row = None
+
+    number = r"[\d,]+"
+    percentage = r"\d+(?:\.\d+)?%"
+    for line in lines:
+        if line.startswith("Total:"):
+            values = re.findall(number, line)
+            if len(values) >= 4:
+                total_row = {
+                    "registeredVoters": int_text(values[0]),
+                    "ballotsCast": int_text(values[1]),
+                    "absenteeByMailVotes": int_text(values[2]),
+                    "earlyVotes": int_text(values[3]),
+                }
+            continue
+        county_label = next((county for county in county_prefixes if line.startswith(f"{county} ")), None)
+        if not county_label:
+            continue
+        county = county_names[county_label]
+        rest = line[len(county_label) :].strip()
+        match = re.match(
+            rf"^(?P<registered>{number})\s+"
+            rf"(?P<ballots>{number})\s+"
+            rf"(?P<turnout>{percentage})\s+"
+            rf"(?P<absentee>{number})\s+"
+            rf"(?P<early>{number})\s+"
+            rf"(?P<early_pct>{percentage})\s+"
+            rf"(?P<absentee_pct>{percentage})$",
+            rest,
+        )
+        if not match:
+            raise ValueError(f"Could not parse Tennessee turnout row: {line}")
+        by_county[county] = {
+            "registeredVoters": int_text(match.group("registered")),
+            "ballotsCast": int_text(match.group("ballots")),
+            "absenteeByMailVotes": int_text(match.group("absentee")),
+            "earlyVotes": int_text(match.group("early")),
+        }
+
+    expected_counties = set(geometry_names_by_geoid(config).values())
+    if set(by_county) != expected_counties:
+        missing = sorted(expected_counties - set(by_county))
+        extra = sorted(set(by_county) - expected_counties)
+        raise ValueError(f"Tennessee turnout county mismatch: missing={missing}; extra={extra}")
+
+    parsed_totals = {
+        "registeredVoters": sum(row["registeredVoters"] for row in by_county.values()),
+        "ballotsCast": sum(row["ballotsCast"] for row in by_county.values()),
+        "absenteeByMailVotes": sum(row["absenteeByMailVotes"] for row in by_county.values()),
+        "earlyVotes": sum(row["earlyVotes"] for row in by_county.values()),
+    }
+    expected_totals = turnout.get("statewideTotals") or total_row
+    if expected_totals and parsed_totals != expected_totals:
+        raise ValueError(f"Tennessee turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    output_rows = []
+    for county, totals in sorted(by_county.items()):
+        registered = totals["registeredVoters"]
+        ballots = totals["ballotsCast"]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "absenteeByMailVotes": totals["absenteeByMailVotes"],
+                "earlyVotes": totals["earlyVotes"],
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "sourceTitle": turnout.get("sourceTitle"),
+                "sourceAuthority": turnout.get("sourceAuthority", config.get("authority")),
+                "coverageStatus": turnout.get("coverageStatus", "loaded"),
+                "voteMethodFields": turnout.get("voteMethodFields", []),
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def turnout_data_oklahoma_enr_registration_pdf(config):
+    turnout = config["turnout"]
+    result_path = local_source(config, turnout["sourceId"])
+    registration_path = local_source(config, turnout["registrationSourceId"])
+    result_source = source_map(config)[turnout["sourceId"]]
+    registration_source = source_map(config)[turnout["registrationSourceId"]]
+    race_id = int(turnout["raceId"])
+
+    registration_by_county = oklahoma_registration_by_county(config, registration_path)
+    turnout_by_county = {}
+    with zipfile.ZipFile(result_path) as archive:
+        config_data = json.loads(archive.read("config.json").decode("utf-8-sig"))
+        county_options = config_data["counties"]["Options"]
+        county_values = config_data["counties"]["Values"]
+        def county_key(value):
+            return re.sub(r"[^A-Z0-9]+", "", value.upper())
+
+        county_names = {
+            county_key(re.sub(r"\s+County$", "", name, flags=re.IGNORECASE)): name
+            for name in geometry_names_by_geoid(config).values()
+        }
+        county_code_names = {
+            str(code): county_names.get(county_key(str(name))) or f"{name} County"
+            for name, code in zip(county_options, county_values)
+            if code
+        }
+        for county_code, county in county_code_names.items():
+            county_payload = json.loads(archive.read(f"results-cw-{county_code}.json").decode("utf-8-sig"))
+            race_results = next(
+                (item for item in county_payload.get("results", []) if int(item.get("raceID")) == race_id),
+                None,
+            )
+            if not race_results:
+                raise ValueError(f"Could not find Oklahoma turnout race {race_id!r} in county {county_code}")
+            totals = race_results.get("totResults") or {}
+            turnout_by_county[county] = {
+                "ballots": int_text(totals.get("totalVotes")),
+                "absenteeVotes": int_text(totals.get("absVotes")),
+                "earlyVotes": int_text(totals.get("earlyVotes")),
+                "electionDayVotes": int_text(totals.get("elecDayVotes")),
+            }
+
+    if set(registration_by_county) != set(turnout_by_county):
+        missing_registration = sorted(set(turnout_by_county) - set(registration_by_county))
+        missing_turnout = sorted(set(registration_by_county) - set(turnout_by_county))
+        raise ValueError(
+            "Oklahoma turnout county mismatch: "
+            f"missing registration={missing_registration}; missing turnout={missing_turnout}"
+        )
+
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "registeredVoters": sum(row["total"] for row in registration_by_county.values()),
+            "ballotsCast": sum(row["ballots"] for row in turnout_by_county.values()),
+            "absenteeVotes": sum(row["absenteeVotes"] for row in turnout_by_county.values()),
+            "earlyVotes": sum(row["earlyVotes"] for row in turnout_by_county.values()),
+            "electionDayVotes": sum(row["electionDayVotes"] for row in turnout_by_county.values()),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Oklahoma turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    output_rows = []
+    for county, totals in sorted(turnout_by_county.items()):
+        registered = registration_by_county[county]["total"]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": totals["ballots"],
+                "registeredVoters": registered,
+                "turnoutPct": round2((totals["ballots"] / registered) * 100) if registered else None,
+                "absenteeVotes": totals["absenteeVotes"],
+                "earlyVotes": totals["earlyVotes"],
+                "electionDayVotes": totals["electionDayVotes"],
+                "libertarianRegisteredVoters": registration_by_county[county]["libertarian"],
+                "republicanRegisteredVoters": registration_by_county[county]["republican"],
+                "democraticRegisteredVoters": registration_by_county[county]["democratic"],
+                "independentRegisteredVoters": registration_by_county[county]["independent"],
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": f"{result_source['url']} ; {registration_source['url']}",
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    return turnout_payload(config, turnout, result_path, result_source, output_rows)
+
+
+def turnout_data_maine_registration_text_join(config):
+    turnout = config["turnout"]
+    result_path = local_source(config, turnout["sourceId"])
+    registration_path = local_source(config, turnout["registrationSourceId"])
+    result_source = source_map(config)[turnout["sourceId"]]
+    registration_source = source_map(config)[turnout["registrationSourceId"]]
+    county_codes = config["certifiedResults"]["countyCodes"]
+
+    registration_by_county = defaultdict(int)
+    with registration_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle, delimiter="|"):
+            county_code = str(row.get("COUNTY") or "").strip()
+            county = county_codes.get(county_code)
+            if not county:
+                continue
+            registration_by_county[county] += int_text(row.get("TOTAL"))
+
+    columns = turnout["columns"]
+    column_index, rows = read_sheet_rows(result_path, turnout.get("sheet", "President & VP"))
+    ballots_by_county = {}
+    for row in rows:
+        municipality = str(row[column_index[columns["municipality"]]] or "").strip()
+        if not municipality.endswith(" Total") or municipality == "Statewide Total":
+            continue
+        county_code = municipality.removesuffix(" Total").strip()
+        county = county_codes.get(county_code)
+        if county:
+            ballots_by_county[county] = int_cell(row, column_index, columns["ballotsCast"])
+
+    if set(registration_by_county) != set(ballots_by_county):
+        missing_registration = sorted(set(ballots_by_county) - set(registration_by_county))
+        missing_ballots = sorted(set(registration_by_county) - set(ballots_by_county))
+        raise ValueError(
+            "Maine turnout county mismatch: "
+            f"missing registration={missing_registration}; missing ballots={missing_ballots}"
+        )
+
+    expected_totals = turnout.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "registeredVoters": sum(registration_by_county.values()),
+            "ballotsCast": sum(ballots_by_county.values()),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Maine turnout totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    output_rows = []
+    for county in sorted(ballots_by_county):
+        ballots = ballots_by_county[county]
+        registered = registration_by_county[county]
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": turnout.get("denominatorType", "registeredVoters"),
+                "sourceUrl": f"{result_source['url']} ; {registration_source['url']}",
+                "sourceLevel": turnout["sourceLevel"],
+                "sourceTitle": turnout.get("sourceTitle"),
+                "sourceAuthority": turnout.get("sourceAuthority", config.get("authority")),
+                "coverageStatus": turnout.get("coverageStatus", "loaded"),
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+            }
+        )
+    return turnout_payload(config, turnout, result_path, result_source, output_rows)
+
+
+def oklahoma_registration_by_county(config, path):
+    lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    def county_key(value):
+        return re.sub(r"[^A-Z0-9]+", "", value.upper())
+
+    county_names = {
+        county_key(re.sub(r"\s+County$", "", name, flags=re.IGNORECASE)): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    full_pattern = re.compile(
+        r"^\d{2}\s+(?P<county>[A-Z ]+?)\s+"
+        r"(?P<libertarian>[\d,]+)\s+"
+        r"(?P<republican>[\d,]+)\s+"
+        r"(?P<democratic>[\d,]+)\s+"
+        r"(?P<independent>[\d,]+)\s+"
+        r"(?P<total>[\d,]+)$"
+    )
+    name_pattern = re.compile(r"^\d{2}\s+(?P<county>[A-Z ]+)$")
+    values_pattern = re.compile(
+        r"^(?P<libertarian>[\d,]+)\s+"
+        r"(?P<republican>[\d,]+)\s+"
+        r"(?P<democratic>[\d,]+)\s+"
+        r"(?P<independent>[\d,]+)\s+"
+        r"(?P<total>[\d,]+)$"
+    )
+    rows = {}
+    pending_county = None
+    pending_values = None
+
+    def row_values(match):
+        return {
+            "libertarian": int_text(match.group("libertarian")),
+            "republican": int_text(match.group("republican")),
+            "democratic": int_text(match.group("democratic")),
+            "independent": int_text(match.group("independent")),
+            "total": int_text(match.group("total")),
+        }
+
+    def add_row(raw_county, values):
+        county = county_names.get(county_key(raw_county.strip()))
+        if not county:
+            raise ValueError(f"Unexpected Oklahoma registration county row {raw_county!r}")
+        if values["libertarian"] + values["republican"] + values["democratic"] + values["independent"] != values["total"]:
+            raise ValueError(f"Oklahoma registration party total mismatch for {county}")
+        rows[county] = values
+
+    for line in lines:
+        if line.startswith("vr2420") or line.startswith("MESA ") or line.startswith("County "):
+            continue
+        if line == "Grand Total":
+            break
+        match = full_pattern.match(line)
+        if match:
+            add_row(match.group("county"), row_values(match))
+            pending_county = None
+            pending_values = None
+            continue
+        match = name_pattern.match(line)
+        if match:
+            pending_county = match.group("county")
+            if pending_values:
+                add_row(pending_county, pending_values)
+                pending_county = None
+                pending_values = None
+            continue
+        match = values_pattern.match(line)
+        if match:
+            values = row_values(match)
+            if pending_county:
+                add_row(pending_county, values)
+                pending_county = None
+            else:
+                pending_values = values
+
+    if len(rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Oklahoma registration parsed {len(rows)} county rows")
+    return rows
+
+
+def turnout_data_hawaii_county_summary_pdfs(config):
+    turnout = config["turnout"]
+    sources = source_map(config)
+    output_rows = []
+    for county_source in config["certifiedResults"]["countySources"]:
+        county = county_source["county"]
+        source = sources[county_source["sourceId"]]
+        path = local_source(config, county_source["sourceId"])
+        text = extract_pdf_text(path)
+        match = re.search(
+            r"TOTAL REGISTRATION\s+(?P<registered>\d[\d,]*).*?"
+            r"TOTAL TURNOUT\s+(?P<ballots>\d[\d,]*)\s+\d+(?:\.\d+)?%.*?"
+            r"MAIL TURNOUT\s+(?P<mail>\d[\d,]*)\s+\d+(?:\.\d+)?%.*?"
+            r"IN-PERSON TURNOUT\s+(?P<inPerson>\d[\d,]*)",
+            text,
+            flags=re.DOTALL,
+        )
+        if not match:
+            raise ValueError(f"Could not find Hawaii turnout table in {path}")
+        registered = int_text(match.group("registered"))
+        ballots = int_text(match.group("ballots"))
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": county,
+                "ward": county,
+                "ballotsCast": ballots,
+                "registeredVoters": registered,
+                "turnoutPct": round2((ballots / registered) * 100) if registered else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": "registeredVoters",
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "mailTurnout": int_text(match.group("mail")),
+                "inPersonTurnout": int_text(match.group("inPerson")),
+            }
+        )
+
+    if len(output_rows) != config.get("expected", {}).get("countyRows"):
+        raise ValueError(f"Hawaii turnout parsed {len(output_rows)} county rows")
+    return turnout_payload(config, turnout, Path("data/hi-2024-general-county-summary-pdfs"), sources[turnout["sourceId"]], output_rows)
+
+
+def turnout_data_rhode_island_summary_xlsx(config):
+    turnout = config["turnout"]
+    path = local_source(config, turnout["sourceId"])
+    source = source_map(config)[turnout["sourceId"]]
+    town_county = config["certifiedResults"]["townCountyMap"]
+    registered = {}
+    column_index, rows = read_sheet_rows(path, turnout.get("registrationSheet", "Reg_Voters"))
+    for row in rows:
+        label = str(row[column_index["City/Town - Precinct"]] or "").strip()
+        precinct = str(row[column_index["Precinct"]] or "").strip()
+        total = int_text(row[column_index["Total"]])
+        if not label or total <= 0:
+            continue
+        registered[(label, precinct)] = total
+
+    output_rows = []
+    column_index, rows = read_sheet_rows(path, turnout.get("ballotsSheet", "Ballots_Cast"))
+    for row in rows:
+        if str(row[column_index["Contest"]] or "").strip() != "BALLOTS CAST - TOTAL":
+            continue
+        label = str(row[column_index["City/Town - Precinct"]] or "").strip()
+        precinct = str(row[column_index["Precinct"]] or "").strip()
+        key = (label, precinct)
+        registered_voters = registered.get(key, 0)
+        if not label or registered_voters <= 0:
+            continue
+        town = rhode_island_town_from_label(label, town_county)
+        county = town_county[town]
+        ballots = int_text(row[column_index["Total"]])
+        output_rows.append(
+            {
+                "county": county,
+                "municipality": town,
+                "ward": label,
+                "ballotsCast": ballots,
+                "registeredVoters": registered_voters,
+                "turnoutPct": round2((ballots / registered_voters) * 100) if registered_voters else None,
+                "registrationDenominatorTiming": turnout["registrationDenominatorTiming"],
+                "denominatorType": "registeredVoters",
+                "sourceUrl": source["url"],
+                "sourceLevel": turnout["sourceLevel"],
+                "notes": turnout["notes"],
+                "warningRequired": turnout["warningRequired"],
+                "electionDayVotes": int_text(row[column_index["Election Day"]]),
+                "mailVotes": int_text(row[column_index["Mail"]]),
+                "earlyVotingVotes": int_text(row[column_index["Early Voting"]]),
+            }
+        )
+    return turnout_payload(config, turnout, path, source, output_rows)
+
+
+def rhode_island_town_from_label(label, town_county):
+    for town in sorted(town_county, key=len, reverse=True):
+        if label == town or label.startswith(f"{town} "):
+            return town
+    raise ValueError(f"Could not map Rhode Island turnout row to town: {label}")
+
+
+def turnout_payload(config, turnout, path, source, output_rows):
+    return {
+        "metadata": {
+            "rows": len(output_rows),
+            "warningRows": sum(1 for row in output_rows if row["warningRequired"]),
+            "source": path.name,
+            "sourceUrl": source["url"],
+        },
+        "rows": output_rows,
+    }
+
+
 def turnout_data_nebraska_canvass_pdf(config):
     turnout = config["turnout"]
     path = local_source(config, turnout["sourceId"])
@@ -4956,6 +6692,24 @@ def extract_pdf_text(path):
         text=True,
     )
     return completed.stdout
+
+
+def extract_pdf_items(path, first_page=None, last_page=None):
+    command = ["node", "scripts/extract-pdf-items.mjs", str(path)]
+    if first_page is not None:
+        command.append(str(first_page))
+    if last_page is not None:
+        command.append(str(last_page))
+    completed = subprocess.run(
+        command,
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+        text=True,
+    )
+    return json.loads(completed.stdout)["pages"]
 
 
 def michigan_registration_totals_from_pdf(path):
@@ -5820,10 +7574,12 @@ CERTIFIED_RESULT_PARSERS = {
     "nebraskaCanvassPdf": certified_results_nebraska_canvass_pdf,
     "nevadaStatewideHtml": certified_results_nevada_statewide_html,
     "nationalCountyBaselineCsv": certified_results_national_county_baseline_csv,
+    "newHampshirePresidentPdf": certified_results_new_hampshire_president_pdf,
     "newJerseyPresidentPdf": certified_results_new_jersey_president_pdf,
     "northCarolinaEnrZip": certified_results_north_carolina_enr_zip,
     "newYorkCountyCsv": certified_results_new_york_county_csv,
     "northDakotaStatewideCsv": certified_results_north_dakota_csv,
+    "ohioStatewideRaceSummaryXlsx": certified_results_ohio_statewide_race_summary_xlsx,
     "oklahomaEnrZip": certified_results_oklahoma_enr_zip,
     "oregonMapDataJson": certified_results_oregon_map_data_json,
     "pennsylvaniaBulkCsv": certified_results_pennsylvania_bulk_csv,
@@ -5831,6 +7587,7 @@ CERTIFIED_RESULT_PARSERS = {
     "southCarolinaEnrJson": certified_results_south_carolina_enr_json,
     "southDakotaCanvassPdf": certified_results_south_dakota_canvass_pdf,
     "tennesseePrecinctXlsx": certified_results_tennessee_precinct_xlsx,
+    "texasCountyJson": certified_results_texas_county_json,
     "totalResultsContestJson": certified_results_total_results_contest_json,
     "utahStatewideCanvassPdf": certified_results_utah_statewide_canvass_pdf,
     "vermontMunicipalityCsv": certified_results_vermont_municipality_csv,
@@ -5854,12 +7611,31 @@ REVIEW_CHART_PARSERS = {
 TURNOUT_PARSERS = {
     "notConfigured": turnout_data_not_configured,
     "alabamaPrecinctZipTurnout": turnout_data_alabama_precinct_zip,
+    "arkansasTotalResultsStatewideJson": turnout_data_arkansas_total_results_statewide_json,
+    "californiaParticipationPdf": turnout_data_california_participation_pdf,
+    "connecticutStatementTurnoutPdf": turnout_data_connecticut_statement_turnout_pdf,
+    "coloradoGeneralTurnoutPdf": turnout_data_colorado_general_turnout_pdf,
+    "delawareReportHtml": turnout_data_delaware_report_html,
     "floridaPrecinctZipTurnout": turnout_data_florida_precinct_zip,
+    "hawaiiCountySummaryPdfs": turnout_data_hawaii_county_summary_pdfs,
+    "idahoTurnoutHtml": turnout_data_idaho_turnout_html,
+    "indianaTurnoutPdf": turnout_data_indiana_turnout_pdf,
+    "kansasTurnoutXlsx": turnout_data_kansas_turnout_xlsx,
+    "marylandTurnoutPdf": turnout_data_maryland_turnout_pdf,
+    "maineRegistrationTextJoin": turnout_data_maine_registration_text_join,
     "xlsxPrecinctRows": turnout_data_xlsx_precinct_rows,
     "michiganMvicCountyTurnout": turnout_data_michigan_mvic,
+    "missouriVoterTurnoutPdf": turnout_data_missouri_voter_turnout_pdf,
+    "montanaCanvassPdf": turnout_data_montana_canvass_pdf,
     "nebraskaCanvassPdf": turnout_data_nebraska_canvass_pdf,
+    "newJerseyTurnoutPdf": turnout_data_new_jersey_turnout_pdf,
     "northDakotaTurnoutHtml": turnout_data_north_dakota_html,
+    "oklahomaEnrRegistrationPdf": turnout_data_oklahoma_enr_registration_pdf,
     "pennsylvaniaVoteHistoryXlsx": turnout_data_pennsylvania_vote_history_xlsx,
+    "rhodeIslandSummaryXlsx": turnout_data_rhode_island_summary_xlsx,
+    "southDakotaElectionReturnsPdf": turnout_data_south_dakota_election_returns_pdf,
+    "tennesseeTurnoutPdf": turnout_data_tennessee_turnout_pdf,
+    "vermontVoterTurnoutPdf": turnout_data_vermont_voter_turnout_pdf,
 }
 
 HISTORICAL_BASELINE_PARSERS = {
@@ -5882,10 +7658,9 @@ def write_geometry(config):
         props = feature.setdefault("properties", {})
         props["NAME"] = props.get(geometry["nameProperty"]) or props.get("NAME")
     output_file = project_path(geometry["outputFile"])
-    output_file.write_text(
-        f"window.{geometry['outputGlobal']} = {json.dumps(geojson, separators=(',', ':'))};\n",
-        encoding="utf-8",
-    )
+    content = f"window.{geometry['outputGlobal']} = {json.dumps(geojson, separators=(',', ':'))};\n"
+    if not output_file.exists() or output_file.read_text(encoding="utf-8") != content:
+        output_file.write_text(content, encoding="utf-8")
     return len(features)
 
 

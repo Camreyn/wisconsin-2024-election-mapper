@@ -20,6 +20,11 @@
       "localFile": "data/mo-2024-general-actual-results.pdf"
     },
     {
+      "id": "mo-2024-official-voter-turnout",
+      "url": "https://www.sos.mo.gov/CMSImages/ElectionResultsStatistics/Nov2024OfficialVoterTurnout.pdf",
+      "localFile": "data/mo-2024-official-voter-turnout.pdf"
+    },
+    {
       "id": "mo-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2729%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/mo-counties.geojson"
@@ -101,12 +106,23 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "mo-2024-general-actual-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "missouriVoterTurnoutPdf",
+    "sourceId": "mo-2024-official-voter-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the actual results PDF because it does not include registered-voter denominators.",
-    "warningRequired": true
+    "notes": "County turnout is loaded from the official Missouri Secretary of State Voter Turnout Report. Kansas City is merged into Jackson County to match county geometry.",
+    "warningRequired": false,
+    "mergeRows": {
+      "De Kalb": "DeKalb County",
+      "Kansas City": "Jackson County"
+    },
+    "statewideTotals": {
+      "registeredVoters": 4433383,
+      "activeVoters": 3975289,
+      "inactiveVoters": 458094,
+      "ballotsCast": 2995376
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -126,7 +142,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -150,12 +166,12 @@
       },
       "turnout": {
         "title": "Missouri turnout denominator",
-        "detail": "The loaded SOS actual-results PDF does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://www.sos.mo.gov/CMSImages/ElectionResultsStatistics/ActualResults-November52024.pdf",
-        "localFile": "data/mo-2024-general-actual-results.pdf; data/mo-app-data.js",
+        "detail": "Official Missouri Secretary of State Voter Turnout Report supplies county registered voters, active voters, inactive voters, actual voters, and turnout percentage. Kansas City is merged into Jackson County for county-geometry alignment.",
+        "sourceUrl": "https://www.sos.mo.gov/CMSImages/ElectionResultsStatistics/Nov2024OfficialVoterTurnout.pdf",
+        "localFile": "data/mo-2024-official-voter-turnout.pdf; data/mo-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official SOS actual-results PDF lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official SOS Voter Turnout Report is labeled State of Missouri General Election - 2024 General Election and report as of 12/05/2024 10:16 AM.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -165,6 +181,13 @@
         "sourceUrl": "https://www.sos.mo.gov/CMSImages/ElectionResultsStatistics/ActualResults-November52024.pdf",
         "usedFor": "Missouri county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
         "confidence": "Official Missouri Secretary of State actual results PDF."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/mo-2024-official-voter-turnout.pdf; data/mo-app-data.js",
+        "sourceUrl": "https://www.sos.mo.gov/CMSImages/ElectionResultsStatistics/Nov2024OfficialVoterTurnout.pdf",
+        "usedFor": "Missouri county turnout rows with registered voters, active voters, inactive voters, and actual voters.",
+        "confidence": "Official Missouri Secretary of State Voter Turnout Report."
       },
       {
         "category": "County boundaries",
@@ -185,9 +208,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Missouri turnout should not be inferred from the SOS actual-results PDF because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Missouri SOS 2024 General Election Voter Turnout Report.",
+      "warning": "Missouri turnout is county-level; Kansas City is merged into Jackson County to align with county geometry.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -210,7 +233,7 @@
     "harris": 1200599,
     "other": 42742,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 115,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

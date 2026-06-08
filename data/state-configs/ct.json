@@ -15,6 +15,11 @@
       "localFile": "data/ct-2024-statement-of-vote.txt"
     },
     {
+      "id": "ct-2024-statement-of-vote-pdf",
+      "url": "https://portal.ct.gov/-/media/sots/electionservices/statementofvote_pdfs/2024_statement_of_vote.pdf",
+      "localFile": "data/ct-2024-statement-of-vote.pdf"
+    },
+    {
       "id": "ct-county-subdivisions",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer/22/query?where=STATE%3D%2709%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY,COUSUB&returnGeometry=false&f=geojson",
       "localFile": "data/ct-county-subdivisions.geojson"
@@ -91,11 +96,27 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ct-2024-statement-of-vote",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "connecticutStatementTurnoutPdf",
+    "sourceId": "ct-2024-statement-of-vote-pdf",
+    "townMapSourceId": "ct-county-subdivisions",
+    "sourceTitle": "2024 Statement of Vote, Election Day Registration, Turnout and Absentee Ballot Statistics",
+    "registrationDenominatorTiming": "preElectionDay",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "planningRegion",
-    "notes": "Connecticut turnout is not loaded yet. The Statement of Vote includes election-day registration, turnout, and absentee statistics, but those tables are not mapped to the planning-region result rows yet.",
+    "coverageStatus": "loaded",
+    "pages": [
+      157,
+      158,
+      159,
+      160,
+      161,
+      162
+    ],
+    "statewideTotals": {
+      "registeredVoters": 2348545,
+      "ballotsCast": 1788954
+    },
+    "notes": "Official Connecticut Statement of Vote town turnout table rolled up to Census county-equivalent planning regions. The denominator is the active official checklist and may not include every same-day registration case, so caution is required for denominator-limited rows.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -116,7 +137,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -139,13 +160,13 @@
         "status": "Loaded"
       },
       "turnout": {
-        "title": "Connecticut turnout denominator",
-        "detail": "The Statement of Vote includes turnout-related pages, but those denominator tables are not mapped to the planning-region result rows yet. Turnout should stay disabled until an official denominator import is added.",
+        "title": "Connecticut official turnout by planning region",
+        "detail": "Official Connecticut Secretary of the State Statement of Vote turnout and active checklist rows are parsed from the town table and rolled up to Census county-equivalent planning regions. Rows are warning-labeled because the denominator is the active official checklist while the turnout table also reports same-day registration activity.",
         "sourceUrl": "https://portal.ct.gov/-/media/sots/electionservices/statementofvote_pdfs/2024_statement_of_vote.pdf",
-        "localFile": "data/ct-2024-statement-of-vote.txt; data/ct-app-data.js",
+        "localFile": "data/ct-2024-statement-of-vote.pdf; data/ct-county-subdivisions.geojson; data/ct-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Turnout denominator tables require separate parser mapping before use.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Statement of Vote turnout pages 157-162.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -154,6 +175,13 @@
         "file": "data/ct-2024-statement-of-vote.txt; data/ct-app-data.js",
         "sourceUrl": "https://portal.ct.gov/-/media/sots/electionservices/statementofvote_pdfs/2024_statement_of_vote.pdf",
         "usedFor": "Connecticut certified 2024 presidential town rows rolled up to planning-region totals.",
+        "confidence": "Official Connecticut Secretary of the State Statement of Vote."
+      },
+      {
+        "category": "Official turnout and active checklist rows",
+        "file": "data/ct-2024-statement-of-vote.pdf; data/ct-app-data.js",
+        "sourceUrl": "https://portal.ct.gov/-/media/sots/electionservices/statementofvote_pdfs/2024_statement_of_vote.pdf",
+        "usedFor": "Connecticut town turnout and active official checklist rows rolled up to planning-region turnout rows.",
         "confidence": "Official Connecticut Secretary of the State Statement of Vote."
       },
       {
@@ -182,9 +210,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Connecticut turnout should not be inferred from presidential vote totals; the Statement of Vote turnout pages need a dedicated denominator parser before turnout is enabled.",
+      "status": "Loaded",
+      "acceptedSource": "Official Connecticut Statement of Vote turnout table, rolled from town rows to planning-region rows.",
+      "warning": "Rows use the official active checklist denominator and are warning-labeled because Connecticut also reports same-day registration activity in the same turnout section.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -207,8 +235,8 @@
     "harris": 992197,
     "other": 30054,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 9,
+    "turnoutWarningRows": 9,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 9

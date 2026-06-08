@@ -15,6 +15,11 @@
       "localFile": "data/nj-2024-official-general-results-president.pdf"
     },
     {
+      "id": "nj-2024-official-general-voter-turnout",
+      "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-voter-turnout.pdf",
+      "localFile": "data/nj-2024-official-general-voter-turnout.pdf"
+    },
+    {
       "id": "nj-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2734%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/nj-counties.geojson"
@@ -87,12 +92,12 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "nj-2024-official-general-results-president",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "newJerseyTurnoutPdf",
+    "sourceId": "nj-2024-official-general-voter-turnout",
+    "registrationDenominatorTiming": "final",
     "sourceLevel": "county",
-    "notes": "New Jersey turnout is not loaded yet. The official presidential PDF contains candidate tallies by county but does not include registered-voter denominators.",
-    "warningRequired": true
+    "notes": "Official New Jersey Division of Elections voter turnout PDF with county registered voters, ballots cast, rejected ballots, and election districts.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -112,7 +117,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -135,13 +140,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "New Jersey turnout denominator",
-        "detail": "The official presidential PDF includes county candidate tallies, but no registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
-        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
-        "localFile": "data/nj-2024-official-general-results-president.pdf; data/nj-app-data.js",
+        "title": "New Jersey official general-election voter turnout",
+        "detail": "Official Division of Elections PDF includes county registered voters, ballots cast, rejected ballots, turnout percentage, and election districts. The importer reconciles county rows against the TOTAL line.",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-voter-turnout.pdf",
+        "localFile": "data/nj-2024-official-general-voter-turnout.pdf; data/nj-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential county PDF lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official New Jersey 2024 General Election voter turnout PDF.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -158,6 +163,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "New Jersey county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/nj-2024-official-general-voter-turnout.pdf; data/nj-app-data.js",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-voter-turnout.pdf",
+        "usedFor": "New Jersey county turnout graph and turnout coverage rows.",
+        "confidence": "Official New Jersey Division of Elections voter turnout PDF."
       }
     ],
     "checkedNotUsable": [
@@ -171,9 +183,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "New Jersey turnout should not be inferred from the certified presidential PDF because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Official New Jersey Division of Elections voter turnout PDF.",
+      "warning": "New Jersey turnout uses official county registered-voter denominators and ballots-cast fields from the voter turnout report.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -196,7 +208,7 @@
     "harris": 2220713,
     "other": 83797,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 21,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

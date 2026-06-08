@@ -15,6 +15,11 @@
       "localFile": "data/id-2024-president-county-results.csv"
     },
     {
+      "id": "id-2024-general-turnout",
+      "url": "https://sos.idaho.gov/elect/results/2024/general/turnout.html",
+      "localFile": "data/id-2024-general-turnout.html"
+    },
+    {
       "id": "id-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2716%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/id-counties.geojson"
@@ -106,12 +111,12 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "id-2024-president-county-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "idahoTurnoutHtml",
+    "sourceId": "id-2024-general-turnout",
+    "registrationDenominatorTiming": "final",
     "sourceLevel": "county",
-    "notes": "Idaho turnout is not loaded yet. The President county-results CSV includes total ballots cast but not registered-voter denominators.",
-    "warningRequired": true
+    "notes": "Official Idaho Secretary of State 2024 General Election turnout table with county election-day registrations, registered voters, ballots cast, and turnout percentage.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -131,7 +136,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -154,13 +159,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Idaho turnout denominator",
-        "detail": "The county-results CSV includes total ballots cast but no registered-voter denominator. Turnout should stay disabled until an official registration or turnout source is mapped.",
-        "sourceUrl": "https://canvass.sos.idaho.gov/eng/contests/view/19439/",
-        "localFile": "data/id-2024-president-county-results.csv; data/id-app-data.js",
+        "title": "Idaho official general-election turnout table",
+        "detail": "Official Secretary of State turnout HTML exposes county registered voters, ballots cast, turnout percentage, and election-day registrations. The importer reads the embedded table data and loads county turnout rows.",
+        "sourceUrl": "https://sos.idaho.gov/elect/results/2024/general/turnout.html",
+        "localFile": "data/id-2024-general-turnout.html; data/id-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official county result CSV lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Idaho Secretary of State 2024 General Election turnout page.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -177,6 +182,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Idaho county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/id-2024-general-turnout.html; data/id-app-data.js",
+        "sourceUrl": "https://sos.idaho.gov/elect/results/2024/general/turnout.html",
+        "usedFor": "Idaho county turnout graph and turnout coverage rows.",
+        "confidence": "Official Idaho Secretary of State turnout table."
       }
     ],
     "checkedNotUsable": [
@@ -190,9 +202,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Idaho turnout should not be inferred from presidential contest totals; use an official registration or turnout denominator source before enabling turnout.",
+      "status": "Loaded",
+      "acceptedSource": "Official Idaho Secretary of State 2024 General Election turnout table.",
+      "warning": "Idaho turnout uses the official county turnout table rather than inferring turnout from presidential contest totals.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -215,7 +227,7 @@
     "harris": 274972,
     "other": 24839,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 44,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

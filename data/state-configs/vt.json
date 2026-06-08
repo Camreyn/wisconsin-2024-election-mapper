@@ -23,6 +23,11 @@
       "id": "vt-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2750%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/vt-counties.geojson"
+    },
+    {
+      "id": "vt-2024-general-election-voter-turnout",
+      "url": "https://outside.vermont.gov/dept/sos/Elections_Division/election_info_resources/elections_results_data/2024_general_election_voter_turnout.pdf",
+      "localFile": "data/vt-2024-general-election-voter-turnout.pdf"
     }
   ],
   "geometry": {
@@ -129,12 +134,21 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "vt-2024-president-municipality-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "vermontVoterTurnoutPdf",
+    "sourceId": "vt-2024-general-election-voter-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
-    "warningRequired": true
+    "notes": "County turnout is loaded from the official Vermont Secretary of State 2024 General Election Voter Turnout PDF county summary table.",
+    "warningRequired": false,
+    "voteMethodFields": [
+      "absenteeVotesCast"
+    ],
+    "statewideTotals": {
+      "registeredVoters": 522600,
+      "ballotsCast": 372885,
+      "absenteeVotesCast": 237496
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -154,7 +168,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -178,12 +192,12 @@
       },
       "turnout": {
         "title": "Vermont turnout denominator",
-        "detail": "The official presidential results export includes vote totals but not registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://electionarchive.vermont.gov/elections/view/165927",
-        "localFile": "data/vt-2024-president-municipality-results.csv; data/vt-app-data.js",
+        "detail": "Official Vermont Secretary of State 2024 General Election Voter Turnout PDF county summary table supplies registered voters, total votes cast including absentee, turnout, and absentee votes cast.",
+        "sourceUrl": "https://outside.vermont.gov/dept/sos/Elections_Division/election_info_resources/elections_results_data/2024_general_election_voter_turnout.pdf",
+        "localFile": "data/vt-2024-general-election-voter-turnout.pdf; data/vt-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Vermont electionarchive presidential result export lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Vermont SOS Voter Turnout PDF is labeled GENERAL ELECTION 11/05/2024 and dated 11/08/2024.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -202,6 +216,13 @@
         "confidence": "U.S. Census TIGERweb county subdivision metadata."
       },
       {
+        "category": "Official turnout denominator",
+        "file": "data/vt-2024-general-election-voter-turnout.pdf; data/vt-app-data.js",
+        "sourceUrl": "https://outside.vermont.gov/dept/sos/Elections_Division/election_info_resources/elections_results_data/2024_general_election_voter_turnout.pdf",
+        "usedFor": "Vermont county turnout rows with registered voters, total votes cast, and absentee votes cast.",
+        "confidence": "Official Vermont Secretary of State Elections Division Voter Turnout PDF."
+      },
+      {
         "category": "County boundaries",
         "file": "data/vt-counties.geojson; data/vt-counties.js",
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
@@ -210,19 +231,12 @@
       }
     ],
     "checkedNotUsable": [
-      {
-        "category": "Turnout denominator",
-        "sourceUrl": "https://electionarchive.vermont.gov/elections/view/165927",
-        "reason": "The official presidential results export does not include registered-voter denominators for turnout calculations.",
-        "status": "Needs denominator source",
-        "nextStep": "Identify an official Vermont turnout or registration source before enabling turnout."
-      }
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Vermont turnout should not be inferred from the certified presidential results export because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Vermont SOS 2024 General Election Voter Turnout PDF.",
+      "warning": "Vermont turnout is loaded at county level from the county summary table; town/district-level turnout rows are not imported yet.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -245,7 +259,7 @@
     "harris": 235791,
     "other": 14236,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 14,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

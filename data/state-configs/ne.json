@@ -71,12 +71,12 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "nebraskaCanvassPdf",
     "sourceId": "ne-2024-general-canvass-book",
-    "registrationDenominatorTiming": "notLoaded",
+    "registrationDenominatorTiming": "final",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the canvass PDF presidential table because it does not include registered-voter denominators.",
-    "warningRequired": true
+    "notes": "County turnout is loaded from the Voting Statistics section of the official Nebraska Secretary of State 2024 General Canvass Book PDF. Ballots cast use the Total Voting by Method table; registered voters use the Number of Registered Voters table.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -96,7 +96,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -119,13 +119,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Nebraska turnout denominator",
-        "detail": "The canvass PDF presidential table does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
+        "title": "Nebraska county turnout denominator",
+        "detail": "County ballots cast and registered-voter denominators are parsed from the Voting Statistics section of the official Nebraska Secretary of State 2024 General Canvass Book PDF.",
         "sourceUrl": "https://sos.nebraska.gov/sites/default/files/doc/elections/2024/2024%20General%20Canvass%20Book.pdf",
         "localFile": "data/ne-2024-general-canvass-book.pdf; data/ne-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass presidential table lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official canvass Voting Statistics tables provide registered-voter totals and total voting by method by county.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -135,6 +135,13 @@
         "sourceUrl": "https://sos.nebraska.gov/sites/default/files/doc/elections/2024/2024%20General%20Canvass%20Book.pdf",
         "usedFor": "Nebraska county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
         "confidence": "Official Nebraska Secretary of State 2024 General Canvass Book PDF."
+      },
+      {
+        "category": "County turnout and registration",
+        "file": "data/ne-2024-general-canvass-book.pdf; data/ne-app-data.js",
+        "sourceUrl": "https://sos.nebraska.gov/sites/default/files/doc/elections/2024/2024%20General%20Canvass%20Book.pdf",
+        "usedFor": "Nebraska county ballots cast, registered-voter denominators, voting-method fields, turnout graph rows, and Source Planner turnout status.",
+        "confidence": "Official Nebraska Secretary of State 2024 General Canvass Book PDF Voting Statistics tables."
       },
       {
         "category": "County boundaries",
@@ -155,9 +162,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Nebraska turnout should not be inferred from presidential votes because the canvass presidential table lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Official Nebraska Secretary of State 2024 General Canvass Book PDF Voting Statistics tables.",
+      "warning": "",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -180,7 +187,7 @@
     "harris": 369995,
     "other": 17371,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 93,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

@@ -20,6 +20,11 @@
       "localFile": "data/in-2024-general-president-results.json"
     },
     {
+      "id": "in-2024-general-election-turnout-registration-report",
+      "url": "https://www.in.gov/sos/elections/files/2024-General-Election-Turnout-and-Registration-Report.pdf",
+      "localFile": "data/in-2024-general-election-turnout-registration-report.pdf"
+    },
+    {
       "id": "in-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2718%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/in-counties.geojson"
@@ -138,12 +143,12 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "in-2024-general-president-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "indianaTurnoutPdf",
+    "sourceId": "in-2024-general-election-turnout-registration-report",
+    "registrationDenominatorTiming": "final",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the official presidential ENR result payload because this import currently maps certified county candidate totals only.",
-    "warningRequired": true
+    "notes": "Official Indiana Secretary of State turnout and registration PDF with county registered voters, ballots cast, Election Day votes, and absentee votes.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -163,7 +168,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -186,13 +191,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Indiana turnout denominator",
-        "detail": "Turnout remains disabled until an official Indiana registration or turnout denominator source is mapped into the app turnout model.",
-        "sourceUrl": "https://enr.indianavoters.in.gov/archive/2024General/index.html",
-        "localFile": "data/in-2024-general-president-results.json; data/in-app-data.js",
+        "title": "Indiana turnout and registration report",
+        "detail": "Official Secretary of State PDF includes county registered voters, ballots cast, turnout rate, Election Day votes, and absentee votes. The importer loads all 92 county rows.",
+        "sourceUrl": "https://www.in.gov/sos/elections/files/2024-General-Election-Turnout-and-Registration-Report.pdf",
+        "localFile": "data/in-2024-general-election-turnout-registration-report.pdf; data/in-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Certified result import is limited to county presidential candidate totals.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Indiana Secretary of State 2024 General Election turnout and registration report PDF.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -209,6 +214,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Indiana county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/in-2024-general-election-turnout-registration-report.pdf; data/in-app-data.js",
+        "sourceUrl": "https://www.in.gov/sos/elections/files/2024-General-Election-Turnout-and-Registration-Report.pdf",
+        "usedFor": "Indiana county turnout graph and turnout coverage rows.",
+        "confidence": "Official Indiana Secretary of State turnout and registration report."
       }
     ],
     "checkedNotUsable": [
@@ -222,9 +234,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Indiana turnout should not be inferred from the certified presidential county result payload until official denominator fields are mapped.",
+      "status": "Loaded",
+      "acceptedSource": "Official Indiana Secretary of State turnout and registration report PDF.",
+      "warning": "Indiana turnout uses official county registered-voter denominators and ballots-cast fields from the turnout report.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -247,7 +259,7 @@
     "harris": 1163603,
     "other": 52727,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 92,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

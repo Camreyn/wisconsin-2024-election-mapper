@@ -82,12 +82,17 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "delawareReportHtml",
     "sourceId": "de-2024-general-election-report",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded yet. The Delaware report page includes statewide registered-voter and voting totals, but county turnout denominators are not mapped into the app turnout schema.",
-    "warningRequired": true
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "notes": "Delaware statewide turnout comes from the official DOE report page summary line. County-level turnout denominator rows are not exposed in the loaded report, so this row is warning-labeled as statewide-only coverage.",
+    "warningRequired": true,
+    "statewideTotals": {
+      "registeredVoters": 788441,
+      "ballotsCast": 518330
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -107,7 +112,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -130,13 +135,13 @@
         "status": "Needs parser mapping"
       },
       "turnout": {
-        "title": "Delaware turnout denominator",
-        "detail": "The official report page shows statewide registered-voter and ballots-cast totals. County turnout remains disabled until county denominator rows are mapped from an official source.",
+        "title": "Delaware official statewide turnout",
+        "detail": "The official Delaware Department of Elections report page summary shows 518,330 voters out of 788,441 registered voters. The importer loads that single statewide row with statewide-only coverage and warning labels because county-level turnout denominator rows are not exposed in the loaded report.",
         "sourceUrl": "https://elections.delaware.gov/reports/GE2024.html",
         "localFile": "data/de-2024-general-election-report.html; data/de-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official report page reports statewide turnout; county-level turnout denominators are not loaded.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official report page summary line and XML report timestamp.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -146,6 +151,13 @@
         "sourceUrl": "https://elections.delaware.gov/reports/GE2024.html",
         "usedFor": "Delaware county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
         "confidence": "Official Delaware Department of Elections 2024 General Election report page."
+      },
+      {
+        "category": "Official statewide turnout denominator",
+        "file": "data/de-2024-general-election-report.html; data/de-app-data.js",
+        "sourceUrl": "https://elections.delaware.gov/reports/GE2024.html",
+        "usedFor": "Delaware statewide turnout row with registered-voter denominator.",
+        "confidence": "Official Delaware Department of Elections report page summary line."
       },
       {
         "category": "County boundaries",
@@ -165,14 +177,15 @@
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Delaware turnout should not be inferred from presidential votes. County-level registered-voter denominators need an official mapped source before turnoutData is enabled.",
+      "route": "officialStatewideTurnoutDenominator",
+      "status": "Loaded",
+      "acceptedSource": "Official Delaware Department of Elections report page summary line.",
+      "warning": "Delaware turnout is statewide-only because the loaded official report exposes a statewide registered-voter denominator but no county-level turnout denominator rows.",
       "requiredFields": [
-        "county",
+        "statewide",
         "ballotsCast",
         "registeredVoters",
+        "coverageStatus",
         "sourceUrl"
       ]
     },
@@ -191,8 +204,8 @@
     "harris": 289758,
     "other": 7588,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 3

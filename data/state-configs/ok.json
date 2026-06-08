@@ -15,6 +15,11 @@
       "localFile": "data/ok-2024-general-enr-results.zip"
     },
     {
+      "id": "ok-vrstats-county-nov1-2024",
+      "url": "https://oklahoma.gov/content/dam/ok/en/elections/voter-registration-statistics/2024-vr-statistics/vrstats-county-nov1-2024.pdf",
+      "localFile": "data/ok-vrstats-county-nov1-2024.pdf"
+    },
+    {
       "id": "ok-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2740%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ok-counties.geojson"
@@ -69,12 +74,27 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "oklahomaEnrRegistrationPdf",
     "sourceId": "ok-2024-general-enr-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "registrationSourceId": "ok-vrstats-county-nov1-2024",
+    "raceId": 10001,
+    "registrationDenominatorTiming": "preElectionDay",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
-    "warningRequired": true
+    "notes": "County turnout joins official OKER presidential race total votes to the Oklahoma State Election Board November 1, 2024 county voter registration PDF. The denominator is pre-election and the numerator is presidential race votes, so rows are warning-labeled.",
+    "warningRequired": true,
+    "voteMethodFields": [
+      "absenteeVotes",
+      "earlyVotes",
+      "electionDayVotes"
+    ],
+    "statewideTotals": {
+      "registeredVoters": 2442211,
+      "ballotsCast": 1566173,
+      "absenteeVotes": 103084,
+      "earlyVotes": 293206,
+      "electionDayVotes": 1169883
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -94,7 +114,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -118,12 +138,12 @@
       },
       "turnout": {
         "title": "Oklahoma turnout denominator",
-        "detail": "The loaded official OKER result payload includes vote totals and turnout percentages but no county registered-voter denominator fields. Turnout remains disabled until an official denominator source is mapped.",
-        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
-        "localFile": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
+        "detail": "County turnout joins official OKER presidential race total votes and vote-method splits to Oklahoma State Election Board November 1, 2024 county voter registration totals. Rows are warning-labeled because the denominator is pre-election and the numerator is presidential race votes.",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105; https://oklahoma.gov/content/dam/ok/en/elections/voter-registration-statistics/2024-vr-statistics/vrstats-county-nov1-2024.pdf",
+        "localFile": "data/ok-2024-general-enr-results.zip; data/ok-vrstats-county-nov1-2024.pdf; data/ok-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official OKER county result payload lacks registered-voter denominator fields needed by the turnout module.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official OKER result payload plus Oklahoma State Election Board registration PDF generated 11/1/2024 9:39 AM and linked from the November 4, 2024 registration news release.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -133,6 +153,13 @@
         "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
         "usedFor": "Oklahoma official 2024 presidential county results.",
         "confidence": "Official Oklahoma State Election Board results API payloads."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/ok-2024-general-enr-results.zip; data/ok-vrstats-county-nov1-2024.pdf; data/ok-app-data.js",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105; https://oklahoma.gov/content/dam/ok/en/elections/voter-registration-statistics/2024-vr-statistics/vrstats-county-nov1-2024.pdf",
+        "usedFor": "Oklahoma county turnout rows with presidential total votes, absentee/early/election-day splits, and November 1 registered voters.",
+        "confidence": "Official Oklahoma State Election Board OKER API payloads joined to official county registration PDF."
       },
       {
         "category": "County boundaries",
@@ -153,9 +180,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Oklahoma turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Oklahoma OKER presidential race total votes joined to the Oklahoma State Election Board November 1, 2024 county voter registration PDF.",
+      "warning": "Oklahoma turnout uses a pre-election registered-voter denominator and presidential race vote totals, so rows should be treated as denominator-limited and not as final all-ballot turnout.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -178,8 +205,8 @@
     "harris": 499599,
     "other": 30361,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 77,
+    "turnoutWarningRows": 77,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 77

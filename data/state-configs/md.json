@@ -15,6 +15,11 @@
       "localFile": "data/md-2024-president-county-breakdown.html"
     },
     {
+      "id": "md-2024-official-turnout-by-party-county",
+      "url": "https://www.elections.state.md.us/press_room/2024_stats/PG24/Official%20by%20Party%20and%20County.pdf",
+      "localFile": "data/md-2024-official-turnout-by-party-county.pdf"
+    },
+    {
       "id": "md-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2724%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/md-counties.geojson"
@@ -78,12 +83,27 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "md-2024-president-county-breakdown",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "marylandTurnoutPdf",
+    "sourceId": "md-2024-official-turnout-by-party-county",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "eligibleVoters",
     "sourceLevel": "county",
-    "notes": "Maryland turnout is not loaded yet. The official presidential county breakdown page includes vote totals by voting method, but not registered-voter denominators.",
-    "warningRequired": true
+    "notes": "Maryland county turnout comes from the official SBE turnout-by-party-and-county PDF. Rows use eligible voters as the denominator and total turnout voters by method, so they are warning-labeled and should not be compared directly to presidential contest votes.",
+    "warningRequired": true,
+    "voteMethodFields": [
+      "electionDayVotes",
+      "earlyVotes",
+      "voteByMailVotes",
+      "provisionalVotes"
+    ],
+    "statewideTotals": {
+      "eligibleVoters": 4204572,
+      "ballotsCast": 3045855,
+      "electionDayVotes": 1145134,
+      "earlyVotes": 984945,
+      "voteByMailVotes": 765783,
+      "provisionalVotes": 149993
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -103,7 +123,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -126,13 +146,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Maryland turnout denominator",
-        "detail": "The official county breakdown includes early, election-day, mail-in, provisional, and total votes, but no county registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
-        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
-        "localFile": "data/md-2024-president-county-breakdown.html; data/md-app-data.js",
+        "title": "Maryland official county turnout",
+        "detail": "Official Maryland State Board of Elections turnout-by-party-and-county PDF. The importer reads the Statewide county table, validates the published totals, and captures Election Day, early voting, vote-by-mail, and provisional turnout fields. Rows use eligible voters as the denominator and are warning-labeled.",
+        "sourceUrl": "https://www.elections.state.md.us/press_room/2024_stats/PG24/Official%20by%20Party%20and%20County.pdf",
+        "localFile": "data/md-2024-official-turnout-by-party-county.pdf; data/md-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential county breakdown lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official PDF says As of: December 11, 2024.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -142,6 +162,13 @@
         "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
         "usedFor": "Maryland 2024 presidential county result table.",
         "confidence": "Official archived Maryland State Board of Elections county breakdown page."
+      },
+      {
+        "category": "Official county turnout denominator",
+        "file": "data/md-2024-official-turnout-by-party-county.pdf; data/md-app-data.js",
+        "sourceUrl": "https://www.elections.state.md.us/press_room/2024_stats/PG24/Official%20by%20Party%20and%20County.pdf",
+        "usedFor": "Maryland county turnout rows with eligible-voter denominator and voting-method counts.",
+        "confidence": "Official Maryland State Board of Elections turnout-by-party-and-county PDF."
       },
       {
         "category": "County boundaries",
@@ -158,17 +185,26 @@
         "reason": "Superseded for Maryland by the official Maryland State Board of Elections 2024 Presidential General Election county breakdown page.",
         "status": "Superseded",
         "nextStep": "Keep the official SBE county breakdown page as the authoritative Maryland presidential county source."
+      },
+      {
+        "category": "Presidential county result page for turnout denominator",
+        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
+        "reason": "The presidential result page has vote-method result totals but no registered-voter or eligible-voter denominator. Turnout now uses the official turnout-by-party-and-county PDF instead.",
+        "status": "Superseded",
+        "nextStep": "Use data/md-2024-official-turnout-by-party-county.pdf for Maryland turnout rows."
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Maryland turnout should not be inferred from the certified county breakdown page because it lacks registered-voter denominators.",
+      "route": "officialEligibleVoterTurnout",
+      "status": "Loaded",
+      "acceptedSource": "Official Maryland State Board of Elections turnout-by-party-and-county PDF.",
+      "warning": "Maryland turnout rows use eligible voters rather than registered voters as the denominator. The numerator is total turnout by voting method, not presidential contest votes, so rows are warning-labeled.",
       "requiredFields": [
         "county",
         "ballotsCast",
-        "registeredVoters",
+        "eligibleVoters",
+        "denominatorType",
+        "registrationDenominatorTiming",
         "sourceUrl"
       ]
     },
@@ -187,8 +223,8 @@
     "harris": 1902577,
     "other": 100207,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 24,
+    "turnoutWarningRows": 24,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 24

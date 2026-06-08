@@ -15,6 +15,11 @@
       "localFile": "data/ca-2024-president-by-county.xlsx"
     },
     {
+      "id": "ca-2024-voter-participation-stats-by-county",
+      "url": "https://elections.cdn.sos.ca.gov/sov/2024-general/sov/03-voter-participation-stats-by-county.pdf",
+      "localFile": "data/ca-2024-voter-participation-stats-by-county.pdf"
+    },
+    {
       "id": "ca-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2706%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ca-counties.geojson"
@@ -81,11 +86,11 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ca-2024-president-by-county",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "californiaParticipationPdf",
+    "sourceId": "ca-2024-voter-participation-stats-by-county",
+    "registrationDenominatorTiming": "preElectionDay",
     "sourceLevel": "county",
-    "notes": "California turnout is not loaded yet. The President by County Statement of Vote workbook includes candidate votes only; registered-voter denominators require the separate registration and participation source.",
+    "notes": "Official California Secretary of State voter participation statistics by county. Registered-voter denominators come from the 15-day Report of Registration, so turnout rows are labeled as pre-election denominator rows.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -106,7 +111,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -129,13 +134,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "California turnout denominator",
-        "detail": "The President by County workbook includes candidate votes but no registered-voter denominator. Turnout should stay disabled until the official registration and participation sources are mapped.",
-        "sourceUrl": "https://www.sos.ca.gov/elections/prior-elections/statewide-election-results/general-election-nov-5-2024/statement-vote",
-        "localFile": "data/ca-2024-president-by-county.xlsx; data/ca-app-data.js",
+        "title": "California voter participation statistics by county",
+        "detail": "Official Secretary of State PDF includes county precincts, eligible voters, registered voters, precinct votes, vote-by-mail votes, and ballots cast. The importer reconciles county rows against the State Total line.",
+        "sourceUrl": "https://elections.cdn.sos.ca.gov/sov/2024-general/sov/03-voter-participation-stats-by-county.pdf",
+        "localFile": "data/ca-2024-voter-participation-stats-by-county.pdf; data/ca-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential county workbook lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official California Statement of Vote voter participation statistics by county PDF.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -152,6 +157,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "California county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Official turnout denominator",
+        "file": "data/ca-2024-voter-participation-stats-by-county.pdf; data/ca-app-data.js",
+        "sourceUrl": "https://elections.cdn.sos.ca.gov/sov/2024-general/sov/03-voter-participation-stats-by-county.pdf",
+        "usedFor": "California county turnout graph and turnout coverage rows.",
+        "confidence": "Official California Secretary of State voter participation statistics PDF."
       }
     ],
     "checkedNotUsable": [
@@ -165,9 +177,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "California turnout should not be inferred from presidential vote totals; use an official registration or turnout denominator source before enabling turnout.",
+      "status": "Loaded",
+      "acceptedSource": "Official California Secretary of State voter participation statistics by county PDF.",
+      "warning": "California registered-voter denominators are based on the 15-day pre-election Report of Registration; high or unusual turnout percentages should be read with that timing caveat.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -190,8 +202,8 @@
     "harris": 9276179,
     "other": 507599,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 58,
+    "turnoutWarningRows": 58,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 58

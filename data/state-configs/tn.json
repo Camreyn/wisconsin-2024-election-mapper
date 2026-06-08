@@ -15,6 +15,11 @@
       "localFile": "data/tn-2024-general-all-by-precinct.xlsx"
     },
     {
+      "id": "tn-2024-november-turnout-report",
+      "url": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/2024%20November%20Turnout%20Report.pdf",
+      "localFile": "data/tn-2024-november-turnout-report.pdf"
+    },
+    {
       "id": "tn-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2747%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/tn-counties.geojson"
@@ -87,12 +92,26 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "tn-2024-general-all-by-precinct",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "tennesseeTurnoutPdf",
+    "sourceId": "tn-2024-november-turnout-report",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
-    "warningRequired": true
+    "sourceTitle": "Statistical Analysis of Voter Turnout for the November 5, 2024 Election",
+    "sourceAuthority": "Tennessee Secretary of State Division of Elections",
+    "coverageStatus": "loaded",
+    "voteMethodFields": [
+      "absenteeByMailVotes",
+      "earlyVotes"
+    ],
+    "statewideTotals": {
+      "registeredVoters": 4825601,
+      "ballotsCast": 3090161,
+      "absenteeByMailVotes": 98017,
+      "earlyVotes": 2133494
+    },
+    "notes": "Official Tennessee Secretary of State county turnout report with registered voters, total votes cast, absentee by mail voters, and early voters for the November 5, 2024 election.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -112,7 +131,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -135,13 +154,13 @@
         "status": "Loaded for certified aggregation"
       },
       "turnout": {
-        "title": "Tennessee turnout denominator",
-        "detail": "The official precinct result spreadsheet includes vote tallies but not registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://sos.tn.gov/elections/results",
-        "localFile": "data/tn-2024-general-all-by-precinct.xlsx; data/tn-app-data.js",
+        "title": "Tennessee official county turnout report",
+        "detail": "Official Tennessee Secretary of State county turnout report provides registered voters, total votes cast, absentee by mail voters, and early voters for the November 5, 2024 election.",
+        "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/2024%20November%20Turnout%20Report.pdf",
+        "localFile": "data/tn-2024-november-turnout-report.pdf; data/tn-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official result spreadsheet lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Tennessee statistics page links the November 5, 2024 turnout report; PDF title states it is the statistical analysis submitted by counties.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -153,6 +172,13 @@
         "confidence": "Official Tennessee Secretary of State Division of Elections spreadsheet."
       },
       {
+        "category": "Official county turnout report",
+        "file": "data/tn-2024-november-turnout-report.pdf; data/tn-app-data.js",
+        "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/2024%20November%20Turnout%20Report.pdf",
+        "usedFor": "Tennessee 2024 county turnout rows, registered-voter denominators, absentee by mail voters, and early voters.",
+        "confidence": "Official Tennessee Secretary of State Division of Elections voter turnout statistics report."
+      },
+      {
         "category": "County boundaries",
         "file": "data/tn-counties.geojson; data/tn-counties.js",
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
@@ -162,18 +188,18 @@
     ],
     "checkedNotUsable": [
       {
-        "category": "National county baseline",
-        "sourceUrl": "https://raw.githubusercontent.com/tonmcg/US_County_Level_Election_Results_08-24/master/2024_US_County_Level_Presidential_Results.csv",
-        "reason": "Replaced by the official Tennessee Secretary of State precinct spreadsheet and tennesseePrecinctXlsx parser.",
-        "status": "Replaced",
-        "nextStep": "Keep only as a cross-check fallback if needed."
+        "category": "Presidential precinct result spreadsheet as turnout denominator",
+        "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
+        "reason": "The official precinct result spreadsheet is used for certified presidential results, but the separate official turnout report is the accepted turnout denominator source.",
+        "status": "Superseded for turnout",
+        "nextStep": "Use the official turnout PDF for turnout rows and the precinct spreadsheet for certified presidential aggregation."
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Tennessee turnout should not be inferred from the baseline county results file because it lacks registered-voter denominators.",
+      "route": "officialCountyTurnoutReport",
+      "status": "Loaded",
+      "acceptedSource": "Tennessee Secretary of State Statistical Analysis of Voter Turnout for the November 5, 2024 Election.",
+      "warning": "Tennessee turnout rows are official county-level turnout statistics. Vote-method fields are limited to the absentee-by-mail and early-voter columns exposed by the report.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -196,7 +222,7 @@
     "harris": 1056265,
     "other": 40812,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 95,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

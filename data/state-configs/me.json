@@ -15,6 +15,11 @@
       "localFile": "data/me-2024-president-county-town-final-corrected.xlsx"
     },
     {
+      "id": "me-2024-registered-enrolled-active",
+      "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Reg%20%26%20Enr%20as%20of%2011-5-24%20txt%20%28A%29.txt",
+      "localFile": "data/me-2024-registered-enrolled-active.txt"
+    },
+    {
       "id": "me-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2723%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/me-counties.geojson"
@@ -104,11 +109,25 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "maineRegistrationTextJoin",
     "sourceId": "me-2024-president-county-town-final-corrected",
-    "registrationDenominatorTiming": "notLoaded",
+    "registrationSourceId": "me-2024-registered-enrolled-active",
+    "sheet": "President & VP",
+    "columns": {
+      "municipality": "MUNICIPALITY",
+      "ballotsCast": "TBC"
+    },
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded in the baseline import because the national county results file does not include registered-voter denominators.",
+    "sourceTitle": "Maine 2024 President and Vice President final workbook joined to active registered and enrolled voter file",
+    "sourceAuthority": "Maine Department of the Secretary of State",
+    "coverageStatus": "loaded",
+    "statewideTotals": {
+      "ballotsCast": 835858,
+      "registeredVoters": 1037570
+    },
+    "notes": "County turnout joins the official corrected presidential workbook TBC county totals to the official active registered and enrolled voter file as of November 5, 2024. Warning shown because rows are county-level and use active registered voters, not a lower-level final turnout file.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -129,7 +148,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -152,13 +171,13 @@
         "status": "Loaded"
       },
       "turnout": {
-        "title": "Maine turnout denominator",
-        "detail": "The official presidential workbook includes vote totals but not registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
-        "localFile": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-app-data.js",
+        "title": "Maine county turnout from official presidential TBC totals and active voter registration",
+        "detail": "County turnout rows join the official corrected President and Vice President workbook's TBC county totals to the official Statewide Registered and Enrolled Data File for active voters as of November 5, 2024. Rows are county-level and warning-required because the denominator is an active registered-voter file rather than a precinct-level turnout file.",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx ; https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Reg%20%26%20Enr%20as%20of%2011-5-24%20txt%20%28A%29.txt",
+        "localFile": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-2024-registered-enrolled-active.txt; data/me-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential workbook lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Maine SOS enrolled-data layout page states the active voter file is as of 05-Nov-2024 and page content is dated 12/27/2024.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -170,6 +189,13 @@
         "confidence": "Official Maine Secretary of State final corrected workbook."
       },
       {
+        "category": "Official active registered and enrolled voter denominator",
+        "file": "data/me-2024-registered-enrolled-active.txt; data/me-app-data.js",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Reg%20%26%20Enr%20as%20of%2011-5-24%20txt%20%28A%29.txt",
+        "usedFor": "Maine 2024 county active registered-voter denominators for turnout rows.",
+        "confidence": "Official Maine Secretary of State Statewide Registered and Enrolled Data File, Active Status, as of November 5, 2024."
+      },
+      {
         "category": "County boundaries",
         "file": "data/me-counties.geojson; data/me-counties.js",
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
@@ -179,18 +205,18 @@
     ],
     "checkedNotUsable": [
       {
-        "category": "Turnout denominator",
+        "category": "Precinct-level turnout denominator",
         "sourceUrl": "https://www.maine.gov/sos/elections-voting/election-results-data/election-results-2024",
-        "reason": "The official presidential results workbook does not include registered-voter denominators for turnout calculations.",
-        "status": "Needs denominator source",
-        "nextStep": "Identify an official Maine turnout or registration source before enabling turnout."
+        "reason": "The official presidential results workbook provides county and municipality vote totals, but the mapped registration denominator source is county-aggregated for app turnout rows in this pass.",
+        "status": "Loaded at county level",
+        "nextStep": "Evaluate a future municipality/ward join if Maine municipality names and voting-district rows can be reconciled without overstating coverage."
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Maine turnout should not be inferred from the certified presidential results workbook because it lacks registered-voter denominators.",
+      "route": "officialResultsToOfficialRegistrationJoin",
+      "status": "Loaded",
+      "acceptedSource": "Official Maine Secretary of State corrected presidential workbook joined to the Statewide Registered and Enrolled Data File, Active Status, as of November 5, 2024.",
+      "warning": "Maine turnout rows are county-level and use active registered-voter denominators joined to the presidential workbook's TBC totals. Use as a turnout context signal, not precinct-level proof.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -213,8 +239,8 @@
     "harris": 435652,
     "other": 17746,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 16,
+    "turnoutWarningRows": 16,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 16

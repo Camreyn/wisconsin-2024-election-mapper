@@ -82,12 +82,13 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
+    "format": "kansasTurnoutXlsx",
     "sourceId": "ks-2024-presidential-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "sheet": "2024 Turnout",
+    "registrationDenominatorTiming": "final",
     "sourceLevel": "county",
-    "notes": "Kansas turnout is not loaded yet. The official SOS presidential workbook includes a turnout sheet, but the app has not enabled a Kansas turnout parser in this baseline promotion.",
-    "warningRequired": true
+    "notes": "County turnout is loaded from the official Kansas Secretary of State 2024 Presidential Results workbook 2024 Turnout sheet.",
+    "warningRequired": false
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -107,7 +108,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -131,12 +132,12 @@
       },
       "turnout": {
         "title": "Kansas turnout denominator",
-        "detail": "The official SOS workbook includes a 2024 Turnout sheet with county ballots cast and registered voters, but turnout remains disabled until a Kansas turnout parser is enabled and validated.",
+        "detail": "Official Kansas Secretary of State 2024 Presidential Results workbook 2024 Turnout sheet with county ballots cast, registered voters, and turnout percentage.",
         "sourceUrl": "https://www.sos.ks.gov/elections/24elec/2024-Presidential-Results.xlsx",
         "localFile": "data/ks-2024-presidential-results.xlsx; data/ks-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official SOS workbook sheet named 2024 Turnout contains county ballots-cast and registered-voter columns.",
-        "status": "Needs parser mapping"
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -155,6 +156,13 @@
         "confidence": "Official Kansas Secretary of State 2024 General Election Official Vote Totals PDF."
       },
       {
+        "category": "Official turnout denominator",
+        "file": "data/ks-2024-presidential-results.xlsx; data/ks-app-data.js",
+        "sourceUrl": "https://www.sos.ks.gov/elections/24elec/2024-Presidential-Results.xlsx",
+        "usedFor": "Kansas county turnout rows with ballots cast and registered voters.",
+        "confidence": "Official Kansas Secretary of State 2024 Presidential Election Results Data workbook 2024 Turnout sheet."
+      },
+      {
         "category": "County boundaries",
         "file": "data/ks-counties.geojson; data/ks-counties.js",
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
@@ -169,20 +177,13 @@
         "reason": "Superseded for Kansas by the official Kansas Secretary of State 2024 Presidential Election Results Data workbook.",
         "status": "Superseded",
         "nextStep": "Keep the official SOS workbook as the authoritative Kansas presidential source."
-      },
-      {
-        "category": "Kansas SOS turnout sheet",
-        "sourceUrl": "https://www.sos.ks.gov/elections/24elec/2024-Presidential-Results.xlsx",
-        "reason": "The workbook includes a county turnout sheet, but this baseline promotion only enables certified county results and county map coverage.",
-        "status": "Needs parser mapping",
-        "nextStep": "Enable a Kansas turnout parser before turning on app.capabilities.turnout."
       }
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs parser mapping",
-      "acceptedSource": "Kansas SOS 2024 Presidential Results workbook turnout sheet is collected but not yet loaded into the app.",
-      "warning": "Kansas turnout should stay disabled until the SOS workbook turnout sheet is parsed and validated.",
+      "status": "Loaded",
+      "acceptedSource": "Kansas SOS 2024 Presidential Results workbook 2024 Turnout sheet.",
+      "warning": "County-level registered-voter denominator is loaded; precinct-level turnout denominator rows are not included in the state workbook.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -205,7 +206,7 @@
     "harris": 544853,
     "other": 23936,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 105,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

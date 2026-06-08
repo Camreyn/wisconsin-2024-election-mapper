@@ -576,6 +576,10 @@ select {
   background: var(--gold);
 }
 
+.coverage-status.statewide-only {
+  background: var(--gold);
+}
+
 .coverage-status.missing {
   background: #7c8795;
 }

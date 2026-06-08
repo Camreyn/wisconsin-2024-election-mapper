@@ -15,6 +15,11 @@
       "localFile": "data/co-2024-president-county-results.csv"
     },
     {
+      "id": "co-2024-biennial-abstract",
+      "url": "https://www.coloradosos.gov/pubs/elections/Results/2024/2024BiennialAbstract.pdf",
+      "localFile": "data/co-2024-biennial-abstract.pdf"
+    },
+    {
       "id": "co-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2708%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/co-counties.geojson"
@@ -122,12 +127,17 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "co-2024-president-county-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "coloradoGeneralTurnoutPdf",
+    "sourceId": "co-2024-biennial-abstract",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Colorado turnout is not loaded yet. The President results CSV includes total ballots cast but not registered-voter denominators.",
-    "warningRequired": true
+    "notes": "Colorado county turnout comes from the official 2024 Abstract of Votes Cast. The importer reads the 2024 General Election table calculated as a percentage of registered voters and validates the published statewide registered-voter and ballots-cast totals.",
+    "warningRequired": false,
+    "statewideTotals": {
+      "registeredVoters": 4583280,
+      "ballotsCast": 3241155
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -147,7 +157,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -170,13 +180,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Colorado turnout denominator",
-        "detail": "The results CSV includes total ballots cast but no registered-voter denominator. Turnout should stay disabled until an official registration or turnout source is mapped.",
-        "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26499",
-        "localFile": "data/co-2024-president-county-results.csv; data/co-app-data.js",
+        "title": "Colorado official county turnout",
+        "detail": "Official Colorado Secretary of State 2024 Abstract of Votes Cast. The importer reads the 2024 General Election county turnout table calculated as a percentage of registered voters and validates against the published statewide totals.",
+        "sourceUrl": "https://www.coloradosos.gov/pubs/elections/Results/2024/2024BiennialAbstract.pdf",
+        "localFile": "data/co-2024-biennial-abstract.pdf; data/co-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official results CSV lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official 2024 Abstract of Votes Cast explains registered-voter turnout tables at the back of the abstract.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -186,6 +196,13 @@
         "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26499",
         "usedFor": "Colorado 2024 certified presidential county results.",
         "confidence": "Official Colorado Secretary of State historical election data portal CSV."
+      },
+      {
+        "category": "Official county turnout denominator",
+        "file": "data/co-2024-biennial-abstract.pdf; data/co-app-data.js",
+        "sourceUrl": "https://www.coloradosos.gov/pubs/elections/Results/2024/2024BiennialAbstract.pdf",
+        "usedFor": "Colorado county turnout rows with registered-voter denominators.",
+        "confidence": "Official Colorado Secretary of State 2024 Abstract of Votes Cast."
       },
       {
         "category": "County boundaries",
@@ -206,13 +223,14 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Colorado turnout should not be inferred from presidential contest totals; use an official registration or turnout denominator source before enabling turnout.",
+      "status": "Loaded",
+      "acceptedSource": "Official Colorado Secretary of State 2024 Abstract of Votes Cast.",
+      "warning": "Colorado turnout uses final county registered-voter denominators and total ballots cast from the official abstract.",
       "requiredFields": [
         "county",
         "ballotsCast",
         "registeredVoters",
+        "registrationDenominatorTiming",
         "sourceUrl"
       ]
     },
@@ -231,7 +249,7 @@
     "harris": 1728159,
     "other": 87145,
     "reviewRows": 0,
-    "turnoutRows": 0,
+    "turnoutRows": 64,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
     "historicalRows": 0,

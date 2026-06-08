@@ -91,11 +91,12 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ar-2024-general-fed-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded yet. The official TotalResults federal contest payload includes presidential votes by county but does not map county registered-voter denominators for this app.",
+    "format": "arkansasTotalResultsStatewideJson",
+    "sourceId": "ar-2024-general-election-info",
+    "registrationDenominatorTiming": "unknown",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "notes": "Statewide-only turnout is loaded from the official Arkansas Secretary of State TotalResults election-info payload. County-level registered-voter denominators are not exposed in the loaded source.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -116,7 +117,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -140,12 +141,12 @@
       },
       "turnout": {
         "title": "Arkansas turnout denominator",
-        "detail": "The TotalResults result payload used here supplies presidential votes by county, while turnout denominators remain disabled until an official county registered-voter or turnout source is mapped.",
+        "detail": "Official Arkansas Secretary of State TotalResults election-info payload supplies statewide registered voters, total ballots cast, and turnout percent. County-level registered-voter denominators are not exposed in the loaded source, so coverage is labeled statewide-only.",
         "sourceUrl": "https://enr.totalresults.com/arkansas",
-        "localFile": "data/ar-2024-general-fed-results.json; data/ar-app-data.js",
+        "localFile": "data/ar-2024-general-election-info.json; data/ar-app-data.js",
         "sourceLastModifiedUtc": "2025-12-16T19:41:49.5225815Z",
-        "sourceTimestampBasis": "Presidential contest payload lacks app-mapped county registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Official Arkansas TotalResults election-info payload lastUpdated timestamp for election ID 1846; denominator timing is still labeled unknown because no page-posted denominator timing note is captured.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -155,6 +156,13 @@
         "sourceUrl": "https://enr.totalresults.com/arkansas",
         "usedFor": "Arkansas 2024 presidential county results.",
         "confidence": "Official Arkansas Secretary of State TotalResults ENR API; county rows reconcile to the official statewide presidential contest totals."
+      },
+      {
+        "category": "Official statewide turnout denominator",
+        "file": "data/ar-2024-general-election-info.json; data/ar-app-data.js",
+        "sourceUrl": "https://enr.totalresults.com/arkansas",
+        "usedFor": "Arkansas statewide turnout row with registered voters and total ballots cast.",
+        "confidence": "Official Arkansas Secretary of State TotalResults election-info payload; row is statewide-only and warning-labeled."
       },
       {
         "category": "County boundaries",
@@ -175,9 +183,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Arkansas turnout should not be inferred from presidential contest vote totals because county registered-voter denominators are not mapped.",
+      "status": "Loaded",
+      "acceptedSource": "Arkansas SOS TotalResults election-info turnout object is loaded as a statewide-only denominator source.",
+      "warning": "Arkansas turnout is statewide-only in the loaded source. County rows should not be treated as having individual registered-voter denominators until an official county turnout source is mapped.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -200,8 +208,8 @@
     "harris": 396905,
     "other": 26530,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 75
