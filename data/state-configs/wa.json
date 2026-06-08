@@ -15,6 +15,16 @@
       "localFile": "data/wa-2024-president-county-results.html"
     },
     {
+      "id": "wa-reconciliation-all-years",
+      "url": "https://www.sos.wa.gov/sites/default/files/2025-12/Reconciliation%20All%20Years_1.xlsx",
+      "localFile": "data/wa-reconciliation-all-years.xlsx"
+    },
+    {
+      "id": "wa-2024-annual-elections-report",
+      "url": "https://www.sos.wa.gov/sites/default/files/2025-10/2024%20Annual%20Elections%20Report.pdf",
+      "localFile": "data/wa-2024-annual-elections-report.pdf"
+    },
+    {
       "id": "wa-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2753%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/wa-counties.geojson"
@@ -97,11 +107,34 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "wa-2024-president-county-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "washingtonReconciliationXlsx",
+    "sourceId": "wa-reconciliation-all-years",
+    "sheet": "Data",
+    "year": 2024,
+    "electionType": "General",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "activeRegisteredVoters",
     "sourceLevel": "county",
-    "notes": "Washington turnout is not loaded yet. The official county results page includes candidate votes and total votes, but does not include registered-voter denominators.",
+    "sourceTitle": "Reconciliation Report and 2024 Report of Elections in Washington State",
+    "sourceAuthority": "Washington Secretary of State",
+    "coverageStatus": "loaded",
+    "voteMethodFields": [
+      "receivedByDropBox",
+      "receivedByMail",
+      "regularMailBallotsCounted",
+      "pollsiteCounted",
+      "uocavaBallotsCounted",
+      "provisionalBallotsCounted"
+    ],
+    "statewideTotals": {
+      "activeVoters": 5013112,
+      "inactiveVoters": 520000,
+      "ballotsCounted": 3961569,
+      "validBallots": 3961536,
+      "receivedByDropBox": 2657876,
+      "receivedByMail": 1317684
+    },
+    "notes": "Official Washington SOS reconciliation workbook rows for the 2024 General Election by county. The denominator is Active Voters, which matches the 2024 annual report's county turnout percentages; rows are labeled as an active-registered-voter denominator rather than a full registration denominator.",
     "warningRequired": true
   },
   "historicalBaseline": {
@@ -122,7 +155,7 @@
       "certifiedResults": true,
       "map": true,
       "reviewGraphs": false,
-      "turnout": false,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -145,13 +178,13 @@
         "status": "Needs precinct source"
       },
       "turnout": {
-        "title": "Washington turnout denominator",
-        "detail": "The county results page includes candidate votes and total votes but no registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
-        "sourceUrl": "https://results.vote.wa.gov/results/20241105/president-vice-president_bycounty.html",
-        "localFile": "data/wa-2024-president-county-results.html; data/wa-app-data.js",
+        "title": "Washington SOS 2024 General Election county turnout",
+        "detail": "County turnout rows are parsed from the official Washington Secretary of State reconciliation workbook for the 2024 General Election. The app uses Active Voters as the denominator because the annual elections report's county turnout percentages reconcile to Ballots Counted divided by Active Voters.",
+        "sourceUrl": "https://www.sos.wa.gov/sites/default/files/2025-12/Reconciliation%20All%20Years_1.xlsx",
+        "localFile": "data/wa-reconciliation-all-years.xlsx; data/wa-2024-annual-elections-report.pdf; data/wa-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official county results page lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Washington SOS reconciliation workbook is labeled Updated 5/11/2026; the annual report was published as the 2024 Report of Elections in Washington State.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -168,6 +201,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Washington county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "County turnout and reconciliation",
+        "file": "data/wa-reconciliation-all-years.xlsx; data/wa-2024-annual-elections-report.pdf; data/wa-app-data.js",
+        "sourceUrl": "https://www.sos.wa.gov/elections/data-research/election-data-and-maps/reports-data-and-statistics",
+        "usedFor": "Washington county turnout rows, active-voter denominators, ballot counts, return-channel fields, and turnout warnings.",
+        "confidence": "Official Washington Secretary of State reconciliation workbook; 2024 General ballots counted match the SOS statewide general turnout page, and county turnout percentages reconcile to Appendix A of the 2024 annual elections report."
       }
     ],
     "checkedNotUsable": [
@@ -181,9 +221,9 @@
     ],
     "turnoutPolicy": {
       "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Washington turnout should not be inferred from the certified county results page because it lacks registered-voter denominators.",
+      "status": "Loaded",
+      "acceptedSource": "Washington Secretary of State Reconciliation Report (XLSX), cross-checked against Appendix A of the 2024 Report of Elections in Washington State.",
+      "warning": "Washington turnout uses the official Active Voters field as the denominator because that is the denominator behind the annual report's county turnout percentages. Treat rows as active-registered-voter turnout, not all-registration turnout.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -206,8 +246,8 @@
     "harris": 2245849,
     "other": 147471,
     "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "turnoutRows": 39,
+    "turnoutWarningRows": 39,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 39
