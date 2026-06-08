@@ -61,11 +61,13 @@ const supportedReviewFormats = new Set([
   "xlsxPrecinctComparison",
   "alabamaPrecinctZipComparison",
   "floridaPrecinctZipComparison",
+  "idahoPrecinctCsvComparison",
   "tabDelimitedZipComparison",
   "michiganPrecinctZipComparison",
   "michiganCountyTabComparison",
   "northDakotaStatewideCsvCountyComparison",
   "pennsylvaniaBulkCsvPrecinctComparison",
+  "washingtonPrecinctCsvComparison",
 ]);
 const supportedTurnoutFormats = new Set([
   "alaskaEnrHouseDistrictTurnout",

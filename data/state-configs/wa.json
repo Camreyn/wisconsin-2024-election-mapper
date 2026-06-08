@@ -15,6 +15,11 @@
       "localFile": "data/wa-2024-president-county-results.html"
     },
     {
+      "id": "wa-2024-general-all-state-precincts",
+      "url": "https://results.vote.wa.gov/results/20241105/export/20241105_AllStatePrecincts.csv",
+      "localFile": "data/wa-2024-general-all-state-precincts.csv"
+    },
+    {
       "id": "wa-reconciliation-all-years",
       "url": "https://www.sos.wa.gov/sites/default/files/2025-12/Reconciliation%20All%20Years_1.xlsx",
       "localFile": "data/wa-reconciliation-all-years.xlsx"
@@ -98,8 +103,26 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "wa-2024-president-county-results",
+    "format": "washingtonPrecinctCsvComparison",
+    "sourceId": "wa-2024-general-all-state-precincts",
+    "presidentContestName": "President/Vice President",
+    "downBallotContestName": "U.S. Senator",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "downBallotCandidates": {
+      "dem": {
+        "candidateContains": "Maria Cantwell"
+      },
+      "rep": {
+        "candidateContains": "Raul Garcia"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -154,7 +177,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -169,13 +192,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Washington precinct or reporting-unit detail",
-        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://results.vote.wa.gov/results/20241105/president-vice-president_bycounty.html",
-        "localFile": "data/wa-2024-president-county-results.html; data/wa-app-data.js",
+        "title": "Washington SOS all-state precinct results CSV",
+        "detail": "The official all-state precinct export contains President/Vice President and U.S. Senator rows by county code, precinct name, precinct code, candidate, and votes. The state builder maps those same precinct rows into review graphs.",
+        "sourceUrl": "https://results.vote.wa.gov/results/20241105/export/20241105_AllStatePrecincts.csv",
+        "localFile": "data/wa-2024-general-all-state-precincts.csv; data/wa-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "County result source checked during Washington load.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official Washington SOS export page for the November 5, 2024 General Election lists the all-state precinct CSV.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Washington SOS 2024 General Election county turnout",
@@ -194,6 +217,13 @@
         "sourceUrl": "https://results.vote.wa.gov/results/20241105/president-vice-president_bycounty.html",
         "usedFor": "Washington certified 2024 presidential county results.",
         "confidence": "Official Washington Secretary of State county results page."
+      },
+      {
+        "category": "Precinct review graph rows",
+        "file": "data/wa-2024-general-all-state-precincts.csv; data/wa-app-data.js",
+        "sourceUrl": "https://results.vote.wa.gov/results/20241105/export/20241105_AllStatePrecincts.csv",
+        "usedFor": "Washington precinct-level review graphs comparing President/Vice President with U.S. Senator rows.",
+        "confidence": "Official Washington Secretary of State all-state precinct export CSV."
       },
       {
         "category": "County boundaries",
@@ -232,9 +262,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "Washington reporting-unit row",
-    "reviewRowLabelPlural": "Washington reporting-unit rows",
-    "reviewGraphTitlePrefix": "Washington reporting unit",
+    "reviewRowLabel": "Washington SOS precinct row",
+    "reviewRowLabelPlural": "Washington SOS precinct rows",
+    "reviewGraphTitlePrefix": "Washington SOS precinct",
     "mapLoadingText": "Loading local Washington county boundaries...",
     "noGeometryText": "Washington county geometry is not loaded yet; showing the tile fallback."
   },
@@ -245,7 +275,7 @@
     "trump": 1530923,
     "harris": 2245849,
     "other": 147471,
-    "reviewRows": 0,
+    "reviewRows": 5007,
     "turnoutRows": 39,
     "turnoutWarningRows": 39,
     "historicalSeries": 0,

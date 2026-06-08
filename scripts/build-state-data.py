@@ -94,6 +94,48 @@ PENNSYLVANIA_COUNTY_NAMES = {
     "67": "York",
 }
 
+WASHINGTON_COUNTY_CODES = {
+    "AD": "Adams",
+    "AS": "Asotin",
+    "BE": "Benton",
+    "CH": "Chelan",
+    "CM": "Clallam",
+    "CR": "Clark",
+    "CU": "Columbia",
+    "CZ": "Cowlitz",
+    "DG": "Douglas",
+    "FE": "Ferry",
+    "FR": "Franklin",
+    "GA": "Garfield",
+    "GR": "Grant",
+    "GY": "Grays Harbor",
+    "IS": "Island",
+    "JE": "Jefferson",
+    "KI": "King",
+    "KL": "Klickitat",
+    "KP": "Kitsap",
+    "KT": "Kittitas",
+    "LE": "Lewis",
+    "LI": "Lincoln",
+    "MA": "Mason",
+    "OK": "Okanogan",
+    "PA": "Pacific",
+    "PE": "Pend Oreille",
+    "PI": "Pierce",
+    "SJ": "San Juan",
+    "SK": "Skagit",
+    "SM": "Skamania",
+    "SN": "Snohomish",
+    "SP": "Spokane",
+    "ST": "Stevens",
+    "TH": "Thurston",
+    "WH": "Whatcom",
+    "WK": "Wahkiakum",
+    "WM": "Whitman",
+    "WW": "Walla Walla",
+    "YA": "Yakima",
+}
+
 
 def column_number(cell_ref):
     letters = re.match(r"([A-Z]+)", cell_ref).group(1)
@@ -4887,6 +4929,156 @@ def review_charts_alabama_precinct_zip(config):
     )
 
 
+def washington_precinct_county(code):
+    return WASHINGTON_COUNTY_CODES.get(str(code or "").strip().upper(), f"{code} County")
+
+
+def review_charts_washington_precinct_csv(config):
+    review = config["reviewCharts"]
+    precincts = defaultdict(lambda: defaultdict(int))
+    senate_dem_total = 0
+    senate_rep_total = 0
+
+    with local_source(config, review["sourceId"]).open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            race = str(row.get("Race", "")).strip()
+            if race not in {review["presidentContestName"], review["downBallotContestName"]}:
+                continue
+            precinct_code = str(row.get("PrecinctCode", "")).strip()
+            precinct_name = str(row.get("PrecinctName", "")).strip()
+            if precinct_code == "-1" or precinct_name.upper() == "TOTAL":
+                continue
+            county_code = str(row.get("CountyCode", "")).strip()
+            key = (county_code, precinct_code, precinct_name)
+            item = precincts[key]
+            item["county"] = washington_precinct_county(county_code)
+            item["ward"] = f"{precinct_code} {precinct_name}".strip()
+            votes = int_text(row.get("Votes"))
+            candidate = str(row.get("Candidate", "")).strip()
+
+            if race == review["presidentContestName"]:
+                item["president_total"] += votes
+                if new_york_column_matches(candidate, "", review["majorCandidates"]["harris"]):
+                    item["harris"] += votes
+                elif new_york_column_matches(candidate, "", review["majorCandidates"]["trump"]):
+                    item["trump"] += votes
+            elif race == review["downBallotContestName"]:
+                if new_york_column_matches(candidate, "", review["downBallotCandidates"]["dem"]):
+                    item["senate_dem"] += votes
+                    senate_dem_total += votes
+                elif new_york_column_matches(candidate, "", review["downBallotCandidates"]["rep"]):
+                    item["senate_rep"] += votes
+                    senate_rep_total += votes
+
+    review_rows = []
+    for _key, item in sorted(precincts.items(), key=lambda pair: (pair[1]["county"], pair[1]["ward"])):
+        president_total = item["president_total"]
+        if not president_total:
+            continue
+        harris = item["harris"]
+        trump = item["trump"]
+        senate_dem = item["senate_dem"]
+        senate_rep = item["senate_rep"]
+        review_rows.append(
+            {
+                "county": item["county"],
+                "ward": item["ward"],
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        senate_dem_total,
+        senate_rep_total,
+    )
+
+
+def idaho_precinct_rows(config, source_id, columns):
+    path = local_source(config, source_id)
+    current_county = ""
+    rows = {}
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row in csv.DictReader(handle):
+            label = str(row.get(columns["county"], "")).strip()
+            if not label or label == "Totals":
+                continue
+            if not label.upper().startswith("PRECINCT "):
+                current_county = label
+                continue
+            if not current_county:
+                raise ValueError(f"Idaho precinct row missing county context in {path}: {label}")
+            rows[(current_county, label)] = row
+    return rows
+
+
+def review_charts_idaho_precinct_csv(config):
+    review = config["reviewCharts"]
+    columns = review["columns"]
+    precincts = defaultdict(lambda: defaultdict(int))
+    house_dem_total = 0
+    house_rep_total = 0
+
+    for key, row in idaho_precinct_rows(config, review["presidentSourceId"], columns).items():
+        item = precincts[key]
+        county, precinct = key
+        item["county"] = county
+        item["ward"] = precinct
+        item["president_total"] += int_text(row.get(columns["presidentTotal"]))
+        item["harris"] += int_text(row.get(columns["harris"]))
+        item["trump"] += int_text(row.get(columns["trump"]))
+
+    for source in review["downBallotSources"]:
+        for key, row in idaho_precinct_rows(config, source["sourceId"], columns).items():
+            item = precincts[key]
+            county, precinct = key
+            item["county"] = county
+            item["ward"] = precinct
+            dem_votes = int_text(row.get(source["demColumn"]))
+            rep_votes = int_text(row.get(source["repColumn"]))
+            item["house_dem"] += dem_votes
+            item["house_rep"] += rep_votes
+            house_dem_total += dem_votes
+            house_rep_total += rep_votes
+
+    review_rows = []
+    for _key, item in sorted(precincts.items(), key=lambda pair: (pair[1]["county"], pair[1]["ward"])):
+        president_total = item["president_total"]
+        if not president_total:
+            continue
+        harris = item["harris"]
+        trump = item["trump"]
+        house_dem = item["house_dem"]
+        house_rep = item["house_rep"]
+        review_rows.append(
+            {
+                "county": item["county"],
+                "ward": item["ward"],
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - house_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - house_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        house_dem_total,
+        house_rep_total,
+    )
+
+
 def turnout_data(config):
     turnout = config["turnout"]
     parser = parser_for(TURNOUT_PARSERS, turnout.get("format", "xlsxPrecinctRows"), "turnout")
@@ -8548,11 +8740,13 @@ REVIEW_CHART_PARSERS = {
     "xlsxPrecinctComparison": review_charts_xlsx_precinct_comparison,
     "alabamaPrecinctZipComparison": review_charts_alabama_precinct_zip,
     "floridaPrecinctZipComparison": review_charts_florida_precinct_zip,
+    "idahoPrecinctCsvComparison": review_charts_idaho_precinct_csv,
     "tabDelimitedZipComparison": review_charts_tab_delimited_zip,
     "michiganPrecinctZipComparison": review_charts_tab_delimited_zip,
     "michiganCountyTabComparison": review_charts_michigan_tab,
     "northDakotaStatewideCsvCountyComparison": review_charts_north_dakota_csv,
     "pennsylvaniaBulkCsvPrecinctComparison": review_charts_pennsylvania_bulk_csv,
+    "washingtonPrecinctCsvComparison": review_charts_washington_precinct_csv,
 }
 
 TURNOUT_PARSERS = {

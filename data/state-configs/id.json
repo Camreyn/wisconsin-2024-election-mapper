@@ -15,6 +15,21 @@
       "localFile": "data/id-2024-president-county-results.csv"
     },
     {
+      "id": "id-2024-president-precinct-results",
+      "url": "https://canvass.sos.idaho.gov/eng/contests/download/19439/show_granularity_dt_id:7/.csv",
+      "localFile": "data/id-2024-president-precinct-results.csv"
+    },
+    {
+      "id": "id-2024-us-house-district-1-precinct-results",
+      "url": "https://canvass.sos.idaho.gov/eng/contests/download/19440/show_granularity_dt_id:7/.csv",
+      "localFile": "data/id-2024-us-house-district-1-precinct-results.csv"
+    },
+    {
+      "id": "id-2024-us-house-district-2-precinct-results",
+      "url": "https://canvass.sos.idaho.gov/eng/contests/download/19441/show_granularity_dt_id:7/.csv",
+      "localFile": "data/id-2024-us-house-district-2-precinct-results.csv"
+    },
+    {
       "id": "id-2024-general-turnout",
       "url": "https://sos.idaho.gov/elect/results/2024/general/turnout.html",
       "localFile": "data/id-2024-general-turnout.html"
@@ -102,8 +117,27 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "id-2024-president-county-results",
+    "format": "idahoPrecinctCsvComparison",
+    "sourceId": "id-2024-president-precinct-results",
+    "presidentSourceId": "id-2024-president-precinct-results",
+    "downBallotSources": [
+      {
+        "sourceId": "id-2024-us-house-district-1-precinct-results",
+        "demColumn": "Kaylee Peterson\nDemocratic",
+        "repColumn": "Russ Fulcher\nRepublican"
+      },
+      {
+        "sourceId": "id-2024-us-house-district-2-precinct-results",
+        "demColumn": "David Roth\nDemocratic",
+        "repColumn": "Mike Simpson\nRepublican"
+      }
+    ],
+    "columns": {
+      "county": "County",
+      "trump": "Donald J. Trump\nRepublican",
+      "harris": "Kamala D. Harris\nDemocratic",
+      "presidentTotal": "Total Votes Cast"
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -135,7 +169,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -150,13 +184,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Idaho precinct or reporting-unit detail",
-        "detail": "The loaded official source is county-level. Review drilldowns need an official precinct or reporting-unit source before they can be enabled.",
+        "title": "Idaho SOS precinct canvass CSVs",
+        "detail": "Official Idaho SOS canvass exports provide precinct rows for President and both U.S. House districts. The state builder maps those same precinct rows into review graphs.",
         "sourceUrl": "https://canvass.sos.idaho.gov/eng/contests/view/19439/",
-        "localFile": "data/id-2024-president-county-results.csv; data/id-app-data.js",
+        "localFile": "data/id-2024-president-precinct-results.csv; data/id-2024-us-house-district-1-precinct-results.csv; data/id-2024-us-house-district-2-precinct-results.csv; data/id-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "County result source checked during Idaho official-source promotion.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Idaho Secretary of State canvass database provides CSV downloads at precinct granularity.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Idaho official general-election turnout table",
@@ -175,6 +209,13 @@
         "sourceUrl": "https://canvass.sos.idaho.gov/eng/contests/view/19439/",
         "usedFor": "Idaho 2024 certified presidential county results.",
         "confidence": "Official Idaho Secretary of State canvass database county-results CSV."
+      },
+      {
+        "category": "Precinct review graph rows",
+        "file": "data/id-2024-president-precinct-results.csv; data/id-2024-us-house-district-1-precinct-results.csv; data/id-2024-us-house-district-2-precinct-results.csv; data/id-app-data.js",
+        "sourceUrl": "https://canvass.sos.idaho.gov/eng/contests/view/19439/",
+        "usedFor": "Idaho precinct-level review graphs comparing President with U.S. House rows.",
+        "confidence": "Official Idaho Secretary of State canvass CSV exports at precinct granularity."
       },
       {
         "category": "County boundaries",
@@ -213,9 +254,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "Idaho county row",
-    "reviewRowLabelPlural": "Idaho county rows",
-    "reviewGraphTitlePrefix": "Idaho county",
+    "reviewRowLabel": "Idaho SOS precinct row",
+    "reviewRowLabelPlural": "Idaho SOS precinct rows",
+    "reviewGraphTitlePrefix": "Idaho SOS precinct",
     "mapLoadingText": "Loading local Idaho county boundaries...",
     "noGeometryText": "Idaho county geometry is not loaded yet; showing the tile fallback."
   },
@@ -226,7 +267,7 @@
     "trump": 605246,
     "harris": 274972,
     "other": 24839,
-    "reviewRows": 0,
+    "reviewRows": 985,
     "turnoutRows": 44,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
