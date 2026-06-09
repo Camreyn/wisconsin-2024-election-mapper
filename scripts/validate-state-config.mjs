@@ -93,6 +93,7 @@ const supportedReviewFormats = new Set([
   "newJerseyMunicipalPdfComparison",
   "newJerseySenatePdfCountyComparison",
   "newYorkCountyCsvComparison",
+  "newYorkCityEdCsvComparison",
   "northCarolinaPrecinctZipComparison",
   "ohioPrecinctVoteShare",
   "tennesseePrecinctXlsxComparison",

@@ -20,6 +20,16 @@
       "localFile": "data/ny-2024-us-senate-results-by-county.csv"
     },
     {
+      "id": "nyc-2024-general-president-edlevel",
+      "url": "https://vote.nyc/sites/default/files/pdf/election_results/2024/20241105General%20Election/00000100000Citywide%20President%20Vice%20President%20Citywide%20EDLevel.csv",
+      "localFile": "data/nyc-2024-general-president-edlevel.csv"
+    },
+    {
+      "id": "nyc-2024-general-us-senate-edlevel",
+      "url": "https://vote.nyc/sites/default/files/pdf/election_results/2024/20241105General%20Election/00000800000Citywide%20United%20States%20Senator%20Citywide%20EDLevel.csv",
+      "localFile": "data/nyc-2024-general-us-senate-edlevel.csv"
+    },
+    {
       "id": "ny-2024-county-enrollment-1101",
       "url": "https://elections.ny.gov/voters-registered-county-11012024",
       "localFile": "data/ny-voters-registered-county-11012024"
@@ -124,9 +134,17 @@
     ]
   },
   "reviewCharts": {
-    "format": "newYorkCountyCsvComparison",
-    "sourceId": "ny-2024-president-county-results",
-    "downBallotSourceId": "ny-2024-us-senate-county-results",
+    "format": "newYorkCityEdCsvComparison",
+    "sourceId": "nyc-2024-general-president-edlevel",
+    "downBallotSourceId": "nyc-2024-general-us-senate-edlevel",
+    "majorCandidates": {
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      },
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      }
+    },
     "downBallotCandidates": {
       "dem": {
         "candidateContains": "Kirsten E. Gillibrand"
@@ -135,6 +153,13 @@
         "candidateContains": "Michael D. Sapraicone"
       }
     },
+    "excludedUnits": [
+      "Public Counter",
+      "Manually Counted Emergency",
+      "Absentee / Military",
+      "Federal",
+      "Affidavit"
+    ],
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -192,12 +217,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "New York county review comparison",
-        "detail": "Official NYS Board of Elections President and U.S. Senate county CSV exports are loaded for county President-vs-U.S. Senate review rows. Precinct or ward rows remain a future source upgrade.",
-        "sourceUrl": "https://results.elections.ny.gov/contest/5582",
-        "localFile": "data/ny-2024-president-results-by-county.csv; data/ny-2024-us-senate-results-by-county.csv; data/ny-app-data.js",
+        "title": "New York City election-district review comparison",
+        "detail": "Official New York City Board of Elections President and U.S. Senate election-district CSVs are loaded for Bronx, Kings, New York, Queens, and Richmond counties. Non-NYC counties remain a future local-source collection step.",
+        "sourceUrl": "https://vote.nyc/page/election-results-summary-2024",
+        "localFile": "data/nyc-2024-general-president-edlevel.csv; data/nyc-2024-general-us-senate-edlevel.csv; data/ny-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Downloaded from official NYS Board of Elections EL45/Civera contest export endpoints.",
+        "sourceTimestampBasis": "Downloaded from official New York City Board of Elections 2024 General Election citywide ED-level CSV links.",
         "status": "Loaded"
       },
       "turnout": {
@@ -222,8 +247,15 @@
         "category": "Certified U.S. Senate results",
         "file": "data/ny-2024-us-senate-results-by-county.csv; data/ny-app-data.js",
         "sourceUrl": "https://ny.elstats.civera.com/api/download_contest/5582_table.csv?split_party=true",
-        "usedFor": "New York county President-vs-U.S. Senate review rows.",
+        "usedFor": "New York county President-vs-U.S. Senate reference totals.",
         "confidence": "Official New York State Board of Elections results export."
+      },
+      {
+        "category": "Election-district review rows",
+        "file": "data/nyc-2024-general-president-edlevel.csv; data/nyc-2024-general-us-senate-edlevel.csv; data/ny-app-data.js",
+        "sourceUrl": "https://vote.nyc/page/election-results-summary-2024",
+        "usedFor": "Partial New York City President-vs-U.S. Senate election-district review rows.",
+        "confidence": "Official New York City Board of Elections ED-level CSV exports."
       },
       {
         "category": "County boundaries",
@@ -244,9 +276,9 @@
       {
         "category": "County-level certified CSV",
         "sourceUrl": "https://ny.elstats.civera.com/api/download_contest/5591_table.csv?split_party=true",
-        "reason": "The source is suitable for certified county totals and the county map, but not for precinct-level review graphs or turnout denominators.",
+        "reason": "The source is suitable for certified county totals and turnout joins, but not for precinct-level review graphs outside New York City.",
         "status": "Loaded for county results only",
-        "nextStep": "Locate an official precinct/reporting-unit source and official county registration or turnout denominator source."
+        "nextStep": "Locate official local reporting-unit sources for non-NYC counties."
       }
     ],
     "turnoutPolicy": {
@@ -262,9 +294,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "New York reporting-unit row",
-    "reviewRowLabelPlural": "New York reporting-unit rows",
-    "reviewGraphTitlePrefix": "New York reporting unit",
+    "reviewRowLabel": "New York City election-district row",
+    "reviewRowLabelPlural": "New York City election-district rows",
+    "reviewGraphTitlePrefix": "New York City election district",
     "mapLoadingText": "Loading local New York county boundaries...",
     "noGeometryText": "New York county geometry is not loaded yet; showing the county tile fallback."
   },
@@ -275,7 +307,7 @@
     "trump": 3579519,
     "harris": 4619543,
     "other": 64412,
-    "reviewRows": 62,
+    "reviewRows": 4098,
     "turnoutRows": 62,
     "turnoutWarningRows": 62,
     "historicalSeries": 0,

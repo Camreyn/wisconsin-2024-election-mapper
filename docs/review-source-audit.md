@@ -9,8 +9,8 @@ This audit tracks the separate source-collection task for states that do not yet
 - Review-source states audited: 44
 - Local Row Source Collected: 16
 - Official Portal Identified No Download: 1
-- County Local Sources Partially Collected: 1
-- County Local Required: 5
+- County Local Sources Partially Collected: 2
+- County Local Required: 4
 - Statewide Precinct Source Identified: 1
 - Official Source Not Found: 1
 - Official Portal Identified Needs Capture: 6
@@ -54,7 +54,7 @@ This audit tracks the separate source-collection task for states that do not yet
 | NJ | local_row_source_collected | municipality | [New Jersey county official municipal results](https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-atlantic.pdf) | New Jersey municipal PDF comparison parser | Loaded 565 municipality rows from all 21 county President and U.S. Senate PDFs; every county has at least 8 local rows. |
 | NM | local_row_source_collected | precinct in Civera CSV | [New Mexico precinct or reporting-unit detail](https://nm.elstats.civera.com/api/download_contest/14877_table.csv?split_party=false) | Civera contest precinct CSV comparison parser | Map Civera precinct rows and collect a same-grain comparison contest export. |
 | NV | county_local_or_archive_required | unknown/county-local | [Nevada precinct results](https://www.nvsos.gov/SOSelectionPages/results/2024StateWideGeneral/ElectionSummary.aspx) | TBD | Search Nevada SOS/county election offices or archived SOS downloads for precinct-level 2024 general data. |
-| NY | county_local_required | county-local precinct/election district | [New York county board official precinct/election-district results](https://elections.ny.gov/2024-election-results) | county CSV/PDF parser family | Collect county board precinct/election-district result files; NYS export currently loaded is county-level. |
+| NY | county_local_sources_partially_collected | New York City election district | [New York City BOE 2024 General Election ED-level CSVs](https://vote.nyc/page/election-results-summary-2024) | New York City ED CSV comparison parser | Loaded 4,098 election-district rows for Bronx, Kings, New York, Queens, and Richmond counties; collect official local rows for the remaining 57 counties. |
 | OH | official_precinct_source_identified | precinct | [Ohio statewide races precinct-level workbook](https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precint-level.xlsx) | Ohio statewide-races precinct workbook parser | Download or archive-fetch the official workbook and map President plus Senate. |
 | OK | official_portal_identified_needs_capture | unknown OKER detail | [Oklahoma precinct or reporting-unit detail](https://results.okelections.gov/OKER/?elecDate=20241105) | OKER precinct/detail parser | Inspect OKER static files for precinct/detail results beyond county ENR payloads. |
 | OR | official_export_needs_precinct_parameters | unknown export grain | [Oregon election results export service](https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107) | Oregon ResultsExport precinct parser | Inspect Oregon ResultsExport/API parameters for precinct-level President and comparison contest rows. |

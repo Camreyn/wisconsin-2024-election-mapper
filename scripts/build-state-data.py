@@ -1548,6 +1548,67 @@ def new_york_county_candidate_totals(path, candidate_rules, excluded_columns=Non
     return by_county
 
 
+NYC_ED_KEYS = [
+    "AD",
+    "ED",
+    "County",
+    "EDAD Status",
+    "Event",
+    "Party/Independent Body",
+    "Office/Position Title",
+    "District Key",
+    "VoteFor",
+    "Unit Name",
+    "Tally",
+]
+
+
+def new_york_city_ed_candidate_totals(path, candidate_rules, excluded_units=None):
+    excluded = set(
+        excluded_units
+        or [
+            "Public Counter",
+            "Manually Counted Emergency",
+            "Absentee / Military",
+            "Federal",
+            "Affidavit",
+        ]
+    )
+    by_ed = defaultdict(lambda: defaultdict(int))
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        for row_number, row in enumerate(csv.reader(handle), 1):
+            if len(row) != len(NYC_ED_KEYS) * 2:
+                raise ValueError(f"NYC ED CSV row {row_number} has {len(row)} columns, expected 22: {path}")
+            if row[: len(NYC_ED_KEYS)] != NYC_ED_KEYS:
+                raise ValueError(f"NYC ED CSV row {row_number} has unexpected key columns: {path}")
+            values = dict(zip(NYC_ED_KEYS, row[len(NYC_ED_KEYS) :]))
+            county = str(values["County"]).strip()
+            ad = str(values["AD"]).strip().zfill(2)
+            ed = str(values["ED"]).strip().zfill(3)
+            unit_name = str(values["Unit Name"]).strip()
+            tally = int_text(values["Tally"])
+            key = (county, ad, ed)
+            totals = by_ed[key]
+            totals["county"] = county
+            totals["ward"] = f"AD {ad} ED {ed}"
+            if unit_name in excluded:
+                continue
+            totals["total"] += tally
+            matched = False
+            for output_key, rule in candidate_rules.items():
+                if rule.get("candidateContains") and rule["candidateContains"].lower() in unit_name.lower():
+                    totals[output_key] += tally
+                    matched = True
+                    break
+                if rule.get("unitName") and unit_name == rule["unitName"]:
+                    totals[output_key] += tally
+                    matched = True
+                    break
+            if not matched:
+                totals["other"] += tally
+    return by_ed
+
+
 def certified_results_kansas_presidential_xlsx(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -8586,6 +8647,60 @@ def review_charts_new_york_county_csv(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
 
+def review_charts_new_york_city_ed_csv(config):
+    review = config["reviewCharts"]
+    president = new_york_city_ed_candidate_totals(
+        local_source(config, review["sourceId"]),
+        review["majorCandidates"],
+        review.get("excludedUnits"),
+    )
+    senate = new_york_city_ed_candidate_totals(
+        local_source(config, review["downBallotSourceId"]),
+        review["downBallotCandidates"],
+        review.get("excludedUnits"),
+    )
+    if set(president) != set(senate):
+        missing = sorted(set(president) - set(senate))
+        extra = sorted(set(senate) - set(president))
+        raise ValueError(f"New York City ED review mismatch: missing={missing[:10]} extra={extra[:10]}")
+
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+    for key in sorted(president):
+        president_row = president[key]
+        president_total = president_row["total"]
+        if not president_total:
+            continue
+        harris = president_row["harris"]
+        trump = president_row["trump"]
+        senate_dem = senate[key]["dem"]
+        senate_rep = senate[key]["rep"]
+        senate_dem_total += senate_dem
+        senate_rep_total += senate_rep
+        review_rows.append(
+            {
+                "county": president_row["county"],
+                "ward": president_row["ward"],
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+    eta_analysis["coverageMode"] = "partialLocal"
+    eta_analysis["coverageNote"] = (
+        "Official New York City Board of Elections election-district CSVs are loaded for Bronx, Kings, "
+        "New York, Queens, and Richmond counties only; the rest of New York remains county-level for review."
+    )
+    return review_rows, eta_analysis
+
+
 def review_charts_california_sov_xlsx(config):
     review = config["reviewCharts"]
     certified = config["certifiedResults"]
@@ -13640,6 +13755,7 @@ REVIEW_CHART_PARSERS = {
     "newJerseyMunicipalPdfComparison": review_charts_new_jersey_municipal_pdfs,
     "newJerseySenatePdfCountyComparison": review_charts_new_jersey_senate_pdf,
     "newYorkCountyCsvComparison": review_charts_new_york_county_csv,
+    "newYorkCityEdCsvComparison": review_charts_new_york_city_ed_csv,
     "northCarolinaPrecinctZipComparison": review_charts_north_carolina_precinct_zip,
     "ohioPrecinctVoteShare": review_charts_ohio_precinct_vote_share,
     "tennesseePrecinctXlsxComparison": review_charts_tennessee_precinct_xlsx,
