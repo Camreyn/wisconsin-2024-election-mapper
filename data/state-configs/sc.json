@@ -20,6 +20,11 @@
       "localFile": "data/sc-2024-general-election-details.json"
     },
     {
+      "id": "sc-2024-president-electionhistory-table",
+      "url": "https://sc.elstats.civera.com/api/download_contest/7131_table.csv?split_party=false",
+      "localFile": "data/review-sources/sc-2024-president-electionhistory-table.csv"
+    },
+    {
       "id": "sc-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2745%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/sc-counties.geojson"
@@ -83,19 +88,26 @@
     ]
   },
   "reviewCharts": {
-    "format": "southCarolinaHouseEnrCountyComparison",
-    "sourceId": "sc-2024-general-election-details",
-    "statewideSourceId": "sc-2024-general-election-sum",
-    "downBallotContestKeys": [
-      "27002",
-      "27004",
-      "27006",
-      "27008",
-      "27010",
-      "27012",
-      "27014"
-    ],
-    "warning": "South Carolina review rows compare President to the aggregate of U.S. House district contests by county; counties are summed across the seven congressional district contests before comparison.",
+    "format": "civeraPrecinctVoteShare",
+    "sourceId": "sc-2024-president-electionhistory-table",
+    "columns": {
+      "harris": "Kamala D. Harris and Tim Walz",
+      "trump": "Donald J. Trump and JD Vance",
+      "oliver": "Chase Oliver and Mike ter Maat",
+      "stein": "Jill Stein and Rudolph Butch Ware",
+      "west": "Cornel West and Melina Abdulla",
+      "terry": "Randall A. Terry and Stephen E. Broden",
+      "deLaCruz": "Claudia De La Cruz and Karina Garcia",
+      "totalVotesCast": "Total Votes Cast",
+      "totalBallotsCast": "Total Ballots Cast"
+    },
+    "statewideTotals": {
+      "trump": 1483747,
+      "harris": 1028452,
+      "other": 35941,
+      "total": 2548140
+    },
+    "warning": "South Carolina review rows are official presidential precinct vote-share rows only. A same-row statewide down-ballot precinct comparison is not mapped, so down-ballot advisory flags are suppressed.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -152,12 +164,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "South Carolina county review comparison",
-        "detail": "County review rows are loaded by comparing official presidential county ENR detail rows to U.S. House contest county ENR detail rows aggregated across all seven congressional districts. This is not a single statewide down-ballot race, so the app carries a methodology warning.",
-        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
-        "localFile": "data/sc-2024-general-election-details.json; data/sc-2024-general-election-sum.json; data/sc-app-data.js",
+        "title": "South Carolina presidential precinct vote-share review",
+        "detail": "Official South Carolina Election Commission election-history CSV provides precinct-level presidential candidate rows. The app loads those rows for local vote-share advisory indicators and marks review coverage as vote-share-only because no same-row down-ballot precinct comparison is mapped.",
+        "sourceUrl": "https://sc.elstats.civera.com/api/download_contest/7131_table.csv?split_party=false",
+        "localFile": "data/review-sources/sc-2024-president-electionhistory-table.csv; data/sc-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "State-linked ENR current version file /SC/122436/current_ver.txt returned 359624; static JSON detail feed exposes county rows for President and U.S. House contests.",
+        "sourceTimestampBasis": "Official South Carolina Election Commission election-history contest 7131 CSV includes State, County, and Precinct rows for the 2024 presidential contest.",
         "status": "Loaded"
       },
       "turnout": {
@@ -179,11 +191,11 @@
         "confidence": "Official South Carolina State Election Commission election-results page links to this ENR result site; parser validates county detail totals against the statewide ENR summary."
       },
       {
-        "category": "County review comparison",
-        "file": "data/sc-2024-general-election-details.json; data/sc-2024-general-election-sum.json; data/sc-app-data.js",
-        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
-        "usedFor": "South Carolina county-level review warning rows comparing President to aggregate U.S. House district totals.",
-        "confidence": "Official South Carolina State Election Commission ENR static JSON. Methodology warning is required because the comparison sums district contests rather than using one statewide down-ballot race."
+        "category": "Official presidential precinct results",
+        "file": "data/review-sources/sc-2024-president-electionhistory-table.csv; data/sc-app-data.js",
+        "sourceUrl": "https://sc.elstats.civera.com/api/download_contest/7131_table.csv?split_party=false",
+        "usedFor": "South Carolina precinct-level presidential vote-share review rows.",
+        "confidence": "Official South Carolina State Election Commission election-history Civera CSV. Rows reconcile to the statewide presidential totals."
       },
       {
         "category": "County boundaries",
@@ -221,9 +233,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "South Carolina reporting-unit row",
-    "reviewRowLabelPlural": "South Carolina reporting-unit rows",
-    "reviewGraphTitlePrefix": "South Carolina reporting unit",
+    "reviewRowLabel": "South Carolina precinct row",
+    "reviewRowLabelPlural": "South Carolina precinct rows",
+    "reviewGraphTitlePrefix": "South Carolina precinct",
     "mapLoadingText": "Loading local South Carolina county boundaries...",
     "noGeometryText": "South Carolina county geometry is not loaded yet; showing the tile fallback."
   },
@@ -234,7 +246,7 @@
     "trump": 1483747,
     "harris": 1028452,
     "other": 35941,
-    "reviewRows": 46,
+    "reviewRows": 2401,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

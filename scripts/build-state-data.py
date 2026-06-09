@@ -8445,6 +8445,59 @@ def review_charts_civera_precinct_csv(config):
     return review_rows, eta_analysis
 
 
+def review_charts_civera_precinct_vote_share(config):
+    review = config["reviewCharts"]
+    columns = review.get("columns") or config.get("certifiedResults", {}).get("columns")
+    if not columns:
+        raise ValueError("Civera precinct vote-share parser requires reviewCharts.columns or certifiedResults.columns")
+    president = civera_precinct_president_rows(
+        local_source(config, review["sourceId"]),
+        columns,
+    )
+
+    review_rows = []
+    for county, precinct in sorted(president):
+        president_row = president[(county, precinct)]
+        harris = president_row["harris"]
+        trump = president_row["trump"]
+        other = president_row["other"]
+        president_total = harris + trump + other
+        if not president_total:
+            continue
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": 0,
+                "repDropoff": 0,
+            }
+        )
+
+    expected_totals = review.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in review_rows),
+            "harris": sum(row["harris"] for row in review_rows),
+            "other": sum(row["total"] - row["trump"] - row["harris"] for row in review_rows),
+            "total": sum(row["total"] for row in review_rows),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Civera precinct vote-share totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], 0, 0)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "Review rows use official presidential precinct vote share only; no same-row down-ballot comparison is mapped.",
+    )
+    return review_rows, eta_analysis
+
+
 def civera_precinct_totals_by_locality(path, candidate_rules, excluded_columns=None, skip_precincts=None):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.reader(handle))
@@ -13045,6 +13098,7 @@ REVIEW_CHART_PARSERS = {
     "californiaSwdbSrprecComparison": review_charts_california_swdb_srprec,
     "civeraCountyCsvComparison": review_charts_civera_county_csv,
     "civeraPrecinctCsvComparison": review_charts_civera_precinct_csv,
+    "civeraPrecinctVoteShare": review_charts_civera_precinct_vote_share,
     "clarityEnrCountyJsonComparison": review_charts_clarity_enr_county_json,
     "connecticutStatementTextTownComparison": review_charts_connecticut_statement_text,
     "delawareCountyHtmlComparison": review_charts_delaware_county_html,
