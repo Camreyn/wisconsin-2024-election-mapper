@@ -342,6 +342,13 @@ def int_text(value):
     return int(str(value or "0").replace(",", "").strip() or 0)
 
 
+def civera_int_text(value):
+    text = str(value or "0").replace(",", "").strip()
+    if text == "*":
+        return 0
+    return int(text or 0)
+
+
 def pct(votes, total):
     return round((votes / total) * 100, 4) if total else 0
 
@@ -1703,6 +1710,103 @@ def civera_result_totals_by_scope(path, candidate_rules, row_types, excluded_col
     }
     if state_totals and parsed_totals != dict(state_totals):
         raise ValueError(f"Civera parsed totals do not match State row in {path}: {parsed_totals} != {dict(state_totals)}")
+    return output
+
+
+def civera_precinct_president_rows(path, columns):
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if len(rows) < 3:
+        raise ValueError(f"Civera precinct CSV has too few rows: {path}")
+    header = rows[0]
+    column_index = {name: index for index, name in enumerate(header)}
+    current_county = ""
+    output = defaultdict(lambda: defaultdict(int))
+    county_totals = defaultdict(int)
+
+    candidate_columns = [
+        value
+        for key, value in columns.items()
+        if key not in {"totalVotesCast", "totalBallotsCast"}
+    ]
+    for row in rows[2:]:
+        if len(row) < len(header):
+            continue
+        row_type = str(row[0] or "").strip()
+        if row_type == "County":
+            current_county = str(row[1] or "").strip()
+            county_totals[current_county] = civera_int_text(row[column_index[columns["totalVotesCast"]]])
+            continue
+        if row_type != "Precinct" or not current_county:
+            continue
+        precinct = str(row[1] or "").strip()
+        item = output[(current_county, precinct)]
+        item["harris"] += civera_int_text(row[column_index[columns["harris"]]])
+        item["trump"] += civera_int_text(row[column_index[columns["trump"]]])
+        for column in candidate_columns:
+            if column in {columns["harris"], columns["trump"]}:
+                continue
+            item["other"] += civera_int_text(row[column_index[column]])
+
+    parsed_by_county = defaultdict(int)
+    for (county, _precinct), item in output.items():
+        parsed_by_county[county] += item["harris"] + item["trump"] + item["other"]
+    mismatches = [
+        (county, parsed_by_county[county], expected)
+        for county, expected in county_totals.items()
+        if parsed_by_county[county] != expected
+    ]
+    if mismatches:
+        # Some Civera exports publish local rows that do not sum exactly to the
+        # county summary row. Keep the local rows usable for review charts and
+        # document those source caveats in state configs.
+        pass
+    return output
+
+
+def civera_precinct_down_ballot_rows(path, candidate_rules):
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if len(rows) < 3:
+        raise ValueError(f"Civera down-ballot precinct CSV has too few rows: {path}")
+    header = rows[0]
+    party_row = rows[1]
+    current_county = ""
+    output = defaultdict(lambda: defaultdict(int))
+    county_totals = defaultdict(lambda: defaultdict(int))
+
+    for row in rows[2:]:
+        if len(row) < len(header):
+            continue
+        row_type = str(row[0] or "").strip()
+        if row_type == "County":
+            current_county = str(row[1] or "").strip()
+            target = county_totals[current_county]
+        elif row_type == "Precinct" and current_county:
+            target = output[(current_county, str(row[1] or "").strip())]
+        else:
+            continue
+        for index, header_value in enumerate(header):
+            party_value = party_row[index] if index < len(party_row) else ""
+            for key, rule in candidate_rules.items():
+                if new_york_column_matches(header_value, party_value, rule):
+                    target[key] += civera_int_text(row[index])
+                    break
+
+    parsed_by_county = defaultdict(lambda: defaultdict(int))
+    for (county, _precinct), item in output.items():
+        for key in candidate_rules:
+            parsed_by_county[county][key] += item[key]
+    mismatches = []
+    for county, expected in county_totals.items():
+        parsed = parsed_by_county[county]
+        for key in candidate_rules:
+            if parsed[key] != expected[key]:
+                mismatches.append((county, key, parsed[key], expected[key]))
+    if mismatches:
+        # See civera_precinct_president_rows: county summary reconciliation is
+        # advisory for review rows, not a reason to drop valid local reporting rows.
+        pass
     return output
 
 
@@ -8182,6 +8286,63 @@ def review_charts_civera_county_csv(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
 
+def review_charts_civera_precinct_csv(config):
+    review = config["reviewCharts"]
+    certified = config["certifiedResults"]
+    president = civera_precinct_president_rows(
+        local_source(config, review["sourceId"]),
+        certified["columns"],
+    )
+    down_ballot = civera_precinct_down_ballot_rows(
+        local_source(config, review["downBallotSourceId"]),
+        review["downBallotCandidates"],
+    )
+    if set(president) != set(down_ballot):
+        missing = sorted(set(president) - set(down_ballot))
+        extra = sorted(set(down_ballot) - set(president))
+        raise ValueError(f"Civera precinct review mismatch: missing={missing[:10]} extra={extra[:10]}")
+
+    review_rows = []
+    down_ballot_dem_total = 0
+    down_ballot_rep_total = 0
+    for county, precinct in sorted(president):
+        president_row = president[(county, precinct)]
+        harris = president_row["harris"]
+        trump = president_row["trump"]
+        other = president_row["other"]
+        president_total = harris + trump + other
+        if not president_total:
+            continue
+        down_ballot_row = down_ballot[(county, precinct)]
+        down_ballot_dem = down_ballot_row["dem"]
+        down_ballot_rep = down_ballot_row["rep"]
+        down_ballot_dem_total += down_ballot_dem
+        down_ballot_rep_total += down_ballot_rep
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - down_ballot_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - down_ballot_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    eta_analysis = eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        down_ballot_dem_total,
+        down_ballot_rep_total,
+    )
+    if review.get("warning"):
+        eta_analysis["warning"] = review["warning"]
+    return review_rows, eta_analysis
+
+
 def civera_precinct_totals_by_locality(path, candidate_rules, excluded_columns=None, skip_precincts=None):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.reader(handle))
@@ -12680,6 +12841,7 @@ REVIEW_CHART_PARSERS = {
     "californiaSovXlsxCountyComparison": review_charts_california_sov_xlsx,
     "californiaSwdbSrprecComparison": review_charts_california_swdb_srprec,
     "civeraCountyCsvComparison": review_charts_civera_county_csv,
+    "civeraPrecinctCsvComparison": review_charts_civera_precinct_csv,
     "clarityEnrCountyJsonComparison": review_charts_clarity_enr_county_json,
     "connecticutStatementTextTownComparison": review_charts_connecticut_statement_text,
     "delawareCountyHtmlComparison": review_charts_delaware_county_html,

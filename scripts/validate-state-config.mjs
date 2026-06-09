@@ -64,6 +64,7 @@ const supportedReviewFormats = new Set([
   "californiaSovXlsxCountyComparison",
   "californiaSwdbSrprecComparison",
   "civeraCountyCsvComparison",
+  "civeraPrecinctCsvComparison",
   "clarityEnrCountyJsonComparison",
   "connecticutStatementTextTownComparison",
   "delawareCountyHtmlComparison",

@@ -123,13 +123,9 @@
     ]
   },
   "reviewCharts": {
-    "format": "civeraCountyCsvComparison",
+    "format": "civeraPrecinctCsvComparison",
     "sourceId": "co-2024-president-county-results",
     "downBallotSourceId": "co-2024-regent-at-large-results",
-    "rowTypes": [
-      "County"
-    ],
-    "rowLabelTemplate": "{county} County",
     "downBallotCandidates": {
       "dem": {
         "candidateContains": "Elliott Hood"
@@ -189,8 +185,8 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Colorado county review comparison",
-        "detail": "Official Colorado Secretary of State President and Regent at Large contest CSVs are loaded for county-level President-vs-Regent review rows. Precinct rows exist in the exports and remain a future lower-level parser upgrade.",
+        "title": "Colorado precinct review comparison",
+        "detail": "Official Colorado Secretary of State President and Regent at Large contest CSVs are loaded for precinct-level President-vs-Regent review rows, grouped under county rows.",
         "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26506",
         "localFile": "data/co-2024-president-county-results.csv; data/co-2024-regent-at-large-results.csv; data/co-app-data.js",
         "sourceLastModifiedUtc": "",
@@ -212,14 +208,14 @@
         "category": "Official presidential county results",
         "file": "data/co-2024-president-county-results.csv; data/co-2024-regent-at-large-results.csv; data/co-app-data.js",
         "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26499",
-        "usedFor": "Colorado 2024 certified presidential county results and county President-vs-Regent review rows.",
+        "usedFor": "Colorado 2024 certified presidential county results and precinct-level President-vs-Regent review rows.",
         "confidence": "Official Colorado Secretary of State historical election data portal CSV."
       },
       {
         "category": "Official Regent at Large county results",
         "file": "data/co-2024-regent-at-large-results.csv; data/co-app-data.js",
         "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26506",
-        "usedFor": "Colorado county President-vs-Regent at Large review rows.",
+        "usedFor": "Colorado precinct-level President-vs-Regent at Large review rows.",
         "confidence": "Official Colorado Secretary of State historical election data portal CSV."
       },
       {
@@ -260,9 +256,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "Colorado county row",
-    "reviewRowLabelPlural": "Colorado county rows",
-    "reviewGraphTitlePrefix": "Colorado county",
+    "reviewRowLabel": "Colorado precinct row",
+    "reviewRowLabelPlural": "Colorado precinct rows",
+    "reviewGraphTitlePrefix": "Colorado precinct",
     "mapLoadingText": "Loading local Colorado county boundaries...",
     "noGeometryText": "Colorado county geometry is not loaded yet; showing the tile fallback."
   },
@@ -273,7 +269,7 @@
     "trump": 1377441,
     "harris": 1728159,
     "other": 87145,
-    "reviewRows": 64,
+    "reviewRows": 3163,
     "turnoutRows": 64,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

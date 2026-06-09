@@ -81,13 +81,9 @@
     ]
   },
   "reviewCharts": {
-    "format": "civeraCountyCsvComparison",
+    "format": "civeraPrecinctCsvComparison",
     "sourceId": "nm-2024-president-county-results",
     "downBallotSourceId": "nm-2024-us-senate-county-results",
-    "rowTypes": [
-      "County"
-    ],
-    "rowLabelTemplate": "{county} County",
     "downBallotCandidates": {
       "dem": {
         "candidateContains": "Martin Heinrich"
@@ -100,7 +96,8 @@
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
       "voteShareCorrelationThreshold": 0.35
-    }
+    },
+    "warning": "New Mexico precinct advisory rows come from official Civera contest exports. Suppressed asterisk cells are treated as zero; Chaves County precinct presidential rows do not sum exactly to the county summary row, so use these rows for local advisory patterns rather than as a replacement county canvass total."
   },
   "turnout": {
     "format": "statewideTurnoutCsv",
@@ -150,8 +147,8 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "New Mexico county review comparison",
-        "detail": "Official New Mexico Secretary of State President and U.S. Senate contest CSVs are loaded for county-level President-vs-U.S. Senate review rows. Precinct rows exist in the exports and remain a future lower-level parser upgrade.",
+        "title": "New Mexico precinct review comparison",
+        "detail": "Official New Mexico Secretary of State President and U.S. Senate contest CSVs are loaded for precinct-level President-vs-U.S. Senate review rows, grouped under county rows. Suppressed precinct cells marked with an asterisk are treated as zero because the official precinct Total Votes Cast rows reconcile that way.",
         "sourceUrl": "https://nm.elstats.civera.com/api/download_contest/14873_table.csv?split_party=false",
         "localFile": "data/nm-2024-president-county-results.csv; data/nm-2024-us-senate-county-results.csv; data/nm-app-data.js",
         "sourceLastModifiedUtc": "",
@@ -173,14 +170,14 @@
         "category": "Certified presidential county results",
         "file": "data/nm-2024-president-county-results.csv; data/nm-2024-us-senate-county-results.csv; data/nm-app-data.js",
         "sourceUrl": "https://nm.elstats.civera.com/api/download_contest/14877_table.csv?split_party=false",
-        "usedFor": "New Mexico 2024 presidential county results and county President-vs-U.S. Senate review rows.",
+        "usedFor": "New Mexico 2024 presidential county results and precinct-level President-vs-U.S. Senate review rows.",
         "confidence": "Official New Mexico Secretary of State Election Stats contest export; county rows reconcile to the State row."
       },
       {
         "category": "Certified U.S. Senate county results",
         "file": "data/nm-2024-us-senate-county-results.csv; data/nm-app-data.js",
         "sourceUrl": "https://nm.elstats.civera.com/api/download_contest/14873_table.csv?split_party=false",
-        "usedFor": "New Mexico county President-vs-U.S. Senate review rows.",
+        "usedFor": "New Mexico precinct-level President-vs-U.S. Senate review rows.",
         "confidence": "Official New Mexico Secretary of State Election Stats contest export; county rows reconcile to the State row."
       },
       {
@@ -220,9 +217,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "New Mexico reporting-unit row",
-    "reviewRowLabelPlural": "New Mexico reporting-unit rows",
-    "reviewGraphTitlePrefix": "New Mexico reporting unit",
+    "reviewRowLabel": "New Mexico precinct row",
+    "reviewRowLabelPlural": "New Mexico precinct rows",
+    "reviewGraphTitlePrefix": "New Mexico precinct",
     "mapLoadingText": "Loading local New Mexico county boundaries...",
     "noGeometryText": "New Mexico county geometry is not loaded yet; showing the tile fallback."
   },
@@ -233,7 +230,7 @@
     "trump": 423391,
     "harris": 478802,
     "other": 21210,
-    "reviewRows": 33,
+    "reviewRows": 2198,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,
