@@ -123,8 +123,20 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "kentuckyHousePdfCountyComparison",
     "sourceId": "ky-2024-general-election-certification",
+    "districts": [
+      { "district": 1, "columns": { "rep": 0, "dem": 1 } },
+      { "district": 2, "columns": { "rep": 0, "dem": 1 } },
+      { "district": 3, "columns": { "dem": 0, "rep": 1 } },
+      { "district": 4, "columns": { "rep": 0 } },
+      { "district": 5, "columns": { "rep": 0 } },
+      { "district": 6, "columns": { "rep": 0, "dem": 1 } }
+    ],
+    "countyAliases": {
+      "larue": "larue"
+    },
+    "warning": "Kentucky review rows compare President to aggregate U.S. House district contests by county. Districts 4 and 5 do not include Democratic columns in the certification PDF, so Democratic drop-off warnings in those counties are methodology flags.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -170,7 +182,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -185,13 +197,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Kentucky precinct or reporting-unit detail",
-        "detail": "The certification PDF is county-level for this parser. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Kentucky county review comparison",
+        "detail": "County review rows are loaded from the official Kentucky State Board of Elections certification PDF by comparing President and Vice President county rows to U.S. House district county rows aggregated across all six congressional districts. Districts 4 and 5 do not include Democratic columns, so the app carries a methodology warning.",
         "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
         "localFile": "data/ky-2024-general-election-certification.pdf; data/ky-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Certification PDF is county-level for the presidential contest.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official Kentucky State Board of Elections certification PDF for the November 5, 2024 General Election, amended on December 9, 2024.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Kentucky official county turnout",
@@ -210,6 +222,13 @@
         "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
         "usedFor": "Kentucky 2024 presidential county results.",
         "confidence": "Official Kentucky State Board of Elections certification PDF; county rows reconcile to the PDF Total Votes row."
+      },
+      {
+        "category": "County review comparison",
+        "file": "data/ky-2024-general-election-certification.pdf; data/ky-app-data.js",
+        "sourceUrl": "https://elect.ky.gov/results/2020-2029/Documents/2024%20General%20Election%20Certification%20as%20Amended%20on%20December%209th%202024.pdf",
+        "usedFor": "Kentucky county-level review warning rows comparing President to aggregate U.S. House district totals.",
+        "confidence": "Official Kentucky State Board of Elections certification PDF. Methodology warning is required because two congressional districts lack Democratic columns."
       },
       {
         "category": "County boundaries",
@@ -261,7 +280,7 @@
     "trump": 1337494,
     "harris": 704043,
     "other": 32993,
-    "reviewRows": 0,
+    "reviewRows": 120,
     "turnoutRows": 120,
     "turnoutWarningRows": 120,
     "historicalSeries": 0,

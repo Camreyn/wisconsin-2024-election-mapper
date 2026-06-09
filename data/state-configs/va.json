@@ -15,6 +15,11 @@
       "localFile": "data/va-2024-president-results.csv"
     },
     {
+      "id": "va-2024-us-senate-results",
+      "url": "https://va2.elstats3.civera.com/api/download_contest/161257_table.csv?split_party=false",
+      "localFile": "data/va-2024-us-senate-results.csv"
+    },
+    {
       "id": "va-2024-statewide-turnout",
       "url": "https://www.elections.virginia.gov/resultsreports/registrationturnout-statistics/?lv=true",
       "localFile": "data/va-2024-statewide-turnout.csv"
@@ -77,8 +82,21 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "civeraCountyCsvComparison",
     "sourceId": "va-2024-president-results",
+    "downBallotSourceId": "va-2024-us-senate-results",
+    "rowTypes": [
+      "Locality"
+    ],
+    "rowLabelTemplate": "{county}",
+    "downBallotCandidates": {
+      "dem": {
+        "candidateContains": "Timothy M. Kaine"
+      },
+      "rep": {
+        "candidateContains": "Hung Cao"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -121,7 +139,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -136,13 +154,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Virginia precinct rows in official contest CSV",
-        "detail": "The official contest CSV includes precinct rows, but review drilldowns remain disabled until the review parser maps Virginia precinct rows and a down-ballot comparison contest.",
-        "sourceUrl": "https://historical.elections.virginia.gov/contest/161256",
-        "localFile": "data/va-2024-president-results.csv; data/va-app-data.js",
+        "title": "Virginia locality review comparison",
+        "detail": "Official Virginia Department of Elections President and U.S. Senate contest CSVs are loaded for locality-level President-vs-U.S. Senate review rows. Precinct rows exist in the exports and remain a future lower-level parser upgrade.",
+        "sourceUrl": "https://historical.elections.virginia.gov/contest/161257",
+        "localFile": "data/va-2024-president-results.csv; data/va-2024-us-senate-results.csv; data/va-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official contest CSV includes Locality and Precinct rows.",
-        "status": "Needs parser mapping"
+        "sourceTimestampBasis": "Official Virginia Department of Elections historical results/Civera contest export endpoints.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Virginia statewide registration and turnout summary",
@@ -157,9 +175,16 @@
     "sourceInventory": [
       {
         "category": "Certified presidential locality results",
-        "file": "data/va-2024-president-results.csv; data/va-app-data.js",
+        "file": "data/va-2024-president-results.csv; data/va-2024-us-senate-results.csv; data/va-app-data.js",
         "sourceUrl": "https://historical.elections.virginia.gov/contest/161256",
-        "usedFor": "Virginia 2024 presidential county and independent-city result table.",
+        "usedFor": "Virginia 2024 presidential county and independent-city result table and locality President-vs-U.S. Senate review rows.",
+        "confidence": "Official Virginia Department of Elections historical results export."
+      },
+      {
+        "category": "Certified U.S. Senate locality results",
+        "file": "data/va-2024-us-senate-results.csv; data/va-app-data.js",
+        "sourceUrl": "https://historical.elections.virginia.gov/contest/161257",
+        "usedFor": "Virginia locality President-vs-U.S. Senate review rows.",
         "confidence": "Official Virginia Department of Elections historical results export."
       },
       {
@@ -212,7 +237,7 @@
     "trump": 2075085,
     "harris": 2335395,
     "other": 95461,
-    "reviewRows": 0,
+    "reviewRows": 133,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

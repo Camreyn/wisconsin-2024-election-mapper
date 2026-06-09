@@ -59,8 +59,10 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "southDakotaCanvassPdfCountyComparison",
     "sourceId": "sd-2024-general-election-canvass-with-cert",
+    "downBallotContest": "United States Representative",
+    "endMarker": "Public Utilities Commissioner",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -97,7 +99,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -112,13 +114,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "South Dakota precinct or reporting-unit detail",
-        "detail": "The canvass PDF presidential table is county-level. Review drilldowns need an official precinct or reporting-unit source before they can be enabled.",
+        "title": "South Dakota county review rows",
+        "detail": "The official canvass PDF contains matching county tables for President and U.S. Representative. The review graph compares Harris/Trump presidential votes to Sheryl Johnson/Dusty Johnson U.S. House votes at county level.",
         "sourceUrl": "https://sdsos.gov/elections-voting/election-resources/election-history/2024_Election_History.aspx",
         "localFile": "data/sd-2024-general-election-canvass-with-cert.pdf; data/sd-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass reviewed during South Dakota promotion.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official canvass contains President and U.S. Representative county tables with total rows reconciled by the parser.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "South Dakota official county turnout",
@@ -135,7 +137,7 @@
         "category": "Presidential county results",
         "file": "data/sd-2024-general-election-canvass-with-cert.pdf; data/sd-app-data.js",
         "sourceUrl": "https://sdsos.gov/elections-voting/election-resources/election-history/2024_Election_History.aspx",
-        "usedFor": "South Dakota county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
+        "usedFor": "South Dakota county table, statewide totals, candidate breakdown, CSV export, presidential-vs-House review graph, and Source Planner rows.",
         "confidence": "Official South Dakota Secretary of State 2024 General Election Canvass and Certificate PDF."
       },
       {
@@ -196,7 +198,7 @@
     "trump": 272081,
     "harris": 146859,
     "other": 9982,
-    "reviewRows": 0,
+    "reviewRows": 66,
     "turnoutRows": 66,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

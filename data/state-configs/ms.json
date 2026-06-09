@@ -20,6 +20,11 @@
       "localFile": "data/ms-2024-president-county-results.csv"
     },
     {
+      "id": "ms-2024-county-turnout",
+      "url": "https://sos.ms.gov/elections/electionresults/2024General/County%20Results/Union.pdf",
+      "localFile": "data/ms-2024-county-turnout.csv"
+    },
+    {
       "id": "ms-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2728%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ms-counties.geojson"
@@ -97,8 +102,19 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "ms-2024-president-county-results",
+    "format": "mississippiRecapCsvCountyComparison",
+    "sourceId": "ms-2024-election-recap-sheets",
+    "downBallotOffice": "United States-Senate",
+    "downBallotCandidates": {
+      "rep": {
+        "partyCode": "Republican",
+        "candidateContains": "Wicker"
+      },
+      "dem": {
+        "partyCode": "Democrat",
+        "candidateContains": "Pinkins"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -106,12 +122,20 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ms-2024-president-county-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "countyTurnoutCsv",
+    "sourceId": "ms-2024-county-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the certified presidential county results because the recap sheet does not include registered-voter denominators.",
-    "warningRequired": true
+    "sourceTitle": "Union County 2024 General Election official summary turnout",
+    "sourceAuthority": "Mississippi Secretary of State / Union County Election Commission",
+    "coverageStatus": "partial",
+    "notes": "Partial official county turnout is loaded from the Union County official recapitulation PDF summary. Mississippi statewide/county PDF collection remains incomplete because SOS PDF downloads are access-protected in this environment.",
+    "warningRequired": true,
+    "statewideTotals": {
+      "registeredVoters": 17084,
+      "ballotsCast": 12533
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -130,8 +154,8 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
-      "turnout": false,
+      "reviewGraphs": true,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -145,22 +169,22 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Mississippi precinct or reporting-unit detail",
-        "detail": "The official recap sheet source is county-level for this app. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Mississippi county review comparison",
+        "detail": "County-level review rows compare the official Mississippi presidential recap rows to the official United States-Senate recap rows from the same SOS CSV. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
         "sourceUrl": "https://www.sos.ms.gov/elections/electionresults/2024ElectionRecapSheets.csv",
         "localFile": "data/ms-2024-election-recap-sheets.csv; data/ms-app-data.js",
         "sourceLastModifiedUtc": "2024-11-23T04:11:03Z",
         "sourceTimestampBasis": "Official SOS recap sheet provides county rows but not app-ready precinct comparison rows.",
-        "status": "Needs precinct source"
+        "status": "Loaded"
       },
       "turnout": {
-        "title": "Mississippi turnout denominator",
-        "detail": "The official presidential recap sheet does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://www.sos.ms.gov/elections/electionresults/2024ElectionRecapSheets.csv",
-        "localFile": "data/ms-2024-election-recap-sheets.csv; data/ms-app-data.js",
-        "sourceLastModifiedUtc": "2024-11-23T04:11:03Z",
-        "sourceTimestampBasis": "Certified presidential recap sheet lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "title": "Mississippi partial county turnout",
+        "detail": "Union County turnout is loaded from the official county recapitulation PDF summary. Other county PDFs remain a follow-up because the SOS PDF host blocks scripted download in this environment.",
+        "sourceUrl": "https://sos.ms.gov/elections/electionresults/2024General/County%20Results/Union.pdf",
+        "localFile": "data/ms-2024-county-turnout.csv; data/ms-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official Union County PDF summary page lists Registered Voters-Total and Ballots Cast-Total.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -168,7 +192,7 @@
         "category": "Certified presidential county results",
         "file": "data/ms-2024-election-recap-sheets.csv; data/ms-2024-president-county-results.csv; data/ms-app-data.js",
         "sourceUrl": "https://www.sos.ms.gov/elections/electionresults/2024ElectionRecapSheets.csv",
-        "usedFor": "Mississippi 2024 presidential county results.",
+        "usedFor": "Mississippi 2024 presidential county results and county-level President-vs-Senate review rows.",
         "confidence": "Mississippi Secretary of State 2024 General Election Recapitulation Sheets CSV, collected through an archived official CSV snapshot because the live file is protected from plain HTTP access."
       },
       {
@@ -177,6 +201,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Mississippi county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Partial turnout denominator",
+        "file": "data/ms-2024-county-turnout.csv; data/ms-app-data.js",
+        "sourceUrl": "https://sos.ms.gov/elections/electionresults/2024General/County%20Results/Union.pdf",
+        "usedFor": "Union County registered-voter and ballots-cast turnout row.",
+        "confidence": "Official county recapitulation PDF summary text exposed by Mississippi SOS."
       }
     ],
     "checkedNotUsable": [
@@ -189,10 +220,10 @@
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Mississippi turnout should not be inferred from the certified presidential recap sheet because it lacks registered-voter denominators.",
+      "route": "partialOfficialCountyPdf",
+      "status": "Loaded",
+      "acceptedSource": "Union County official county recapitulation PDF summary.",
+      "warning": "Mississippi turnout coverage is partial. Only Union County is loaded; missing counties should remain clearly labeled until their official county PDF summaries are captured and parsed.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -214,9 +245,9 @@
     "trump": 746305,
     "harris": 465357,
     "other": 13576,
-    "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "reviewRows": 82,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 82

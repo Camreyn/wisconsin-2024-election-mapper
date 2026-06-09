@@ -15,6 +15,26 @@
       "localFile": "data/ca-2024-president-by-county.xlsx"
     },
     {
+      "id": "ca-2024-us-senate-full-term-by-county",
+      "url": "https://elections.cdn.sos.ca.gov/sov/2024-general/sov/19-uss-ft.xlsx",
+      "localFile": "data/ca-2024-us-senate-full-term-by-county.xlsx"
+    },
+    {
+      "id": "ca-2024-swdb-statewide-codebook",
+      "url": "https://www.statewidedatabase.org/pub/data/G24/G24_SOV_statewide_codebook.csv",
+      "localFile": "data/ca-2024-sov-statewide-codebook.csv"
+    },
+    {
+      "id": "ca-2024-swdb-state-sov-by-srprec",
+      "url": "https://www.statewidedatabase.org/pub/data/G24/state/state_g24_sov_data_by_g24_srprec.zip",
+      "localFile": "data/ca-2024-sov-state-by-srprec.zip"
+    },
+    {
+      "id": "ca-2024-swdb-srprec-to-city",
+      "url": "https://www.statewidedatabase.org/pub/data/G24/state/state_g24_srprec_to_city.csv",
+      "localFile": "data/ca-2024-srprec-to-city.csv"
+    },
+    {
       "id": "ca-2024-voter-participation-stats-by-county",
       "url": "https://elections.cdn.sos.ca.gov/sov/2024-general/sov/03-voter-participation-stats-by-county.pdf",
       "localFile": "data/ca-2024-voter-participation-stats-by-county.pdf"
@@ -77,8 +97,20 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "ca-2024-president-by-county",
+    "format": "californiaSwdbSrprecComparison",
+    "sourceId": "ca-2024-swdb-state-sov-by-srprec",
+    "citySourceId": "ca-2024-swdb-srprec-to-city",
+    "codebookSourceId": "ca-2024-swdb-statewide-codebook",
+    "expectedCandidateTotal": 15865475,
+    "candidateTotalTolerance": 15000,
+    "minimumCityShare": 0.5,
+    "columns": {
+      "harris": "PRSDEM01",
+      "trump": "PRSREP01",
+      "other": ["PRSAIP01", "PRSGRN01", "PRSLIB01", "PRSPAF01"],
+      "senateDem": "USSDEM01",
+      "senateRep": "USSREP01"
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -110,7 +142,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -125,13 +157,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "California precinct or reporting-unit detail",
-        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://www.sos.ca.gov/elections/prior-elections/statewide-election-results/general-election-nov-5-2024/statement-vote",
-        "localFile": "data/ca-2024-president-by-county.xlsx; data/ca-app-data.js",
+        "title": "California SR precinct review comparison with city splits",
+        "detail": "Official California Statewide Database 2024 General Election SOV by SR precinct is loaded for President-vs-U.S. Senate review rows. SR precincts are assigned to cities using the official SRPREC-to-city conversion table when at least half of the precinct population maps inside the city. SWDB masks small precinct candidate fields, so masked or incomplete rows are excluded from review graph points.",
+        "sourceUrl": "https://www.statewidedatabase.org/pub/data/G24/state/state_g24_sov_data_by_g24_srprec.zip",
+        "localFile": "data/ca-2024-sov-state-by-srprec.zip; data/ca-2024-srprec-to-city.csv; data/ca-2024-sov-statewide-codebook.csv; data/ca-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "County result source checked during California load.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official California Statewide Database 2024 General Election statewide SOV and geography conversion files.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "California voter participation statistics by county",
@@ -146,10 +178,17 @@
     "sourceInventory": [
       {
         "category": "Certified presidential county results",
-        "file": "data/ca-2024-president-by-county.xlsx; data/ca-app-data.js",
+        "file": "data/ca-2024-president-by-county.xlsx; data/ca-2024-us-senate-full-term-by-county.xlsx; data/ca-app-data.js",
         "sourceUrl": "https://elections.cdn.sos.ca.gov/sov/2024-general/sov/16-president.xlsx",
-        "usedFor": "California certified 2024 presidential county results.",
+        "usedFor": "California certified 2024 presidential county results and county President-vs-U.S. Senate review rows.",
         "confidence": "Official California Secretary of State Statement of Vote President by County XLSX."
+      },
+      {
+        "category": "SR precinct review comparison and city assignment",
+        "file": "data/ca-2024-sov-state-by-srprec.zip; data/ca-2024-srprec-to-city.csv; data/ca-2024-sov-statewide-codebook.csv; data/ca-app-data.js",
+        "sourceUrl": "https://www.statewidedatabase.org/d20/g24.html",
+        "usedFor": "California President-vs-U.S. Senate SR precinct review rows and city/rest-of-county split controls for major cities.",
+        "confidence": "Official California Statewide Database SOV by SR precinct, statewide codebook, and SRPREC-to-city geography conversion. Small precinct candidate fields are masked by SWDB, so graph rows are a masked-partial precinct view."
       },
       {
         "category": "County boundaries",
@@ -188,9 +227,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "California county row",
-    "reviewRowLabelPlural": "California county rows",
-    "reviewGraphTitlePrefix": "California county",
+    "reviewRowLabel": "California SR precinct row",
+    "reviewRowLabelPlural": "California SR precinct rows",
+    "reviewGraphTitlePrefix": "California SR precinct",
     "mapLoadingText": "Loading local California county boundaries...",
     "noGeometryText": "California county geometry is not loaded yet; showing the tile fallback."
   },
@@ -201,7 +240,7 @@
     "trump": 6081697,
     "harris": 9276179,
     "other": 507599,
-    "reviewRows": 0,
+    "reviewRows": 18051,
     "turnoutRows": 58,
     "turnoutWarningRows": 58,
     "historicalSeries": 0,

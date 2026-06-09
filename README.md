@@ -1,13 +1,12 @@
-# Upper Midwest Presidential Results Explorer
+# Multi-State Presidential Results Explorer
 
 https://camreyn.github.io/wisconsin-2024-election-mapper/
 
-A static web app for reviewing certified 2024 presidential results and
-comparing presidential baselines across 2012, 2016, 2020, and 2024 where
-state-specific source rows are loaded. Wisconsin remains the full-feature
-default, Minnesota is the first full expanded state, and North Dakota is the
-first second-state proof of the scripted import path with official SOS CSV
-results, turnout rows, and county geometry.
+A static web app for reviewing certified 2024 presidential results by state,
+tracking source provenance, and comparing presidential baselines where
+state-specific source rows are loaded. Coverage varies by state: some states
+have maps only, some add turnout or historical baselines, and states with
+same-grain comparison rows can show review graphs.
 
 ![App screenshot](assets/app-screenshot.png)
 
@@ -64,20 +63,19 @@ CSV to combine verified sources. The template is not loaded as real app data.
 
 ## Data Notes
 
-Wisconsin does not publish unofficial election-night results from one statewide
-reporting website; MyVote says those are posted by county clerks. For a stable
-2024 map, this app uses the certified county result table sourced to the
-Wisconsin Elections Commission's `County by County Report_POTUS`.
-
-The official WEC PDF is saved locally as `data/County by County Report_POTUS.pdf`.
+The app is organized around official state election authority files, official
+public results portals, local election office reports, and clearly documented
+derived source rows. Each state config records which files are used for county
+maps, review graphs, turnout rows, historical baselines, and source-planner
+coverage.
 
 ## Multi-State Readiness
 
-The app has a generated state registry at `data/state-registry.js`. Wisconsin
-remains the default full-feature state. Minnesota is the first full expanded
-state with certified 2024 presidential county totals aggregated from the
-official Minnesota Secretary of State federal/state precinct spreadsheet. North
-Dakota is registered from `data/state-configs/nd.json` with official SOS All
+The app has a generated state registry at `data/state-registry.js`. State
+coverage is promoted incrementally as official sources and parsers are mapped.
+Minnesota is a full expanded state with certified 2024 presidential county
+totals aggregated from the official Minnesota Secretary of State federal/state
+precinct spreadsheet. North Dakota is registered from `data/state-configs/nd.json` with official SOS All
 Statewide CSV results, county-level President-vs-Senate review rows, official
 turnout details, and Census county geometry. Michigan is registered from
 `data/state-configs/mi.json` with an official MVIC county result export,
@@ -258,32 +256,26 @@ further," not proof of tampering.
 The app includes a status panel for down-ballot difference,
 vote-share-by-vote-count, and turnout analysis.
 
-The down-ballot and vote-share checks are run from the WEC ward-level federal
-and state contest spreadsheet using the President and U.S. Senate reports. The
-turnout analysis still requires registered-voter or eligible-voter denominators,
-preferably by ward/precinct. The WEC ward results spreadsheet used here does not
-include those denominator fields, so the panel reports turnout as `Partial` only
-where local denominator rows have been imported.
+The down-ballot and vote-share checks are run only where the selected state has
+official President rows and a same-grain comparison contest mapped into the
+review graph schema. The turnout analysis still requires registered-voter or
+eligible-voter denominators, preferably at the same geography as the result
+rows. The panel reports turnout as partial or warning-labeled when denominator
+coverage or timing is limited.
 
-In plain terms: turnout is currently partial. The app has official ward vote
-totals statewide, and it now has City of Milwaukee ward-level turnout
-denominators from a free official City of Milwaukee report plus a Dane County
-official county-level turnout total and Jefferson County ward/reporting-unit
-turnout rows. Oneida County is also imported from its county voter turnout table.
-Other counties remain missing until county/municipal canvass PDFs or web tables
-are collected and imported.
+In plain terms: turnout coverage varies by state. Some states have county-level
+denominators, some have statewide-only rows, and some have local reporting-unit
+rows. Missing rows remain unavailable until official state, county, or municipal
+canvass PDFs, spreadsheets, or web tables are collected and imported.
 
-The low-cost turnout path is to collect county or municipal ward-by-ward canvass
-reports. Some local reports publish registered-voter counts from before Election
-Day. Because Wisconsin permits Election Day registration, those denominators can
-be lower than the final registered-voter count and can produce apparent turnout
-above 100%. The app requires any imported turnout row to track the timing of the
-registration denominator and displays a warning whenever pre-Election-Day
-registration counts are used.
+Some local reports publish registered-voter counts from before final election
+updates, or use active-voter or post-election denominators. The app requires any
+imported turnout row to track the timing and type of the denominator and
+displays warnings when the denominator needs extra care.
 
 The app also renders statistical screening graph types:
 
-- Vote-share-by-vote-count scatterplot with ward-level Trump/Harris points and
+- Vote-share-by-vote-count scatterplot with local-row Trump/Harris points and
   trend lines.
 - Down-ballot difference histogram comparing presidential votes with U.S. Senate
   votes by party.

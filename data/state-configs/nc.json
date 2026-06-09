@@ -15,6 +15,11 @@
       "localFile": "data/nc-2024-general-enr-results.zip"
     },
     {
+      "id": "nc-2024-general-results-precinct",
+      "url": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/results_pct_20241105.zip",
+      "localFile": "data/nc-2024-general-results-precinct.zip"
+    },
+    {
       "id": "nc-2024-general-history-stats",
       "url": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/history_stats_20241105.zip",
       "localFile": "data/nc-2024-general-history-stats.zip"
@@ -101,8 +106,37 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "nc-2024-general-enr-results",
+    "format": "northCarolinaPrecinctZipComparison",
+    "sourceId": "nc-2024-general-results-precinct",
+    "member": "results_pct_20241105.txt",
+    "presidentContestId": "1393",
+    "downBallotContestId": "1180",
+    "voteColumns": [
+      "Election Day",
+      "Early Voting",
+      "Absentee by Mail",
+      "Provisional"
+    ],
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP",
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "partyCode": "DEM",
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "partyCode": "REP",
+        "candidateContains": "Mark Robinson"
+      },
+      "dem": {
+        "partyCode": "DEM",
+        "candidateContains": "Josh Stein"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -155,7 +189,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -170,13 +204,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "North Carolina precinct or reporting-unit detail",
-        "detail": "The current official ENR promotion uses county result files for the presidential contest. Precinct-level review drilldowns remain disabled until an official precinct-sort source is mapped.",
+        "title": "North Carolina precinct presidential and Governor review rows",
+        "detail": "Official NCSBE precinct-sort rows are parsed from results_pct_20241105.zip. Review drilldowns compare presidential vote share by precinct size and presidential votes against same-party Governor votes.",
         "sourceUrl": "https://www.ncsbe.gov/results-data/election-results/historical-election-results-data",
-        "localFile": "data/nc-2024-general-enr-results.zip; data/nc-app-data.js",
+        "localFile": "data/nc-2024-general-results-precinct.zip; data/nc-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "NCSBE dashboard note points precinct-sort users to Historical Election Results Data; that source is not yet mapped for review charts.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official NCSBE historical election results data file results_pct_20241105.zip.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "North Carolina official precinct/VTD turnout",
@@ -195,6 +229,13 @@
         "sourceUrl": "https://er.ncsbe.gov/contest_details.html?contest_id=1393&county_id=0&election_dt=11%2F05%2F2024",
         "usedFor": "North Carolina 2024 presidential county result totals.",
         "confidence": "Official North Carolina State Board of Elections dashboard static result files; parser validates county sums against statewide result rows."
+      },
+      {
+        "category": "Official precinct presidential and Governor review rows",
+        "file": "data/nc-2024-general-results-precinct.zip; data/nc-app-data.js",
+        "sourceUrl": "https://s3.amazonaws.com/dl.ncsbe.gov/ENRS/2024_11_05/results_pct_20241105.zip",
+        "usedFor": "North Carolina review flags comparing presidential vote share by precinct size and presidential-vs-Governor same-party drop-off.",
+        "confidence": "Official North Carolina State Board of Elections precinct-sort results file."
       },
       {
         "category": "County boundaries",
@@ -253,7 +294,7 @@
     "trump": 2898423,
     "harris": 2715375,
     "other": 85343,
-    "reviewRows": 0,
+    "reviewRows": 2861,
     "turnoutRows": 3250,
     "turnoutWarningRows": 3250,
     "historicalSeries": 0,

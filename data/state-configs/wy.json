@@ -65,8 +65,21 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "wyomingPrecinctXlsxComparison",
     "sourceId": "wy-2024-general-results",
+    "workbook": "2024 County General PbP - OFFICIAL.xlsx",
+    "dataStartRow": 5,
+    "precinctColumn": 0,
+    "columns": {
+      "trump": 1,
+      "harris": 2,
+      "presidentOther": [
+        3,
+        4
+      ],
+      "senateRep": 7,
+      "senateDem": 8
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -106,7 +119,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -122,12 +135,12 @@
       },
       "wardDetail": {
         "title": "Wyoming official precinct-by-precinct workbooks",
-        "detail": "The official Wyoming SOS ZIP also includes county precinct-by-precinct workbooks. Review drilldowns remain disabled until that workbook layout is mapped to the review parser.",
+        "detail": "The official Wyoming SOS ZIP includes county precinct-by-precinct workbooks. Review drilldowns compare presidential vote share by precinct size and presidential votes against same-party U.S. Senator votes.",
         "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
         "localFile": "data/wy-2024-general-results.zip; data/wy-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official SOS ZIP contains 2024 County General PbP - OFFICIAL.xlsx.",
-        "status": "Needs parser mapping"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Wyoming statewide turnout profile",
@@ -146,6 +159,13 @@
         "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
         "usedFor": "Wyoming county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
         "confidence": "Official Wyoming Secretary of State 2024 General Election results ZIP and State Canvassing Board certification page."
+      },
+      {
+        "category": "Official precinct presidential and U.S. Senator review rows",
+        "file": "data/wy-2024-general-results.zip; data/wy-app-data.js",
+        "sourceUrl": "https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx",
+        "usedFor": "Wyoming review flags comparing presidential vote share by precinct size and presidential-vs-Senator same-party drop-off.",
+        "confidence": "Official Wyoming Secretary of State county precinct-by-precinct workbook inside the certified 2024 General Election results ZIP."
       },
       {
         "category": "County boundaries",
@@ -197,7 +217,7 @@
     "trump": 192633,
     "harris": 69527,
     "other": 6888,
-    "reviewRows": 0,
+    "reviewRows": 431,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

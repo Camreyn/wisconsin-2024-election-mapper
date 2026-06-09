@@ -81,8 +81,31 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "clarityEnrCountyJsonComparison",
     "sourceId": "wv-2024-general-election-details",
+    "statewideSourceId": "wv-2024-general-election-sum",
+    "presidentContestKey": "100",
+    "downBallotContestKey": "150",
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP",
+        "candidateContains": "TRUMP"
+      },
+      "harris": {
+        "partyCode": "DEM",
+        "candidateContains": "HARRIS"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "partyCode": "REP",
+        "candidateContains": "JIM JUSTICE"
+      },
+      "dem": {
+        "partyCode": "DEM",
+        "candidateContains": "GLENN ELLIOTT"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -123,7 +146,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -138,13 +161,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "West Virginia precinct or reporting-unit detail",
-        "detail": "The loaded ENR source is county-level for this parser. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "West Virginia county review comparison",
+        "detail": "County-level review rows compare the official ENR presidential contest to the official ENR U.S. Senate contest. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
         "sourceUrl": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
         "localFile": "data/wv-2024-general-election-details.json; data/wv-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Statewide ENR detail source provides county rows for this parser.",
-        "status": "Needs precinct source"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "West Virginia official statewide turnout",
@@ -161,7 +184,7 @@
         "category": "Presidential county results",
         "file": "data/wv-2024-general-election-sum.json; data/wv-2024-general-election-details.json; data/wv-app-data.js",
         "sourceUrl": "https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary",
-        "usedFor": "West Virginia county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
+        "usedFor": "West Virginia county table, statewide totals, candidate breakdown, review graph rows, CSV export, and Source Planner rows.",
         "confidence": "Official West Virginia Secretary of State Clarity ENR static JSON for the 2024 General Election."
       },
       {
@@ -214,7 +237,7 @@
     "trump": 533556,
     "harris": 214309,
     "other": 14525,
-    "reviewRows": 0,
+    "reviewRows": 55,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

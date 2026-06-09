@@ -122,8 +122,23 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "utahCanvassPdfCountyComparison",
     "sourceId": "ut-2024-general-statewide-canvass",
+    "downBallotContest": {
+      "sourceId": "ut-2024-general-statewide-canvass",
+      "contest": "Governor, Lieutenant Governor",
+      "expectedCandidateColumns": 8,
+      "contestTotalVotes": 1477457
+    },
+    "downBallotColumns": {
+      "rep": 0,
+      "dem": 2
+    },
+    "statewideTotals": {
+      "rep": 781431,
+      "dem": 420514
+    },
+    "warning": "Utah review rows compare President to Governor/Lieutenant Governor, not U.S. Senate.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -164,7 +179,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -179,13 +194,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Utah precinct or reporting-unit detail",
-        "detail": "The statewide canvass source is county-level for the presidential race. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://vote.utah.gov/2024-election-information/",
+        "title": "Utah county review comparison",
+        "detail": "The official statewide canvass PDF provides county tables for President and Governor/Lieutenant Governor. The app loads county President-vs-Governor review rows; precinct or reporting-unit rows remain a future source upgrade.",
+        "sourceUrl": "https://vote.utah.gov/wp-content/uploads/2025/02/2024-General-Election-Statewide-Canvass-2.pdf",
         "localFile": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Statewide canvass source is county-level for this parser.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Vote.Utah.gov 2024 General Election Statewide Canvass includes President and Governor county tables.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Utah partial county turnout",
@@ -202,7 +217,14 @@
         "category": "Presidential county results",
         "file": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
         "sourceUrl": "https://vote.utah.gov/wp-content/uploads/2025/02/2024-General-Election-Statewide-Canvass-2.pdf",
-        "usedFor": "Utah 2024 presidential county table, statewide candidate totals, CSV export, and Source Planner rows.",
+        "usedFor": "Utah 2024 presidential county table, county President-vs-Governor review rows, statewide candidate totals, CSV export, and Source Planner rows.",
+        "confidence": "Official Utah statewide canvass PDF published by Vote.Utah.gov."
+      },
+      {
+        "category": "Governor county results",
+        "file": "data/ut-2024-general-statewide-canvass.pdf; data/ut-app-data.js",
+        "sourceUrl": "https://vote.utah.gov/wp-content/uploads/2025/02/2024-General-Election-Statewide-Canvass-2.pdf",
+        "usedFor": "Utah county President-vs-Governor review rows.",
         "confidence": "Official Utah statewide canvass PDF published by Vote.Utah.gov."
       },
       {
@@ -255,7 +277,7 @@
     "trump": 883818,
     "harris": 562566,
     "other": 41626,
-    "reviewRows": 0,
+    "reviewRows": 29,
     "turnoutRows": 24,
     "turnoutWarningRows": 24,
     "historicalSeries": 0,

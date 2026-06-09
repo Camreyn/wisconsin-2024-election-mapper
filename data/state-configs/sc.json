@@ -83,8 +83,19 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "southCarolinaHouseEnrCountyComparison",
     "sourceId": "sc-2024-general-election-details",
+    "statewideSourceId": "sc-2024-general-election-sum",
+    "downBallotContestKeys": [
+      "27002",
+      "27004",
+      "27006",
+      "27008",
+      "27010",
+      "27012",
+      "27014"
+    ],
+    "warning": "South Carolina review rows compare President to the aggregate of U.S. House district contests by county; counties are summed across the seven congressional district contests before comparison.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -126,7 +137,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -141,13 +152,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "South Carolina precinct or reporting-unit detail",
-        "detail": "The current official ENR promotion uses county-level presidential detail rows. Precinct-level review drilldowns remain disabled until an official precinct, ward, or reporting-unit export is mapped.",
+        "title": "South Carolina county review comparison",
+        "detail": "County review rows are loaded by comparing official presidential county ENR detail rows to U.S. House contest county ENR detail rows aggregated across all seven congressional districts. This is not a single statewide down-ballot race, so the app carries a methodology warning.",
         "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
-        "localFile": "data/sc-2024-general-election-details.json; data/sc-app-data.js",
+        "localFile": "data/sc-2024-general-election-details.json; data/sc-2024-general-election-sum.json; data/sc-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "ENR detail feed is county-level for the statewide presidential contest in this parser.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "State-linked ENR current version file /SC/122436/current_ver.txt returned 359624; static JSON detail feed exposes county rows for President and U.S. House contests.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "South Carolina official statewide turnout",
@@ -166,6 +177,13 @@
         "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
         "usedFor": "South Carolina 2024 presidential county result totals.",
         "confidence": "Official South Carolina State Election Commission election-results page links to this ENR result site; parser validates county detail totals against the statewide ENR summary."
+      },
+      {
+        "category": "County review comparison",
+        "file": "data/sc-2024-general-election-details.json; data/sc-2024-general-election-sum.json; data/sc-app-data.js",
+        "sourceUrl": "https://www.enr-scvotes.org/SC/122436/web.345435/",
+        "usedFor": "South Carolina county-level review warning rows comparing President to aggregate U.S. House district totals.",
+        "confidence": "Official South Carolina State Election Commission ENR static JSON. Methodology warning is required because the comparison sums district contests rather than using one statewide down-ballot race."
       },
       {
         "category": "County boundaries",
@@ -216,7 +234,7 @@
     "trump": 1483747,
     "harris": 1028452,
     "other": 35941,
-    "reviewRows": 0,
+    "reviewRows": 46,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

@@ -62,8 +62,28 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "texasCountyJsonComparison",
     "sourceId": "tx-2024-general-county-json",
+    "presidentOfficeId": "1001",
+    "downBallotOfficeId": "7958",
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP"
+      },
+      "harris": {
+        "partyCode": "DEM"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "partyCode": "REP",
+        "candidateContains": "CRUZ"
+      },
+      "dem": {
+        "partyCode": "DEM",
+        "candidateContains": "ALLRED"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -105,7 +125,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -120,13 +140,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Texas precinct or reporting-unit detail",
-        "detail": "This New York-level promotion is county-level only. Review drilldowns need an official precinct or reporting-unit source before they can be enabled.",
+        "title": "Texas county review comparison",
+        "detail": "County-level review rows compare the official Texas presidential race to the official U.S. Senate race from the same SOS county JSON. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
         "sourceUrl": "https://results.texas-election.com/static/data/election/49664/1012/County.json",
         "localFile": "data/tx-2024-general-county.json; data/tx-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official Texas county JSON includes county totals, not precinct rows.",
-        "status": "Needs precinct source"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Texas official statewide turnout",
@@ -143,7 +163,7 @@
         "category": "Official presidential county results",
         "file": "data/tx-2024-general-county.json; data/tx-app-data.js",
         "sourceUrl": "https://results.texas-election.com/static/data/election/49664/1012/County.json",
-        "usedFor": "Texas 2024 presidential county results.",
+        "usedFor": "Texas 2024 presidential county results and county-level President-vs-Senate review rows.",
         "confidence": "Texas Secretary of State official election results portal static county JSON."
       },
       {
@@ -188,7 +208,7 @@
     "trump": 6393597,
     "harris": 4835250,
     "other": 159827,
-    "reviewRows": 0,
+    "reviewRows": 254,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

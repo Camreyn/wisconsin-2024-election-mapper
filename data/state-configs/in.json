@@ -20,6 +20,11 @@
       "localFile": "data/in-2024-general-president-results.json"
     },
     {
+      "id": "in-2024-general-us-senate-results",
+      "url": "https://enr.indianavoters.in.gov/archive/2024General/data/OffCatC_1006_A.json",
+      "localFile": "data/in-2024-general-us-senate-office-category.json"
+    },
+    {
       "id": "in-2024-general-election-turnout-registration-report",
       "url": "https://www.in.gov/sos/elections/files/2024-General-Election-Turnout-and-Registration-Report.pdf",
       "localFile": "data/in-2024-general-election-turnout-registration-report.pdf"
@@ -134,8 +139,33 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "indianaEnrCountyJsonComparison",
     "sourceId": "in-2024-general-president-results",
+    "settingsSourceId": "in-2024-general-settings",
+    "downBallotSourceId": "in-2024-general-us-senate-results",
+    "electionDate": "11/05/2024",
+    "presidentOfficeCategoryId": "1019",
+    "downBallotOfficeCategoryId": "1006",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J Trump",
+        "partyCode": "R"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris",
+        "partyCode": "D"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "candidateContains": "Jim Banks",
+        "partyCode": "R"
+      },
+      "dem": {
+        "candidateContains": "Valerie McCray",
+        "partyCode": "D"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -167,7 +197,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -182,13 +212,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Indiana precinct or reporting-unit detail",
-        "detail": "The loaded official ENR presidential payload is county-level for this app import. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Indiana county review rows",
+        "detail": "Official archived ENR President and U.S. Senate office-category JSON files provide matching county rows. The review graph compares Harris/Trump presidential votes to McCray/Banks U.S. Senate votes at county level.",
         "sourceUrl": "https://enr.indianavoters.in.gov/archive/2024General/index.html",
-        "localFile": "data/in-2024-general-president-results.json; data/in-app-data.js",
-        "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official ENR presidential office-category JSON provides county result rows; precinct comparison rows are not mapped yet.",
-        "status": "Needs precinct source"
+        "localFile": "data/in-2024-general-president-results.json; data/in-2024-general-us-senate-office-category.json; data/in-app-data.js",
+        "sourceLastModifiedUtc": "2025-04-17T18:31:49.483",
+        "sourceTimestampBasis": "Archived Indiana ENR settings are Certified=T; the U.S. Senate office-category JSON WriteTime is 2025-04-17T18:31:49.483.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Indiana turnout and registration report",
@@ -207,6 +237,13 @@
         "sourceUrl": "https://enr.indianavoters.in.gov/archive/2024General/index.html",
         "usedFor": "Indiana certified 2024 presidential county results.",
         "confidence": "Official Indiana Secretary of State Election Division archived ENR export. The archive page says November 2024 General Election results are final, and the settings JSON is marked Certified=T."
+      },
+      {
+        "category": "Official review comparison",
+        "file": "data/in-2024-general-president-results.json; data/in-2024-general-us-senate-office-category.json; data/in-app-data.js",
+        "sourceUrl": "https://enr.indianavoters.in.gov/archive/2024General/index.html",
+        "usedFor": "Indiana county-level presidential-vs-U.S. Senate review graph.",
+        "confidence": "Official Indiana Secretary of State Election Division archived ENR office-category exports marked certified through the archive settings JSON."
       },
       {
         "category": "County boundaries",
@@ -258,7 +295,7 @@
     "trump": 1720347,
     "harris": 1163603,
     "other": 52727,
-    "reviewRows": 0,
+    "reviewRows": 92,
     "turnoutRows": 92,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

@@ -15,6 +15,11 @@
       "localFile": "data/nv-2024-official-statewide-general-election-results.html"
     },
     {
+      "id": "nv-2024-statewide-turnout",
+      "url": "https://www.nvsos.gov/Home/Components/News/News/3538/23?arch=1&npage=2&recordid=899",
+      "localFile": "data/nv-2024-statewide-turnout.csv"
+    },
+    {
       "id": "nv-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2732%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/nv-counties.geojson"
@@ -59,8 +64,26 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "nevadaStatewideHtmlCountyComparison",
     "sourceId": "nv-2024-official-statewide-general-election-results",
+    "presidentContest": "President and Vice President of the United States",
+    "downBallotContest": "United States Senator",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "TRUMP"
+      },
+      "harris": {
+        "candidateContains": "HARRIS"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "candidateContains": "BROWN"
+      },
+      "dem": {
+        "candidateContains": "ROSEN"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -68,12 +91,20 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "nv-2024-official-statewide-general-election-results",
-    "registrationDenominatorTiming": "notLoaded",
-    "sourceLevel": "county",
-    "notes": "Turnout is not loaded from the certified presidential results table because it does not include registered-voter denominators.",
-    "warningRequired": true
+    "format": "statewideTurnoutCsv",
+    "sourceId": "nv-2024-statewide-turnout",
+    "registrationDenominatorTiming": "final",
+    "denominatorType": "registeredVoters",
+    "sourceLevel": "statewide",
+    "sourceTitle": "Nevada Secretary of State 2024 election cycle turnout highlights",
+    "sourceAuthority": "Nevada Secretary of State",
+    "coverageStatus": "statewide-only",
+    "notes": "Statewide turnout is loaded from the Nevada Secretary of State post-certification election-cycle highlights. Rows are warning-labeled because this source does not provide county turnout rows in the captured app data.",
+    "warningRequired": true,
+    "statewideTotals": {
+      "registeredVoters": 2042607,
+      "ballotsCast": 1487887
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -92,8 +123,8 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
-      "turnout": false,
+      "reviewGraphs": true,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -107,22 +138,22 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Nevada precinct or reporting-unit detail",
-        "detail": "The official statewide results table is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Nevada county review comparison",
+        "detail": "County-level review rows compare the official Nevada presidential table to the official U.S. Senate table from the same SOS statewide results page. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
         "sourceUrl": "https://www.nvsos.gov/SOSelectionPages/results/2024StateWideGeneral/ElectionSummary.aspx",
         "localFile": "data/nv-2024-official-statewide-general-election-results.html; data/nv-app-data.js",
         "sourceLastModifiedUtc": "2025-09-11T04:16:27Z",
         "sourceTimestampBasis": "Official SOS table checked during Nevada promotion; it provides county columns but not precinct rows.",
-        "status": "Needs precinct source"
+        "status": "Loaded"
       },
       "turnout": {
-        "title": "Nevada turnout denominator",
-        "detail": "The official presidential results table does not include registered-voter denominators. Turnout remains disabled until an official turnout or registration source is mapped.",
-        "sourceUrl": "https://www.nvsos.gov/SOSelectionPages/results/2024StateWideGeneral/ElectionSummary.aspx",
-        "localFile": "data/nv-2024-official-statewide-general-election-results.html; data/nv-app-data.js",
-        "sourceLastModifiedUtc": "2025-09-11T04:16:27Z",
-        "sourceTimestampBasis": "Certified results table lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "title": "Nevada statewide turnout",
+        "detail": "Statewide turnout is loaded from the Nevada Secretary of State post-certification election-cycle highlights: 2,042,607 active registered voters and 1,487,887 voters who cast a ballot. County turnout rows remain blocked behind the protected SOS turnout-reporting page.",
+        "sourceUrl": "https://www.nvsos.gov/Home/Components/News/News/3538/23?arch=1&npage=2&recordid=899",
+        "localFile": "data/nv-2024-statewide-turnout.csv; data/nv-app-data.js",
+        "sourceLastModifiedUtc": "",
+        "sourceTimestampBasis": "Official SOS post-certification news item dated November 19, 2024.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
@@ -130,7 +161,7 @@
         "category": "Certified presidential county results",
         "file": "data/nv-2024-official-statewide-general-election-results.html; data/nv-app-data.js",
         "sourceUrl": "https://www.nvsos.gov/SOSelectionPages/results/2024StateWideGeneral/ElectionSummary.aspx",
-        "usedFor": "Nevada 2024 presidential county results.",
+        "usedFor": "Nevada 2024 presidential county results and county-level President-vs-Senate review rows.",
         "confidence": "Nevada Secretary of State official statewide general election results table, collected through an archived official page snapshot because the live page is protected from plain HTTP access."
       },
       {
@@ -139,6 +170,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Nevada county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Statewide turnout denominator",
+        "file": "data/nv-2024-statewide-turnout.csv; data/nv-app-data.js",
+        "sourceUrl": "https://www.nvsos.gov/Home/Components/News/News/3538/23?arch=1&npage=2&recordid=899",
+        "usedFor": "Nevada statewide registered-voter denominator and ballots-cast turnout row.",
+        "confidence": "Nevada Secretary of State post-certification election-cycle highlights."
       }
     ],
     "checkedNotUsable": [
@@ -151,10 +189,10 @@
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "Nevada turnout should not be inferred from the certified presidential results table because it lacks registered-voter denominators.",
+      "route": "officialStatewideTurnout",
+      "status": "Loaded",
+      "acceptedSource": "Nevada Secretary of State post-certification election-cycle highlights.",
+      "warning": "Nevada turnout is statewide-only. County turnout rows should stay marked missing until the protected SOS turnout-reporting file is captured.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -176,9 +214,9 @@
     "trump": 751205,
     "harris": 705197,
     "other": 28438,
-    "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "reviewRows": 17,
+    "turnoutRows": 1,
+    "turnoutWarningRows": 1,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 17

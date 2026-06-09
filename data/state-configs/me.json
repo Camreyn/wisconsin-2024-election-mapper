@@ -15,6 +15,11 @@
       "localFile": "data/me-2024-president-county-town-final-corrected.xlsx"
     },
     {
+      "id": "me-2024-us-senate-final-corrected",
+      "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/US%20Senator%20FINAL-Corrected%2020241205.xlsx",
+      "localFile": "data/me-2024-us-senate-final-corrected.xlsx"
+    },
+    {
       "id": "me-2024-registered-enrolled-active",
       "url": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/Reg%20%26%20Enr%20as%20of%2011-5-24%20txt%20%28A%29.txt",
       "localFile": "data/me-2024-registered-enrolled-active.txt"
@@ -100,8 +105,22 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "maineCountyTownXlsxComparison",
     "sourceId": "me-2024-president-county-town-final-corrected",
+    "presidentSourceId": "me-2024-president-county-town-final-corrected",
+    "presidentSheet": "President & VP",
+    "downBallotSourceId": "me-2024-us-senate-final-corrected",
+    "downBallotSheet": "UNITED STATES SENATOR",
+    "downBallotColumns": {
+      "countyCode": "COUNTY",
+      "municipality": "MUNICIPALITY",
+      "dem": [
+        "King, Angus S. Jr.",
+        "Costello, David Allen"
+      ],
+      "rep": "Kouzounas, Demi"
+    },
+    "warning": "Maine U.S. Senate comparison sums independent incumbent Angus King plus Democratic candidate David Costello for the Democratic-side comparison, because King was the dominant non-Republican Senate candidate.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -147,7 +166,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -163,11 +182,11 @@
       },
       "wardDetail": {
         "title": "Maine municipality-level presidential rows",
-        "detail": "The same official workbook includes municipality rows that reconcile to county total rows, plus a statewide UOCAVA row that is not county-assigned. The app retains these source rows in pipeline metadata.",
-        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
-        "localFile": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-app-data.js",
+        "detail": "Official Maine SOS President and U.S. Senate final corrected workbooks are loaded for municipality-level review rows plus the statewide UOCAVA row. The Democratic-side Senate comparison sums independent incumbent Angus King and Democrat David Costello, with that caveat shown in review metadata.",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/US%20Senator%20FINAL-Corrected%2020241205.xlsx",
+        "localFile": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-2024-us-senate-final-corrected.xlsx; data/me-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Maine SOS workbook rows include municipality totals and county subtotal rows.",
+        "sourceTimestampBasis": "Maine SOS source filenames identify the workbooks as FINAL-Corrected 20241205.",
         "status": "Loaded"
       },
       "turnout": {
@@ -183,9 +202,16 @@
     "sourceInventory": [
       {
         "category": "Official presidential county and municipality results",
-        "file": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-app-data.js",
+        "file": "data/me-2024-president-county-town-final-corrected.xlsx; data/me-2024-us-senate-final-corrected.xlsx; data/me-app-data.js",
         "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/President%20and%20Vice%20President%20FINAL-Corrected%2020241205.xlsx",
-        "usedFor": "Maine 2024 certified presidential county totals, statewide UOCAVA row, and municipality source row coverage.",
+        "usedFor": "Maine 2024 certified presidential county totals, statewide UOCAVA row, municipality source row coverage, and President-vs-U.S. Senate review rows.",
+        "confidence": "Official Maine Secretary of State final corrected workbook."
+      },
+      {
+        "category": "Official U.S. Senate county and municipality results",
+        "file": "data/me-2024-us-senate-final-corrected.xlsx; data/me-app-data.js",
+        "sourceUrl": "https://www.maine.gov/sos/sites/maine.gov.sos/files/inline-files/US%20Senator%20FINAL-Corrected%2020241205.xlsx",
+        "usedFor": "Maine municipality President-vs-U.S. Senate review rows.",
         "confidence": "Official Maine Secretary of State final corrected workbook."
       },
       {
@@ -238,7 +264,7 @@
     "trump": 377977,
     "harris": 435652,
     "other": 17746,
-    "reviewRows": 0,
+    "reviewRows": 512,
     "turnoutRows": 16,
     "turnoutWarningRows": 16,
     "historicalSeries": 0,

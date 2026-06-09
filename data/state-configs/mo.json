@@ -97,8 +97,13 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "missouriActualResultsPdfCountyComparison",
     "sourceId": "mo-2024-general-actual-results",
+    "downBallotContest": "U.S. Senator",
+    "mergeRows": {
+      "De Kalb": "DeKalb County",
+      "Kansas City": "Jackson County"
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -141,7 +146,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -156,13 +161,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Missouri precinct or reporting-unit detail",
-        "detail": "The loaded SOS actual-results PDF is county-level for this parser. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Missouri county review comparison",
+        "detail": "County-level review rows compare the official Missouri presidential table to the official U.S. Senator table from the same SOS Actual Results PDF. Kansas City is merged into Jackson County to align with county geometry; precinct or reporting-unit review remains a follow-up.",
         "sourceUrl": "https://www.sos.mo.gov/CMSImages/ElectionResultsStatistics/ActualResults-November52024.pdf",
         "localFile": "data/mo-2024-general-actual-results.pdf; data/mo-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official SOS PDF provides county/election-authority presidential totals, not precinct rows.",
-        "status": "Needs precinct source"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Missouri turnout denominator",
@@ -179,7 +184,7 @@
         "category": "Presidential county results",
         "file": "data/mo-2024-general-actual-results.pdf; data/mo-app-data.js",
         "sourceUrl": "https://www.sos.mo.gov/CMSImages/ElectionResultsStatistics/ActualResults-November52024.pdf",
-        "usedFor": "Missouri county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
+        "usedFor": "Missouri county table, statewide totals, candidate breakdown, county-level review graph rows, CSV export, and Source Planner rows.",
         "confidence": "Official Missouri Secretary of State actual results PDF."
       },
       {
@@ -232,7 +237,7 @@
     "trump": 1751986,
     "harris": 1200599,
     "other": 42742,
-    "reviewRows": 0,
+    "reviewRows": 115,
     "turnoutRows": 115,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

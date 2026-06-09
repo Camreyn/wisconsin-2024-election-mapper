@@ -102,8 +102,33 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "ak-2024-president-house-district-results",
+    "format": "alaskaEnrPrecinctCsvComparison",
+    "sourceId": "ak-2024-general-enr-by-precinct",
+    "presidentContestTitle": "U.S. President / Vice President",
+    "downBallotContestTitle": "U.S. Representative",
+    "excludeDistricts": [
+      "99"
+    ],
+    "majorCandidates": {
+      "trump": {
+        "partyCode": "REP",
+        "candidateContains": "Trump/Vance"
+      },
+      "harris": {
+        "partyCode": "DEM",
+        "candidateContains": "Harris/Walz"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "partyCode": "REP",
+        "candidateContains": "Begich"
+      },
+      "dem": {
+        "partyCode": "DEM",
+        "candidateContains": "Peltola"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -175,7 +200,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -191,12 +216,12 @@
       },
       "wardDetail": {
         "title": "Alaska official precinct detail",
-        "detail": "The official ENR CSV includes precinct-level presidential rows. This pass aggregates them to House District totals for the map; review drilldowns stay disabled until the precinct rows are mapped into the review graph schema.",
+        "detail": "The official ENR CSV includes precinct-level presidential and U.S. Representative rows. Review drilldowns compare presidential vote share by precinct size and presidential votes against same-party U.S. Representative votes, grouped under mapped House Districts.",
         "sourceUrl": "https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv",
         "localFile": "data/ak-2024-general-enr-by-precinct.csv; data/ak-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official ENR by-precinct CSV collected during Alaska load.",
-        "status": "Needs parser mapping"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Alaska official house district turnout",
@@ -215,6 +240,13 @@
         "sourceUrl": "https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv",
         "usedFor": "Alaska 2024 presidential results aggregated to State House District map rows.",
         "confidence": "Official Alaska Division of Elections ENR CSV from the 2024 General Election results page."
+      },
+      {
+        "category": "Official precinct presidential and U.S. Representative review rows",
+        "file": "data/ak-2024-general-enr-by-precinct.csv; data/ak-app-data.js",
+        "sourceUrl": "https://www.elections.alaska.gov/results/24GENR/ENRbyPrecinct.csv",
+        "usedFor": "Alaska review flags comparing presidential vote share by precinct size and presidential-vs-U.S. Representative same-party drop-off, grouped by mapped State House District.",
+        "confidence": "Official Alaska Division of Elections ENR by-precinct CSV from the 2024 General Election results page."
       },
       {
         "category": "House District boundaries",
@@ -273,7 +305,7 @@
     "trump": 184407,
     "harris": 139690,
     "other": 13679,
-    "reviewRows": 0,
+    "reviewRows": 522,
     "turnoutRows": 40,
     "turnoutWarningRows": 40,
     "historicalSeries": 0,

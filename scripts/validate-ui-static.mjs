@@ -209,7 +209,7 @@ await new Promise((resolve) => setTimeout(resolve, 400));
 await vm.runInContext(`runAuditTrials()`, context);
 
 const checks = {
-  sidebarExplorerTitle: indexHtml.includes("Upper Midwest Presidential Results Explorer"),
+  sidebarExplorerTitle: indexHtml.includes("Multi-State Presidential Results Explorer"),
   sidebarCurrentMapScope: indexHtml.includes("2024 certified results"),
   sidebarHistoricalAction: indexHtml.includes('data-open-tab="history">Compare years</button>'),
   plainLanguageGlossary: indexHtml.includes("What the technical terms mean"),
@@ -245,7 +245,7 @@ const checks = {
     && element("#sourceCountyRows").innerHTML.includes("Waukesha"),
   sourcePlannerTimestamps: element("#sourceCountyRows").innerHTML.includes("2024-11-27T21:31:27Z")
     && element("#sourceCountyRows").innerHTML.includes("2024-11-27T21:35:53Z"),
-  sourceTimestampNotesVisible: indexHtml.includes("WEC file Last-Modified header: 2024-11-27T21:31:27Z"),
+  sourceTimestampNotesVisible: indexHtml.includes("Each state records the official source file used for map rows in the Source Planner and generated app data."),
   auditDistributionNote: element("#auditDistributionNote").textContent.includes("grid is not a geographic map"),
   auditSpreadPattern: vm.runInContext(`auditAffectedIndices(100, 8, 17, "spread").join(",") !== auditAffectedIndices(100, 8, 17, "concentrated").join(",")`, context),
   auditHighVolumeDisclaimer: vm.runInContext(`AUDIT_DISTRIBUTION_NOTES.highVolume.includes("cannot identify real high-volume audit units")`, context),
@@ -295,7 +295,7 @@ checks.minnesotaVoteShareGraph = element("#voteShareGraph").innerHTML.includes("
 checks.minnesotaDownBallotGraph = element("#downBallotGraph").innerHTML.includes("Minnesota SOS precinct President vs Senate drop-off rates");
 checks.minnesotaTurnoutLoaded = element("#etaTests").innerHTML.includes("4,103 imported source rows")
   && element("#turnoutGraph").innerHTML.includes("turnout histogram");
-checks.minnesotaStaticSourceTimestampVisible = indexHtml.includes("Minnesota SOS workbook Last-Modified header: 2025-02-14T17:22:26Z");
+checks.minnesotaStaticSourceTimestampVisible = indexHtml.includes("Availability varies by state. Some states have precinct rows; others remain county-only until a same-grain comparison source is mapped.");
 checks.minnesotaSaintLouisGeometryMatchesResults =
   vm.runInContext(`normalizeCounty("Saint Louis") === normalizeCounty("St. Louis")`, context);
 

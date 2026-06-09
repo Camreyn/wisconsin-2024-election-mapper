@@ -15,6 +15,11 @@
       "localFile": "data/md-2024-president-county-breakdown.html"
     },
     {
+      "id": "md-2024-general-all-precincts",
+      "url": "https://elections.maryland.gov/elections/archive/2024/election_data/PG24_AllPrecincts.csv",
+      "localFile": "data/md-2024-general-all-precincts.csv"
+    },
+    {
       "id": "md-2024-official-turnout-by-party-county",
       "url": "https://www.elections.state.md.us/press_room/2024_stats/PG24/Official%20by%20Party%20and%20County.pdf",
       "localFile": "data/md-2024-official-turnout-by-party-county.pdf"
@@ -74,8 +79,33 @@
     }
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "md-2024-president-county-breakdown",
+    "format": "marylandPrecinctCsvComparison",
+    "sourceId": "md-2024-general-all-precincts",
+    "presidentOfficeName": "President - Vice Pres",
+    "downBallotOfficeName": "U.S. Senator",
+    "voteColumns": [
+      "Early Votes",
+      "Election Night Votes",
+      "Mail-In Ballot 1 Votes",
+      "Provisional Votes",
+      "Mail-In Ballot 2 Votes"
+    ],
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "candidateContains": "Larry Hogan"
+      },
+      "dem": {
+        "candidateContains": "Angela Alsobrooks"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -122,7 +152,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -137,13 +167,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Maryland precinct or reporting-unit detail",
-        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit export before they can be enabled.",
-        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
-        "localFile": "data/md-2024-president-county-breakdown.html; data/md-app-data.js",
+        "title": "Maryland precinct presidential and U.S. Senate review rows",
+        "detail": "The official Maryland raw precinct CSV contains President - Vice Pres and U.S. Senator rows. Review drilldowns compare presidential vote share by precinct size and presidential votes against same-party U.S. Senator votes.",
+        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/election_data/PG24_AllPrecincts.csv",
+        "localFile": "data/md-2024-general-all-precincts.csv; data/md-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "County breakdown source checked during Maryland load.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official Maryland SBE 2024 General Election raw election data CSV.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Maryland official county turnout",
@@ -162,6 +192,13 @@
         "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/General_Results/gen_detail_results_2024_1_1.html",
         "usedFor": "Maryland 2024 presidential county result table.",
         "confidence": "Official archived Maryland State Board of Elections county breakdown page."
+      },
+      {
+        "category": "Official precinct presidential and U.S. Senate review rows",
+        "file": "data/md-2024-general-all-precincts.csv; data/md-app-data.js",
+        "sourceUrl": "https://elections.maryland.gov/elections/archive/2024/election_data/PG24_AllPrecincts.csv",
+        "usedFor": "Maryland review flags comparing presidential vote share by precinct size and presidential-vs-U.S. Senator same-party drop-off.",
+        "confidence": "Official Maryland State Board of Elections raw 2024 General Election precinct CSV."
       },
       {
         "category": "Official county turnout denominator",
@@ -222,7 +259,7 @@
     "trump": 1035550,
     "harris": 1902577,
     "other": 100207,
-    "reviewRows": 0,
+    "reviewRows": 1956,
     "turnoutRows": 24,
     "turnoutWarningRows": 24,
     "historicalSeries": 0,

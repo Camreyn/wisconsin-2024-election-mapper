@@ -35,6 +35,11 @@
       "localFile": "data/la-2024-president-parish-results.csv"
     },
     {
+      "id": "la-2024-general-federal-precinct-results",
+      "url": "https://voterportal.sos.la.gov/static/2024-11-05",
+      "localFile": "data/la-2024-general-federal-precinct-results.json"
+    },
+    {
       "id": "la-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2722%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/la-counties.geojson"
@@ -125,8 +130,19 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "la-2024-president-parish-results",
+    "format": "louisianaFederalPrecinctJsonComparison",
+    "sourceId": "la-2024-general-federal-precinct-results",
+    "candidateSourceId": "la-2024-races-candidates-multiparish",
+    "presidentRaceId": "67190",
+    "downBallotRaceIds": [
+      "67171",
+      "67187",
+      "67188",
+      "67174",
+      "67175",
+      "67189"
+    ],
+    "warning": "Louisiana review rows compare President to aggregate U.S. House jungle-primary contests by precinct. Some congressional districts do not include both major parties, so drop-off warnings are methodology flags, not fraud findings.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -167,7 +183,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -182,13 +198,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Louisiana precinct or reporting-unit detail",
-        "detail": "The loaded official source is parish-level only. Review drilldowns need the official precinct-level race JSON mapped before they can be enabled.",
+        "title": "Louisiana precinct review comparison",
+        "detail": "Precinct-level review rows are loaded from official Louisiana Secretary of State federal race precinct JSON by comparing Presidential Electors to aggregate U.S. House contest votes across all six congressional districts. Louisiana uses jungle-primary congressional races, and some districts do not include both major parties, so the app carries a methodology warning.",
         "sourceUrl": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/",
-        "localFile": "data/la-2024-president-parish-results.csv; data/la-app-data.js",
+        "localFile": "data/la-2024-general-federal-precinct-results.json; data/la-2024-races-candidates-multiparish.json; data/la-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official parish-result source checked during Louisiana load.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official Louisiana Secretary of State static federal precinct result capture for the November 5, 2024 election, paired with official multiparish race/candidate labels.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Louisiana official parish turnout",
@@ -207,6 +223,13 @@
         "sourceUrl": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/Data?blob=20241105/VotesRaceByParish/Votes_67190.htm",
         "usedFor": "Louisiana certified 2024 presidential parish results.",
         "confidence": "Official Louisiana Secretary of State election results data endpoint."
+      },
+      {
+        "category": "Precinct review comparison",
+        "file": "data/la-2024-general-federal-precinct-results.json; data/la-2024-races-candidates-multiparish.json; data/la-app-data.js",
+        "sourceUrl": "https://voterportal.sos.la.gov/ElectionResults/ElectionResults/",
+        "usedFor": "Louisiana precinct-level review warning rows comparing President to aggregate U.S. House district totals.",
+        "confidence": "Official Louisiana Secretary of State election results data. Methodology warning is required because Louisiana congressional contests are jungle-primary races and some districts lack both major parties."
       },
       {
         "category": "Official parish turnout",
@@ -258,7 +281,7 @@
     "trump": 1208505,
     "harris": 766870,
     "other": 31600,
-    "reviewRows": 0,
+    "reviewRows": 3885,
     "turnoutRows": 64,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

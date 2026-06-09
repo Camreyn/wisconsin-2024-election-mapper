@@ -73,8 +73,41 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "delawareCountyHtmlComparison",
     "sourceId": "de-2024-general-election-report",
+    "sectionMarker": "id=\"bycounty\"",
+    "endMarker": "id=\"bycountyw\"",
+    "presidentContestClass": "PresidentandVicePresident",
+    "downBallotContestClass": "USSenator",
+    "countyColumns": {
+      "New Castle County": 2,
+      "Kent County": 3,
+      "Sussex County": 4
+    },
+    "columnIndexes": {
+      "State": 5
+    },
+    "stateColumn": "State",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "DONALD J. TRUMP",
+        "partyCode": "Republican Party"
+      },
+      "harris": {
+        "candidateContains": "KAMALA D. HARRIS",
+        "partyCode": "Democratic Party"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "candidateContains": "ERIC HANSEN",
+        "partyCode": "Republican Party"
+      },
+      "dem": {
+        "candidateContains": "LISA BLUNT ROCHESTER",
+        "partyCode": "Democratic Party"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -111,7 +144,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -126,13 +159,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Delaware election-district report",
-        "detail": "The official report page includes election-district presidential rows. Review drilldowns remain disabled until those rows are mapped to the app review schema.",
+        "title": "Delaware county review rows",
+        "detail": "The official by-county report includes President and U.S. Senator rows. The review graph compares Harris/Trump presidential votes to Lisa Blunt Rochester/Eric Hansen U.S. Senate votes at county level.",
         "sourceUrl": "https://elections.delaware.gov/reports/GE2024.html",
         "localFile": "data/de-2024-general-election-report.html; data/de-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official report page includes a By Election District section for the presidential contest.",
-        "status": "Needs parser mapping"
+        "sourceTimestampBasis": "Official report page includes a By County section for President and U.S. Senator; parser reconciles county candidate totals to the State column.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Delaware official statewide turnout",
@@ -149,7 +182,7 @@
         "category": "Presidential county results",
         "file": "data/de-2024-general-election-report.html; data/de-app-data.js",
         "sourceUrl": "https://elections.delaware.gov/reports/GE2024.html",
-        "usedFor": "Delaware county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
+        "usedFor": "Delaware county table, statewide totals, candidate breakdown, CSV export, presidential-vs-Senate review graph, and Source Planner rows.",
         "confidence": "Official Delaware Department of Elections 2024 General Election report page."
       },
       {
@@ -203,7 +236,7 @@
     "trump": 214351,
     "harris": 289758,
     "other": 7588,
-    "reviewRows": 0,
+    "reviewRows": 3,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

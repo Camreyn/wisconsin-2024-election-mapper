@@ -15,6 +15,11 @@
       "localFile": "data/co-2024-president-county-results.csv"
     },
     {
+      "id": "co-2024-regent-at-large-results",
+      "url": "https://co.elstats.civera.com/api/download_contest/26506_table.csv?split_party=false",
+      "localFile": "data/co-2024-regent-at-large-results.csv"
+    },
+    {
       "id": "co-2024-biennial-abstract",
       "url": "https://www.coloradosos.gov/pubs/elections/Results/2024/2024BiennialAbstract.pdf",
       "localFile": "data/co-2024-biennial-abstract.pdf"
@@ -118,8 +123,21 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "civeraCountyCsvComparison",
     "sourceId": "co-2024-president-county-results",
+    "downBallotSourceId": "co-2024-regent-at-large-results",
+    "rowTypes": [
+      "County"
+    ],
+    "rowLabelTemplate": "{county} County",
+    "downBallotCandidates": {
+      "dem": {
+        "candidateContains": "Elliott Hood"
+      },
+      "rep": {
+        "candidateContains": "Eric Rinard"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -156,7 +174,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -171,13 +189,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Colorado precinct or reporting-unit detail",
-        "detail": "The official CSV also contains precinct rows, but this baseline promotion imports county rows only. Review drilldowns need a mapped precinct review parser before they can be enabled.",
-        "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26499",
-        "localFile": "data/co-2024-president-county-results.csv; data/co-app-data.js",
+        "title": "Colorado county review comparison",
+        "detail": "Official Colorado Secretary of State President and Regent at Large contest CSVs are loaded for county-level President-vs-Regent review rows. Precinct rows exist in the exports and remain a future lower-level parser upgrade.",
+        "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26506",
+        "localFile": "data/co-2024-president-county-results.csv; data/co-2024-regent-at-large-results.csv; data/co-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Precinct rows are present in the Colorado CSV but not yet mapped into review graphs.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official Colorado Secretary of State historical election data portal contest export endpoints.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Colorado official county turnout",
@@ -192,9 +210,16 @@
     "sourceInventory": [
       {
         "category": "Official presidential county results",
-        "file": "data/co-2024-president-county-results.csv; data/co-app-data.js",
+        "file": "data/co-2024-president-county-results.csv; data/co-2024-regent-at-large-results.csv; data/co-app-data.js",
         "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26499",
-        "usedFor": "Colorado 2024 certified presidential county results.",
+        "usedFor": "Colorado 2024 certified presidential county results and county President-vs-Regent review rows.",
+        "confidence": "Official Colorado Secretary of State historical election data portal CSV."
+      },
+      {
+        "category": "Official Regent at Large county results",
+        "file": "data/co-2024-regent-at-large-results.csv; data/co-app-data.js",
+        "sourceUrl": "https://historicalelectiondata.coloradosos.gov/contest/26506",
+        "usedFor": "Colorado county President-vs-Regent at Large review rows.",
         "confidence": "Official Colorado Secretary of State historical election data portal CSV."
       },
       {
@@ -248,7 +273,7 @@
     "trump": 1377441,
     "harris": 1728159,
     "other": 87145,
-    "reviewRows": 0,
+    "reviewRows": 64,
     "turnoutRows": 64,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

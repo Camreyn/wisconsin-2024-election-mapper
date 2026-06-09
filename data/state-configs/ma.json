@@ -15,6 +15,11 @@
       "localFile": "data/ma-2024-president-general-election.html"
     },
     {
+      "id": "ma-2024-us-senate-general-election",
+      "url": "https://electionstats.state.ma.us/elections/view/165304",
+      "localFile": "data/ma-2024-us-senate-general-election.html"
+    },
+    {
       "id": "ma-2024-state-election-statewide-turnout",
       "url": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/voter-turnout-statistics.htm",
       "localFile": "data/ma-2024-state-election-statewide-turnout.csv"
@@ -76,8 +81,18 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "massachusettsCountyHtmlComparison",
     "sourceId": "ma-2024-president-general-election",
+    "presidentSourceId": "ma-2024-president-general-election",
+    "downBallotSourceId": "ma-2024-us-senate-general-election",
+    "presidentColumns": {
+      "dem": "Harris/ Walz",
+      "rep": "Trump/ Vance"
+    },
+    "downBallotColumns": {
+      "dem": "E. Warren",
+      "rep": "J. Deaton"
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -118,7 +133,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -133,13 +148,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Massachusetts precinct or reporting-unit detail",
-        "detail": "The loaded PD43+ source is county-level. Review drilldowns need the official PD43+ municipality or precinct export mapped before they can be enabled.",
-        "sourceUrl": "https://electionstats.state.ma.us/elections/view/165300",
-        "localFile": "data/ma-2024-president-general-election.html; data/ma-app-data.js",
+        "title": "Massachusetts county review comparison",
+        "detail": "Official PD43+ President and U.S. Senate county tables are loaded for county President-vs-U.S. Senate review rows. Municipality or precinct rows remain a future parser upgrade.",
+        "sourceUrl": "https://electionstats.state.ma.us/elections/view/165304",
+        "localFile": "data/ma-2024-president-general-election.html; data/ma-2024-us-senate-general-election.html; data/ma-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "PD43+ offers municipality and precinct result actions, but this baseline promotion loads only the county table.",
-        "status": "Needs parser mapping"
+        "sourceTimestampBasis": "PD43+ pages identify the 2024 President and U.S. Senate General Election county tables.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Massachusetts official statewide turnout",
@@ -154,9 +169,16 @@
     "sourceInventory": [
       {
         "category": "Official presidential county results",
-        "file": "data/ma-2024-president-general-election.html; data/ma-app-data.js",
+        "file": "data/ma-2024-president-general-election.html; data/ma-2024-us-senate-general-election.html; data/ma-app-data.js",
         "sourceUrl": "https://electionstats.state.ma.us/elections/view/165300",
-        "usedFor": "Massachusetts certified 2024 presidential county result table.",
+        "usedFor": "Massachusetts certified 2024 presidential county result table and county President-vs-U.S. Senate review rows.",
+        "confidence": "Official Massachusetts Secretary of the Commonwealth PD43+ election results database."
+      },
+      {
+        "category": "Official U.S. Senate county results",
+        "file": "data/ma-2024-us-senate-general-election.html; data/ma-app-data.js",
+        "sourceUrl": "https://electionstats.state.ma.us/elections/view/165304",
+        "usedFor": "Massachusetts county President-vs-U.S. Senate review rows.",
         "confidence": "Official Massachusetts Secretary of the Commonwealth PD43+ election results database."
       },
       {
@@ -209,7 +231,7 @@
     "trump": 1251303,
     "harris": 2126518,
     "other": 95847,
-    "reviewRows": 0,
+    "reviewRows": 14,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

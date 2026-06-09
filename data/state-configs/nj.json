@@ -15,6 +15,11 @@
       "localFile": "data/nj-2024-official-general-results-president.pdf"
     },
     {
+      "id": "nj-2024-official-general-results-us-senate",
+      "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate.pdf",
+      "localFile": "data/nj-2024-official-general-results-us-senate.pdf"
+    },
+    {
       "id": "nj-2024-official-general-voter-turnout",
       "url": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-voter-turnout.pdf",
       "localFile": "data/nj-2024-official-general-voter-turnout.pdf"
@@ -83,8 +88,17 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "newJerseySenatePdfCountyComparison",
     "sourceId": "nj-2024-official-general-results-president",
+    "downBallotSourceId": "nj-2024-official-general-results-us-senate",
+    "downBallotCandidates": {
+      "dem": {
+        "candidateContains": "ANDY KIM"
+      },
+      "rep": {
+        "candidateContains": "CURTIS BASHAW"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -116,7 +130,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -131,13 +145,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "New Jersey precinct or reporting-unit detail",
-        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
-        "localFile": "data/nj-2024-official-general-results-president.pdf; data/nj-app-data.js",
+        "title": "New Jersey county review comparison",
+        "detail": "Official Division of Elections President and U.S. Senate PDFs provide candidate-by-county tallies. The review layer compares county presidential totals to U.S. Senate totals; precinct or ward rows remain a future source upgrade.",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate.pdf",
+        "localFile": "data/nj-2024-official-general-results-president.pdf; data/nj-2024-official-general-results-us-senate.pdf; data/nj-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "County result source checked during New Jersey load.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official Division of Elections PDFs marked 12/05/2024 Official List.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "New Jersey official general-election voter turnout",
@@ -152,10 +166,17 @@
     "sourceInventory": [
       {
         "category": "Official presidential county results",
-        "file": "data/nj-2024-official-general-results-president.pdf; data/nj-app-data.js",
+        "file": "data/nj-2024-official-general-results-president.pdf; data/nj-2024-official-general-results-us-senate.pdf; data/nj-app-data.js",
         "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
-        "usedFor": "New Jersey 2024 presidential county results.",
+        "usedFor": "New Jersey 2024 presidential county results and county President-vs-U.S. Senate review rows.",
         "confidence": "Official New Jersey Division of Elections presidential results PDF."
+      },
+      {
+        "category": "Official U.S. Senate county results",
+        "file": "data/nj-2024-official-general-results-us-senate.pdf; data/nj-app-data.js",
+        "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate.pdf",
+        "usedFor": "New Jersey county President-vs-U.S. Senate review rows.",
+        "confidence": "Official New Jersey Division of Elections U.S. Senate results PDF."
       },
       {
         "category": "County boundaries",
@@ -207,7 +228,7 @@
     "trump": 1968215,
     "harris": 2220713,
     "other": 83797,
-    "reviewRows": 0,
+    "reviewRows": 21,
     "turnoutRows": 21,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

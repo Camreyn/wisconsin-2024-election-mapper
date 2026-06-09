@@ -20,6 +20,81 @@
       "localFile": "data/ga-2024-statewide-turnout.csv"
     },
     {
+      "id": "ga-2024-general-president-detail",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-president-of-the-us-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-1",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-1-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-2",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-2-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-3",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-3-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-4",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-4-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-5",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-5-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-6",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-6-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-7",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-7-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-8",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-8-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-9",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-9-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-10",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-10-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-11",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-11-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-12",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-12-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-13",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-13-detail.json"
+    },
+    {
+      "id": "ga-2024-us-house-district-14",
+      "url": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+      "localFile": "data/ga-2024-general-us-house-of-representatives-district-14-detail.json"
+    },
+    {
       "id": "ga-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2713%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ga-counties.geojson"
@@ -62,8 +137,26 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "ga-2024-total-votes-results",
+    "format": "georgiaHouseJsonCountyComparison",
+    "sourceId": "ga-2024-general-president-detail",
+    "presidentSourceId": "ga-2024-general-president-detail",
+    "downBallotSources": [
+      { "sourceId": "ga-2024-us-house-district-1" },
+      { "sourceId": "ga-2024-us-house-district-2" },
+      { "sourceId": "ga-2024-us-house-district-3" },
+      { "sourceId": "ga-2024-us-house-district-4" },
+      { "sourceId": "ga-2024-us-house-district-5" },
+      { "sourceId": "ga-2024-us-house-district-6" },
+      { "sourceId": "ga-2024-us-house-district-7" },
+      { "sourceId": "ga-2024-us-house-district-8" },
+      { "sourceId": "ga-2024-us-house-district-9" },
+      { "sourceId": "ga-2024-us-house-district-10" },
+      { "sourceId": "ga-2024-us-house-district-11" },
+      { "sourceId": "ga-2024-us-house-district-12" },
+      { "sourceId": "ga-2024-us-house-district-13" },
+      { "sourceId": "ga-2024-us-house-district-14" }
+    ],
+    "warning": "Georgia review rows compare President to the aggregate of U.S. House district contests by county; counties split across congressional districts are summed before comparison.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -104,7 +197,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -119,13 +212,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Georgia precinct or reporting-unit detail",
-        "detail": "The official Total Votes workbook is county-level for this app import. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Georgia county review comparison",
+        "detail": "County-level review rows are loaded by comparing official presidential county JSON rows to Georgia Secretary of State U.S. House contest detail JSON rows aggregated by county across all 14 congressional districts. This is not a single statewide down-ballot race, so the app carries a methodology warning.",
         "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
-        "localFile": "data/ga-2024-total-votes-results.xlsx; data/ga-app-data.js",
+        "localFile": "data/ga-2024-general-president-of-the-us-detail.json; data/ga-2024-general-us-house-of-representatives-district-*-detail.json; data/ga-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Total Votes workbook provides county rows for the presidential contest; precinct comparison rows are not mapped yet.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official Georgia SOS public results API marks the election isOfficialResults=true; the ENR detail JSON payloads expose county breakdowns for President and U.S. House contests.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Georgia statewide turnout denominator",
@@ -144,6 +237,13 @@
         "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
         "usedFor": "Georgia 2024 presidential county totals.",
         "confidence": "Official Georgia Secretary of State public results export. The election API marks the results official, and the workbook totals reconcile between County Results and Total Votes sheets."
+      },
+      {
+        "category": "County review comparison",
+        "file": "data/ga-2024-general-president-of-the-us-detail.json; data/ga-2024-general-us-house-of-representatives-district-*-detail.json; data/ga-app-data.js",
+        "sourceUrl": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+        "usedFor": "Georgia county-level review warning rows comparing President to aggregate U.S. House district totals.",
+        "confidence": "Official Georgia Secretary of State public results detail JSON. Methodology warning is required because the down-ballot comparison combines district contests rather than one statewide race."
       },
       {
         "category": "Statewide turnout denominator",
@@ -194,7 +294,7 @@
     "trump": 2663117,
     "harris": 2548017,
     "other": 38913,
-    "reviewRows": 0,
+    "reviewRows": 159,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

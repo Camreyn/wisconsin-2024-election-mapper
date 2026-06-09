@@ -117,8 +117,29 @@
     }
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "rhodeIslandSummaryXlsxComparison",
     "sourceId": "ri-2024-general-election-summary",
+    "sheet": "Candidate_Breakout",
+    "presidentContest": "Presidential Electors For:",
+    "downBallotContest": "Senator in Congress",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "candidateContains": "Patricia Morgan",
+        "partyCode": "REP"
+      },
+      "dem": {
+        "candidateContains": "Sheldon Whitehouse",
+        "partyCode": "DEM"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -152,7 +173,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -168,12 +189,12 @@
       },
       "wardDetail": {
         "title": "Rhode Island BOE precinct rows",
-        "detail": "The official workbook contains presidential precinct rows by town. Review drilldowns remain disabled until a Rhode Island review parser maps those precinct rows to a down-ballot comparison contest.",
+        "detail": "The official workbook contains presidential and U.S. Senate precinct rows by town. The review graph compares Harris/Trump presidential votes to Whitehouse/Morgan U.S. Senate votes where both contests are present at the same precinct label.",
         "sourceUrl": "https://elections.ri.gov/elections/previous-election-results",
         "localFile": "data/ri-2024-general-election-summary.xlsx; data/ri-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Candidate_Breakout sheet includes presidential precinct rows.",
-        "status": "Needs parser mapping"
+        "sourceTimestampBasis": "Candidate_Breakout sheet includes presidential and U.S. Senate precinct rows.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Rhode Island registration and ballots-cast workbook sheets",
@@ -190,7 +211,7 @@
         "category": "Official turnout denominator",
         "file": "data/ri-2024-general-election-summary.xlsx; data/ri-app-data.js",
         "sourceUrl": "https://elections.ri.gov/elections/previous-election-results",
-        "usedFor": "Rhode Island precinct turnout graph and turnout coverage rows.",
+        "usedFor": "Rhode Island precinct turnout graph, turnout coverage rows, and presidential-vs-Senate review graph.",
         "confidence": "Official Rhode Island Board of Elections workbook sheets."
       },
       {
@@ -243,7 +264,7 @@
     "trump": 214406,
     "harris": 285156,
     "other": 13824,
-    "reviewRows": 0,
+    "reviewRows": 439,
     "turnoutRows": 414,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

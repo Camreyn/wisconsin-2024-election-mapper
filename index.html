@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Upper Midwest Presidential Results Explorer</title>
+    <title>Multi-State Presidential Results Explorer</title>
     <script>
       const requestedTheme = new URLSearchParams(location.search).get("theme");
       let storedTheme = null;
@@ -104,7 +104,7 @@
           id="countySearch"
           class="search-input"
           type="search"
-          placeholder="Try Dane, Brown, Sauk..."
+          placeholder="Try a county name..."
           autocomplete="off"
         />
 
@@ -181,7 +181,7 @@
           <ol class="review-steps" aria-label="Guided review workflow">
             <li><span>1</span><div><strong>Pick an area</strong><small>Start with the flagged-area list.</small></div></li>
             <li><span>2</span><div><strong>Read the flag</strong><small>See which threshold was crossed.</small></div></li>
-            <li><span>3</span><div><strong>Inspect ward rows</strong><small>Review the underlying WEC totals.</small></div></li>
+            <li><span>3</span><div><strong>Inspect local rows</strong><small>Review the underlying official totals.</small></div></li>
             <li><span>4</span><div><strong>Export evidence</strong><small>Download a focused CSV for follow-up.</small></div></li>
             <li><span>5</span><div><strong>Request records</strong><small>Use official records to verify the pattern.</small></div></li>
           </ol>
@@ -194,9 +194,9 @@
             <div id="etaTests" class="eta-tests"></div>
             <p class="eta-note">
               Several screening methods rely heavily on precinct-level data.
-              Any turnout source using pre-Election-Day registration counts
-              must be treated as provisional because Wisconsin allows Election
-              Day registration.
+              Any turnout source using registration counts that exclude
+              Election Day updates must be treated as provisional in states
+              where same-day registration or late denominator updates apply.
             </p>
           </section>
         </section>
@@ -210,7 +210,7 @@
 
           <section class="history-warning" aria-label="Historical data limitation">
             <strong>Read this before comparing years</strong>
-            <p>Wisconsin's multi-year comparison rows come from Wisconsin Legislative Technology Services Bureau (LTSB) harmonized ward layers. In plain language, LTSB is a nonpartisan legislative service agency whose GIS team publishes mapping layers. Here, <strong>harmonized</strong> means that results from different years were placed onto a common ward map so the years can be compared. Some values were allocated using population-based methods, so these are useful comparison rows, not exact original ward records. Minnesota uses native official Secretary of State county rows for each year.</p>
+            <p>Historical baselines are loaded state by state from the best available official or clearly documented public source rows. Some states use native county, precinct, or municipality rows. Others use harmonized comparison rows placed onto common geography so years can be compared. Any allocation or harmonization is labeled in the selected state's source notes.</p>
           </section>
 
           <section class="history-controls" aria-label="Historical comparison controls">
@@ -273,7 +273,7 @@
                 <strong>How to read this</strong>
                 <p>Each panel is one election year. Each bar counts how many local source rows landed in a Republican presidential vote-share range. Think of sorting result rows into labeled buckets: 0-5%, 5-10%, and so on. The dashed blue line is the average row. The gold line marks the busiest bucket. Compare the overall shapes across election years.</p>
                 <p><strong>Skew</strong> is a simple measure of whether the bars lean more heavily toward one side of the chart. A value near zero is more balanced. A positive or negative value describes the direction of the lean; it does not explain the cause.</p>
-                <p>This is a screening comparison, not proof of a cause. The displayed rows are LTSB harmonized comparison rows placed onto common ward geography. A statewide turnout-versus-vote-share heat map would require reliable row-level turnout denominators for each year, which are not currently available for Wisconsin.</p>
+                <p>This is a screening comparison, not proof of a cause. The displayed rows use the selected state's loaded historical source method. A statewide turnout-versus-vote-share heat map requires reliable row-level turnout denominators for each year, which are not available for every state.</p>
               </div>
             </article>
 
@@ -346,57 +346,38 @@
               <article>
                 <strong>Presidential county results</strong>
                 <p>Used for map shading, county table, statewide totals, candidate breakdown, CSV export, and selected-county details.</p>
-                <span>Local files: data/County by County Report_POTUS.pdf; data/president-county-results.json</span>
-                <span>WEC file Last-Modified header: 2024-11-27T21:31:27Z. This is server file metadata, not guaranteed first public link time.</span>
-                <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_POTUS.pdf" target="_blank" rel="noreferrer">WEC PDF</a>
+                <span>Each state records the official source file used for map rows in the Source Planner and generated app data.</span>
               </article>
               <article>
-                <strong>Minnesota pilot county results</strong>
-                <p>Used for Minnesota county table, statewide totals, candidate breakdown, review graphs, turnout graph, CSV export, and Source Planner readiness rows.</p>
-                <span>Local files: data/mn-2024-general-federal-state-results-by-precinct-official.xlsx; data/mn-app-data.js</span>
-                <span>Minnesota SOS workbook Last-Modified header: 2025-02-14T17:22:26Z. This is server file metadata, not guaranteed first public link time.</span>
-                <a href="https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx" target="_blank" rel="noreferrer">Minnesota SOS workbook</a>
+                <strong>Review graph rows</strong>
+                <p>Used for vote-share by vote-count scatterplots, presidential-versus-comparison drop-off histograms, selected-area filtering, and review drilldowns when a state has same-grain rows loaded.</p>
+                <span>Availability varies by state. Some states have precinct rows; others remain county-only until a same-grain comparison source is mapped.</span>
               </article>
               <article>
-                <strong>U.S. Senate and ward results</strong>
-                <p>Used for vote-share by vote-count scatterplots, presidential-versus-Senate drop-off histograms, selected-county filtering, city splits, and review drilldowns.</p>
-                <span>Local files: data/County by County Report_US Senate.pdf; data/Ward by Ward Report Federal and State Contests.xlsx; data/ward-analysis.json; data/eta-data.js</span>
-                <span>WEC file Last-Modified headers: Senate county PDF 2024-11-27T21:31:28Z; ward spreadsheet 2024-11-27T21:35:53Z. These are server file metadata, not guaranteed first public link times.</span>
-                <a href="https://elections.wi.gov/sites/default/files/documents/County%20by%20County%20Report_US%20Senate_1.pdf" target="_blank" rel="noreferrer">WEC Senate PDF</a>
-                <a href="https://web.archive.org/web/20241130045633id_/https://elections.wi.gov/sites/default/files/documents/Ward%20by%20Ward%20Report%20by%20Congressional%20District_November%205%202024%20General%20Election_Federal%20and%20State%20Contests.xlsx" target="_blank" rel="noreferrer">Archived WEC spreadsheet</a>
+                <strong>Comparison contests</strong>
+                <p>Used for drop-off charts when President and a statewide or district-level comparison contest are available at the same row grain.</p>
+                <span>The comparison contest is documented in each state's app data and review graph source notes.</span>
               </article>
               <article>
                 <strong>County boundaries</strong>
-                <p>Used to draw Wisconsin county polygons.</p>
-                <span>Local files: data/wi-counties.geojson; data/wi-counties.js</span>
+                <p>Used to draw state, county, or district polygons depending on the selected state.</p>
+                <span>Most county maps use U.S. Census TIGERweb geometry; exceptions are labeled in the selected state's source inventory.</span>
                 <a href="https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer" target="_blank" rel="noreferrer">TIGERweb service</a>
               </article>
               <article>
                 <strong>Turnout denominator sources</strong>
-                <p>Used only for the partial turnout histogram and denominator-warning labels. Wisconsin allows Election Day registration, so pre-Election-Day denominators require warnings.</p>
-                <span>Local imports: Milwaukee city, Dane County, Jefferson County, and Oneida County turnout files.</span>
-                <a href="https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf" target="_blank" rel="noreferrer">Milwaukee report</a>
-                <a href="https://elections.countyofdane.com/Election-Result/172" target="_blank" rel="noreferrer">Dane canvass</a>
-                <a href="https://apps.jeffersoncountywi.gov/jc/election/results/11052024" target="_blank" rel="noreferrer">Jefferson results</a>
-                <a href="https://www.oneidacountywi.gov/election-results/" target="_blank" rel="noreferrer">Oneida results</a>
+                <p>Used for turnout histograms and denominator-warning labels. Denominator timing differs by state, so warnings are retained when rows are statewide-only, active-voter-only, post-election, or otherwise limited.</p>
+                <span>Open Source Planner for the selected state's loaded turnout route and caveats.</span>
               </article>
               <article>
                 <strong>Historical presidential baseline</strong>
-                <p>Used for the Historical Baseline tab. Multi-year trend rows remain visibly labeled as harmonized LTSB rows rather than exact native ward records. Native WEC 2024 rows remain separately selectable.</p>
-                <span>Local files: data/historical-data.js; data/historical/generated/historical-presidential-summary.json; data/historical/generated/historical-reconciliation-report.json</span>
-                <a href="https://geodiscovery.uwm.edu/catalog/317F4F49-5B17-43CC-9BCA-36ED25DC9E15" target="_blank" rel="noreferrer">LTSB catalog record</a>
-                <a href="https://www.arcgis.com/home/item.html?id=878d8826218f42509e07437a82ef6b6e" target="_blank" rel="noreferrer">Official LTSB 2024 layer</a>
-                <a href="https://web.archive.org/web/20161223044005id_/http://elections.wi.gov/elections-voting/results/2016/fall-general" target="_blank" rel="noreferrer">Archived 2016 WEC results page</a>
+                <p>Used for the Historical Baseline tab where multi-year presidential rows have been loaded. Source row type and limitations are shown inside the tab.</p>
+                <span>Local generated files include historical-data.js and reconciliation summaries for states with historical coverage.</span>
               </article>
               <article>
                 <strong>Methodology and context</strong>
-                <p>Used for graph-category references, reporting context, registration timing, and the voter-file cost decision.</p>
+                <p>Used for graph-category references, reporting context, registration timing, and source limitations.</p>
                 <a href="https://electiontruthalliance.org/our-methodology/" target="_blank" rel="noreferrer">Election Truth Alliance methodology reference</a>
-                <a href="https://myvote.wi.gov/en-us/Election-Results" target="_blank" rel="noreferrer">MyVote results note</a>
-                <a href="https://myvotemirror.wi.gov/en-us/Voter-Deadlines" target="_blank" rel="noreferrer">Registration deadlines</a>
-                <a href="https://www.votebeat.org/wisconsin/2024/11/07/more-ballots-than-voters-oak-creek-turnout-baldwin-hovde-race/" target="_blank" rel="noreferrer">Votebeat turnout explainer</a>
-                <a href="https://badgervoters.wi.gov/faq" target="_blank" rel="noreferrer">Badger Voters FAQ</a>
-                <a href="https://www.law.cornell.edu/regulations/wisconsin/Wis-Admin-Code-SS-EL-3-50" target="_blank" rel="noreferrer">Fee rule</a>
               </article>
             </div>
           </section>
@@ -416,7 +397,7 @@
             </label>
             <label>
               <span>County search</span>
-              <input id="sourceCountySearch" type="search" placeholder="Try Milwaukee, Dane, Waukesha..." autocomplete="off" />
+              <input id="sourceCountySearch" type="search" placeholder="Try a county name..." autocomplete="off" />
             </label>
             <label>
               <span>Turnout status</span>
@@ -433,7 +414,7 @@
           <section class="source-planner-summary" aria-label="Selected state source summary">
             <div class="panel-heading">
               <p class="eyebrow">Selected state</p>
-              <h2 id="sourceStateTitle">Wisconsin 2024</h2>
+              <h2 id="sourceStateTitle">Selected state</h2>
             </div>
             <p id="sourceStateSummary" class="source-state-summary">Building source summary...</p>
             <div id="sourcePlanBadges" class="confidence-badges"></div>
@@ -498,15 +479,15 @@
             <dl class="terminology-grid">
               <div>
                 <dt>LTSB</dt>
-                <dd>Wisconsin Legislative Technology Services Bureau. It is a nonpartisan legislative service agency whose GIS team publishes mapping layers used for the historical comparison.</dd>
+                <dd>Wisconsin Legislative Technology Services Bureau. It appears only in Wisconsin historical-source notes as a nonpartisan legislative service agency whose GIS team publishes mapping layers.</dd>
               </div>
               <div>
                 <dt>Harmonized</dt>
                 <dd>Adjusted onto one common map so different election years can be compared. Think of redrawing several old neighborhood maps onto the same modern street map. Some row values are estimates allocated by population, not exact original ward records.</dd>
               </div>
               <div>
-                <dt>Native official WEC row</dt>
-                <dd>A result row taken from a Wisconsin Elections Commission election-specific report without converting it onto the shared historical map. This is closer to the original reporting format for that election.</dd>
+                <dt>Native official row</dt>
+                <dd>A result row taken from an election-specific official report without converting it onto a shared historical map. This is closer to the original reporting format for that election.</dd>
               </div>
               <div>
                 <dt>Reporting unit</dt>
@@ -544,10 +525,10 @@
               </dl>
             </article>
             <article class="methodology-card">
-              <h3><span class="technical-term" tabindex="0" data-definition="A histogram that groups the difference between presidential votes and same-party U.S. Senate votes in each ward row.">Presidential-versus-Senate Drop-Off Histogram</span></h3>
+              <h3><span class="technical-term" tabindex="0" data-definition="A histogram that groups the difference between presidential votes and same-party comparison-contest votes in each loaded local row.">Presidential-versus-Comparison Drop-Off Histogram</span></h3>
               <dl>
                 <dt>Calculates</dt>
-                <dd>The difference between presidential and U.S. Senate votes within each WEC ward row.</dd>
+                <dd>The difference between presidential and same-party comparison-contest votes within each loaded local row.</dd>
                 <dt>Can flag when</dt>
                 <dd>The average difference or the count of larger row-level differences crosses a selected threshold.</dd>
                 <dt>Normal explanations</dt>
@@ -774,12 +755,11 @@
         <section id="aboutPanel" class="tab-panel about-panel" role="tabpanel" aria-label="About and contact" hidden>
           <div class="about-hero">
             <p class="eyebrow">About this project</p>
-            <h2>Wisconsin Presidential Results Explorer</h2>
+            <h2>Multi-State Presidential Results Explorer</h2>
             <p>
-              This is an independent civic-data app for reviewing Wisconsin 2024 election results
-              county-by-county and ward-by-ward, then comparing presidential baselines across
-              2012, 2016, 2020, and 2024 using public records and clearly labeled screening
-              calculations.
+              This is an independent civic-data app for reviewing 2024 presidential election
+              results by state, county, and local reporting unit where official source rows are
+              loaded, then comparing historical baselines where public records support them.
             </p>
           </div>
 
@@ -787,12 +767,11 @@
             <article>
               <strong>What it does</strong>
               <p>
-                Maps certified county presidential results, shows official WEC ward-level graph
-                patterns, compares major cities with the rest of their counties, and tracks which
-                turnout denominator sources have been imported. A historical tab helps distinguish
-                patterns that were already visible in earlier presidential elections. An educational
-                audit-coverage simulator illustrates how hypothetical concentrated discrepancies
-                interact with a random reporting-unit sample.
+                Maps certified presidential results, shows review graphs where same-grain
+                comparison rows are available, and tracks which turnout denominator sources have
+                been imported. A historical tab helps distinguish patterns that were already
+                visible in earlier presidential elections. The Wisconsin audit-coverage simulator
+                remains as a state-specific educational model based on Wisconsin public materials.
               </p>
             </article>
             <article>
@@ -806,9 +785,9 @@
             <article>
               <strong>Data status</strong>
               <p>
-                County vote-result coverage is complete for all 72 Wisconsin counties. Ward vote
-                charts use official WEC ward totals. Turnout analysis is partial because registered
-                voter denominator rows must be collected county-by-county from local sources.
+                Coverage varies by state and capability. Each state's map, review graphs, turnout
+                rows, historical baselines, source inventory, and caveats are shown separately in
+                the Source Planner and generated app data.
               </p>
             </article>
             <article>
@@ -838,7 +817,6 @@
               <div class="about-link-list">
                 <a href="https://github.com/Camreyn/wisconsin-2024-election-mapper" target="_blank" rel="noreferrer">GitHub repository</a>
                 <a href="https://camreyn.github.io/wisconsin-2024-election-mapper/" target="_blank" rel="noreferrer">GitHub Pages site</a>
-                <a href="https://elections.wi.gov/" target="_blank" rel="noreferrer">Wisconsin Elections Commission</a>
               </div>
             </article>
           </div>
@@ -847,12 +825,11 @@
             <p class="eyebrow">Source summary</p>
             <h3>What the app relies on</h3>
             <ul>
-              <li>Official WEC certified county presidential and U.S. Senate reports.</li>
-              <li>Official WEC ward-level federal and state contest spreadsheet.</li>
-              <li>Wisconsin Legislative Technology Services Bureau harmonized presidential comparison layers for historical baselines.</li>
-              <li>U.S. Census TIGERweb Wisconsin county boundary geometry.</li>
-              <li>Local county or municipal turnout reports where registered-voter denominator rows have been imported.</li>
-              <li>Official WEC 2024 post-election voting-equipment audit report and adopted procedures.</li>
+              <li>Official state election authority result files and public results portals.</li>
+              <li>Official precinct, reporting-unit, county, or district rows where they are available.</li>
+              <li>U.S. Census TIGERweb county or district boundary geometry where applicable.</li>
+              <li>Official turnout reports or registration denominator files where imported.</li>
+              <li>Wisconsin public voting-equipment audit materials for the Wisconsin-specific audit simulator.</li>
               <li>Election Truth Alliance methodology pages for graph type names and screening concepts, not as a source of Wisconsin vote totals.</li>
             </ul>
           </section>
@@ -903,7 +880,7 @@
           <div class="plain-method-grid">
             <article>
               <strong>Accurate calculation</strong>
-              <p>The vote-share and down-ballot graphs calculate patterns from official WEC ward-level vote totals.</p>
+              <p>The vote-share and down-ballot graphs calculate patterns from the selected state's loaded official local result rows.</p>
             </article>
             <article>
               <strong>Limited conclusion</strong>
@@ -928,7 +905,7 @@
           <div class="flagged-area-filters" aria-label="Flagged-area filters">
             <label>
               <span>Search area</span>
-              <input id="flaggedSearchInput" type="search" placeholder="Try Milwaukee..." autocomplete="off" />
+              <input id="flaggedSearchInput" type="search" placeholder="Try an area name..." autocomplete="off" />
             </label>
             <label>
               <span>Area type</span>
@@ -1075,13 +1052,13 @@
               <div>
                 <span>Statistical screening graph</span>
                 <div class="graph-title-row">
-                  <strong><span class="technical-term" tabindex="0" data-definition="A scatterplot that asks whether candidate vote share changes as local reporting-unit vote totals get larger. Each dot is one ward or reporting-unit row.">Vote-Share by Vote-Count Scatterplot</span></strong>
+                  <strong><span class="technical-term" tabindex="0" data-definition="A scatterplot that asks whether candidate vote share changes as local reporting-unit vote totals get larger. Each dot is one loaded local result row.">Vote-Share by Vote-Count Scatterplot</span></strong>
                   <button
                     id="voteShareGraphInfo"
                     class="graph-info"
                     type="button"
-                    aria-label="Vote share graph note: uses official WEC ward-level vote totals. The calculation is accurate for the data shown, but a pattern or flagged result means review further, not proof by itself."
-                    title="Uses official WEC ward-level vote totals. The calculation is accurate for the data shown, but a pattern or flagged result means review further, not proof by itself."
+                    aria-label="Vote share graph note: uses official local result rows loaded for the selected state. The calculation is accurate for the data shown, but a pattern or flagged result means review further, not proof by itself."
+                    title="Uses official local result rows loaded for the selected state. The calculation is accurate for the data shown, but a pattern or flagged result means review further, not proof by itself."
                   >
                     !
                   </button>
@@ -1093,13 +1070,12 @@
             <div class="graph-explainer">
               <strong>How to read this</strong>
               <p>
-                Each dot is one ward. Left-to-right shows how many votes a candidate received there;
-                up-and-down shows that candidate's share of the ward vote. Think of it like a weather
-                map: one dot is just one reading, but the trend line shows whether the readings lean in
-                a pattern.
+                Each dot is one local result row. Left-to-right shows how many votes a candidate received there;
+                up-and-down shows that candidate's share of that row's vote. Think of it like a weather
+                map: one dot is just one reading, but the trend line shows whether the readings lean in a pattern.
               </p>
               <p>
-                Simple example: if bigger Harris wards also tend to have higher Harris percentages,
+                Simple example: if larger Harris rows also tend to have higher Harris percentages,
                 the blue trend line rises and the check may flag for review. A flag means "look closer,"
                 not "proof something happened."
               </p>
@@ -1111,13 +1087,13 @@
               <div>
                 <span>Statistical screening graph</span>
                 <div class="graph-title-row">
-                  <strong><span class="technical-term" tabindex="0" data-definition="A histogram that groups the difference between presidential votes and same-party U.S. Senate votes in the same ward row. It can show whether larger gaps cluster together.">Presidential-versus-Senate Drop-Off Histogram</span></strong>
+                  <strong><span class="technical-term" tabindex="0" data-definition="A histogram that groups the difference between presidential votes and same-party comparison-contest votes in the same local row. It can show whether larger gaps cluster together.">Presidential-versus-Comparison Drop-Off Histogram</span></strong>
                   <button
                     id="downBallotGraphInfo"
                     class="graph-info"
                     type="button"
-                    aria-label="Down-ballot graph note: uses official WEC ward-level President and U.S. Senate vote totals. The calculation is accurate for the data shown, but differences can come from normal split-ticket voting."
-                    title="Uses official WEC ward-level President and U.S. Senate vote totals. The calculation is accurate for the data shown, but differences can come from normal split-ticket voting."
+                    aria-label="Down-ballot graph note: uses official President and comparison-contest rows loaded for the selected state. The calculation is accurate for the data shown, but differences can come from normal split-ticket voting."
+                    title="Uses official President and comparison-contest rows loaded for the selected state. The calculation is accurate for the data shown, but differences can come from normal split-ticket voting."
                   >
                     !
                   </button>
@@ -1129,14 +1105,14 @@
             <div class="graph-explainer">
               <strong>How to read this</strong>
               <p>
-                This compares presidential votes with U.S. Senate votes in the same ward. It is like
+                This compares presidential votes with a same-party comparison contest in the same local row. It is like
                 checking two receipts from the same shopping trip: if one line item is much bigger or
                 smaller than expected, it gets marked for a closer look.
               </p>
               <p>
-                Simple example: if Trump received 1,000 votes in a ward and Hovde received 950, the
-                Republican presidential-to-Senate drop-off is 50 votes, or 5%. Normal split-ticket voting
-                can cause differences; the chart helps show whether those differences cluster oddly.
+                Simple example: if Trump received 1,000 votes in a precinct and the same-party comparison
+                candidate received 950, the Republican presidential-to-comparison drop-off is 50 votes, or 5%.
+                Normal split-ticket voting can cause differences; the chart helps show whether those differences cluster oddly.
               </p>
             </div>
           </div>
@@ -1150,8 +1126,8 @@
                   <button
                     class="graph-info graph-info-warning"
                     type="button"
-                    aria-label="Turnout graph warning: turnout is partial. It only includes counties where denominator rows were imported. Pre-Election-Day or unknown registered-voter counts can overstate turnout because Wisconsin allows Election Day registration."
-                    title="Turnout is partial. It only includes counties where denominator rows were imported. Pre-Election-Day or unknown registered-voter counts can overstate turnout because Wisconsin allows Election Day registration."
+                    aria-label="Turnout graph warning: turnout coverage and denominator timing vary by state. Pre-election or otherwise limited registered-voter counts can overstate turnout."
+                    title="Turnout coverage and denominator timing vary by state. Pre-election or otherwise limited registered-voter counts can overstate turnout."
                   >
                     !
                   </button>
@@ -1164,14 +1140,14 @@
             <div class="graph-explainer warning-explainer">
               <strong>How to read this</strong>
               <p>
-                This graph is running only for counties where we have imported turnout denominator rows.
+                This graph runs only where turnout denominator rows have been imported for the selected state.
                 Think of turnout as a fraction: votes cast divided by possible voters. We have the vote
-                totals statewide, but the reliable bottom number still has to be collected county by county.
+                totals, but the reliable bottom number may still have to be collected from separate official sources.
               </p>
               <p>
                 Simple example: 900 ballots out of 1,000 registered voters is 90% turnout. But if the
-                1,000 count was from before Election Day, and 80 people registered on Election Day, the
-                real denominator is 1,080. That is why this section warns about pre-Election-Day values.
+                1,000 count was from before a state finalized registration updates, and 80 people were added later,
+                the real denominator is 1,080. That is why this section warns about denominator timing.
               </p>
             </div>
           </div>

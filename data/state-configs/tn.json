@@ -83,8 +83,36 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "tennesseePrecinctXlsxComparison",
     "sourceId": "tn-2024-general-all-by-precinct",
+    "sheet": "SOFFICEL",
+    "presidentOfficeName": "President and Vice President of the United States",
+    "downBallotOfficeName": "United States Senate",
+    "candidateSlots": 10,
+    "columns": {
+      "county": "COUNTY",
+      "precinctCode": "PRCTSEQ",
+      "precinct": "PRECINCT",
+      "office": "OFFICENAME",
+      "candidatePrefix": "RNAME",
+      "votesPrefix": "PVTALLY"
+    },
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "candidateContains": "Marsha Blackburn"
+      },
+      "dem": {
+        "candidateContains": "Gloria Johnson"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -130,7 +158,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -145,13 +173,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Tennessee precinct or reporting-unit detail",
-        "detail": "The official spreadsheet contains precinct-level presidential rows and is currently used to aggregate county totals. Review drilldowns remain disabled until a dedicated review-graph parser is mapped.",
+        "title": "Tennessee precinct presidential and Senate review rows",
+        "detail": "The official spreadsheet contains precinct-level presidential and U.S. Senate rows. Review drilldowns compare presidential vote share by precinct size and presidential votes against same-party U.S. Senate votes.",
         "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
         "localFile": "data/tn-2024-general-all-by-precinct.xlsx; data/tn-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official precinct spreadsheet checked during Tennessee source promotion.",
-        "status": "Loaded for certified aggregation"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Tennessee official county turnout report",
@@ -170,6 +198,13 @@
         "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
         "usedFor": "Tennessee official 2024 presidential county results aggregated from precinct rows.",
         "confidence": "Official Tennessee Secretary of State Division of Elections spreadsheet."
+      },
+      {
+        "category": "Official precinct presidential and U.S. Senate review rows",
+        "file": "data/tn-2024-general-all-by-precinct.xlsx; data/tn-app-data.js",
+        "sourceUrl": "https://sos-prod.tnsosgovfiles.com/s3fs-public/document/20241105AllbyPrecinct.xlsx",
+        "usedFor": "Tennessee review flags comparing presidential vote share by precinct size and presidential-vs-Senate same-party drop-off.",
+        "confidence": "Official Tennessee Secretary of State Division of Elections all-by-precinct spreadsheet."
       },
       {
         "category": "Official county turnout report",
@@ -221,7 +256,7 @@
     "trump": 1966865,
     "harris": 1056265,
     "other": 40812,
-    "reviewRows": 0,
+    "reviewRows": 1859,
     "turnoutRows": 95,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

@@ -87,8 +87,12 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "connecticutStatementTextTownComparison",
     "sourceId": "ct-2024-statement-of-vote",
+    "statewideTotals": {
+      "senateDem": 1000847,
+      "senateRep": 678345
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -136,7 +140,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -151,8 +155,8 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Connecticut official town presidential rows",
-        "detail": "The official Statement of Vote includes town presidential rows. They are used to build the planning-region totals and retained as the source row coverage count.",
+        "title": "Connecticut official town review rows",
+        "detail": "The official Statement of Vote includes town presidential and U.S. Senate rows. Review rows compare town President totals to U.S. Senate totals, with town rows mapped to Census county-equivalent planning regions.",
         "sourceUrl": "https://portal.ct.gov/-/media/sots/electionservices/statementofvote_pdfs/2024_statement_of_vote.pdf",
         "localFile": "data/ct-2024-statement-of-vote.txt; data/ct-app-data.js",
         "sourceLastModifiedUtc": "",
@@ -174,7 +178,7 @@
         "category": "Official presidential town results",
         "file": "data/ct-2024-statement-of-vote.txt; data/ct-app-data.js",
         "sourceUrl": "https://portal.ct.gov/-/media/sots/electionservices/statementofvote_pdfs/2024_statement_of_vote.pdf",
-        "usedFor": "Connecticut certified 2024 presidential town rows rolled up to planning-region totals.",
+        "usedFor": "Connecticut certified 2024 presidential town rows rolled up to planning-region totals and town-level President-vs-Senate review rows.",
         "confidence": "Official Connecticut Secretary of the State Statement of Vote."
       },
       {
@@ -234,7 +238,7 @@
     "trump": 737024,
     "harris": 992197,
     "other": 30054,
-    "reviewRows": 0,
+    "reviewRows": 169,
     "turnoutRows": 9,
     "turnoutWarningRows": 9,
     "historicalSeries": 0,

@@ -20,6 +20,36 @@
       "localFile": "data/or-2024-general-statewide-export.csv"
     },
     {
+      "id": "or-2024-us-house-district-1-mapdata",
+      "url": "https://orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapDataArchive?type=FED&category=CTY&raceID=300031512&osn=111005&county=0&party=0&electionID=107",
+      "localFile": "data/or-2024-us-house-district-1-mapdata.json"
+    },
+    {
+      "id": "or-2024-us-house-district-2-mapdata",
+      "url": "https://orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapDataArchive?type=FED&category=CTY&raceID=300031513&osn=111005&county=0&party=0&electionID=107",
+      "localFile": "data/or-2024-us-house-district-2-mapdata.json"
+    },
+    {
+      "id": "or-2024-us-house-district-3-mapdata",
+      "url": "https://orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapDataArchive?type=FED&category=CTY&raceID=300031514&osn=111005&county=0&party=0&electionID=107",
+      "localFile": "data/or-2024-us-house-district-3-mapdata.json"
+    },
+    {
+      "id": "or-2024-us-house-district-4-mapdata",
+      "url": "https://orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapDataArchive?type=FED&category=CTY&raceID=300031515&osn=111005&county=0&party=0&electionID=107",
+      "localFile": "data/or-2024-us-house-district-4-mapdata.json"
+    },
+    {
+      "id": "or-2024-us-house-district-5-mapdata",
+      "url": "https://orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapDataArchive?type=FED&category=CTY&raceID=300031516&osn=111005&county=0&party=0&electionID=107",
+      "localFile": "data/or-2024-us-house-district-5-mapdata.json"
+    },
+    {
+      "id": "or-2024-us-house-district-6-mapdata",
+      "url": "https://orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapDataArchive?type=FED&category=CTY&raceID=300031517&osn=111005&county=0&party=0&electionID=107",
+      "localFile": "data/or-2024-us-house-district-6-mapdata.json"
+    },
+    {
       "id": "or-2024-voter-registration-turnout-statistics",
       "url": "https://records.sos.state.or.us/ORSOSWebDrawer/Recordhtml/13735459",
       "localFile": "data/or-2024-voter-registration-turnout-statistics.pdf"
@@ -86,8 +116,17 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "oregonHouseMapDataCountyComparison",
     "sourceId": "or-2024-president-county-mapdata",
+    "downBallotSourceIds": [
+      "or-2024-us-house-district-1-mapdata",
+      "or-2024-us-house-district-2-mapdata",
+      "or-2024-us-house-district-3-mapdata",
+      "or-2024-us-house-district-4-mapdata",
+      "or-2024-us-house-district-5-mapdata",
+      "or-2024-us-house-district-6-mapdata"
+    ],
+    "warning": "Oregon review rows compare President to the aggregate of U.S. House district contests by county; counties split across congressional districts are summed before comparison.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -123,7 +162,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -138,13 +177,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Oregon precinct or reporting-unit detail",
-        "detail": "The loaded official source is county-level presidential map data. Review drilldowns need an official precinct-level export and down-ballot contest mapping before they can be enabled.",
+        "title": "Oregon county review comparison",
+        "detail": "County review rows are loaded by comparing official presidential county map-data JSON to Oregon Secretary of State U.S. House county map-data JSON aggregated across all six congressional districts. This is not a single statewide down-ballot race, so the app carries a methodology warning.",
         "sourceUrl": "https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107",
-        "localFile": "data/or-2024-president-county-mapdata.json; data/or-app-data.js",
+        "localFile": "data/or-2024-president-county-mapdata.json; data/or-2024-us-house-district-*-mapdata.json; data/or-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "County result source checked during Oregon load.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Downloaded from the Oregon Secretary of State archived November 5, 2024 General Election results service county map-data endpoints.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Oregon 2024 General Election county turnout",
@@ -163,6 +202,13 @@
         "sourceUrl": "https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107",
         "usedFor": "Oregon certified 2024 presidential county results.",
         "confidence": "Official Oregon Secretary of State archived election results service."
+      },
+      {
+        "category": "County review comparison",
+        "file": "data/or-2024-president-county-mapdata.json; data/or-2024-us-house-district-*-mapdata.json; data/or-app-data.js",
+        "sourceUrl": "https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107",
+        "usedFor": "Oregon county-level review warning rows comparing President to aggregate U.S. House district totals.",
+        "confidence": "Official Oregon Secretary of State archived election results service map-data JSON. Methodology warning is required because the comparison sums district contests rather than using one statewide down-ballot race."
       },
       {
         "category": "County boundaries",
@@ -221,7 +267,7 @@
     "trump": 919480,
     "harris": 1240600,
     "other": 84413,
-    "reviewRows": 0,
+    "reviewRows": 36,
     "turnoutRows": 36,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

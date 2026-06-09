@@ -118,8 +118,21 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "national-2024-county-president-results",
+    "format": "ohioPrecinctVoteShare",
+    "sourceId": "oh-2024-statewide-races-precinct-level-xlsx",
+    "sheetName": "President and Vice President",
+    "headerRow": 2,
+    "dataStartRow": 5,
+    "totalColumn": "Ballots Counted",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "warning": "Ohio vote-share review uses official precinct presidential rows only. Down-ballot comparison flags remain disabled until a same-row comparison contest is mapped.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -164,7 +177,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -179,13 +192,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Ohio precinct or reporting-unit detail",
-        "detail": "The loaded official presidential summary is county-level only. Review drilldowns need the official statewide-races precinct-level workbook mapped before they can be enabled.",
-        "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precint-level.xlsx",
-        "localFile": "data/oh-2024-statewide-race-summary.xlsx; data/oh-app-data.js",
+        "title": "Ohio precinct presidential review rows",
+        "detail": "Vote-share review rows are parsed from the Ohio Secretary of State official statewide-races precinct-level workbook. Down-ballot comparison flags remain disabled until a same-row comparison contest is mapped.",
+        "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precinct-level.xlsx",
+        "localFile": "data/oh-2024-statewide-races-precinct-level.xlsx; data/oh-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Baseline source checked during broad state import.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Workbook title row: November 5, 2024 General Election Official Canvass.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Ohio official precinct turnout",
@@ -211,6 +224,13 @@
         "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precinct-level.xlsx",
         "usedFor": "Ohio precinct-level turnout graph and coverage rows.",
         "confidence": "Ohio Secretary of State November 5, 2024 General Election Official Canvass precinct workbook; parsed rows reconcile to the workbook Total row for registered voters and ballots counted."
+      },
+      {
+        "category": "Official precinct presidential review rows",
+        "file": "data/oh-2024-statewide-races-precinct-level.xlsx; data/oh-app-data.js",
+        "sourceUrl": "https://www.ohiosos.gov/globalassets/elections/2024/gen/official/statewide-races-precinct-level.xlsx",
+        "usedFor": "Ohio vote-share-by-vote-count review flags.",
+        "confidence": "Official Ohio Secretary of State precinct workbook. Down-ballot comparison flags are not loaded yet."
       },
       {
         "category": "County boundaries",
@@ -263,7 +283,7 @@
     "trump": 3180116,
     "harris": 2533699,
     "other": 53973,
-    "reviewRows": 0,
+    "reviewRows": 8878,
     "turnoutRows": 8878,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

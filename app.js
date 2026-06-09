@@ -1406,6 +1406,7 @@ function countyReviewSummary(county) {
 
 function reviewSummaryForRows(label, rows, mode = "all") {
   const rowLabel = mode === "voteShare" ? "vote-share graph" : mode === "downBallot" ? "down-ballot graph" : "review";
+  const voteShareOnly = ACTIVE_ETA_ANALYSIS?.coverageMode === "voteShareOnly";
   if (rows.length < COUNTY_REVIEW_POLICY.minWardRows) {
     return {
       flag: false,
@@ -1453,6 +1454,7 @@ function reviewSummaryForRows(label, rows, mode = "all") {
     });
   }
   if (
+    !voteShareOnly &&
     (mode === "all" || mode === "downBallot") &&
     (Math.abs(demAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
       Math.abs(repAverageDropoff) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct)
@@ -1464,7 +1466,7 @@ function reviewSummaryForRows(label, rows, mode = "all") {
         "The average gap between presidential votes and same-party U.S. Senate votes is large enough to review. Split-ticket voting can explain some gap; this flag says the pattern deserves supporting records.",
     });
   }
-  if ((mode === "all" || mode === "downBallot") && demOutliers + repOutliers >= outlierTrigger) {
+  if (!voteShareOnly && (mode === "all" || mode === "downBallot") && demOutliers + repOutliers >= outlierTrigger) {
     reasons.push({
       type: "Down-ballot outliers",
       summary: `drop-off outlier count crossed threshold: DEM ${demOutliers}, REP ${repOutliers}, trigger ${outlierTrigger}`,
@@ -1978,12 +1980,14 @@ function etaTestResults() {
   const analysis = ACTIVE_ETA_ANALYSIS;
   const turnoutPolicy = activeTurnoutPolicy();
   const hasReviewAnalysis = Boolean(analysis);
+  const voteShareOnly = analysis?.coverageMode === "voteShareOnly";
   const voteShareFlagged =
     hasReviewAnalysis &&
     (Math.abs(analysis.voteShare.trumpCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold ||
       Math.abs(analysis.voteShare.harrisCorrelation) >= COUNTY_REVIEW_POLICY.voteShareCorrelationThreshold);
   const downBallotFlagged =
     hasReviewAnalysis &&
+    !voteShareOnly &&
     (Math.abs(analysis.downBallot.repDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
       Math.abs(analysis.downBallot.demDropPct) >= COUNTY_REVIEW_POLICY.downBallotAverageThresholdPct ||
       analysis.downBallot.repOutlierWards + analysis.downBallot.demOutlierWards > 50);
@@ -2000,11 +2004,14 @@ function etaTestResults() {
     {
       name: "Down-ballot difference",
       definition: "Compares presidential votes with same-party U.S. Senate votes in each ward row. A larger gap can be reviewed, but normal split-ticket voting can also create differences.",
-      status: hasReviewAnalysis ? (downBallotFlagged ? "Flag" : "Pass") : "Needs data",
-      statusClass: hasReviewAnalysis ? (downBallotFlagged ? "flag" : "pass") : "needs-data",
-      detail: hasReviewAnalysis
+      status: hasReviewAnalysis && !voteShareOnly ? (downBallotFlagged ? "Flag" : "Pass") : "Needs data",
+      statusClass: hasReviewAnalysis && !voteShareOnly ? (downBallotFlagged ? "flag" : "pass") : "needs-data",
+      detail: hasReviewAnalysis && !voteShareOnly
         ? `President vs U.S. Senate check run on ${formatNumber(analysis.wardRows)} matched ${activeReviewRowLabel({ plural: true })}. DEM presidential-vs-Senate drop-off: ${formatSigned(analysis.downBallot.demDropVotes)} votes (${analysis.downBallot.demDropPct.toFixed(2)}%). REP presidential-vs-Senate drop-off: ${formatSigned(analysis.downBallot.repDropVotes)} votes (${analysis.downBallot.repDropPct.toFixed(2)}%). Outlier rows over ${analysis.downBallot.outlierThresholdPct}% drop-off with at least ${analysis.downBallot.minCandidateVotes} presidential votes: DEM ${analysis.downBallot.demOutlierWards}, REP ${analysis.downBallot.repOutlierWards}.`
+        : voteShareOnly
+        ? `Not run yet for ${activeStateConfig().name}; vote-share rows are loaded, but a same-row down-ballot comparison contest still needs to be mapped.`
         : "Not run for this state because no usable ward, precinct, or reporting-unit comparison rows are registered yet.",
+      warning: voteShareOnly ? analysis.warning : "",
     },
     {
       name: "Vote share by vote count",
@@ -2823,7 +2830,7 @@ function majorCitySplits() {
 }
 
 function cityNameForWard(ward) {
-  const match = String(ward || "").match(/^\s*city of\s+(.+?)\s+wards?\b/i);
+  const match = String(ward || "").match(/^\s*city of\s+(.+?)\s+(?:wards?|precincts?)\b/i);
   return match ? titleCase(match[1]) : null;
 }
 

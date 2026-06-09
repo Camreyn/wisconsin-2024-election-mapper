@@ -65,8 +65,26 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "oklahomaEnrZipCountyComparison",
     "sourceId": "ok-2024-general-enr-results",
+    "presidentRaceId": 10001,
+    "downBallotRaceId": 10002,
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "DONALD J. TRUMP"
+      },
+      "harris": {
+        "candidateContains": "KAMALA D. HARRIS"
+      }
+    },
+    "downBallotCandidates": {
+      "rep": {
+        "candidateContains": "J. BRIAN BINGMAN"
+      },
+      "dem": {
+        "candidateContains": "HAROLD D SPRADLING"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -113,7 +131,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -128,13 +146,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Oklahoma precinct or reporting-unit detail",
-        "detail": "The loaded official OKER payload is county-level for this app pass. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Oklahoma county review comparison",
+        "detail": "County-level review rows compare the official OKER presidential race to statewide race 10002 from the same county payloads. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
         "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
         "localFile": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official county result payloads checked during Oklahoma source promotion.",
-        "status": "Needs precinct source"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Oklahoma turnout denominator",
@@ -151,7 +169,7 @@
         "category": "Official presidential county results",
         "file": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
         "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
-        "usedFor": "Oklahoma official 2024 presidential county results.",
+        "usedFor": "Oklahoma official 2024 presidential county results and county-level President-vs-statewide-downballot review rows.",
         "confidence": "Official Oklahoma State Election Board results API payloads."
       },
       {
@@ -204,7 +222,7 @@
     "trump": 1036213,
     "harris": 499599,
     "other": 30361,
-    "reviewRows": 0,
+    "reviewRows": 77,
     "turnoutRows": 77,
     "turnoutWarningRows": 77,
     "historicalSeries": 0,

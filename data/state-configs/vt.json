@@ -15,6 +15,11 @@
       "localFile": "data/vt-2024-president-municipality-results.csv"
     },
     {
+      "id": "vt-2024-us-senate-municipality-results",
+      "url": "https://electionarchive.vermont.gov/elections/download/165928/precincts_include:0/",
+      "localFile": "data/vt-2024-us-senate-municipality-results.csv"
+    },
+    {
       "id": "vt-county-subdivisions",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer/22/query?where=STATE%3D%2750%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY,COUSUB&returnGeometry=false&f=geojson",
       "localFile": "data/vt-county-subdivisions.geojson"
@@ -125,8 +130,15 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "vermontMunicipalityCsvComparison",
     "sourceId": "vt-2024-president-municipality-results",
+    "presidentSourceId": "vt-2024-president-municipality-results",
+    "downBallotSourceId": "vt-2024-us-senate-municipality-results",
+    "downBallotColumns": {
+      "municipality": "City/Town",
+      "dem": "Bernie Sanders",
+      "rep": "Gerald Malloy"
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -167,7 +179,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -183,11 +195,11 @@
       },
       "wardDetail": {
         "title": "Vermont municipality-level presidential rows",
-        "detail": "The official electionarchive export includes municipality rows. They are used to roll up certified county totals and retained as source row coverage metadata.",
-        "sourceUrl": "https://electionarchive.vermont.gov/elections/download/165927/precincts_include:0/",
-        "localFile": "data/vt-2024-president-municipality-results.csv; data/vt-app-data.js",
+        "detail": "Official Vermont Elections Database municipality exports are loaded for President and U.S. Senate. Review rows compare Harris/Trump to Bernie Sanders/Gerald Malloy by municipality; Sanders is listed as Independent, so interpret the Democratic-side drop-off label with that candidate caveat.",
+        "sourceUrl": "https://electionarchive.vermont.gov/elections/download/165928/precincts_include:0/",
+        "localFile": "data/vt-2024-president-municipality-results.csv; data/vt-2024-us-senate-municipality-results.csv; data/vt-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official CSV export selected with precincts_include:0 from Vermont Elections Database election 165927.",
+        "sourceTimestampBasis": "Official CSV exports selected with precincts_include:0 from Vermont Elections Database elections 165927 and 165928.",
         "status": "Loaded"
       },
       "turnout": {
@@ -203,9 +215,16 @@
     "sourceInventory": [
       {
         "category": "Official presidential municipality results",
-        "file": "data/vt-2024-president-municipality-results.csv; data/vt-app-data.js",
+        "file": "data/vt-2024-president-municipality-results.csv; data/vt-2024-us-senate-municipality-results.csv; data/vt-app-data.js",
         "sourceUrl": "https://electionarchive.vermont.gov/elections/download/165927/precincts_include:0/",
-        "usedFor": "Vermont 2024 certified presidential results rolled up from municipalities to counties.",
+        "usedFor": "Vermont 2024 certified presidential results rolled up from municipalities to counties and municipality President-vs-U.S. Senate review rows.",
+        "confidence": "Official Vermont Elections Database CSV export."
+      },
+      {
+        "category": "Official U.S. Senate municipality results",
+        "file": "data/vt-2024-us-senate-municipality-results.csv; data/vt-app-data.js",
+        "sourceUrl": "https://electionarchive.vermont.gov/elections/download/165928/precincts_include:0/",
+        "usedFor": "Vermont municipality President-vs-U.S. Senate review rows.",
         "confidence": "Official Vermont Elections Database CSV export."
       },
       {
@@ -258,7 +277,7 @@
     "trump": 119395,
     "harris": 235791,
     "other": 14236,
-    "reviewRows": 0,
+    "reviewRows": 247,
     "turnoutRows": 14,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

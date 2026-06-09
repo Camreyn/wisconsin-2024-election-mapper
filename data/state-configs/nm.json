@@ -15,6 +15,11 @@
       "localFile": "data/nm-2024-president-county-results.csv"
     },
     {
+      "id": "nm-2024-us-senate-county-results",
+      "url": "https://nm.elstats.civera.com/api/download_contest/14873_table.csv?split_party=false",
+      "localFile": "data/nm-2024-us-senate-county-results.csv"
+    },
+    {
       "id": "nm-2024-statewide-turnout",
       "url": "https://electionresults.sos.nm.gov/Default.aspx?eid=2882",
       "localFile": "data/nm-2024-statewide-turnout.csv"
@@ -76,8 +81,21 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "civeraCountyCsvComparison",
     "sourceId": "nm-2024-president-county-results",
+    "downBallotSourceId": "nm-2024-us-senate-county-results",
+    "rowTypes": [
+      "County"
+    ],
+    "rowLabelTemplate": "{county} County",
+    "downBallotCandidates": {
+      "dem": {
+        "candidateContains": "Martin Heinrich"
+      },
+      "rep": {
+        "candidateContains": "Nella Louise Domenici"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -117,7 +135,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -132,13 +150,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "New Mexico precinct or reporting-unit detail",
-        "detail": "The official contest CSV includes precinct rows, but this promotion imports county rows only. Review drilldowns need a mapped precinct review parser before they can be enabled.",
-        "sourceUrl": "https://nm.elstats.civera.com/api/download_contest/14877_table.csv?split_party=false",
-        "localFile": "data/nm-2024-president-county-results.csv; data/nm-app-data.js",
+        "title": "New Mexico county review comparison",
+        "detail": "Official New Mexico Secretary of State President and U.S. Senate contest CSVs are loaded for county-level President-vs-U.S. Senate review rows. Precinct rows exist in the exports and remain a future lower-level parser upgrade.",
+        "sourceUrl": "https://nm.elstats.civera.com/api/download_contest/14873_table.csv?split_party=false",
+        "localFile": "data/nm-2024-president-county-results.csv; data/nm-2024-us-senate-county-results.csv; data/nm-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Contest export includes precinct rows beneath each county row.",
-        "status": "Needs parser mapping"
+        "sourceTimestampBasis": "Official New Mexico Secretary of State Election Stats contest export endpoints.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "New Mexico statewide voter turnout",
@@ -153,9 +171,16 @@
     "sourceInventory": [
       {
         "category": "Certified presidential county results",
-        "file": "data/nm-2024-president-county-results.csv; data/nm-app-data.js",
+        "file": "data/nm-2024-president-county-results.csv; data/nm-2024-us-senate-county-results.csv; data/nm-app-data.js",
         "sourceUrl": "https://nm.elstats.civera.com/api/download_contest/14877_table.csv?split_party=false",
-        "usedFor": "New Mexico 2024 presidential county results.",
+        "usedFor": "New Mexico 2024 presidential county results and county President-vs-U.S. Senate review rows.",
+        "confidence": "Official New Mexico Secretary of State Election Stats contest export; county rows reconcile to the State row."
+      },
+      {
+        "category": "Certified U.S. Senate county results",
+        "file": "data/nm-2024-us-senate-county-results.csv; data/nm-app-data.js",
+        "sourceUrl": "https://nm.elstats.civera.com/api/download_contest/14873_table.csv?split_party=false",
+        "usedFor": "New Mexico county President-vs-U.S. Senate review rows.",
         "confidence": "Official New Mexico Secretary of State Election Stats contest export; county rows reconcile to the State row."
       },
       {
@@ -208,7 +233,7 @@
     "trump": 423391,
     "harris": 478802,
     "other": 21210,
-    "reviewRows": 0,
+    "reviewRows": 33,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

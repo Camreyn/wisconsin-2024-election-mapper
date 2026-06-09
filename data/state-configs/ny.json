@@ -15,6 +15,16 @@
       "localFile": "data/ny-2024-president-results-by-county.csv"
     },
     {
+      "id": "ny-2024-us-senate-county-results",
+      "url": "https://ny.elstats.civera.com/api/download_contest/5582_table.csv?split_party=true",
+      "localFile": "data/ny-2024-us-senate-results-by-county.csv"
+    },
+    {
+      "id": "ny-2024-county-enrollment-1101",
+      "url": "https://elections.ny.gov/voters-registered-county-11012024",
+      "localFile": "data/ny-voters-registered-county-11012024"
+    },
+    {
       "id": "ny-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2736%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/ny-counties.geojson"
@@ -114,8 +124,17 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "newYorkCountyCsvComparison",
     "sourceId": "ny-2024-president-county-results",
+    "downBallotSourceId": "ny-2024-us-senate-county-results",
+    "downBallotCandidates": {
+      "dem": {
+        "candidateContains": "Kirsten E. Gillibrand"
+      },
+      "rep": {
+        "candidateContains": "Michael D. Sapraicone"
+      }
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -123,12 +142,23 @@
     }
   },
   "turnout": {
-    "format": "notConfigured",
-    "sourceId": "ny-2024-president-county-results",
-    "registrationDenominatorTiming": "notLoaded",
+    "format": "newYorkCountyEnrollmentJoin",
+    "sourceId": "ny-2024-county-enrollment-1101",
+    "resultSourceId": "ny-2024-president-county-results",
+    "sheet": "County Enrollment November 2024",
+    "resultTotalColumn": "Total Votes",
+    "registrationDenominatorTiming": "preElectionDay",
+    "denominatorType": "registeredVoters",
     "sourceLevel": "county",
-    "notes": "New York turnout is not loaded yet. The certified county result CSV includes Blank, Void, and Total Votes columns but does not include registered-voter denominators.",
-    "warningRequired": true
+    "sourceTitle": "Voters Registered by County as of 11/01/2024 joined to certified county presidential Total Votes",
+    "sourceAuthority": "New York State Board of Elections",
+    "coverageStatus": "loaded",
+    "notes": "County turnout is computed by joining the official NYS BOE 11/01/2024 county enrollment workbook to the official certified presidential county result CSV Total Votes column. Rows are warning-labeled because the denominator is a pre-election registration snapshot.",
+    "warningRequired": true,
+    "statewideTotals": {
+      "ballotsCast": 8381429,
+      "registeredVoters": 13576708
+    }
   },
   "historicalBaseline": {
     "sourceLevel": "county",
@@ -147,8 +177,8 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
-      "turnout": false,
+      "reviewGraphs": true,
+      "turnout": true,
       "historicalBaseline": false
     },
     "sourcePlan": {
@@ -162,30 +192,37 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "New York precinct or ward detail",
-        "detail": "The loaded official source is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit file before they can be enabled.",
-        "sourceUrl": "https://elections.ny.gov/2024-election-results",
-        "localFile": "data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
+        "title": "New York county review comparison",
+        "detail": "Official NYS Board of Elections President and U.S. Senate county CSV exports are loaded for county President-vs-U.S. Senate review rows. Precinct or ward rows remain a future source upgrade.",
+        "sourceUrl": "https://results.elections.ny.gov/contest/5582",
+        "localFile": "data/ny-2024-president-results-by-county.csv; data/ny-2024-us-senate-results-by-county.csv; data/ny-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "County result source checked during New York load.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Downloaded from official NYS Board of Elections EL45/Civera contest export endpoints.",
+        "status": "Loaded"
       },
       "turnout": {
-        "title": "New York turnout denominator",
-        "detail": "The certified contest CSV exposes candidate votes, blank ballots, void ballots, and total votes, but no county registered-voter denominator. Turnout should stay disabled until an official registration or turnout denominator source is mapped.",
-        "sourceUrl": "https://elections.ny.gov/2024-election-results",
-        "localFile": "data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
+        "title": "New York county turnout",
+        "detail": "County turnout is loaded by joining the official NYS BOE 11/01/2024 county enrollment workbook to the official certified presidential county result CSV Total Votes column. Rows are warning-labeled because the denominator is pre-election enrollment rather than a final post-election registration denominator.",
+        "sourceUrl": "https://elections.ny.gov/voters-registered-county-11012024",
+        "localFile": "data/ny-voters-registered-county-11012024; data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official presidential county CSV lacks registered-voter denominator fields.",
-        "status": "Needs denominator source"
+        "sourceTimestampBasis": "Downloaded from the official NYS Board of Elections enrollment-by-county item listed as Voters Registered by County as of 11/01/2024.",
+        "status": "Loaded"
       }
     },
     "sourceInventory": [
       {
         "category": "Certified presidential results",
-        "file": "data/ny-2024-president-results-by-county.csv; data/ny-app-data.js",
+        "file": "data/ny-2024-president-results-by-county.csv; data/ny-2024-us-senate-results-by-county.csv; data/ny-app-data.js",
         "sourceUrl": "https://ny.elstats.civera.com/api/download_contest/5591_table.csv?split_party=true",
-        "usedFor": "New York certified 2024 presidential county results.",
+        "usedFor": "New York certified 2024 presidential county results and county President-vs-U.S. Senate review rows.",
+        "confidence": "Official New York State Board of Elections results export."
+      },
+      {
+        "category": "Certified U.S. Senate results",
+        "file": "data/ny-2024-us-senate-results-by-county.csv; data/ny-app-data.js",
+        "sourceUrl": "https://ny.elstats.civera.com/api/download_contest/5582_table.csv?split_party=true",
+        "usedFor": "New York county President-vs-U.S. Senate review rows.",
         "confidence": "Official New York State Board of Elections results export."
       },
       {
@@ -194,6 +231,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "New York county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Turnout denominator",
+        "file": "data/ny-voters-registered-county-11012024; data/ny-app-data.js",
+        "sourceUrl": "https://elections.ny.gov/voters-registered-county-11012024",
+        "usedFor": "New York county registered-voter denominators for turnout rows.",
+        "confidence": "Official New York State Board of Elections county enrollment workbook."
       }
     ],
     "checkedNotUsable": [
@@ -206,10 +250,10 @@
       }
     ],
     "turnoutPolicy": {
-      "route": "officialRegistrationOrTurnoutDenominator",
-      "status": "Needs denominator source",
-      "acceptedSource": "Not loaded yet.",
-      "warning": "New York turnout should not be inferred from the certified contest CSV because it lacks registered-voter denominators.",
+      "route": "officialRegistrationJoin",
+      "status": "Loaded",
+      "acceptedSource": "NYS BOE Voters Registered by County as of 11/01/2024 joined to certified county presidential Total Votes.",
+      "warning": "Rows use a pre-election enrollment denominator, so turnout should be read as a denominator-limited comparison rather than a final registration reconciliation.",
       "requiredFields": [
         "county",
         "ballotsCast",
@@ -231,9 +275,9 @@
     "trump": 3579519,
     "harris": 4619543,
     "other": 64412,
-    "reviewRows": 0,
-    "turnoutRows": 0,
-    "turnoutWarningRows": 0,
+    "reviewRows": 62,
+    "turnoutRows": 62,
+    "turnoutWarningRows": 62,
     "historicalSeries": 0,
     "historicalRows": 0,
     "geometryFeatures": 62

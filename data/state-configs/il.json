@@ -69,8 +69,24 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "illinoisPrecinctVoteShare",
     "sourceId": "il-2024-president-county-results",
+    "contestName": "PRESIDENT AND VICE PRESIDENT",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump"
+      },
+      "harris": {
+        "candidateContains": "Kamala D. Harris"
+      }
+    },
+    "excludedCandidates": [
+      "Blank Ballots",
+      "Over Votes",
+      "Under Vo",
+      "Under Votes"
+    ],
+    "warning": "Illinois vote-share review uses official precinct presidential rows only. Down-ballot comparison flags remain disabled until a same-row comparison contest is mapped.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -112,7 +128,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -127,13 +143,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Illinois precinct or reporting-unit detail",
-        "detail": "The official CSV includes precinct-level presidential rows, but review drilldowns need a mapped down-ballot comparison contest before they can be enabled.",
+        "title": "Illinois precinct presidential review rows",
+        "detail": "Vote-share review rows are parsed from the official Illinois State Board of Elections PRESIDENT AND VICE PRESIDENT precinct CSV. Down-ballot comparison flags remain disabled until a same-row comparison contest is mapped.",
         "sourceUrl": "https://www.elections.il.gov/electionoperations/ElectionVoteTotalsCounty.aspx?ID=9huvqbsiUWA%3D",
         "localFile": "data/il-2024-president-county-results.csv; data/il-app-data.js",
         "sourceLastModifiedUtc": "",
         "sourceTimestampBasis": "Official presidential CSV includes precinct names and vote rows.",
-        "status": "Needs comparison contest"
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Illinois official precinct turnout proxy",
@@ -159,6 +175,13 @@
         "sourceUrl": "https://www.elections.il.gov/electionoperations/ElectionVoteTotalsCounty.aspx?ID=9huvqbsiUWA%3D",
         "usedFor": "Illinois precinct turnout warning rows.",
         "confidence": "Official Illinois State Board of Elections CSV includes Registration and presidential contest vote rows. Ballots cast are contest-level sums, including blank, over-vote, and under-vote rows. Marked partial because some source rows have zero or missing Registration."
+      },
+      {
+        "category": "Official precinct presidential review rows",
+        "file": "data/il-2024-president-county-results.csv; data/il-app-data.js",
+        "sourceUrl": "https://www.elections.il.gov/electionoperations/ElectionVoteTotalsCounty.aspx?ID=9huvqbsiUWA%3D",
+        "usedFor": "Illinois vote-share-by-vote-count review flags.",
+        "confidence": "Official Illinois State Board of Elections presidential precinct CSV. Down-ballot comparison flags are not loaded yet."
       },
       {
         "category": "County boundaries",
@@ -203,7 +226,7 @@
     "trump": 2449079,
     "harris": 3062863,
     "other": 137837,
-    "reviewRows": 0,
+    "reviewRows": 9319,
     "turnoutRows": 7802,
     "turnoutWarningRows": 7802,
     "historicalSeries": 0,

@@ -79,8 +79,10 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "iowaHousePdfCountyComparison",
     "sourceId": "ia-2024-general-canvass-summary",
+    "districts": [1, 2, 3, 4],
+    "warning": "Iowa review rows compare President to the aggregate of U.S. House district contests by county; counties are assigned through the official congressional district county tables in the canvass PDF.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -128,7 +130,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -143,13 +145,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Iowa precinct or reporting-unit detail",
-        "detail": "The loaded statewide canvass source is county-level for this pipeline. Review drilldowns need an official precinct or reporting-unit source before they can be enabled.",
+        "title": "Iowa county review comparison",
+        "detail": "County review rows are loaded from the same Iowa Secretary of State 2024 General Election canvass summary PDF by comparing President and Vice President county totals to U.S. House district county totals aggregated across all four congressional districts. This is county-level and carries a methodology warning because it is not a single statewide down-ballot race.",
         "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
         "localFile": "data/ia-2024-general-canvass-summary.pdf; data/ia-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "State canvass summary was checked during Iowa official-source promotion.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Iowa Secretary of State canvass summary identifies the 2024 General Election held November 5, 2024 and a canvass date of December 2, 2024.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Iowa official county turnout",
@@ -168,6 +170,13 @@
         "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
         "usedFor": "Iowa 2024 certified presidential county results.",
         "confidence": "Official Iowa Secretary of State statewide canvass summary PDF, collected from the Iowa state board meeting attachment copy when the SOS CDN blocked command-line download."
+      },
+      {
+        "category": "County review comparison",
+        "file": "data/ia-2024-general-canvass-summary.pdf; data/ia-app-data.js",
+        "sourceUrl": "https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf",
+        "usedFor": "Iowa county-level review warning rows comparing President to aggregate U.S. House district totals.",
+        "confidence": "Official Iowa Secretary of State statewide canvass summary PDF. Methodology warning is required because the comparison sums district contests rather than using one statewide down-ballot race."
       },
       {
         "category": "Official county turnout",
@@ -219,7 +228,7 @@
     "trump": 927019,
     "harris": 707278,
     "other": 29209,
-    "reviewRows": 0,
+    "reviewRows": 99,
     "turnoutRows": 99,
     "turnoutWarningRows": 99,
     "historicalSeries": 0,

@@ -82,8 +82,21 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "totalResultsHouseCountyComparison",
     "sourceId": "ar-2024-general-fed-results",
+    "contestListSourceId": "ar-2024-general-contest-list",
+    "electionInfoSourceId": "ar-2024-general-election-info",
+    "downBallotContestIds": [
+      "645",
+      "227",
+      "161",
+      "237"
+    ],
+    "partyIds": {
+      "rep": "2096",
+      "dem": "2099"
+    },
+    "warning": "Arkansas review rows compare President to aggregate U.S. House district contests by county; this is not a single statewide down-ballot race.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -116,7 +129,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -131,13 +144,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Arkansas precinct or reporting-unit detail",
-        "detail": "The loaded TotalResults parser is county-level for this app. Review drilldowns need an official precinct or reporting-unit export before they can be enabled.",
+        "title": "Arkansas county review comparison",
+        "detail": "County review rows are loaded from the official Arkansas Secretary of State TotalResults ENR API by comparing U.S. President county rows to U.S. House district county rows aggregated across all four congressional districts. This is not a single statewide down-ballot race, so the app carries a methodology warning.",
         "sourceUrl": "https://enr.totalresults.com/arkansas",
         "localFile": "data/ar-2024-general-fed-results.json; data/ar-app-data.js",
         "sourceLastModifiedUtc": "2025-12-16T19:41:49.5225815Z",
-        "sourceTimestampBasis": "Federal contest result payload includes county locations for the presidential contest.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Federal contest result payload includes county locations for presidential and congressional contests.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Arkansas turnout denominator",
@@ -156,6 +169,13 @@
         "sourceUrl": "https://enr.totalresults.com/arkansas",
         "usedFor": "Arkansas 2024 presidential county results.",
         "confidence": "Official Arkansas Secretary of State TotalResults ENR API; county rows reconcile to the official statewide presidential contest totals."
+      },
+      {
+        "category": "County review comparison",
+        "file": "data/ar-2024-general-election-info.json; data/ar-2024-general-contest-list.json; data/ar-2024-general-fed-results.json; data/ar-app-data.js",
+        "sourceUrl": "https://enr.totalresults.com/arkansas",
+        "usedFor": "Arkansas county-level review warning rows comparing President to aggregate U.S. House district totals.",
+        "confidence": "Official Arkansas Secretary of State TotalResults ENR API. Methodology warning is required because the comparison sums district contests rather than using one statewide down-ballot race."
       },
       {
         "category": "Official statewide turnout denominator",
@@ -207,7 +227,7 @@
     "trump": 759241,
     "harris": 396905,
     "other": 26530,
-    "reviewRows": 0,
+    "reviewRows": 75,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

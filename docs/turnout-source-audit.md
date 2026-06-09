@@ -6,12 +6,10 @@ This audit captures Leif's highest-priority missing data for all 50 states: ball
 
 ## Coverage Summary
 
-- Loaded: 34
-- Loaded Partial: 2
-- Loaded Statewide Only: 10
+- Loaded: 35
+- Loaded Partial: 3
+- Loaded Statewide Only: 11
 - Partial Loaded: 1
-- Source Needs Review: 1
-- Usable Candidate: 2
 
 Known-good loaded states remain AL, FL, MI, MN, ND, and PA. Wisconsin is partial because the WEC statewide ward results do not include denominator fields and only some local turnout rows have been imported.
 
@@ -48,6 +46,7 @@ The quickest wins are states marked `usable_candidate`: they appear to have offi
 | ND | Loaded | county | loaded: northDakotaTurnoutHtml | App already imports county turnout rows from official SOS turnout detail page. |
 | NE | Loaded | county | loaded: nebraskaCanvassPdf | App joins the canvass Voting Statistics registered-voter table to the Total Voting by Method table by county. |
 | NJ | Loaded | county | loaded: newJerseyTurnoutPdf | Official PDF gives registered voters, ballots cast, rejected ballots, and election district count by county. |
+| NY | Loaded | county | loaded: newYorkCountyEnrollmentJoin | App imports 62 county turnout rows by joining the official NYS BOE 11/01/2024 county enrollment workbook to the certified county presidential CSV Total Votes column. Rows are warning-labeled because the denominator is pre-election enrollment. |
 | OH | Loaded | precinct | loaded: ohioPrecinctTurnoutXlsx | App imports 8,878 official precinct rows from the President and Vice President sheet and validates registered-voter and ballots-counted totals against the workbook Total row. |
 | OK | Loaded | county | loaded: oklahomaEnrRegistrationPdf | App joins official OKER presidential race total votes and vote-method splits to the official November 1 county registration PDF; rows are warning-labeled because the denominator is pre-election and the numerator is presidential race votes. |
 | OR | Loaded | county | loaded: oregonRegistrationTurnoutPdf | App imports county rows from the official Oregon SOS archive PDF. The county table column is labeled Eligible, but the statewide total matches the PDF's Total registered voters line; numerator is Ballots Returned. |
@@ -63,8 +62,6 @@ The quickest wins are states marked `usable_candidate`: they appear to have offi
 
 | State | Status | Source Level | Parser Fit | Caveat |
 | --- | --- | --- | --- | --- |
-| NV | Usable Candidate | county/state | download final official turnout file | Search result came through a UAT host, but the path identifies the SOS 2024 Turnout Reporting page; verify production URL and final file link. |
-| NY | Usable Candidate | county | join enrollment county file to certified county results | Enrollment file provides denominator; ballots-cast totals must be joined from certified result/source already loaded for county results. |
 
 ## Parser Needed
 
@@ -75,7 +72,6 @@ The quickest wins are states marked `usable_candidate`: they appear to have offi
 
 | State | Status | Source Level | Parser Fit | Caveat |
 | --- | --- | --- | --- | --- |
-| MS | Source Needs Review | county | source review before parser | Official results page is identified, but search did not confirm registered-voter denominator fields in the county recapitulation report. |
 
 ## County-Local Collection
 

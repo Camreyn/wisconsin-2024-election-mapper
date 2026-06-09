@@ -58,8 +58,10 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "montanaCanvassPdfCountyComparison",
     "sourceId": "mt-2024-general-election-report-state-canvass",
+    "downBallotContest": "UNITED STATES SENATOR",
+    "endMarker": "Page 3 of",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -91,7 +93,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -106,13 +108,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Montana precinct or reporting-unit detail",
-        "detail": "The statewide canvass PDF is county-level for the presidential contest. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Montana county review rows",
+        "detail": "The official statewide canvass PDF contains matching county tables for President and U.S. Senate. The review graph compares Harris/Trump presidential votes to Tester/Sheehy U.S. Senate votes at county level.",
         "sourceUrl": "https://sosmt.gov/elections/results",
         "localFile": "data/mt-2024-general-election-report-state-canvass.pdf; data/mt-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass reviewed during Montana promotion.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official canvass pages 2 and 3 contain President and U.S. Senate county tables with total rows reconciled by the parser.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Montana canvass voting information",
@@ -129,7 +131,7 @@
         "category": "Presidential county results",
         "file": "data/mt-2024-general-election-report-state-canvass.pdf; data/mt-app-data.js",
         "sourceUrl": "https://sosmt.gov/elections/results",
-        "usedFor": "Montana county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
+        "usedFor": "Montana county table, statewide totals, candidate breakdown, CSV export, presidential-vs-Senate review graph, and Source Planner rows.",
         "confidence": "Official Montana Secretary of State 2024 Statewide General Election Canvass PDF."
       },
       {
@@ -182,7 +184,7 @@
     "trump": 352079,
     "harris": 231906,
     "other": 18978,
-    "reviewRows": 0,
+    "reviewRows": 56,
     "turnoutRows": 56,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

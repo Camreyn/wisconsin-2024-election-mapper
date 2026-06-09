@@ -62,8 +62,10 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
+    "format": "nebraskaCanvassPdfCountyComparison",
     "sourceId": "ne-2024-general-canvass-book",
+    "downBallotContest": "Member of the United States Senate – Two Year Term",
+    "endMarker": "General Election – November 5, 2024 Page | 17",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -95,7 +97,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -110,13 +112,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Nebraska precinct or reporting-unit detail",
-        "detail": "The canvass PDF presidential table is county-level. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
+        "title": "Nebraska county review rows",
+        "detail": "The official canvass PDF contains matching county tables for President and the two-year U.S. Senate race. The review graph compares Harris/Trump presidential votes to Preston Love Jr./Pete Ricketts U.S. Senate votes at county level.",
         "sourceUrl": "https://sos.nebraska.gov/sites/default/files/doc/elections/2024/2024%20General%20Canvass%20Book.pdf",
         "localFile": "data/ne-2024-general-canvass-book.pdf; data/ne-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass reviewed during Nebraska promotion.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official canvass pages 15-17 contain President and U.S. Senate county tables with total rows reconciled by the parser.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Nebraska county turnout denominator",
@@ -133,7 +135,7 @@
         "category": "Presidential county results",
         "file": "data/ne-2024-general-canvass-book.pdf; data/ne-app-data.js",
         "sourceUrl": "https://sos.nebraska.gov/sites/default/files/doc/elections/2024/2024%20General%20Canvass%20Book.pdf",
-        "usedFor": "Nebraska county table, statewide totals, candidate breakdown, CSV export, and Source Planner rows.",
+        "usedFor": "Nebraska county table, statewide totals, candidate breakdown, CSV export, presidential-vs-Senate review graph, and Source Planner rows.",
         "confidence": "Official Nebraska Secretary of State 2024 General Canvass Book PDF."
       },
       {
@@ -186,7 +188,7 @@
     "trump": 564816,
     "harris": 369995,
     "other": 17371,
-    "reviewRows": 0,
+    "reviewRows": 93,
     "turnoutRows": 93,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,
