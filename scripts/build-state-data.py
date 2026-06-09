@@ -7968,6 +7968,116 @@ def review_charts_texas_county_json(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
 
+def review_charts_texas_harris_canvass_pdf_vote_share(config):
+    review = config["reviewCharts"]
+    path = local_source(config, review["sourceId"])
+    president_rows, _candidate_labels, _row_count = certified_results_texas_county_json(config)
+    county = review.get("county", "Harris County")
+    county_key = re.sub(r"\s+county$", "", county, flags=re.IGNORECASE).strip().upper()
+    certified = next(
+        (
+            row
+            for row in president_rows
+            if re.sub(r"\s+county$", "", row["county"], flags=re.IGNORECASE).strip().upper() == county_key
+        ),
+        None,
+    )
+    if not certified:
+        raise ValueError("Texas Harris canvass parser could not find Harris County in certified county rows")
+
+    pages = extract_pdf_items(path, review.get("firstPage", 1), review.get("lastPage", 152))
+    review_rows = []
+    parsed_totals = defaultdict(int)
+
+    def parse_number(value):
+        value = str(value or "").strip().replace(",", "")
+        return int(value) if re.fullmatch(r"\d+", value) else None
+
+    for page in pages:
+        items = page["items"]
+        values = {item["value"] for item in items}
+        if "President / Vice President" not in values or not any("TRUMP / JD VANCE" in item["value"] for item in items):
+            continue
+        for precinct_item in items:
+            precinct = str(precinct_item["value"]).strip()
+            if not re.fullmatch(r"\d{4}\s+-\s+.+", precinct):
+                continue
+            y = precinct_item["y"]
+            row_values = [
+                (item["x"], parse_number(item["value"]))
+                for item in items
+                if item["x"] > 100 and abs(item["y"] - y) < 0.05 and parse_number(item["value"]) is not None
+            ]
+            row_values = [value for _x, value in sorted(row_values)]
+            if len(row_values) < 11:
+                raise ValueError(f"Texas Harris canvass row has too few numeric columns on page {page['pageNumber']}: {precinct}")
+            trump = row_values[0]
+            harris = row_values[1]
+            other = sum(row_values[2:10])
+            total = row_values[10]
+            if trump + harris + other != total:
+                raise ValueError(
+                    f"Texas Harris canvass candidate total mismatch for {precinct}: "
+                    f"{trump + harris + other} != {total}"
+                )
+            if not total:
+                continue
+            method_values = row_values[13:19] if len(row_values) >= 19 else []
+            row = {
+                "county": certified["county"],
+                "ward": precinct,
+                "total": total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / total) * 100),
+                "trumpShare": round2((trump / total) * 100),
+                "demDropoff": 0,
+                "repDropoff": 0,
+            }
+            if len(method_values) == 6:
+                row.update(
+                    {
+                        "ballotByMailBallotsCast": method_values[0],
+                        "earlyVotingBallotsCast": method_values[1],
+                        "electionDayBallotsCast": method_values[2],
+                        "evProvisionalBallotsCast": method_values[3],
+                        "edProvisionalBallotsCast": method_values[4],
+                        "totalBallotsCast": method_values[5],
+                    }
+                )
+            review_rows.append(row)
+            parsed_totals["trump"] += trump
+            parsed_totals["harris"] += harris
+            parsed_totals["other"] += other
+            parsed_totals["total"] += total
+
+    expected_rows = review.get("expectedRows")
+    if expected_rows and len(review_rows) != expected_rows:
+        raise ValueError(f"Texas Harris canvass row count mismatch: {len(review_rows)} != {expected_rows}")
+
+    expected_totals = {
+        "trump": certified["trump"],
+        "harris": certified["harris"],
+        "other": certified["other"],
+        "total": certified["total"],
+    }
+    parsed = {key: parsed_totals[key] for key in expected_totals}
+    if parsed != expected_totals:
+        raise ValueError(f"Texas Harris canvass totals do not match certified Harris County totals: {parsed} != {expected_totals}")
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], 0, 0)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["coverageNote"] = review.get(
+        "coverageNote",
+        "Official Harris County canvass precinct rows are loaded for Texas vote-share advisory review; other Texas counties remain county-only.",
+    )
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "Texas local review rows currently cover Harris County only and use presidential vote share; down-ballot flags are suppressed.",
+    )
+    return review_rows, eta_analysis
+
+
 def review_charts_missouri_actual_results_pdf(config):
     review = config["reviewCharts"]
     path = local_source(config, review["sourceId"])
@@ -14007,6 +14117,7 @@ REVIEW_CHART_PARSERS = {
     "southCarolinaHouseEnrCountyComparison": review_charts_south_carolina_house_enr,
     "southDakotaCanvassPdfCountyComparison": review_charts_south_dakota_canvass_pdf,
     "texasCountyJsonComparison": review_charts_texas_county_json,
+    "texasHarrisCanvassPdfVoteShare": review_charts_texas_harris_canvass_pdf_vote_share,
     "utahCanvassPdfCountyComparison": review_charts_utah_canvass_pdf,
     "utahPrecinctVoteShare": review_charts_utah_precinct_vote_share,
     "vermontMunicipalityCsvComparison": review_charts_vermont_municipality_csv,

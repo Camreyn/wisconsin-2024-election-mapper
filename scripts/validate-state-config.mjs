@@ -116,6 +116,7 @@ const supportedReviewFormats = new Set([
   "southCarolinaHouseEnrCountyComparison",
   "southDakotaCanvassPdfCountyComparison",
   "texasCountyJsonComparison",
+  "texasHarrisCanvassPdfVoteShare",
   "utahCanvassPdfCountyComparison",
   "utahPrecinctVoteShare",
   "vermontMunicipalityCsvComparison",

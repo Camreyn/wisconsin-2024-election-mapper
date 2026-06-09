@@ -20,6 +20,11 @@
       "localFile": "data/tx-2024-general-statewide-turnout.csv"
     },
     {
+      "id": "tx-harris-2024-general-official-canvass",
+      "url": "https://www.harrisvotes.com/Election-Results/Archives",
+      "localFile": "data/review-sources/tx-harris-2024-general-official-canvass.pdf"
+    },
+    {
       "id": "tx-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2748%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/tx-counties.geojson"
@@ -62,28 +67,14 @@
     ]
   },
   "reviewCharts": {
-    "format": "texasCountyJsonComparison",
-    "sourceId": "tx-2024-general-county-json",
-    "presidentOfficeId": "1001",
-    "downBallotOfficeId": "7958",
-    "majorCandidates": {
-      "trump": {
-        "partyCode": "REP"
-      },
-      "harris": {
-        "partyCode": "DEM"
-      }
-    },
-    "downBallotCandidates": {
-      "rep": {
-        "partyCode": "REP",
-        "candidateContains": "CRUZ"
-      },
-      "dem": {
-        "partyCode": "DEM",
-        "candidateContains": "ALLRED"
-      }
-    },
+    "format": "texasHarrisCanvassPdfVoteShare",
+    "sourceId": "tx-harris-2024-general-official-canvass",
+    "coverageMode": "voteShareOnly",
+    "county": "Harris",
+    "firstPage": 1,
+    "lastPage": 152,
+    "expectedRows": 1391,
+    "warning": "Texas local review rows currently cover Harris County only and use official presidential precinct vote share; down-ballot flags are suppressed and remaining Texas counties stay county-only.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -140,12 +131,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Texas county review comparison",
-        "detail": "County-level review rows compare the official Texas presidential race to the official U.S. Senate race from the same SOS county JSON. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
-        "sourceUrl": "https://results.texas-election.com/static/data/election/49664/1012/County.json",
-        "localFile": "data/tx-2024-general-county.json; data/tx-app-data.js",
+        "title": "Texas partial Harris County precinct review rows",
+        "detail": "Official Harris County canvass precinct rows are loaded for presidential vote-share advisory review and reconciled to the Texas SOS certified Harris County presidential totals. Other Texas counties remain county-only until official local canvass files are collected.",
+        "sourceUrl": "https://www.harrisvotes.com/Election-Results/Archives",
+        "localFile": "data/review-sources/tx-harris-2024-general-official-canvass.pdf; data/tx-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Texas county JSON includes county totals, not precinct rows.",
+        "sourceTimestampBasis": "Harris County archive entry for November 5, 2024 General and Special Elections links the final official canvass PDF dated November 14, 2024.",
         "status": "Loaded"
       },
       "turnout": {
@@ -163,8 +154,15 @@
         "category": "Official presidential county results",
         "file": "data/tx-2024-general-county.json; data/tx-app-data.js",
         "sourceUrl": "https://results.texas-election.com/static/data/election/49664/1012/County.json",
-        "usedFor": "Texas 2024 presidential county results and county-level President-vs-Senate review rows.",
+        "usedFor": "Texas 2024 presidential county results.",
         "confidence": "Texas Secretary of State official election results portal static county JSON."
+      },
+      {
+        "category": "Official Harris County local review rows",
+        "file": "data/review-sources/tx-harris-2024-general-official-canvass.pdf; data/tx-app-data.js",
+        "sourceUrl": "https://www.harrisvotes.com/Election-Results/Archives",
+        "usedFor": "Harris County presidential precinct vote-share review rows with vote-method columns from the official county canvass PDF.",
+        "confidence": "Official Harris County Election Results archive final canvass PDF; parsed precinct totals reconcile to the Texas SOS certified Harris County presidential row."
       },
       {
         "category": "Official statewide turnout",
@@ -208,7 +206,7 @@
     "trump": 6393597,
     "harris": 4835250,
     "other": 159827,
-    "reviewRows": 254,
+    "reviewRows": 1391,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,
