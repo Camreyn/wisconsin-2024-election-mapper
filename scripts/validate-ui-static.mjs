@@ -186,7 +186,7 @@ function createAppHarness({ hash = "", search = "" } = {}) {
   currentVmContext = context;
 
   for (const file of [
-    "data/app-data.js",
+    "data/wi-app-data.js",
     "data/mn-app-data.js",
     "data/eta-data.js",
     "data/wi-counties.js",
