@@ -183,6 +183,12 @@ def first_worksheet_name(workbook_path):
         return sheet.attrib["name"]
 
 
+def worksheet_names(workbook_path):
+    with zipfile.ZipFile(workbook_path) as archive:
+        workbook = ElementTree.fromstring(archive.read("xl/workbook.xml"))
+        return [sheet.attrib["name"] for sheet in workbook.findall("main:sheets/main:sheet", NS)]
+
+
 def cell_value(cell, shared_strings):
     cell_type = cell.attrib.get("t")
     if cell_type == "inlineStr":
@@ -5672,6 +5678,112 @@ def review_charts_north_dakota_csv(config):
             "threshold": policy["voteShareCorrelationThreshold"],
         },
     }
+    return review_rows, eta_analysis
+
+
+def review_charts_north_dakota_precinct_workbooks(config):
+    review = config["reviewCharts"]
+    president_path = local_source(config, review["sourceId"])
+    senate_path = local_source(config, review["senateSourceId"])
+    source = source_map(config)[review["sourceId"]]
+
+    def key_for_candidate(candidate, rules):
+        for key, rule in rules.items():
+            if new_york_column_matches(str(candidate or ""), "", rule):
+                return key
+        return "other"
+
+    def workbook_totals(path, rules):
+        totals = defaultdict(lambda: defaultdict(int))
+        for sheet in worksheet_names(path):
+            county = sheet
+            header = None
+            for row in iter_worksheet_rows(path, sheet):
+                if len(row) > 1 and row[1] == "Precinct":
+                    header = row
+                    continue
+                if not header or len(row) < 2:
+                    continue
+                precinct = str(row[1] or "").strip()
+                if not precinct or precinct.upper() == "TOTALS":
+                    continue
+                item = totals[(county, precinct)]
+                for index, candidate in enumerate(header[2:], start=2):
+                    if index >= len(row):
+                        continue
+                    key = key_for_candidate(candidate, rules)
+                    item[key] += int_text(row[index])
+            if header is None:
+                raise ValueError(f"North Dakota precinct workbook missing header row for {sheet}")
+        return totals
+
+    president = workbook_totals(president_path, review["majorCandidates"])
+    down_ballot = workbook_totals(senate_path, review["downBallotCandidates"])
+    certified_rows, _candidate_labels, _precinct_rows = certified_results(config)
+    certified_by_county = {row["county"]: row for row in certified_rows}
+
+    parsed_by_county = defaultdict(lambda: defaultdict(int))
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+    for key in sorted(president):
+        county, precinct = key
+        totals = president[key]
+        harris = totals["harris"]
+        trump = totals["trump"]
+        other = totals["other"]
+        president_total = harris + trump + other
+        if not president_total:
+            continue
+        senate = down_ballot.get(key, {})
+        senate_dem = senate["dem"]
+        senate_rep = senate["rep"]
+        senate_dem_total += senate_dem
+        senate_rep_total += senate_rep
+        parsed_by_county[county]["harris"] += harris
+        parsed_by_county[county]["trump"] += trump
+        parsed_by_county[county]["other"] += other
+        parsed_by_county[county]["total"] += president_total
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+                "sourceUrl": source["url"],
+            }
+        )
+
+    missing_counties = sorted(set(certified_by_county) - set(parsed_by_county))
+    if missing_counties:
+        raise ValueError(f"North Dakota precinct workbooks missing counties: {', '.join(missing_counties)}")
+    for county, expected in certified_by_county.items():
+        parsed = parsed_by_county[county]
+        expected_totals = {
+            "harris": expected["harris"],
+            "trump": expected["trump"],
+            "other": expected["other"],
+            "total": expected["total"],
+        }
+        parsed_totals = {key: parsed[key] for key in expected_totals}
+        if parsed_totals != expected_totals:
+            raise ValueError(f"North Dakota precinct totals mismatch for {county}: {parsed_totals} != {expected_totals}")
+
+    expected_rows = review.get("expectedRows")
+    if expected_rows and len(review_rows) != expected_rows:
+        raise ValueError(f"North Dakota precinct row count mismatch: {len(review_rows)} != {expected_rows}")
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+    eta_analysis["coverageMode"] = "statewideLocal"
+    eta_analysis["partialCoverage"] = False
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "North Dakota review rows use official SOS precinct workbooks for President and U.S. Senate.",
+    )
     return review_rows, eta_analysis
 
 
@@ -14262,6 +14374,7 @@ REVIEW_CHART_PARSERS = {
     "nebraskaCanvassPdfCountyComparison": review_charts_nebraska_canvass_pdf,
     "nevadaClarkCvrComparison": review_charts_nevada_clark_cvr,
     "nevadaStatewideHtmlCountyComparison": review_charts_nevada_statewide_html,
+    "northDakotaPrecinctWorkbookComparison": review_charts_north_dakota_precinct_workbooks,
     "northDakotaStatewideCsvCountyComparison": review_charts_north_dakota_csv,
     "oklahomaEnrZipCountyComparison": review_charts_oklahoma_enr_zip,
     "oklahomaPrecinctCsvZipComparison": review_charts_oklahoma_precinct_csv_zip,

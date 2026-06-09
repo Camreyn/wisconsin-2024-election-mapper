@@ -107,6 +107,7 @@ const supportedReviewFormats = new Set([
   "nebraskaCanvassPdfCountyComparison",
   "nevadaClarkCvrComparison",
   "nevadaStatewideHtmlCountyComparison",
+  "northDakotaPrecinctWorkbookComparison",
   "northDakotaStatewideCsvCountyComparison",
   "oklahomaEnrZipCountyComparison",
   "oklahomaPrecinctCsvZipComparison",
