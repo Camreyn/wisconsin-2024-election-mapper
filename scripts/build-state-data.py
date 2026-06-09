@@ -673,6 +673,127 @@ def review_charts_california_swdb_srprec(config):
     return review_rows, eta
 
 
+def review_charts_arizona_precinct_summary_pdfs(config):
+    review = config["reviewCharts"]
+    source_by_id = source_map(config)
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+    parsed_county_totals = {}
+
+    def target_precinct_line(line, next_line, pattern):
+        if not re.match(pattern, line, flags=re.IGNORECASE):
+            return False
+        return next_line.startswith("TOTAL") or re.match(
+            r"^(Presidential Electors|U\.S\. Representative|State Senator|Corporation Commissioner)\b",
+            next_line,
+            flags=re.IGNORECASE,
+        )
+
+    def first_vote_number(line):
+        match = re.search(r"\b([0-9][0-9,]*)\b", line)
+        return int_text(match.group(1)) if match else 0
+
+    for item in review["sources"]:
+        county = item["county"]
+        path = local_source(config, item["sourceId"])
+        lines = [
+            re.sub(r"\s+", " ", line).strip()
+            for line in extract_pdf_text(path).splitlines()
+            if line.strip()
+        ]
+        precinct_pattern = item.get("precinctPattern", r"^\d+\b")
+        precincts = {}
+        current_precinct = None
+        current_contest = None
+        for index, line in enumerate(lines):
+            next_line = lines[index + 1] if index + 1 < len(lines) else ""
+            if target_precinct_line(line, next_line, precinct_pattern):
+                current_precinct = line
+                precincts.setdefault(
+                    current_precinct,
+                    {"trump": 0, "harris": 0, "presidentTotal": 0, "senateRep": 0, "senateDem": 0, "senateTotal": 0},
+                )
+                current_contest = None
+                continue
+            if not current_precinct:
+                continue
+            if re.match(r"^Presidential Electors$", line, flags=re.IGNORECASE):
+                current_contest = "president"
+                continue
+            if re.match(r"^U\.S\. Senator$", line, flags=re.IGNORECASE):
+                current_contest = "senate"
+                continue
+            if line.startswith("Total Votes Cast") and current_contest:
+                total = first_vote_number(re.sub(r"^Total Votes Cast\s+", "", line, flags=re.IGNORECASE))
+                if current_contest == "president":
+                    precincts[current_precinct]["presidentTotal"] = total
+                else:
+                    precincts[current_precinct]["senateTotal"] = total
+                current_contest = None
+                continue
+            if current_contest == "president":
+                if re.match(r"^REP\s+TRUMP/VANCE\b", line, flags=re.IGNORECASE):
+                    precincts[current_precinct]["trump"] = first_vote_number(line)
+                elif re.match(r"^DEM\s+HARRIS/WALZ\b", line, flags=re.IGNORECASE):
+                    precincts[current_precinct]["harris"] = first_vote_number(line)
+            elif current_contest == "senate":
+                if re.match(r"^REP\s+LAKE,?\s+KARI\b", line, flags=re.IGNORECASE):
+                    precincts[current_precinct]["senateRep"] = first_vote_number(line)
+                elif re.match(r"^DEM\s+GALLEGO,?\s+RUBEN\b", line, flags=re.IGNORECASE):
+                    precincts[current_precinct]["senateDem"] = first_vote_number(line)
+
+        county_rows = []
+        for precinct, values in sorted(precincts.items()):
+            president_total = values["presidentTotal"]
+            if not president_total:
+                continue
+            harris = values["harris"]
+            trump = values["trump"]
+            senate_dem = values["senateDem"]
+            senate_rep = values["senateRep"]
+            senate_dem_total += senate_dem
+            senate_rep_total += senate_rep
+            county_rows.append(
+                {
+                    "county": county,
+                    "ward": precinct,
+                    "total": president_total,
+                    "harris": harris,
+                    "trump": trump,
+                    "harrisShare": round2((harris / president_total) * 100),
+                    "trumpShare": round2((trump / president_total) * 100),
+                    "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                    "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+                    "sourceUrl": source_by_id[item["sourceId"]]["url"],
+                }
+            )
+        if not county_rows:
+            raise ValueError(f"Arizona precinct parser found no usable rows for {county} in {path}")
+        parsed_county_totals[county] = {
+            "trump": sum(row["trump"] for row in county_rows),
+            "harris": sum(row["harris"] for row in county_rows),
+            "total": sum(row["total"] for row in county_rows),
+        }
+        expected = item.get("expectedTotals", {})
+        for key, expected_key in (("trump", "trump"), ("harris", "harris"), ("total", "totalVotesCast")):
+            if expected_key in expected and parsed_county_totals[county][key] != int(expected[expected_key]):
+                raise ValueError(
+                    f"Arizona {county} precinct {key} total mismatch: "
+                    f"{parsed_county_totals[county][key]} != {expected[expected_key]}"
+                )
+        review_rows.extend(county_rows)
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+    eta_analysis["coverageMode"] = review.get("coverageMode", "partialLocal")
+    eta_analysis["partialCoverage"] = True
+    eta_analysis["loadedCounties"] = sorted({row["county"] for row in review_rows})
+    eta_analysis["parsedCountyTotals"] = parsed_county_totals
+    if review.get("warning"):
+        eta_analysis["warning"] = review["warning"]
+    return review_rows, eta_analysis
+
+
 def certified_results_iowa_canvass_pdf(config):
     source = config["certifiedResults"]
     path = local_source(config, source["sourceId"])
@@ -13315,6 +13436,7 @@ REVIEW_CHART_PARSERS = {
     "xlsxPrecinctComparison": review_charts_xlsx_precinct_comparison,
     "alaskaEnrPrecinctCsvComparison": review_charts_alaska_enr_precinct_csv,
     "alabamaPrecinctZipComparison": review_charts_alabama_precinct_zip,
+    "arizonaPrecinctSummaryPdfs": review_charts_arizona_precinct_summary_pdfs,
     "californiaSovXlsxCountyComparison": review_charts_california_sov_xlsx,
     "californiaSwdbSrprecComparison": review_charts_california_swdb_srprec,
     "civeraCountyCsvComparison": review_charts_civera_county_csv,

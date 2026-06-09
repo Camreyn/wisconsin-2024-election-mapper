@@ -61,6 +61,7 @@ const supportedReviewFormats = new Set([
   "xlsxPrecinctComparison",
   "alaskaEnrPrecinctCsvComparison",
   "alabamaPrecinctZipComparison",
+  "arizonaPrecinctSummaryPdfs",
   "californiaSovXlsxCountyComparison",
   "californiaSwdbSrprecComparison",
   "civeraCountyCsvComparison",

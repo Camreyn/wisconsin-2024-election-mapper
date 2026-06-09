@@ -25,6 +25,16 @@
       "localFile": "data/az-2024-statewide-turnout.csv"
     },
     {
+      "id": "az-cochise-2024-general-precinct-summary",
+      "url": "https://public.destinyhosted.com/cochidocs/2024/SPCL/20241120_2833/7938_2024_General_Election_Precinct_Summary_Results_Report.pdf",
+      "localFile": "data/az-cochise-2024-general-precinct-summary.pdf"
+    },
+    {
+      "id": "az-greenlee-2024-general-precinct-results",
+      "url": "https://greenlee.az.gov/wp-content/uploads/2020/07/Precinct-Results-Report-2.pdf",
+      "localFile": "data/az-greenlee-2024-general-precinct-results.pdf"
+    },
+    {
       "id": "az-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2704%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/az-counties.geojson"
@@ -67,8 +77,32 @@
     ]
   },
   "reviewCharts": {
-    "format": "notConfigured",
-    "sourceId": "az-2024-president-county-canvass",
+    "format": "arizonaPrecinctSummaryPdfs",
+    "sourceId": "az-cochise-2024-general-precinct-summary",
+    "coverageMode": "partialLocal",
+    "warning": "Arizona review rows are partial county-local coverage from official Cochise and Greenlee precinct summary PDFs. They should not be read as statewide review coverage until remaining county precinct sources are collected.",
+    "sources": [
+      {
+        "sourceId": "az-cochise-2024-general-precinct-summary",
+        "county": "Cochise County",
+        "precinctPattern": "^\\d{2}\\b",
+        "expectedTotals": {
+          "trump": 35936,
+          "harris": 22296,
+          "totalVotesCast": 59135
+        }
+      },
+      {
+        "sourceId": "az-greenlee-2024-general-precinct-results",
+        "county": "Greenlee County",
+        "precinctPattern": "^\\d{3}\\b",
+        "expectedTotals": {
+          "trump": 2308,
+          "harris": 954,
+          "totalVotesCast": 3316
+        }
+      }
+    ],
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -108,7 +142,7 @@
       "sourcePlanner": true,
       "certifiedResults": true,
       "map": true,
-      "reviewGraphs": false,
+      "reviewGraphs": true,
       "turnout": true,
       "historicalBaseline": false
     },
@@ -123,13 +157,13 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Arizona precinct or reporting-unit detail",
-        "detail": "The certified canvass transcription is county-level only. Review drilldowns need an official precinct, ward, or reporting-unit source before they can be enabled.",
-        "sourceUrl": "https://apps.azsos.gov/election/2024/ge/canvass/20241105_GeneralCanvass_Signed.pdf",
-        "localFile": "data/az-2024-president-county-canvass.csv; data/az-app-data.js",
+        "title": "Arizona partial precinct review rows",
+        "detail": "Official Cochise and Greenlee county precinct summary PDFs provide precinct-level President and U.S. Senate rows. The app loads those 60 rows as partial county-local review coverage and labels Arizona incomplete until the remaining county precinct sources are collected.",
+        "sourceUrl": "https://public.destinyhosted.com/cochidocs/2024/SPCL/20241120_2833/7938_2024_General_Election_Precinct_Summary_Results_Report.pdf; https://greenlee.az.gov/wp-content/uploads/2020/07/Precinct-Results-Report-2.pdf",
+        "localFile": "data/az-cochise-2024-general-precinct-summary.pdf; data/az-greenlee-2024-general-precinct-results.pdf; data/az-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass provides county totals but not app-ready precinct comparison rows.",
-        "status": "Needs precinct source"
+        "sourceTimestampBasis": "Official county precinct summary PDFs downloaded during advisory expansion; parser reconciles loaded county precinct sums against county presidential totals.",
+        "status": "Loaded"
       },
       "turnout": {
         "title": "Arizona statewide turnout summary",
@@ -155,6 +189,13 @@
         "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
         "usedFor": "Arizona county polygon map.",
         "confidence": "U.S. Census TIGERweb county geography."
+      },
+      {
+        "category": "Partial official precinct review rows",
+        "file": "data/az-cochise-2024-general-precinct-summary.pdf; data/az-greenlee-2024-general-precinct-results.pdf; data/az-app-data.js",
+        "sourceUrl": "https://public.destinyhosted.com/cochidocs/2024/SPCL/20241120_2833/7938_2024_General_Election_Precinct_Summary_Results_Report.pdf; https://greenlee.az.gov/wp-content/uploads/2020/07/Precinct-Results-Report-2.pdf",
+        "usedFor": "Arizona partial county-local review rows comparing precinct President totals to U.S. Senate totals for Cochise and Greenlee counties.",
+        "confidence": "Official county precinct summary PDFs. Partial coverage warning remains required."
       },
       {
         "category": "Statewide turnout",
@@ -199,7 +240,7 @@
     "trump": 1770242,
     "harris": 1582860,
     "other": 47624,
-    "reviewRows": 0,
+    "reviewRows": 60,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,
