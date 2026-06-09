@@ -24,6 +24,13 @@ def main() -> None:
     labels = read_json("candidate-labels.json")
     ward_analysis = read_json("ward-analysis.json")
     counties = read_json("wi-counties.geojson")
+    state_total = sum(row["total"] for row in president)
+    legacy_metadata = {
+        "countyRows": len(president),
+        "stateTotal": state_total,
+        "sourceWorkbook": ward_analysis["metadata"]["source"],
+        "notes": "Wisconsin legacy generated bundle exposing county presidential rows and ward-level President-vs-U.S. Senate review rows.",
+    }
 
     write_js(
         "app-data.js",
@@ -31,6 +38,16 @@ def main() -> None:
         {
             "presidentCountyResults": president,
             "candidateLabels": labels,
+        },
+    )
+    write_js(
+        "wi-app-data.js",
+        "WI_ELECTION_APP_DATA",
+        {
+            "metadata": legacy_metadata,
+            "presidentCountyResults": president,
+            "candidateLabels": labels,
+            "reviewCharts": ward_analysis,
         },
     )
     write_js("eta-data.js", "ETA_WARD_CHARTS", ward_analysis)

@@ -6,8 +6,8 @@ This audit tracks the separate source-collection task for states that do not yet
 
 ## Summary
 
-- Review-source states audited: 43
-- Local Row Source Collected: 15
+- Review-source states audited: 44
+- Local Row Source Collected: 16
 - Official Portal Identified No Download: 1
 - County Local Sources Partially Collected: 1
 - County Local Required: 5
@@ -67,5 +67,6 @@ This audit tracks the separate source-collection task for states that do not yet
 | VA | local_row_source_collected | precinct/locality | [Virginia precinct rows in official contest CSV](https://historical.elections.virginia.gov/contest/161256) | Virginia historical CSV precinct comparison parser | Map precinct rows and collect/map a same-grain comparison contest export. |
 | VT | local_row_source_collected | municipality | [Vermont municipality-level presidential rows](https://electionarchive.vermont.gov/elections/download/165927/precincts_include:0/) | Vermont municipality CSV comparison parser | Collect/map a same-municipality statewide down-ballot contest. |
 | WA | county_local_required | county-local precinct | [Washington county official precinct results](https://results.vote.wa.gov/results/20241105/president-vice-president_bycounty.html) | county report/parser family | Collect county official precinct result files; SOS page currently loaded is county-level. |
+| WI | local_row_source_collected | ward | [Wisconsin WEC ward-by-ward federal and state contests](data/ward-analysis.json) | Wisconsin legacy app-data compatibility bundle | Loaded 3,503 ward rows into `data/wi-app-data.js`; 71 of 72 counties have at least 8 local rows. |
 | WV | official_portal_identified_needs_capture | unknown ENR detail | [West Virginia precinct or reporting-unit detail](https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary) | West Virginia Clarity detail parser | Inspect Clarity ENR static files for precinct/detail records or collect county files. |
 | WY | local_row_source_collected | precinct-by-precinct workbooks | [Wyoming official precinct-by-precinct workbooks](https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx) | Wyoming official ZIP precinct workbook parser | Map county precinct-by-precinct workbooks inside the official ZIP to President plus comparison contest rows. |

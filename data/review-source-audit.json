@@ -658,6 +658,22 @@
       "checked_at": "2026-06-08"
     },
     {
+      "state": "WI",
+      "review_graph_status": "loaded",
+      "collection_status": "local_row_source_collected",
+      "authority": "Wisconsin Elections Commission",
+      "source_title": "Wisconsin WEC ward-by-ward federal and state contests",
+      "source_url": "data/ward-analysis.json",
+      "local_file": "data/ward-analysis.json; data/wi-app-data.js",
+      "row_level": "ward",
+      "has_president_rows": "true",
+      "comparison_contest_status": "President and U.S. Senate mapped at ward level",
+      "parser_fit": "Wisconsin legacy app-data compatibility bundle",
+      "next_step": "Loaded 3503 ward rows into data/wi-app-data.js; 71 of 72 counties have at least 8 local rows.",
+      "caveats": "Menominee County has only 2 ward rows and remains below the 8-row advisory threshold.",
+      "checked_at": "2026-06-09"
+    },
+    {
       "state": "WV",
       "review_graph_status": "missing",
       "collection_status": "official_portal_identified_needs_capture",

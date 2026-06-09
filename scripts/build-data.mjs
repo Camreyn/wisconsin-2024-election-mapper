@@ -20,10 +20,24 @@ const president = readJson("president-county-results.json");
 const labels = readJson("candidate-labels.json");
 const wardAnalysis = readJson("ward-analysis.json");
 const counties = readJson("wi-counties.geojson");
+const stateTotal = president.reduce((sum, row) => sum + row.total, 0);
+const legacyMetadata = {
+  countyRows: president.length,
+  stateTotal,
+  sourceWorkbook: wardAnalysis.metadata.source,
+  notes:
+    "Wisconsin legacy generated bundle exposing county presidential rows and ward-level President-vs-U.S. Senate review rows.",
+};
 
 writeJs("app-data.js", "WI_ELECTION_APP_DATA", {
   presidentCountyResults: president,
   candidateLabels: labels,
+});
+writeJs("wi-app-data.js", "WI_ELECTION_APP_DATA", {
+  metadata: legacyMetadata,
+  presidentCountyResults: president,
+  candidateLabels: labels,
+  reviewCharts: wardAnalysis,
 });
 writeJs("eta-data.js", "ETA_WARD_CHARTS", wardAnalysis);
 writeJs("wi-counties.js", "WI_COUNTIES_GEOJSON", counties);
