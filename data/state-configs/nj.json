@@ -88,9 +88,158 @@
     ]
   },
   "reviewCharts": {
-    "format": "newJerseySenatePdfCountyComparison",
+    "format": "newJerseyMunicipalPdfComparison",
     "sourceId": "nj-2024-official-general-results-president",
     "downBallotSourceId": "nj-2024-official-general-results-us-senate",
+    "countySources": [
+      {
+        "county": "Atlantic County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-atlantic.pdf",
+        "presidentLocalFile": "data/nj-2024-atlantic-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-atlantic.pdf",
+        "senateLocalFile": "data/nj-2024-atlantic-us-senate.pdf"
+      },
+      {
+        "county": "Bergen County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-bergen.pdf",
+        "presidentLocalFile": "data/nj-2024-bergen-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-bergen.pdf",
+        "senateLocalFile": "data/nj-2024-bergen-us-senate.pdf"
+      },
+      {
+        "county": "Burlington County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-burlington.pdf",
+        "presidentLocalFile": "data/nj-2024-burlington-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-burlington.pdf",
+        "senateLocalFile": "data/nj-2024-burlington-us-senate.pdf"
+      },
+      {
+        "county": "Camden County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-camden.pdf",
+        "presidentLocalFile": "data/nj-2024-camden-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-camden.pdf",
+        "senateLocalFile": "data/nj-2024-camden-us-senate.pdf"
+      },
+      {
+        "county": "Cape May County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-capemay.pdf",
+        "presidentLocalFile": "data/nj-2024-capemay-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-capemay.pdf",
+        "senateLocalFile": "data/nj-2024-capemay-us-senate.pdf"
+      },
+      {
+        "county": "Cumberland County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-cumberland.pdf",
+        "presidentLocalFile": "data/nj-2024-cumberland-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-cumberland.pdf",
+        "senateLocalFile": "data/nj-2024-cumberland-us-senate.pdf"
+      },
+      {
+        "county": "Essex County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-essex.pdf",
+        "presidentLocalFile": "data/nj-2024-essex-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-essex.pdf",
+        "senateLocalFile": "data/nj-2024-essex-us-senate.pdf"
+      },
+      {
+        "county": "Gloucester County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-gloucester.pdf",
+        "presidentLocalFile": "data/nj-2024-gloucester-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-gloucester.pdf",
+        "senateLocalFile": "data/nj-2024-gloucester-us-senate.pdf"
+      },
+      {
+        "county": "Hudson County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-hudson.pdf",
+        "presidentLocalFile": "data/nj-2024-hudson-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-hudson.pdf",
+        "senateLocalFile": "data/nj-2024-hudson-us-senate.pdf"
+      },
+      {
+        "county": "Hunterdon County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-hunterdon.pdf",
+        "presidentLocalFile": "data/nj-2024-hunterdon-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-hunterdon.pdf",
+        "senateLocalFile": "data/nj-2024-hunterdon-us-senate.pdf"
+      },
+      {
+        "county": "Mercer County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-mercer.pdf",
+        "presidentLocalFile": "data/nj-2024-mercer-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-mercer.pdf",
+        "senateLocalFile": "data/nj-2024-mercer-us-senate.pdf"
+      },
+      {
+        "county": "Middlesex County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-middlesex.pdf",
+        "presidentLocalFile": "data/nj-2024-middlesex-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-middlesex.pdf",
+        "senateLocalFile": "data/nj-2024-middlesex-us-senate.pdf"
+      },
+      {
+        "county": "Monmouth County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-monmouth.pdf",
+        "presidentLocalFile": "data/nj-2024-monmouth-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-monmouth.pdf",
+        "senateLocalFile": "data/nj-2024-monmouth-us-senate.pdf"
+      },
+      {
+        "county": "Morris County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-morris.pdf",
+        "presidentLocalFile": "data/nj-2024-morris-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-morris.pdf",
+        "senateLocalFile": "data/nj-2024-morris-us-senate.pdf"
+      },
+      {
+        "county": "Ocean County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-ocean.pdf",
+        "presidentLocalFile": "data/nj-2024-ocean-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-ocean.pdf",
+        "senateLocalFile": "data/nj-2024-ocean-us-senate.pdf"
+      },
+      {
+        "county": "Passaic County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-passaic.pdf",
+        "presidentLocalFile": "data/nj-2024-passaic-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-passaic.pdf",
+        "senateLocalFile": "data/nj-2024-passaic-us-senate.pdf"
+      },
+      {
+        "county": "Salem County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-salem.pdf",
+        "presidentLocalFile": "data/nj-2024-salem-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-salem.pdf",
+        "senateLocalFile": "data/nj-2024-salem-us-senate.pdf"
+      },
+      {
+        "county": "Somerset County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-somerset.pdf",
+        "presidentLocalFile": "data/nj-2024-somerset-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-somerset.pdf",
+        "senateLocalFile": "data/nj-2024-somerset-us-senate.pdf"
+      },
+      {
+        "county": "Sussex County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-sussex.pdf",
+        "presidentLocalFile": "data/nj-2024-sussex-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-sussex.pdf",
+        "senateLocalFile": "data/nj-2024-sussex-us-senate.pdf"
+      },
+      {
+        "county": "Union County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-union.pdf",
+        "presidentLocalFile": "data/nj-2024-union-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-union.pdf",
+        "senateLocalFile": "data/nj-2024-union-us-senate.pdf"
+      },
+      {
+        "county": "Warren County",
+        "presidentUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-warren.pdf",
+        "presidentLocalFile": "data/nj-2024-warren-president.pdf",
+        "senateUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate-warren.pdf",
+        "senateLocalFile": "data/nj-2024-warren-us-senate.pdf"
+      }
+    ],
     "downBallotCandidates": {
       "dem": {
         "candidateContains": "ANDY KIM"
@@ -145,12 +294,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "New Jersey county review comparison",
-        "detail": "Official Division of Elections President and U.S. Senate PDFs provide candidate-by-county tallies. The review layer compares county presidential totals to U.S. Senate totals; precinct or ward rows remain a future source upgrade.",
+        "title": "New Jersey municipal review comparison",
+        "detail": "Official Division of Elections county President and U.S. Senate PDFs provide candidate-by-municipality tallies. The review layer compares municipality presidential totals to U.S. Senate totals; federal/overseas and hand-count rows are excluded from local advisory rows.",
         "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate.pdf",
-        "localFile": "data/nj-2024-official-general-results-president.pdf; data/nj-2024-official-general-results-us-senate.pdf; data/nj-app-data.js",
+        "localFile": "data/nj-2024-*-president.pdf; data/nj-2024-*-us-senate.pdf; data/nj-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Division of Elections PDFs marked 12/05/2024 Official List.",
+        "sourceTimestampBasis": "Official Division of Elections county PDFs for the November 5, 2024 General Election.",
         "status": "Loaded"
       },
       "turnout": {
@@ -165,18 +314,18 @@
     },
     "sourceInventory": [
       {
-        "category": "Official presidential county results",
-        "file": "data/nj-2024-official-general-results-president.pdf; data/nj-2024-official-general-results-us-senate.pdf; data/nj-app-data.js",
+        "category": "Official presidential county and municipal results",
+        "file": "data/nj-2024-official-general-results-president.pdf; data/nj-2024-*-president.pdf; data/nj-app-data.js",
         "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf",
-        "usedFor": "New Jersey 2024 presidential county results and county President-vs-U.S. Senate review rows.",
-        "confidence": "Official New Jersey Division of Elections presidential results PDF."
+        "usedFor": "New Jersey 2024 presidential county results and municipal President-vs-U.S. Senate review rows.",
+        "confidence": "Official New Jersey Division of Elections presidential result PDFs."
       },
       {
-        "category": "Official U.S. Senate county results",
-        "file": "data/nj-2024-official-general-results-us-senate.pdf; data/nj-app-data.js",
+        "category": "Official U.S. Senate county and municipal results",
+        "file": "data/nj-2024-official-general-results-us-senate.pdf; data/nj-2024-*-us-senate.pdf; data/nj-app-data.js",
         "sourceUrl": "https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-us-senate.pdf",
-        "usedFor": "New Jersey county President-vs-U.S. Senate review rows.",
-        "confidence": "Official New Jersey Division of Elections U.S. Senate results PDF."
+        "usedFor": "New Jersey municipal President-vs-U.S. Senate review rows.",
+        "confidence": "Official New Jersey Division of Elections U.S. Senate result PDFs."
       },
       {
         "category": "County boundaries",
@@ -215,9 +364,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "New Jersey reporting-unit row",
-    "reviewRowLabelPlural": "New Jersey reporting-unit rows",
-    "reviewGraphTitlePrefix": "New Jersey reporting unit",
+    "reviewRowLabel": "New Jersey municipality row",
+    "reviewRowLabelPlural": "New Jersey municipality rows",
+    "reviewGraphTitlePrefix": "New Jersey municipality",
     "mapLoadingText": "Loading local New Jersey county boundaries...",
     "noGeometryText": "New Jersey county geometry is not loaded yet; showing the tile fallback."
   },
@@ -228,7 +377,7 @@
     "trump": 1968215,
     "harris": 2220713,
     "other": 83797,
-    "reviewRows": 21,
+    "reviewRows": 565,
     "turnoutRows": 21,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

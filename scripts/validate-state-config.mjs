@@ -90,6 +90,7 @@ const supportedReviewFormats = new Set([
   "missouriActualResultsPdfCountyComparison",
   "massachusettsCountyHtmlComparison",
   "massachusettsPrecinctCsvComparison",
+  "newJerseyMunicipalPdfComparison",
   "newJerseySenatePdfCountyComparison",
   "newYorkCountyCsvComparison",
   "northCarolinaPrecinctZipComparison",

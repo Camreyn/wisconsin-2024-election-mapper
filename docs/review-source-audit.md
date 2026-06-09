@@ -1,16 +1,16 @@
 # Review Graph Source Audit
 
-Checked at: 2026-06-08
+Checked at: 2026-06-09
 
 This audit tracks the separate source-collection task for states that do not yet have review graphs enabled. It records whether an official precinct, reporting-unit, town, municipality, election-district, or county-local source has already been collected or still needs discovery/capture. It does not enable review graphs by itself.
 
 ## Summary
 
-- Review-missing states audited: 43
-- Local Row Source Collected: 14
+- Review-source states audited: 43
+- Local Row Source Collected: 15
 - Official Portal Identified No Download: 1
 - County Local Sources Partially Collected: 1
-- County Local Required: 6
+- County Local Required: 5
 - Statewide Precinct Source Identified: 1
 - Official Source Not Found: 1
 - Official Portal Identified Needs Capture: 6
@@ -51,7 +51,7 @@ This audit tracks the separate source-collection task for states that do not yet
 | NC | official_precinct_source_identified | precinct sort | [NCSBE Historical Election Results Data](https://www.ncsbe.gov/results-data/election-results/historical-election-results-data) | North Carolina precinct-sort parser | Download official precinct-sort data and map President plus a statewide comparison contest. |
 | NE | state_or_county_source_needed | unknown/county-local | [Nebraska precinct results](https://sos.nebraska.gov/sites/default/files/doc/elections/2024/2024%20General%20Canvass%20Book.pdf) | TBD | Search Nebraska SOS and county election offices for precinct-level 2024 general result files. |
 | NH | official_town_source_needed | town | [New Hampshire town-level 2024 general results](https://www.sos.nh.gov/2024-general-election-results) | New Hampshire town result parser | Locate official SOS town-level general-election result files for President and a comparison contest. |
-| NJ | county_local_required | county-local precinct/municipality | [New Jersey county official precinct/municipal results](https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president.pdf) | county report parser family | Collect county official precinct/municipal result files; state official PDF is county-level. |
+| NJ | local_row_source_collected | municipality | [New Jersey county official municipal results](https://www.nj.gov/state/elections/assets/pdf/election-results/2024/2024-official-general-results-president-atlantic.pdf) | New Jersey municipal PDF comparison parser | Loaded 565 municipality rows from all 21 county President and U.S. Senate PDFs; every county has at least 8 local rows. |
 | NM | local_row_source_collected | precinct in Civera CSV | [New Mexico precinct or reporting-unit detail](https://nm.elstats.civera.com/api/download_contest/14877_table.csv?split_party=false) | Civera contest precinct CSV comparison parser | Map Civera precinct rows and collect a same-grain comparison contest export. |
 | NV | county_local_or_archive_required | unknown/county-local | [Nevada precinct results](https://www.nvsos.gov/SOSelectionPages/results/2024StateWideGeneral/ElectionSummary.aspx) | TBD | Search Nevada SOS/county election offices or archived SOS downloads for precinct-level 2024 general data. |
 | NY | county_local_required | county-local precinct/election district | [New York county board official precinct/election-district results](https://elections.ny.gov/2024-election-results) | county CSV/PDF parser family | Collect county board precinct/election-district result files; NYS export currently loaded is county-level. |
@@ -69,4 +69,3 @@ This audit tracks the separate source-collection task for states that do not yet
 | WA | county_local_required | county-local precinct | [Washington county official precinct results](https://results.vote.wa.gov/results/20241105/president-vice-president_bycounty.html) | county report/parser family | Collect county official precinct result files; SOS page currently loaded is county-level. |
 | WV | official_portal_identified_needs_capture | unknown ENR detail | [West Virginia precinct or reporting-unit detail](https://results.enr.clarityelections.com/WV/122766/web.345435/#/summary) | West Virginia Clarity detail parser | Inspect Clarity ENR static files for precinct/detail records or collect county files. |
 | WY | local_row_source_collected | precinct-by-precinct workbooks | [Wyoming official precinct-by-precinct workbooks](https://sos.wyo.gov/Elections/Docs/2024/2024GeneralResults.aspx) | Wyoming official ZIP precinct workbook parser | Map county precinct-by-precinct workbooks inside the official ZIP to President plus comparison contest rows. |
-

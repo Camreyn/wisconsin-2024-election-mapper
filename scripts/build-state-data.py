@@ -8369,6 +8369,178 @@ def review_charts_new_jersey_senate_pdf(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
 
+def new_jersey_municipal_key(name):
+    text = name.lower()
+    text = text.replace("cinnnaminson", "cinnaminson")
+    text = text.replace("sayerville", "sayreville")
+    text = text.replace("townshp", "township")
+    text = text.replace("voorhees borough", "voorhees township")
+    if text.strip() == "parsippany-troy hills":
+        text = "parsippany-troy hills township"
+    if text.strip() == "greenbrook":
+        text = "green brook township"
+    text = re.sub(r"\bmt\b", "mount", text)
+    text = re.sub(r",?\s*city of\b", " city", text)
+    text = re.sub(r"\btownship\b", "twp", text)
+    text = re.sub(r"\bborough\b", "boro", text)
+    return re.sub(r"[^a-z0-9]+", "", text)
+
+
+def new_jersey_municipal_pdf_rows(path, county, candidate_keys, validate_keys=None):
+    validate_keys = validate_keys or candidate_keys
+    raw_lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
+    lines = []
+    index = 0
+    while index < len(raw_lines):
+        line = raw_lines[index]
+        numbers = re.findall(r"\d[\d,]*", line)
+        if not numbers and index + 1 < len(raw_lines):
+            next_numbers = re.findall(r"\d[\d,]*", raw_lines[index + 1])
+            if len(next_numbers) == len(candidate_keys) and re.fullmatch(r"[\d,\s]+", raw_lines[index + 1]):
+                line = f"{line} {raw_lines[index + 1]}"
+                index += 1
+        elif 0 < len(numbers) < len(candidate_keys) and index + 1 < len(raw_lines):
+            next_numbers = re.findall(r"\d[\d,]*", raw_lines[index + 1])
+            if (
+                next_numbers
+                and len(numbers) + len(next_numbers) == len(candidate_keys)
+                and re.fullmatch(r"[\d,\s]+", raw_lines[index + 1])
+            ):
+                line = f"{line} {raw_lines[index + 1]}"
+                index += 1
+        lines.append(line)
+        index += 1
+
+    rows = []
+    parsed_totals = defaultdict(int)
+    official_totals = None
+    in_municipalities = False
+    special_rows = {"HAND COUNTS"}
+    has_incomplete_special_row = False
+
+    for line in lines:
+        if line == "MUNICIPALITIES":
+            in_municipalities = True
+            continue
+        if not in_municipalities:
+            continue
+        if line.startswith("NJDOE"):
+            continue
+
+        numbers = re.findall(r"\d[\d,]*", line)
+        if len(numbers) != len(candidate_keys):
+            if numbers:
+                first_number = line.find(numbers[0])
+                name = line[:first_number].strip() if first_number > 0 else ""
+                upper_name = name.upper()
+                if upper_name.startswith("FEDERAL") or upper_name in special_rows:
+                    has_incomplete_special_row = True
+            continue
+        first_number = line.find(numbers[0])
+        if first_number < 1:
+            continue
+        name = line[:first_number].strip()
+        values = {key: int_text(numbers[index]) for index, key in enumerate(candidate_keys)}
+
+        if name.upper() in {"COUNTY TOTAL", "TOTAL"}:
+            official_totals = values
+            continue
+
+        for key, votes in values.items():
+            parsed_totals[key] += votes
+
+        upper_name = name.upper()
+        if upper_name.startswith("FEDERAL") or upper_name in special_rows:
+            continue
+        rows.append(
+            {
+                "county": county,
+                "ward": name,
+                "_wardKey": new_jersey_municipal_key(name),
+                **values,
+            }
+        )
+
+    if (
+        official_totals
+        and not has_incomplete_special_row
+        and {key: parsed_totals[key] for key in validate_keys} != {
+        key: official_totals[key] for key in validate_keys
+        }
+    ):
+        raise ValueError(
+            f"New Jersey municipal PDF totals mismatch for {county} {source_path(path)}: "
+            f"{ {key: parsed_totals[key] for key in validate_keys} } != "
+            f"{ {key: official_totals[key] for key in validate_keys} }"
+        )
+    if not rows:
+        raise ValueError(f"New Jersey municipal PDF produced no local rows for {county}: {source_path(path)}")
+    return rows
+
+
+def review_charts_new_jersey_municipal_pdfs(config):
+    review = config["reviewCharts"]
+    president_keys = ["harris", "trump", "stein", "kennedy", "oliver", "deLaCruz", "terry", "kishore", "fruit"]
+    senate_keys = ["dem", "rep", "green", "libertarian", "voteBetter", "socialistWorkers"]
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+
+    for county_source in review["countySources"]:
+        county = county_source["county"]
+        president_rows = new_jersey_municipal_pdf_rows(
+            project_path(county_source["presidentLocalFile"]),
+            county,
+            president_keys,
+        )
+        senate_rows = new_jersey_municipal_pdf_rows(
+            project_path(county_source["senateLocalFile"]),
+            county,
+            senate_keys,
+            validate_keys=["dem", "rep"],
+        )
+        president = {row["_wardKey"]: row for row in president_rows}
+        senate = {row["_wardKey"]: row for row in senate_rows}
+        if set(president) != set(senate):
+            missing = sorted(president[key]["ward"] for key in set(president) - set(senate))
+            extra = sorted(senate[key]["ward"] for key in set(senate) - set(president))
+            raise ValueError(f"New Jersey municipal review mismatch for {county}: missing={missing} extra={extra}")
+
+        for ward_key in sorted(president, key=lambda key: president[key]["ward"]):
+            president_row = president[ward_key]
+            senate_row = senate[ward_key]
+            president_total = sum(president_row[key] for key in president_keys)
+            if not president_total:
+                continue
+            harris = president_row["harris"]
+            trump = president_row["trump"]
+            senate_dem = senate_row["dem"]
+            senate_rep = senate_row["rep"]
+            senate_dem_total += senate_dem
+            senate_rep_total += senate_rep
+            review_rows.append(
+                {
+                    "county": county,
+                    "ward": senate_row["ward"] if senate_row["ward"] != president_row["ward"] else president_row["ward"],
+                    "total": president_total,
+                    "harris": harris,
+                    "trump": trump,
+                    "harrisShare": round2((harris / president_total) * 100),
+                    "trumpShare": round2((trump / president_total) * 100),
+                    "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                    "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+                }
+            )
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+    eta_analysis["coverageMode"] = "localPresidentSenate"
+    eta_analysis["coverageNote"] = (
+        "Official New Jersey Division of Elections county PDFs parsed at municipality level; "
+        "federal/overseas and hand-count rows are excluded from local advisory rows."
+    )
+    return review_rows, eta_analysis
+
+
 def review_charts_new_york_county_csv(config):
     review = config["reviewCharts"]
     president_rows, _candidate_labels, _row_count = certified_results_new_york_county_csv(config)
@@ -13465,6 +13637,7 @@ REVIEW_CHART_PARSERS = {
     "missouriActualResultsPdfCountyComparison": review_charts_missouri_actual_results_pdf,
     "massachusettsCountyHtmlComparison": review_charts_massachusetts_county_html,
     "massachusettsPrecinctCsvComparison": review_charts_massachusetts_precinct_csv,
+    "newJerseyMunicipalPdfComparison": review_charts_new_jersey_municipal_pdfs,
     "newJerseySenatePdfCountyComparison": review_charts_new_jersey_senate_pdf,
     "newYorkCountyCsvComparison": review_charts_new_york_county_csv,
     "northCarolinaPrecinctZipComparison": review_charts_north_carolina_precinct_zip,
