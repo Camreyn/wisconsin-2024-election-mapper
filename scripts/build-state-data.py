@@ -6752,6 +6752,84 @@ def review_charts_total_results_house_county(config):
     return review_rows, eta_analysis
 
 
+def review_charts_total_results_precinct_vote_share(config):
+    review = config["reviewCharts"]
+    payload = json.loads(local_source(config, review["sourceId"]).read_text(encoding="utf-8"))
+    president_rows, _candidate_labels, _precinct_rows = certified_results_total_results_contest_json(config)
+    certified_by_county = {row["county"]: row for row in president_rows}
+    county_names = {
+        re.sub(r"[^A-Z0-9]+", "", re.sub(r"\s+county$", "", name, flags=re.IGNORECASE).upper()): name
+        for name in geometry_names_by_geoid(config).values()
+    }
+    choice_map = {
+        str(config["certifiedResults"]["majorCandidates"]["trump"]["choiceId"]): "trump",
+        str(config["certifiedResults"]["majorCandidates"]["harris"]["choiceId"]): "harris",
+    }
+
+    review_rows = []
+    parsed_by_county = defaultdict(lambda: defaultdict(int))
+    for county_result in payload.get("countyResults", []):
+        county_key = re.sub(r"[^A-Z0-9]+", "", str(county_result.get("county", "")).upper())
+        county = county_names.get(county_key)
+        if county not in certified_by_county:
+            raise ValueError(f"{config['name']} precinct source has unexpected county {county!r}")
+        contest = county_result.get("presidentContest") or {}
+        for location_id, location in (contest.get("locations", {}) or {}).items():
+            totals = defaultdict(int)
+            for choice in location.get("choices", []) or []:
+                key = choice_map.get(str(choice.get("choiceID")), "other")
+                totals[key] += int_text(choice.get("totalVotes"))
+            total = int_text(location.get("totalVotes"))
+            if not total:
+                continue
+            harris = totals["harris"]
+            trump = totals["trump"]
+            review_rows.append(
+                {
+                    "county": county,
+                    "ward": str(location_id),
+                    "total": total,
+                    "harris": harris,
+                    "trump": trump,
+                    "harrisShare": round2((harris / total) * 100),
+                    "trumpShare": round2((trump / total) * 100),
+                    "demDropoff": 0,
+                    "repDropoff": 0,
+                }
+            )
+            parsed_by_county[county]["total"] += total
+            parsed_by_county[county]["harris"] += harris
+            parsed_by_county[county]["trump"] += trump
+
+    expected_counties = set(certified_by_county)
+    parsed_counties = set(parsed_by_county)
+    if parsed_counties != expected_counties:
+        raise ValueError(
+            f"{config['name']} precinct source county coverage mismatch: "
+            f"missing={sorted(expected_counties - parsed_counties)} extra={sorted(parsed_counties - expected_counties)}"
+        )
+    mismatches = []
+    for county, certified in certified_by_county.items():
+        parsed = parsed_by_county[county]
+        for key in ("total", "harris", "trump"):
+            if parsed[key] != certified[key]:
+                mismatches.append((county, key, parsed[key], certified[key]))
+    if mismatches:
+        raise ValueError(f"{config['name']} precinct rows do not reconcile to certified counties: {mismatches[:10]}")
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], 0, 0)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["coverageNote"] = review.get(
+        "coverageNote",
+        f"Official {config['name']} TotalResults county-scoped President rows are loaded at local reporting-unit level for vote-share advisory review. Down-ballot advisory flags are suppressed until same-grain comparison rows are mapped.",
+    )
+    eta_analysis["warning"] = review.get(
+        "warning",
+        f"{config['name']} review rows are official presidential local reporting-unit vote-share rows only; down-ballot flags are suppressed.",
+    )
+    return review_rows, eta_analysis
+
+
 def review_charts_ohio_precinct_vote_share(config):
     review = config["reviewCharts"]
     path = local_source(config, review["sourceId"])
@@ -13913,6 +13991,7 @@ REVIEW_CHART_PARSERS = {
     "tennesseePrecinctXlsxComparison": review_charts_tennessee_precinct_xlsx,
     "tabDelimitedZipComparison": review_charts_tab_delimited_zip,
     "totalResultsHouseCountyComparison": review_charts_total_results_house_county,
+    "totalResultsPrecinctVoteShare": review_charts_total_results_precinct_vote_share,
     "michiganPrecinctZipComparison": review_charts_tab_delimited_zip,
     "michiganCountyTabComparison": review_charts_michigan_tab,
     "montanaCanvassPdfCountyComparison": review_charts_montana_canvass_pdf,

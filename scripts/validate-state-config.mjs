@@ -100,6 +100,7 @@ const supportedReviewFormats = new Set([
   "tennesseePrecinctXlsxComparison",
   "tabDelimitedZipComparison",
   "totalResultsHouseCountyComparison",
+  "totalResultsPrecinctVoteShare",
   "michiganPrecinctZipComparison",
   "michiganCountyTabComparison",
   "montanaCanvassPdfCountyComparison",
