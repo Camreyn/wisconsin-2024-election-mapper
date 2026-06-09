@@ -82,13 +82,16 @@
     ]
   },
   "reviewCharts": {
-    "format": "civeraCountyCsvComparison",
+    "format": "virginiaPrecinctCsvComparison",
     "sourceId": "va-2024-president-results",
     "downBallotSourceId": "va-2024-us-senate-results",
-    "rowTypes": [
-      "Locality"
+    "skipPrecinctRows": [
+      {
+        "locality": "Suffolk City",
+        "precinct": "316 - Potomac Shores",
+        "reason": "The official CSV also lists 316 - Potomac Shores under Prince William County, where it reconciles to the Prince William locality total; the duplicate Suffolk row is skipped so precinct rows reconcile to locality totals."
+      }
     ],
-    "rowLabelTemplate": "{county}",
     "downBallotCandidates": {
       "dem": {
         "candidateContains": "Timothy M. Kaine"
@@ -154,8 +157,8 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Virginia locality review comparison",
-        "detail": "Official Virginia Department of Elections President and U.S. Senate contest CSVs are loaded for locality-level President-vs-U.S. Senate review rows. Precinct rows exist in the exports and remain a future lower-level parser upgrade.",
+        "title": "Virginia precinct review comparison",
+        "detail": "Official Virginia Department of Elections President and U.S. Senate contest CSVs are loaded for precinct-level President-vs-U.S. Senate review rows, grouped under the same county and independent-city locality names used by the certified result table.",
         "sourceUrl": "https://historical.elections.virginia.gov/contest/161257",
         "localFile": "data/va-2024-president-results.csv; data/va-2024-us-senate-results.csv; data/va-app-data.js",
         "sourceLastModifiedUtc": "",
@@ -177,14 +180,14 @@
         "category": "Certified presidential locality results",
         "file": "data/va-2024-president-results.csv; data/va-2024-us-senate-results.csv; data/va-app-data.js",
         "sourceUrl": "https://historical.elections.virginia.gov/contest/161256",
-        "usedFor": "Virginia 2024 presidential county and independent-city result table and locality President-vs-U.S. Senate review rows.",
+        "usedFor": "Virginia 2024 presidential county and independent-city result table and precinct-level President-vs-U.S. Senate review rows.",
         "confidence": "Official Virginia Department of Elections historical results export."
       },
       {
         "category": "Certified U.S. Senate locality results",
         "file": "data/va-2024-us-senate-results.csv; data/va-app-data.js",
         "sourceUrl": "https://historical.elections.virginia.gov/contest/161257",
-        "usedFor": "Virginia locality President-vs-U.S. Senate review rows.",
+        "usedFor": "Virginia precinct-level President-vs-U.S. Senate review rows.",
         "confidence": "Official Virginia Department of Elections historical results export."
       },
       {
@@ -237,7 +240,7 @@
     "trump": 2075085,
     "harris": 2335395,
     "other": 95461,
-    "reviewRows": 133,
+    "reviewRows": 2669,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

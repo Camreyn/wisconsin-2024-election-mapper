@@ -20,6 +20,11 @@
       "localFile": "data/or-2024-general-statewide-export.csv"
     },
     {
+      "id": "or-2024-federal-precinct-workbook",
+      "url": "https://results.oregonvotes.gov/ResultsExport.aspx?type=FED&map=PCT&eid=107",
+      "localFile": "data/or-2024-general-federal-results-precinct.xlsx"
+    },
+    {
       "id": "or-2024-us-house-district-1-mapdata",
       "url": "https://orresultswebservices.azureedge.us/ResultsAjax.svc/GetMapDataArchive?type=FED&category=CTY&raceID=300031512&osn=111005&county=0&party=0&electionID=107",
       "localFile": "data/or-2024-us-house-district-1-mapdata.json"
@@ -116,17 +121,21 @@
     ]
   },
   "reviewCharts": {
-    "format": "oregonHouseMapDataCountyComparison",
-    "sourceId": "or-2024-president-county-mapdata",
-    "downBallotSourceIds": [
-      "or-2024-us-house-district-1-mapdata",
-      "or-2024-us-house-district-2-mapdata",
-      "or-2024-us-house-district-3-mapdata",
-      "or-2024-us-house-district-4-mapdata",
-      "or-2024-us-house-district-5-mapdata",
-      "or-2024-us-house-district-6-mapdata"
-    ],
-    "warning": "Oregon review rows compare President to the aggregate of U.S. House district contests by county; counties split across congressional districts are summed before comparison.",
+    "format": "oregonPrecinctVoteShare",
+    "sourceId": "or-2024-federal-precinct-workbook",
+    "warning": "Oregon vote-share review rows are loaded from the official federal precinct workbook where precinct-level presidential candidate totals are published. Many county sheets publish only countywide presidential totals with zero precinct rows, so those counties remain unavailable for local advisory indicators. No same-row down-ballot comparison is mapped yet.",
+    "columns": {
+      "harris": "Kamala D Harris/Tim Walz",
+      "trump": "Donald J Trump/JD Vance",
+      "other": [
+        "Robert F Kennedy Jr/Nicole Shanahan",
+        "Cornel West",
+        "Chase Oliver/Mike ter Maat",
+        "Randall Terry",
+        "Jill Stein/Rudolph Ware",
+        "Write-in"
+      ]
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -177,12 +186,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Oregon county review comparison",
-        "detail": "County review rows are loaded by comparing official presidential county map-data JSON to Oregon Secretary of State U.S. House county map-data JSON aggregated across all six congressional districts. This is not a single statewide down-ballot race, so the app carries a methodology warning.",
+        "title": "Oregon partial precinct vote-share review",
+        "detail": "Official Oregon Secretary of State federal precinct workbook rows are loaded where county sheets publish nonzero presidential precinct totals. Some county sheets publish countywide presidential totals but zero precinct rows, so review indicator coverage is partial and vote-share-only.",
         "sourceUrl": "https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107",
-        "localFile": "data/or-2024-president-county-mapdata.json; data/or-2024-us-house-district-*-mapdata.json; data/or-app-data.js",
+        "localFile": "data/or-2024-general-federal-results-precinct.xlsx; data/or-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Downloaded from the Oregon Secretary of State archived November 5, 2024 General Election results service county map-data endpoints.",
+        "sourceTimestampBasis": "Downloaded from the Oregon Secretary of State archived November 5, 2024 General Election federal precinct workbook.",
         "status": "Loaded"
       },
       "turnout": {
@@ -204,11 +213,11 @@
         "confidence": "Official Oregon Secretary of State archived election results service."
       },
       {
-        "category": "County review comparison",
-        "file": "data/or-2024-president-county-mapdata.json; data/or-2024-us-house-district-*-mapdata.json; data/or-app-data.js",
+        "category": "Partial precinct vote-share review",
+        "file": "data/or-2024-general-federal-results-precinct.xlsx; data/or-app-data.js",
         "sourceUrl": "https://results.oregonvotes.gov/resultsSW.aspx?type=FED&map=CTY&eid=107",
-        "usedFor": "Oregon county-level review warning rows comparing President to aggregate U.S. House district totals.",
-        "confidence": "Official Oregon Secretary of State archived election results service map-data JSON. Methodology warning is required because the comparison sums district contests rather than using one statewide down-ballot race."
+        "usedFor": "Oregon local presidential vote-share review rows for county sheets with published nonzero precinct totals.",
+        "confidence": "Official Oregon Secretary of State archived federal precinct workbook. Coverage is partial because many county sheets publish only countywide presidential totals."
       },
       {
         "category": "County boundaries",
@@ -254,6 +263,7 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
+    "reviewCaveat": "Oregon review rows are vote-share-only local rows where the official federal precinct workbook publishes nonzero presidential precinct totals. Counties with countywide-only presidential rows do not produce local advisory indicators yet.",
     "reviewRowLabel": "Oregon reporting-unit row",
     "reviewRowLabelPlural": "Oregon reporting-unit rows",
     "reviewGraphTitlePrefix": "Oregon reporting unit",
@@ -267,7 +277,7 @@
     "trump": 919480,
     "harris": 1240600,
     "other": 84413,
-    "reviewRows": 36,
+    "reviewRows": 199,
     "turnoutRows": 36,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

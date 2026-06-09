@@ -78,80 +78,27 @@
     }
   },
   "reviewCharts": {
-    "format": "kansasHouseXlsxCountyComparison",
-    "sourceId": "ks-2024-us-house-precinct-results",
-    "mainSheet": "OfficialPrecinctLevelResults",
-    "downBallotContestPrefix": "United States House of Representatives",
-    "downBallotStatewideTotals": {
-      "dem": 526153,
-      "rep": 749375
-    },
-    "countySheets": [
-      {
-        "sheet": "JOHNSON",
-        "county": "Johnson",
-        "columns": [
-          {
-            "index": 2,
-            "partyKey": "dem"
-          },
-          {
-            "index": 3,
-            "partyKey": "rep"
-          }
-        ]
+    "format": "kansasPresidentialPrecinctVoteShare",
+    "sourceId": "ks-2024-presidential-results",
+    "sheet": "2024 Presidential Results",
+    "contestName": "President / Vice President",
+    "majorCandidates": {
+      "trump": {
+        "candidateContains": "Donald J. Trump",
+        "partyCode": "Republican"
       },
-      {
-        "sheet": "SEDGWICK",
-        "county": "Sedgwick",
-        "columns": [
-          {
-            "index": 1,
-            "partyKey": "rep"
-          },
-          {
-            "index": 2,
-            "partyKey": "dem"
-          }
-        ]
-      },
-      {
-        "sheet": "SHAWNEE",
-        "county": "Shawnee",
-        "columns": [
-          {
-            "index": 2,
-            "partyKey": "dem"
-          },
-          {
-            "index": 3,
-            "partyKey": "rep"
-          }
-        ]
-      },
-      {
-        "sheet": "WYANDOTTE",
-        "county": "Wyandotte",
-        "columns": [
-          {
-            "index": 1,
-            "partyKey": "dem"
-          },
-          {
-            "index": 3,
-            "partyKey": "rep"
-          },
-          {
-            "index": 4,
-            "partyKey": "dem"
-          },
-          {
-            "index": 5,
-            "partyKey": "rep"
-          }
-        ]
+      "harris": {
+        "candidateContains": "Kamala D. Harris",
+        "partyCode": "Democratic"
       }
-    ],
+    },
+    "statewideTotals": {
+      "trump": 758802,
+      "harris": 544853,
+      "other": 23936,
+      "total": 1327591
+    },
+    "warning": "Kansas review rows are official presidential precinct vote-share rows only. The collected U.S. House source does not provide same-row statewide precinct rows for every county, so down-ballot advisory flags are suppressed.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -199,12 +146,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Kansas county review comparison",
-        "detail": "Official Kansas Secretary of State presidential precinct workbook is aggregated to county presidential totals and compared to county U.S. House totals from the official U.S. House precinct workbook. Johnson, Sedgwick, Shawnee, and Wyandotte are read from county-specific workbook tabs and all House totals reconcile to the statewide official vote totals PDF.",
-        "sourceUrl": "https://www.sos.ks.gov/elections/24elec/2024-General-Election-United-States-House-of-Representatives-Precinct-Results.xlsx",
-        "localFile": "data/ks-2024-presidential-results.xlsx; data/ks-2024-us-house-precinct-results.xlsx; data/ks-app-data.js",
+        "title": "Kansas presidential precinct vote-share review",
+        "detail": "Official Kansas Secretary of State presidential workbook provides precinct-level presidential candidate rows. The app loads those rows for local vote-share advisory indicators and marks review coverage as vote-share-only because no same-row statewide down-ballot precinct comparison is mapped.",
+        "sourceUrl": "https://www.sos.ks.gov/elections/24elec/2024-Presidential-Results.xlsx",
+        "localFile": "data/ks-2024-presidential-results.xlsx; data/ks-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Kansas SOS election results page links precinct-level U.S. House results and the statewide official vote totals PDF.",
+        "sourceTimestampBasis": "Official Kansas SOS election results page links the 2024 Presidential Election Results Data workbook.",
         "status": "Loaded"
       },
       "turnout": {
@@ -222,7 +169,7 @@
         "category": "Official presidential precinct results",
         "file": "data/ks-2024-presidential-results.xlsx; data/ks-app-data.js",
         "sourceUrl": "https://www.sos.ks.gov/elections/24elec/2024-Presidential-Results.xlsx",
-        "usedFor": "Kansas certified 2024 presidential county results aggregated from official precinct rows.",
+        "usedFor": "Kansas certified 2024 presidential county results aggregated from official precinct rows and precinct-level vote-share review rows.",
         "confidence": "Official Kansas Secretary of State 2024 Presidential Election Results Data workbook."
       },
       {
@@ -236,8 +183,8 @@
         "category": "Official U.S. House precinct results",
         "file": "data/ks-2024-us-house-precinct-results.xlsx; data/ks-app-data.js",
         "sourceUrl": "https://www.sos.ks.gov/elections/24elec/2024-General-Election-United-States-House-of-Representatives-Precinct-Results.xlsx",
-        "usedFor": "Kansas county review comparison against aggregate U.S. House contests.",
-        "confidence": "Official Kansas Secretary of State U.S. House precinct workbook; parsed county totals reconcile to the official statewide vote totals PDF."
+        "usedFor": "Collected as a down-ballot source candidate; not used for current local review rows because the workbook does not provide a single same-row statewide precinct comparison layout.",
+        "confidence": "Official Kansas Secretary of State U.S. House precinct workbook."
       },
       {
         "category": "Official turnout denominator",
@@ -276,10 +223,10 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewCaveat": "Kansas review rows compare county presidential totals to aggregate U.S. House district totals, not a single statewide down-ballot race. Several congressional districts include Libertarian or uncontested-party effects, so review warnings are triage cues for methodology-aware inspection.",
-    "reviewRowLabel": "Kansas county review row",
-    "reviewRowLabelPlural": "Kansas county review rows",
-    "reviewGraphTitlePrefix": "Kansas county",
+    "reviewCaveat": "Kansas review rows are official presidential precinct vote-share rows only. Down-ballot advisory flags are suppressed until a same-row statewide down-ballot precinct comparison source is mapped.",
+    "reviewRowLabel": "Kansas precinct row",
+    "reviewRowLabelPlural": "Kansas precinct rows",
+    "reviewGraphTitlePrefix": "Kansas precinct",
     "mapLoadingText": "Loading local Kansas county boundaries...",
     "noGeometryText": "Kansas county geometry is not loaded yet; showing the tile fallback."
   },
@@ -290,7 +237,7 @@
     "trump": 758802,
     "harris": 544853,
     "other": 23936,
-    "reviewRows": 105,
+    "reviewRows": 3739,
     "turnoutRows": 105,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

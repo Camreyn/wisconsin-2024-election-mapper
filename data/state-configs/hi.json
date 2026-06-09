@@ -106,10 +106,37 @@
     ]
   },
   "reviewCharts": {
-    "format": "hawaiiCountySummaryPdfCountyComparison",
-    "sourceId": "hi-2024-general-statewide-summary-pdf",
-    "statewideSummarySourceId": "hi-2024-general-statewide-summary",
-    "downBallotContest": "U.S. Senator",
+    "format": "hawaiiMediaPrecinctComparison",
+    "sourceId": "hi-2024-general-media-export",
+    "presidentContestName": "President and Vice President",
+    "downBallotContestName": "U.S. Senator",
+    "encoding": "utf-16",
+    "candidates": {
+      "harris": "HARRIS",
+      "trump": "TRUMP",
+      "senateDem": "HIRONO",
+      "senateRep": "MCDERMOTT"
+    },
+    "countyPrefixMap": {
+      "Hawaii County": [
+        "01-08"
+      ],
+      "Maui County": [
+        "09-14"
+      ],
+      "Kauai County": [
+        "15-17"
+      ],
+      "Honolulu County": [
+        "18-51"
+      ]
+    },
+    "expectedCountyTotals": {
+      "Hawaii County": 82823,
+      "Honolulu County": 340921,
+      "Kauai County": 30064,
+      "Maui County": 62893
+    },
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -156,12 +183,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Hawaii county review comparison",
-        "detail": "Official Hawaii Office of Elections county summary PDFs provide county-level presidential and U.S. Senator candidate totals. The app loads county review rows now; precinct/media exports remain collected for a future lower-level parser.",
+        "title": "Hawaii official precinct review comparison",
+        "detail": "Official Hawaii Office of Elections media export rows provide precinct-level presidential and U.S. Senator candidate totals. The parser maps precinct prefixes to counties and validates county presidential totals against the certified county summaries.",
         "sourceUrl": "https://elections.hawaii.gov/election-results/",
-        "localFile": "data/hi-2024-general-coh.pdf; data/hi-2024-general-cch.pdf; data/hi-2024-general-cok.pdf; data/hi-2024-general-com.pdf; data/hi-2024-general-summary.txt; data/hi-app-data.js",
+        "localFile": "data/hi-2024-general-media.txt; data/hi-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official Hawaii Office of Elections 2024 General Election county summary PDFs and statewide summary export.",
+        "sourceTimestampBasis": "Official Hawaii Office of Elections 2024 General Election media export.",
         "status": "Loaded"
       },
       "turnout": {
@@ -179,14 +206,14 @@
         "category": "Certified presidential results",
         "file": "data/hi-2024-general-coh.pdf; data/hi-2024-general-cch.pdf; data/hi-2024-general-cok.pdf; data/hi-2024-general-com.pdf; data/hi-2024-general-summary.txt; data/hi-app-data.js",
         "sourceUrl": "https://elections.hawaii.gov/election-results/",
-        "usedFor": "Hawaii certified 2024 presidential county results, county President-vs-U.S. Senator review rows, and statewide reconciliation.",
+        "usedFor": "Hawaii certified 2024 presidential county results and statewide reconciliation.",
         "confidence": "Official Hawaii Office of Elections 2024 General Election result files."
       },
       {
         "category": "Precinct or reporting-unit results",
-        "file": "data/hi-2024-general-media.txt; data/hi-2024-general-precinct.pdf",
+        "file": "data/hi-2024-general-media.txt; data/hi-app-data.js",
         "sourceUrl": "https://files.hawaii.gov/elections/files/results/2024/General/media.txt",
-        "usedFor": "Collected for future Hawaii review graph work; not loaded in this county-level promotion.",
+        "usedFor": "Hawaii precinct-level review graph rows comparing President with U.S. Senator.",
         "confidence": "Official Hawaii Office of Elections precinct/media exports."
       },
       {
@@ -215,9 +242,9 @@
       {
         "category": "Official precinct/media exports",
         "sourceUrl": "https://files.hawaii.gov/elections/files/results/2024/General/media.txt",
-        "reason": "Suitable candidate for future lower-level review graphs, but county review rows are loaded first from the official county summary PDFs.",
-        "status": "Collected for future parser",
-        "nextStep": "Map precinct rows to county/reporting-unit review rows and add validation targets."
+        "reason": "Loaded for lower-level review graphs after mapping precinct prefixes to counties and validating county totals against certified summaries.",
+        "status": "Loaded",
+        "nextStep": "Keep the prefix-to-county validation targets current if Hawaii changes precinct numbering in a future election."
       }
     ],
     "turnoutPolicy": {
@@ -233,9 +260,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "Hawaii reporting-unit row",
-    "reviewRowLabelPlural": "Hawaii reporting-unit rows",
-    "reviewGraphTitlePrefix": "Hawaii reporting unit",
+    "reviewRowLabel": "Hawaii precinct row",
+    "reviewRowLabelPlural": "Hawaii precinct rows",
+    "reviewGraphTitlePrefix": "Hawaii precinct",
     "mapLoadingText": "Loading local Hawaii county boundaries...",
     "noGeometryText": "Hawaii county geometry is not loaded yet; showing the tile fallback."
   },
@@ -246,7 +273,7 @@
     "trump": 193661,
     "harris": 313044,
     "other": 9996,
-    "reviewRows": 4,
+    "reviewRows": 235,
     "turnoutRows": 4,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

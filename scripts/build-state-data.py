@@ -5053,6 +5053,82 @@ def review_charts_kansas_house_xlsx(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], house_dem_total, house_rep_total)
 
 
+def review_charts_kansas_presidential_precinct_vote_share(config):
+    review = config["reviewCharts"]
+    path = local_source(config, review["sourceId"])
+    columns = review.get(
+        "columns",
+        {
+            "county": "County",
+            "precinct": "Precinct",
+            "race": "Race",
+            "candidate": "Candidate",
+            "party": "Party",
+            "votes": "Votes",
+        },
+    )
+    column_index, rows = read_sheet_rows(path, review.get("sheet", "2024 Presidential Results"))
+    by_precinct = defaultdict(lambda: defaultdict(int))
+    contest_name = review.get("contestName", "President / Vice President").upper()
+
+    for row in rows:
+        race = str(row[column_index[columns["race"]]] if len(row) > column_index[columns["race"]] else "").strip()
+        if race.upper() != contest_name:
+            continue
+        county = str(row[column_index[columns["county"]]] if len(row) > column_index[columns["county"]] else "").strip()
+        precinct = str(row[column_index[columns["precinct"]]] if len(row) > column_index[columns["precinct"]] else "").strip()
+        candidate = str(row[column_index[columns["candidate"]]] if len(row) > column_index[columns["candidate"]] else "").strip()
+        party = str(row[column_index[columns["party"]]] if len(row) > column_index[columns["party"]] else "").strip()
+        votes = int_text(row[column_index[columns["votes"]]] if len(row) > column_index[columns["votes"]] else 0)
+        if not county or not precinct or not candidate:
+            continue
+        item = by_precinct[(county, precinct)]
+        if new_york_column_matches(candidate, party, review["majorCandidates"]["trump"]):
+            item["trump"] += votes
+        elif new_york_column_matches(candidate, party, review["majorCandidates"]["harris"]):
+            item["harris"] += votes
+        else:
+            item["other"] += votes
+
+    review_rows = []
+    for (county, precinct), totals in sorted(by_precinct.items()):
+        total = totals["trump"] + totals["harris"] + totals["other"]
+        if not total:
+            continue
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": total,
+                "harris": totals["harris"],
+                "trump": totals["trump"],
+                "harrisShare": round2((totals["harris"] / total) * 100),
+                "trumpShare": round2((totals["trump"] / total) * 100),
+                "demDropoff": 0,
+                "repDropoff": 0,
+            }
+        )
+
+    expected_totals = review.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "trump": sum(row["trump"] for row in review_rows),
+            "harris": sum(row["harris"] for row in review_rows),
+            "other": sum(row["total"] - row["trump"] - row["harris"] for row in review_rows),
+            "total": sum(row["total"] for row in review_rows),
+        }
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Kansas precinct vote-share totals do not match expected totals: {parsed_totals} != {expected_totals}")
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], 0, 0)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "Kansas review rows use official presidential precinct vote share only; no same-row down-ballot comparison is mapped.",
+    )
+    return review_rows, eta_analysis
+
+
 def contest_party_votes(rows, contest_name):
     by_county = defaultdict(lambda: defaultdict(int))
     for row in rows:
@@ -6374,6 +6450,175 @@ def review_charts_ohio_precinct_vote_share(config):
         "warning",
         "Vote-share review is loaded, but no same-row down-ballot comparison contest is mapped yet.",
     )
+    return review_rows, eta_analysis
+
+
+def review_charts_oregon_precinct_vote_share(config):
+    review = config["reviewCharts"]
+    path = local_source(config, review["sourceId"])
+    review_rows = []
+    expected_total = review.get("expectedCandidateTotal")
+    parsed_total = 0
+    skipped_counties = []
+
+    for sheet_name in review.get("sheets", first_worksheet_names(path)):
+        rows = list(iter_worksheet_rows(path, sheet_name))
+        header_index = None
+        for index, row in enumerate(rows):
+            if row and str(row[0] or "").strip() == review.get("contestHeader", "President"):
+                header_index = index
+                break
+        if header_index is None:
+            skipped_counties.append(sheet_name)
+            continue
+        header = rows[header_index]
+        column_index = {str(name).strip(): index for index, name in enumerate(header) if name}
+        precinct_index = column_index[review.get("precinctColumn", "Precinct")]
+        harris_index = column_index[review["columns"]["harris"]]
+        trump_index = column_index[review["columns"]["trump"]]
+        other_indexes = [
+            column_index[column]
+            for column in review["columns"].get("other", [])
+            if column in column_index
+        ]
+        county_rows = 0
+        for row in rows[header_index + 1 :]:
+            precinct = str(row[precinct_index] if len(row) > precinct_index else "").strip()
+            if not precinct or precinct.lower() == "countywide" or precinct.upper() == "TOTALS":
+                continue
+            harris = int_text(row[harris_index] if len(row) > harris_index else 0)
+            trump = int_text(row[trump_index] if len(row) > trump_index else 0)
+            other = sum(int_text(row[index] if len(row) > index else 0) for index in other_indexes)
+            total = harris + trump + other
+            if not total:
+                continue
+            parsed_total += total
+            county_rows += 1
+            review_rows.append(
+                {
+                    "county": sheet_name,
+                    "ward": precinct,
+                    "total": total,
+                    "harris": harris,
+                    "trump": trump,
+                    "harrisShare": round2((harris / total) * 100),
+                    "trumpShare": round2((trump / total) * 100),
+                    "demDropoff": 0,
+                    "repDropoff": 0,
+                }
+            )
+        if not county_rows:
+            skipped_counties.append(sheet_name)
+
+    if expected_total is not None:
+        minimum = expected_total - review.get("candidateTotalTolerance", 0)
+        maximum = expected_total + review.get("candidateTotalTolerance", 0)
+        if not (minimum <= parsed_total <= maximum):
+            raise ValueError(f"Oregon precinct vote-share total {parsed_total} outside expected range {minimum}..{maximum}")
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], 0, 0)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "Oregon precinct vote-share rows are loaded where the official workbook publishes precinct candidate totals; no same-row down-ballot comparison is mapped.",
+    )
+    eta_analysis["partialReviewCoverage"] = {
+        "skippedCountySheets": skipped_counties,
+        "parsedCandidateTotal": parsed_total,
+    }
+    return review_rows, eta_analysis
+
+
+def hawaii_media_county_for_precinct(prefix, county_prefixes):
+    for county, ranges in county_prefixes.items():
+        for item in ranges:
+            if "-" in item:
+                start, end = item.split("-", 1)
+                if int(start) <= int(prefix) <= int(end):
+                    return county
+            elif prefix == item:
+                return county
+    raise ValueError(f"Hawaii media export precinct prefix {prefix} is not mapped to a county")
+
+
+def review_charts_hawaii_media_precinct(config):
+    review = config["reviewCharts"]
+    path = local_source(config, review["sourceId"])
+    county_prefixes = review["countyPrefixMap"]
+    president_contest = review.get("presidentContestName", "President and Vice President")
+    down_ballot_contest = review.get("downBallotContestName", "U.S. Senator")
+    candidates = review["candidates"]
+    by_precinct = defaultdict(lambda: defaultdict(int))
+    skipped_summary_rows = 0
+
+    with path.open("r", encoding=review.get("encoding", "utf-16"), newline="") as handle:
+        next(handle, None)
+        for row in csv.DictReader(handle):
+            precinct = str(row.get('#"Precinct_Name"', "")).strip()
+            match = re.match(r"^(\d{2})-", precinct)
+            if not match:
+                skipped_summary_rows += 1
+                continue
+            county = hawaii_media_county_for_precinct(match.group(1), county_prefixes)
+            contest = str(row.get("Contest_title", "")).strip()
+            candidate = str(row.get("Candidate_name", "")).upper()
+            votes = int_text(row.get("Mail votes")) + int_text(row.get("In-Person votes"))
+            item = by_precinct[(county, precinct)]
+            if contest == president_contest:
+                if candidates["harris"].upper() in candidate:
+                    item["harris"] += votes
+                elif candidates["trump"].upper() in candidate:
+                    item["trump"] += votes
+                else:
+                    item["other"] += votes
+            elif contest == down_ballot_contest:
+                if candidates["senateDem"].upper() in candidate:
+                    item["senateDem"] += votes
+                elif candidates["senateRep"].upper() in candidate:
+                    item["senateRep"] += votes
+
+    review_rows = []
+    county_totals = defaultdict(int)
+    senate_dem_total = 0
+    senate_rep_total = 0
+    for (county, precinct), item in sorted(by_precinct.items()):
+        harris = item["harris"]
+        trump = item["trump"]
+        total = harris + trump + item["other"]
+        if not total:
+            continue
+        senate_dem = item["senateDem"]
+        senate_rep = item["senateRep"]
+        county_totals[county] += total
+        senate_dem_total += senate_dem
+        senate_rep_total += senate_rep
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / total) * 100),
+                "trumpShare": round2((trump / total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    for county, expected_total in review.get("expectedCountyTotals", {}).items():
+        actual_total = county_totals.get(county, 0)
+        if actual_total != expected_total:
+            raise ValueError(f"Hawaii media export {county} presidential total {actual_total} != expected {expected_total}")
+
+    eta_analysis = eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        senate_dem_total,
+        senate_rep_total,
+    )
+    eta_analysis["sourceDetail"] = "Hawaii media export precinct rows, President compared with U.S. Senator by precinct."
+    eta_analysis["mediaExportSkippedSummaryRows"] = skipped_summary_rows
     return review_rows, eta_analysis
 
 
@@ -7933,6 +8178,131 @@ def review_charts_civera_county_csv(config):
                 "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
             }
         )
+
+    return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+
+
+def civera_precinct_totals_by_locality(path, candidate_rules, excluded_columns=None, skip_precincts=None):
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        rows = list(csv.reader(handle))
+    if len(rows) < 3:
+        raise ValueError(f"Civera precinct source has too few rows: {path}")
+    header = rows[0]
+    party_row = rows[1]
+    excluded = set(excluded_columns or ["", "Total Votes Cast", "Total Ballots Cast"])
+    output = defaultdict(lambda: defaultdict(int))
+    state_totals = defaultdict(int)
+    current_locality = ""
+    skipped = {
+        (item["locality"], item["precinct"])
+        for item in (skip_precincts or [])
+    }
+
+    for row in rows[2:]:
+        if len(row) < 2:
+            continue
+        row_type = str(row[0]).strip()
+        if row_type == "Locality":
+            current_locality = str(row[1]).strip()
+            continue
+        if row_type == "State":
+            target = state_totals
+        elif row_type == "Precinct" and current_locality:
+            precinct = str(row[1]).strip()
+            if (current_locality, precinct) in skipped:
+                continue
+            target = output[(current_locality, precinct)]
+        else:
+            continue
+
+        for index, header_value in enumerate(header):
+            if index >= len(row) or header_value in excluded:
+                continue
+            party_value = party_row[index] if index < len(party_row) else ""
+            matched = False
+            for key, rule in candidate_rules.items():
+                if new_york_column_matches(header_value, party_value, rule):
+                    target[key] += int_text(row[index])
+                    matched = True
+                    break
+            if not matched and row_type == "Precinct" and header_value:
+                target["other"] += int_text(row[index])
+
+    if state_totals:
+        parsed_totals = {
+            key: sum(totals[key] for totals in output.values())
+            for key in candidate_rules
+        }
+        expected_totals = {key: state_totals[key] for key in candidate_rules}
+        if parsed_totals != expected_totals:
+            raise ValueError(f"Civera precinct totals do not match State row in {path}: {parsed_totals} != {expected_totals}")
+    return output
+
+
+def review_charts_virginia_precinct_csv(config):
+    review = config["reviewCharts"]
+    certified = config["certifiedResults"]
+    president_rows, _candidate_labels, _row_count = CERTIFIED_RESULT_PARSERS[certified["format"]](config)
+    locality_totals = {row["county"]: row for row in president_rows}
+    president = civera_precinct_totals_by_locality(
+        local_source(config, review["sourceId"]),
+        {
+            "trump": certified["majorCandidates"]["trump"],
+            "harris": certified["majorCandidates"]["harris"],
+        },
+        certified.get("excludeColumns"),
+        review.get("skipPrecinctRows"),
+    )
+    senate = civera_precinct_totals_by_locality(
+        local_source(config, review["downBallotSourceId"]),
+        review["downBallotCandidates"],
+        certified.get("excludeColumns"),
+        review.get("skipPrecinctRows"),
+    )
+    if set(president) != set(senate):
+        missing = sorted(set(president) - set(senate))
+        extra = sorted(set(senate) - set(president))
+        raise ValueError(f"Virginia precinct review mismatch: missing={missing[:10]} extra={extra[:10]}")
+
+    parsed_by_locality = defaultdict(int)
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+    for locality, precinct in sorted(president):
+        president_row = president[(locality, precinct)]
+        harris = president_row["harris"]
+        trump = president_row["trump"]
+        other = president_row["other"]
+        president_total = harris + trump + other
+        if not president_total:
+            continue
+        senate_row = senate[(locality, precinct)]
+        senate_dem = senate_row["dem"]
+        senate_rep = senate_row["rep"]
+        parsed_by_locality[locality] += president_total
+        senate_dem_total += senate_dem
+        senate_rep_total += senate_rep
+        review_rows.append(
+            {
+                "county": locality,
+                "ward": precinct,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    mismatches = [
+        (locality, parsed_by_locality[locality], row["total"])
+        for locality, row in locality_totals.items()
+        if parsed_by_locality[locality] != row["total"]
+    ]
+    if mismatches:
+        raise ValueError(f"Virginia precinct totals do not reconcile to locality totals: {mismatches[:10]}")
 
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
@@ -12316,11 +12686,13 @@ REVIEW_CHART_PARSERS = {
     "floridaPrecinctZipComparison": review_charts_florida_precinct_zip,
     "georgiaHouseJsonCountyComparison": review_charts_georgia_house_json,
     "hawaiiCountySummaryPdfCountyComparison": review_charts_hawaii_county_summary_pdfs,
+    "hawaiiMediaPrecinctComparison": review_charts_hawaii_media_precinct,
     "idahoPrecinctCsvComparison": review_charts_idaho_precinct_csv,
     "illinoisPrecinctVoteShare": review_charts_illinois_precinct_vote_share,
     "indianaEnrCountyJsonComparison": review_charts_indiana_enr_county_json,
     "iowaHousePdfCountyComparison": review_charts_iowa_house_pdf,
     "kansasHouseXlsxCountyComparison": review_charts_kansas_house_xlsx,
+    "kansasPresidentialPrecinctVoteShare": review_charts_kansas_presidential_precinct_vote_share,
     "kentuckyHousePdfCountyComparison": review_charts_kentucky_house_pdf,
     "louisianaFederalPrecinctJsonComparison": review_charts_louisiana_federal_precinct_json,
     "maineCountyTownXlsxComparison": review_charts_maine_county_town_xlsx,
@@ -12343,6 +12715,7 @@ REVIEW_CHART_PARSERS = {
     "northDakotaStatewideCsvCountyComparison": review_charts_north_dakota_csv,
     "oklahomaEnrZipCountyComparison": review_charts_oklahoma_enr_zip,
     "oregonHouseMapDataCountyComparison": review_charts_oregon_house_map_data,
+    "oregonPrecinctVoteShare": review_charts_oregon_precinct_vote_share,
     "pennsylvaniaBulkCsvPrecinctComparison": review_charts_pennsylvania_bulk_csv,
     "rhodeIslandSummaryXlsxComparison": review_charts_rhode_island_summary_xlsx,
     "southCarolinaHouseEnrCountyComparison": review_charts_south_carolina_house_enr,
@@ -12350,6 +12723,7 @@ REVIEW_CHART_PARSERS = {
     "texasCountyJsonComparison": review_charts_texas_county_json,
     "utahCanvassPdfCountyComparison": review_charts_utah_canvass_pdf,
     "vermontMunicipalityCsvComparison": review_charts_vermont_municipality_csv,
+    "virginiaPrecinctCsvComparison": review_charts_virginia_precinct_csv,
     "washingtonPrecinctCsvComparison": review_charts_washington_precinct_csv,
     "wyomingPrecinctXlsxComparison": review_charts_wyoming_precinct_xlsx,
 }
