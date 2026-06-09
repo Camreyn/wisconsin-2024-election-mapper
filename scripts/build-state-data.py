@@ -8967,6 +8967,113 @@ def review_charts_oklahoma_enr_zip(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], dem_total, rep_total)
 
 
+def review_charts_oklahoma_precinct_csv_zip(config):
+    review = config["reviewCharts"]
+    county_path = local_source(config, review["sourceId"])
+    precinct_path = local_source(config, review["precinctSourceId"])
+
+    with zipfile.ZipFile(county_path) as county_archive:
+        config_data = json.loads(county_archive.read("config.json").decode("utf-8-sig"))
+        county_names = {
+            re.sub(r"\s+County$", "", name, flags=re.IGNORECASE).lower(): name
+            for name in geometry_names_by_geoid(config).values()
+        }
+        county_code_names = {
+            str(code): county_names.get(str(name).lower()) or f"{name} County"
+            for name, code in zip(config_data["counties"]["Options"], config_data["counties"]["Values"])
+            if code
+        }
+
+    race_candidate_rules = {
+        str(review.get("presidentRaceId", 10001)): review["majorCandidates"],
+        str(review["downBallotRaceId"]): review["downBallotCandidates"],
+    }
+    race_labels = {
+        str(review.get("presidentRaceId", 10001)): "president",
+        str(review["downBallotRaceId"]): "downBallot",
+    }
+    race_totals = {race_id: defaultdict(int) for race_id in race_candidate_rules}
+    precinct_totals = defaultdict(lambda: {"president": defaultdict(int), "downBallot": defaultdict(int)})
+    precinct_county_codes = {}
+
+    with zipfile.ZipFile(precinct_path) as archive:
+        csv_names = [name for name in archive.namelist() if name.lower().endswith(".csv")]
+        if len(csv_names) != 1:
+            raise ValueError(f"Expected one Oklahoma precinct CSV in {precinct_path}, found {csv_names}")
+        with archive.open(csv_names[0]) as handle:
+            reader = csv.DictReader((line.decode("utf-8-sig") for line in handle))
+            for row in reader:
+                race_id = str(row.get("race_number", "")).strip()
+                if race_id not in race_candidate_rules:
+                    continue
+                precinct = str(row.get("precinct", "")).strip()
+                if not precinct:
+                    continue
+                county_code = precinct[:2]
+                county = county_code_names.get(county_code)
+                if not county:
+                    raise ValueError(f"Could not map Oklahoma precinct {precinct!r} to a county")
+
+                candidate_name = row.get("cand_name", "")
+                votes = int_text(row.get("cand_tot_votes"))
+                key = "other"
+                for candidate_key, rule in race_candidate_rules[race_id].items():
+                    if new_york_column_matches(candidate_name, "", rule):
+                        key = candidate_key
+                        break
+
+                contest_key = race_labels[race_id]
+                totals = precinct_totals[(county, precinct)][contest_key]
+                totals[key] += votes
+                totals["total"] += votes
+                race_totals[race_id][key] += votes
+                race_totals[race_id]["total"] += votes
+                precinct_county_codes[(county, precinct)] = county_code
+
+    expected_totals = review.get("statewideTotals", {})
+    for label, race_id in (("president", str(review.get("presidentRaceId", 10001))), ("downBallot", str(review["downBallotRaceId"]))):
+        expected_total = expected_totals.get(label)
+        if expected_total is not None and race_totals[race_id]["total"] != int(expected_total):
+            raise ValueError(
+                f"Oklahoma {label} precinct total mismatch: {race_totals[race_id]['total']} != {expected_total}"
+            )
+
+    review_rows = []
+    dem_total = 0
+    rep_total = 0
+    for county, precinct in sorted(precinct_totals, key=lambda item: (item[0], precinct_county_codes[item], item[1])):
+        contests = precinct_totals[(county, precinct)]
+        president = contests["president"]
+        down_ballot = contests["downBallot"]
+        president_total = president["total"]
+        if not president_total:
+            continue
+        harris = president["harris"]
+        trump = president["trump"]
+        down_ballot_dem = down_ballot["dem"]
+        down_ballot_rep = down_ballot["rep"]
+        dem_total += down_ballot_dem
+        rep_total += down_ballot_rep
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - down_ballot_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - down_ballot_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], dem_total, rep_total)
+    if review.get("warning"):
+        eta_analysis["warning"] = review["warning"]
+    return review_rows, eta_analysis
+
+
 def review_charts_montana_canvass_pdf(config):
     review = config["reviewCharts"]
     path = local_source(config, review["sourceId"])
@@ -13250,6 +13357,7 @@ REVIEW_CHART_PARSERS = {
     "nevadaStatewideHtmlCountyComparison": review_charts_nevada_statewide_html,
     "northDakotaStatewideCsvCountyComparison": review_charts_north_dakota_csv,
     "oklahomaEnrZipCountyComparison": review_charts_oklahoma_enr_zip,
+    "oklahomaPrecinctCsvZipComparison": review_charts_oklahoma_precinct_csv_zip,
     "oregonHouseMapDataCountyComparison": review_charts_oregon_house_map_data,
     "oregonPrecinctVoteShare": review_charts_oregon_precinct_vote_share,
     "pennsylvaniaBulkCsvPrecinctComparison": review_charts_pennsylvania_bulk_csv,

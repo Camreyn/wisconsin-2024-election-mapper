@@ -103,6 +103,7 @@ const supportedReviewFormats = new Set([
   "nevadaStatewideHtmlCountyComparison",
   "northDakotaStatewideCsvCountyComparison",
   "oklahomaEnrZipCountyComparison",
+  "oklahomaPrecinctCsvZipComparison",
   "oregonHouseMapDataCountyComparison",
   "oregonPrecinctVoteShare",
   "pennsylvaniaBulkCsvPrecinctComparison",

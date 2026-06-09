@@ -15,6 +15,11 @@
       "localFile": "data/ok-2024-general-enr-results.zip"
     },
     {
+      "id": "ok-2024-general-precinct-results",
+      "url": "https://results.okelections.gov/OKERS/enrapi/GetExtract/PLCSV/20241105",
+      "localFile": "data/ok-2024-general-precinct-results.zip"
+    },
+    {
       "id": "ok-vrstats-county-nov1-2024",
       "url": "https://oklahoma.gov/content/dam/ok/en/elections/voter-registration-statistics/2024-vr-statistics/vrstats-county-nov1-2024.pdf",
       "localFile": "data/ok-vrstats-county-nov1-2024.pdf"
@@ -65,8 +70,9 @@
     ]
   },
   "reviewCharts": {
-    "format": "oklahomaEnrZipCountyComparison",
+    "format": "oklahomaPrecinctCsvZipComparison",
     "sourceId": "ok-2024-general-enr-results",
+    "precinctSourceId": "ok-2024-general-precinct-results",
     "presidentRaceId": 10001,
     "downBallotRaceId": 10002,
     "majorCandidates": {
@@ -89,7 +95,12 @@
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
       "voteShareCorrelationThreshold": 0.35
-    }
+    },
+    "statewideTotals": {
+      "president": 1566173,
+      "downBallot": 1538795
+    },
+    "warning": "The official precinct export includes nine zero-vote presidential precinct codes that are excluded from review rows; nine small counties have fewer than eight nonzero precinct rows for downstream advisory-threshold evaluation."
   },
   "turnout": {
     "format": "oklahomaEnrRegistrationPdf",
@@ -146,12 +157,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Oklahoma county review comparison",
-        "detail": "County-level review rows compare the official OKER presidential race to statewide race 10002 from the same county payloads. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
-        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
-        "localFile": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
+        "title": "Oklahoma precinct review comparison",
+        "detail": "Precinct-level review rows compare the official OKER presidential race to statewide race 10002, Corporation Commissioner, from the official precinct CSV export. The export covers all 77 counties and 1,986 precinct codes; nine zero-vote presidential precinct codes are excluded from review rows, and nine small counties have fewer than eight nonzero precinct rows for downstream advisory-threshold evaluation.",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105; https://results.okelections.gov/OKERS/enrapi/GetExtract/PLCSV/20241105",
+        "localFile": "data/ok-2024-general-enr-results.zip; data/ok-2024-general-precinct-results.zip; data/ok-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official county result payloads checked during Oklahoma source promotion.",
+        "sourceTimestampBasis": "Official OKER precinct CSV export downloaded from GetExtract/PLCSV/20241105 during advisory expansion.",
         "status": "Loaded"
       },
       "turnout": {
@@ -166,10 +177,10 @@
     },
     "sourceInventory": [
       {
-        "category": "Official presidential county results",
-        "file": "data/ok-2024-general-enr-results.zip; data/ok-app-data.js",
-        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105",
-        "usedFor": "Oklahoma official 2024 presidential county results and county-level President-vs-statewide-downballot review rows.",
+        "category": "Official presidential county results and precinct review rows",
+        "file": "data/ok-2024-general-enr-results.zip; data/ok-2024-general-precinct-results.zip; data/ok-app-data.js",
+        "sourceUrl": "https://results.okelections.gov/OKER/?elecDate=20241105; https://results.okelections.gov/OKERS/enrapi/GetExtract/PLCSV/20241105",
+        "usedFor": "Oklahoma official 2024 presidential county results and precinct-level President-vs-Corporation-Commissioner review rows.",
         "confidence": "Official Oklahoma State Election Board results API payloads."
       },
       {
@@ -209,9 +220,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "Oklahoma reporting-unit row",
-    "reviewRowLabelPlural": "Oklahoma reporting-unit rows",
-    "reviewGraphTitlePrefix": "Oklahoma reporting unit",
+    "reviewRowLabel": "Oklahoma precinct row",
+    "reviewRowLabelPlural": "Oklahoma precinct rows",
+    "reviewGraphTitlePrefix": "Oklahoma precinct",
     "mapLoadingText": "Loading local Oklahoma county boundaries...",
     "noGeometryText": "Oklahoma county geometry is not loaded yet; showing the tile fallback."
   },
@@ -222,7 +233,7 @@
     "trump": 1036213,
     "harris": 499599,
     "other": 30361,
-    "reviewRows": 77,
+    "reviewRows": 1977,
     "turnoutRows": 77,
     "turnoutWarningRows": 77,
     "historicalSeries": 0,
