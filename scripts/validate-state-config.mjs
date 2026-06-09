@@ -74,6 +74,7 @@ const supportedReviewFormats = new Set([
   "electionwarePrecinctSummaryComparison",
   "floridaPrecinctZipComparison",
   "georgiaHouseJsonCountyComparison",
+  "georgiaPrecinctVoteShare",
   "hawaiiCountySummaryPdfCountyComparison",
   "hawaiiMediaPrecinctComparison",
   "idahoPrecinctCsvComparison",

@@ -1,0 +1,1440 @@
+{
+  "authority": "Georgia Secretary of State",
+  "electionId": "2024NovGen",
+  "sourcePage": "https://results.sos.ga.gov/results/public/Georgia/2024NovGen",
+  "rowLevel": "county official precinct",
+  "coverageStatus": "loaded",
+  "counties": [
+    {
+      "county": "Appling County",
+      "shortName": "appling-county-ga",
+      "ballotItemId": "01000000-d884-2e72-ab5a-08dcda4b86b0",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/appling-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-ab5a-08dcda4b86b0",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/appling-county-ga-president.json",
+      "precinctRows": 9,
+      "voteTotal": 8334
+    },
+    {
+      "county": "Atkinson County",
+      "shortName": "atkinson-county-ga",
+      "ballotItemId": "01000000-d884-2e72-4a23-08dcda4b86fd",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/atkinson-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-4a23-08dcda4b86fd",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/atkinson-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 3057
+    },
+    {
+      "county": "Bacon County",
+      "shortName": "bacon-county-ga",
+      "ballotItemId": "01000000-d884-2e72-a44c-08dcda4b871b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/bacon-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-a44c-08dcda4b871b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/bacon-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 4839
+    },
+    {
+      "county": "Baker County",
+      "shortName": "baker-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5397-08dcda4b8737",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/baker-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5397-08dcda4b8737",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/baker-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 1476
+    },
+    {
+      "county": "Baldwin County",
+      "shortName": "baldwin-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5f03-08dcda4b877a",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/baldwin-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5f03-08dcda4b877a",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/baldwin-county-ga-president.json",
+      "precinctRows": 14,
+      "voteTotal": 18825
+    },
+    {
+      "county": "Banks County",
+      "shortName": "banks-county-ga",
+      "ballotItemId": "01000000-d884-2e72-7a1e-08dcda4b87d0",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/banks-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-7a1e-08dcda4b87d0",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/banks-county-ga-president.json",
+      "precinctRows": 13,
+      "voteTotal": 10519
+    },
+    {
+      "county": "Barrow County",
+      "shortName": "barrow-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f070-08dcda4b8827",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/barrow-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f070-08dcda4b8827",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/barrow-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 43934
+    },
+    {
+      "county": "Bartow County",
+      "shortName": "bartow-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5bc7-08dcda4b8884",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/bartow-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5bc7-08dcda4b8884",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/bartow-county-ga-president.json",
+      "precinctRows": 17,
+      "voteTotal": 57547
+    },
+    {
+      "county": "Ben Hill County",
+      "shortName": "ben-hill-county-ga",
+      "ballotItemId": "01000000-d884-2e72-4841-08dcda4b88ac",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/ben-hill-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-4841-08dcda4b88ac",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/ben-hill-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 6501
+    },
+    {
+      "county": "Berrien County",
+      "shortName": "berrien-county-ga",
+      "ballotItemId": "01000000-d884-2e72-edbc-08dcda4b88cb",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/berrien-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-edbc-08dcda4b88cb",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/berrien-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 8068
+    },
+    {
+      "county": "Bibb County",
+      "shortName": "bibb-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8ba9-08dcda4b8922",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/bibb-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8ba9-08dcda4b8922",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/bibb-county-ga-president.json",
+      "precinctRows": 31,
+      "voteTotal": 69181
+    },
+    {
+      "county": "Bleckley County",
+      "shortName": "bleckley-county-ga",
+      "ballotItemId": "01000000-d884-2e72-541c-08dcda4b894f",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/bleckley-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-541c-08dcda4b894f",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/bleckley-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 6044
+    },
+    {
+      "county": "Brantley County",
+      "shortName": "brantley-county-ga",
+      "ballotItemId": "01000000-d884-2e72-2770-08dcda4b8969",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/brantley-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-2770-08dcda4b8969",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/brantley-county-ga-president.json",
+      "precinctRows": 3,
+      "voteTotal": 8500
+    },
+    {
+      "county": "Brooks County",
+      "shortName": "brooks-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3503-08dcda4b8988",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/brooks-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3503-08dcda4b8988",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/brooks-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 7210
+    },
+    {
+      "county": "Bryan County",
+      "shortName": "bryan-county-ga",
+      "ballotItemId": "01000000-d884-2e72-deff-08dcda4b89b0",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/bryan-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-deff-08dcda4b89b0",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/bryan-county-ga-president.json",
+      "precinctRows": 10,
+      "voteTotal": 24651
+    },
+    {
+      "county": "Bulloch County",
+      "shortName": "bulloch-county-ga",
+      "ballotItemId": "01000000-d884-2e72-85d2-08dcda4b89eb",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/bulloch-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-85d2-08dcda4b89eb",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/bulloch-county-ga-president.json",
+      "precinctRows": 16,
+      "voteTotal": 32657
+    },
+    {
+      "county": "Burke County",
+      "shortName": "burke-county-ga",
+      "ballotItemId": "01000000-d884-2e72-a6d6-08dcda4b8a2d",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/burke-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-a6d6-08dcda4b8a2d",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/burke-county-ga-president.json",
+      "precinctRows": 16,
+      "voteTotal": 11070
+    },
+    {
+      "county": "Butts County",
+      "shortName": "butts-county-ga",
+      "ballotItemId": "01000000-d884-2e72-e377-08dcda4b8a49",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/butts-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-e377-08dcda4b8a49",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/butts-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 13019
+    },
+    {
+      "county": "Calhoun County",
+      "shortName": "calhoun-county-ga",
+      "ballotItemId": "01000000-d884-2e72-4a65-08dcda4b8a6a",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/calhoun-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-4a65-08dcda4b8a6a",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/calhoun-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 2056
+    },
+    {
+      "county": "Camden County",
+      "shortName": "camden-county-ga",
+      "ballotItemId": "01000000-d884-2e72-0645-08dcda4b8a95",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/camden-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-0645-08dcda4b8a95",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/camden-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 26393
+    },
+    {
+      "county": "Candler County",
+      "shortName": "candler-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8629-08dcda4b8aae",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/candler-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8629-08dcda4b8aae",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/candler-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 4568
+    },
+    {
+      "county": "Carroll County",
+      "shortName": "carroll-county-ga",
+      "ballotItemId": "01000000-d884-2e72-519d-08dcda4b8b12",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/carroll-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-519d-08dcda4b8b12",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/carroll-county-ga-president.json",
+      "precinctRows": 28,
+      "voteTotal": 60494
+    },
+    {
+      "county": "Catoosa County",
+      "shortName": "catoosa-county-ga",
+      "ballotItemId": "01000000-d884-2e72-218e-08dcda4b8b5f",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/catoosa-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-218e-08dcda4b8b5f",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/catoosa-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 35038
+    },
+    {
+      "county": "Charlton County",
+      "shortName": "charlton-county-ga",
+      "ballotItemId": "01000000-d884-2e72-09b3-08dcda4b8b92",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/charlton-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-09b3-08dcda4b8b92",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/charlton-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 4628
+    },
+    {
+      "county": "Chatham County",
+      "shortName": "chatham-county-ga",
+      "ballotItemId": "01000000-d884-2e72-23fc-08dcda4b8cb1",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/chatham-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-23fc-08dcda4b8cb1",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/chatham-county-ga-president.json",
+      "precinctRows": 87,
+      "voteTotal": 141109
+    },
+    {
+      "county": "Chattahoochee County",
+      "shortName": "chattahoochee-county-ga",
+      "ballotItemId": "01000000-d884-2e72-b093-08dcda4b8cea",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/chattahoochee-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-b093-08dcda4b8cea",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/chattahoochee-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 1694
+    },
+    {
+      "county": "Chattooga County",
+      "shortName": "chattooga-county-ga",
+      "ballotItemId": "01000000-d884-2e72-690f-08dcda4b8d21",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/chattooga-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-690f-08dcda4b8d21",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/chattooga-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 10706
+    },
+    {
+      "county": "Cherokee County",
+      "shortName": "cherokee-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f246-08dcda4b8dcf",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/cherokee-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f246-08dcda4b8dcf",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/cherokee-county-ga-president.json",
+      "precinctRows": 43,
+      "voteTotal": 162281
+    },
+    {
+      "county": "Clarke County",
+      "shortName": "clarke-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8e9a-08dcda4b8e77",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/clarke-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8e9a-08dcda4b8e77",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/clarke-county-ga-president.json",
+      "precinctRows": 24,
+      "voteTotal": 52887
+    },
+    {
+      "county": "Clay County",
+      "shortName": "clay-county-ga",
+      "ballotItemId": "01000000-d884-2e72-54cc-08dcda4b8eb5",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/clay-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-54cc-08dcda4b8eb5",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/clay-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 1442
+    },
+    {
+      "county": "Clayton County",
+      "shortName": "clayton-county-ga",
+      "ballotItemId": "01000000-d884-2e72-d6c6-08dcda4b8fe0",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/clayton-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-d6c6-08dcda4b8fe0",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/clayton-county-ga-president.json",
+      "precinctRows": 70,
+      "voteTotal": 111729
+    },
+    {
+      "county": "Clinch County",
+      "shortName": "clinch-county-ga",
+      "ballotItemId": "01000000-d884-2e72-b991-08dcda4b904f",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/clinch-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-b991-08dcda4b904f",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/clinch-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 2908
+    },
+    {
+      "county": "Cobb County",
+      "shortName": "cobb-county-ga",
+      "ballotItemId": "01000000-d884-2e72-894a-08dcda4b92e2",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/cobb-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-894a-08dcda4b92e2",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/cobb-county-ga-president.json",
+      "precinctRows": 148,
+      "voteTotal": 401369
+    },
+    {
+      "county": "Coffee County",
+      "shortName": "coffee-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5992-08dcda4b9388",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/coffee-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5992-08dcda4b9388",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/coffee-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 15715
+    },
+    {
+      "county": "Colquitt County",
+      "shortName": "colquitt-county-ga",
+      "ballotItemId": "01000000-d884-2e72-54e6-08dcda4b940f",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/colquitt-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-54e6-08dcda4b940f",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/colquitt-county-ga-president.json",
+      "precinctRows": 19,
+      "voteTotal": 16611
+    },
+    {
+      "county": "Columbia County",
+      "shortName": "columbia-county-ga",
+      "ballotItemId": "01000000-d884-2e72-e096-08dcda4b951e",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/columbia-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-e096-08dcda4b951e",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/columbia-county-ga-president.json",
+      "precinctRows": 46,
+      "voteTotal": 85920
+    },
+    {
+      "county": "Cook County",
+      "shortName": "cook-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f080-08dcda4b9581",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/cook-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f080-08dcda4b9581",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/cook-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 7357
+    },
+    {
+      "county": "Coweta County",
+      "shortName": "coweta-county-ga",
+      "ballotItemId": "01000000-d884-2e72-ce7d-08dcda4b961b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/coweta-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-ce7d-08dcda4b961b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/coweta-county-ga-president.json",
+      "precinctRows": 24,
+      "voteTotal": 85916
+    },
+    {
+      "county": "Crawford County",
+      "shortName": "crawford-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3558-08dcda4b966d",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/crawford-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3558-08dcda4b966d",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/crawford-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 6340
+    },
+    {
+      "county": "Crisp County",
+      "shortName": "crisp-county-ga",
+      "ballotItemId": "01000000-d884-2e72-6643-08dcda4b96a9",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/crisp-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-6643-08dcda4b96a9",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/crisp-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 8116
+    },
+    {
+      "county": "Dade County",
+      "shortName": "dade-county-ga",
+      "ballotItemId": "01000000-d884-2e72-0803-08dcda4b96ef",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/dade-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-0803-08dcda4b96ef",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/dade-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 8200
+    },
+    {
+      "county": "Dawson County",
+      "shortName": "dawson-county-ga",
+      "ballotItemId": "01000000-a36b-d24c-e07f-08dceed6c442",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/dawson-county-ga/2024NovGen/ballot-items/01000000-a36b-d24c-e07f-08dceed6c442",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/dawson-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 19580
+    },
+    {
+      "county": "Decatur County",
+      "shortName": "decatur-county-ga",
+      "ballotItemId": "01000000-d884-2e72-723e-08dcda4b9cff",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/decatur-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-723e-08dcda4b9cff",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/decatur-county-ga-president.json",
+      "precinctRows": 10,
+      "voteTotal": 11549
+    },
+    {
+      "county": "DeKalb County",
+      "shortName": "dekalb-county-ga",
+      "ballotItemId": "01000000-d884-2e72-cf88-08dcda4b9be1",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/dekalb-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-cf88-08dcda4b9be1",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/dekalb-county-ga-president.json",
+      "precinctRows": 191,
+      "voteTotal": 366008
+    },
+    {
+      "county": "Dodge County",
+      "shortName": "dodge-county-ga",
+      "ballotItemId": "01000000-d884-2e72-889c-08dcda4b9d94",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/dodge-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-889c-08dcda4b9d94",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/dodge-county-ga-president.json",
+      "precinctRows": 16,
+      "voteTotal": 8350
+    },
+    {
+      "county": "Dooly County",
+      "shortName": "dooly-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8d27-08dcda4b9dda",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/dooly-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8d27-08dcda4b9dda",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/dooly-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 4177
+    },
+    {
+      "county": "Dougherty County",
+      "shortName": "dougherty-county-ga",
+      "ballotItemId": "01000000-d884-2e72-29e8-08dcda4b9eac",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/dougherty-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-29e8-08dcda4b9eac",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/dougherty-county-ga-president.json",
+      "precinctRows": 25,
+      "voteTotal": 33850
+    },
+    {
+      "county": "Douglas County",
+      "shortName": "douglas-county-ga",
+      "ballotItemId": "01000000-d884-2e72-b544-08dcda4b9f93",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/douglas-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-b544-08dcda4b9f93",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/douglas-county-ga-president.json",
+      "precinctRows": 25,
+      "voteTotal": 70721
+    },
+    {
+      "county": "Early County",
+      "shortName": "early-county-ga",
+      "ballotItemId": "01000000-d884-2e72-cb07-08dcda4b9ff7",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/early-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-cb07-08dcda4b9ff7",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/early-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 4879
+    },
+    {
+      "county": "Echols County",
+      "shortName": "echols-county-ga",
+      "ballotItemId": "01000000-d884-2e72-a323-08dcda4ba022",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/echols-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-a323-08dcda4ba022",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/echols-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 1438
+    },
+    {
+      "county": "Effingham County",
+      "shortName": "effingham-county-ga",
+      "ballotItemId": "01000000-d884-2e72-2631-08dcda4ba0df",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/effingham-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-2631-08dcda4ba0df",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/effingham-county-ga-president.json",
+      "precinctRows": 20,
+      "voteTotal": 36244
+    },
+    {
+      "county": "Elbert County",
+      "shortName": "elbert-county-ga",
+      "ballotItemId": "01000000-d884-2e72-c7b3-08dcda4ba153",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/elbert-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-c7b3-08dcda4ba153",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/elbert-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 9589
+    },
+    {
+      "county": "Emanuel County",
+      "shortName": "emanuel-county-ga",
+      "ballotItemId": "01000000-d884-2e72-deb9-08dcda4ba1d1",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/emanuel-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-deb9-08dcda4ba1d1",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/emanuel-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 9619
+    },
+    {
+      "county": "Evans County",
+      "shortName": "evans-county-ga",
+      "ballotItemId": "01000000-d884-2e72-2c64-08dcda4ba1ff",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/evans-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-2c64-08dcda4ba1ff",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/evans-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 4244
+    },
+    {
+      "county": "Fannin County",
+      "shortName": "fannin-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1b08-08dcda4ba27b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/fannin-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1b08-08dcda4ba27b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/fannin-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 16096
+    },
+    {
+      "county": "Fayette County",
+      "shortName": "fayette-county-ga",
+      "ballotItemId": "01000000-d884-2e72-c59e-08dcda4ba3c4",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/fayette-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-c59e-08dcda4ba3c4",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/fayette-county-ga-president.json",
+      "precinctRows": 36,
+      "voteTotal": 74633
+    },
+    {
+      "county": "Floyd County",
+      "shortName": "floyd-county-ga",
+      "ballotItemId": "01000000-d884-2e72-9840-08dcda4ba4b0",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/floyd-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-9840-08dcda4ba4b0",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/floyd-county-ga-president.json",
+      "precinctRows": 19,
+      "voteTotal": 44738
+    },
+    {
+      "county": "Forsyth County",
+      "shortName": "forsyth-county-ga",
+      "ballotItemId": "01000000-d884-2e72-bed7-08dcda4ba5e2",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/forsyth-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-bed7-08dcda4ba5e2",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/forsyth-county-ga-president.json",
+      "precinctRows": 29,
+      "voteTotal": 138249
+    },
+    {
+      "county": "Franklin County",
+      "shortName": "franklin-county-ga",
+      "ballotItemId": "01000000-d884-2e72-db87-08dcda4ba693",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/franklin-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-db87-08dcda4ba693",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/franklin-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 12140
+    },
+    {
+      "county": "Fulton County",
+      "shortName": "fulton-county-ga",
+      "ballotItemId": "01000000-d884-2e72-49e4-08dcda4bb6af",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/fulton-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-49e4-08dcda4bb6af",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/fulton-county-ga-president.json",
+      "precinctRows": 466,
+      "voteTotal": 535238
+    },
+    {
+      "county": "Gilmer County",
+      "shortName": "gilmer-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f1b1-08dcda4bb84f",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/gilmer-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f1b1-08dcda4bb84f",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/gilmer-county-ga-president.json",
+      "precinctRows": 13,
+      "voteTotal": 18481
+    },
+    {
+      "county": "Glascock County",
+      "shortName": "glascock-county-ga",
+      "ballotItemId": "01000000-d884-2e72-52fc-08dcda4bb8b3",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/glascock-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-52fc-08dcda4bb8b3",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/glascock-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 1670
+    },
+    {
+      "county": "Glynn County",
+      "shortName": "glynn-county-ga",
+      "ballotItemId": "01000000-d884-2e72-622f-08dcda4bb992",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/glynn-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-622f-08dcda4bb992",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/glynn-county-ga-president.json",
+      "precinctRows": 17,
+      "voteTotal": 43912
+    },
+    {
+      "county": "Gordon County",
+      "shortName": "gordon-county-ga",
+      "ballotItemId": "01000000-d884-2e72-4dbf-08dcda4bba50",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/gordon-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-4dbf-08dcda4bba50",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/gordon-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 27606
+    },
+    {
+      "county": "Grady County",
+      "shortName": "grady-county-ga",
+      "ballotItemId": "01000000-d884-2e72-0767-08dcda4bbb1b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/grady-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-0767-08dcda4bbb1b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/grady-county-ga-president.json",
+      "precinctRows": 13,
+      "voteTotal": 10718
+    },
+    {
+      "county": "Greene County",
+      "shortName": "greene-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1231-08dcda4bbb8c",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/greene-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1231-08dcda4bbb8c",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/greene-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 12786
+    },
+    {
+      "county": "Gwinnett County",
+      "shortName": "gwinnett-county-ga",
+      "ballotItemId": "01000000-d884-2e72-98fe-08dcda4bc251",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/gwinnett-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-98fe-08dcda4bc251",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/gwinnett-county-ga-president.json",
+      "precinctRows": 156,
+      "voteTotal": 420681
+    },
+    {
+      "county": "Habersham County",
+      "shortName": "habersham-county-ga",
+      "ballotItemId": "01000000-d884-2e72-2fdf-08dcda4bc3c8",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/habersham-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-2fdf-08dcda4bc3c8",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/habersham-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 23280
+    },
+    {
+      "county": "Hall County",
+      "shortName": "hall-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f5c7-08dcda4bc56c",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/hall-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f5c7-08dcda4bc56c",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/hall-county-ga-president.json",
+      "precinctRows": 31,
+      "voteTotal": 101973
+    },
+    {
+      "county": "Hancock County",
+      "shortName": "hancock-county-ga",
+      "ballotItemId": "01000000-d884-2e72-0bf9-08dcda4bc648",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/hancock-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-0bf9-08dcda4bc648",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/hancock-county-ga-president.json",
+      "precinctRows": 10,
+      "voteTotal": 4240
+    },
+    {
+      "county": "Haralson County",
+      "shortName": "haralson-county-ga",
+      "ballotItemId": "01000000-d884-2e72-ed95-08dcda4bc70a",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/haralson-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-ed95-08dcda4bc70a",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/haralson-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 16364
+    },
+    {
+      "county": "Harris County",
+      "shortName": "harris-county-ga",
+      "ballotItemId": "01000000-d884-2e72-08ff-08dcda4bc7d1",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/harris-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-08ff-08dcda4bc7d1",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/harris-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 22353
+    },
+    {
+      "county": "Hart County",
+      "shortName": "hart-county-ga",
+      "ballotItemId": "01000000-d884-2e72-a807-08dcda4bc87f",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/hart-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-a807-08dcda4bc87f",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/hart-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 14331
+    },
+    {
+      "county": "Heard County",
+      "shortName": "heard-county-ga",
+      "ballotItemId": "01000000-d884-2e72-873a-08dcda4bc8fd",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/heard-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-873a-08dcda4bc8fd",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/heard-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 6210
+    },
+    {
+      "county": "Henry County",
+      "shortName": "henry-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3681-08dcda4bcaef",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/henry-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3681-08dcda4bcaef",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/henry-county-ga-president.json",
+      "precinctRows": 37,
+      "voteTotal": 129034
+    },
+    {
+      "county": "Houston County",
+      "shortName": "houston-county-ga",
+      "ballotItemId": "01000000-d884-2e72-7275-08dcda4bcc36",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/houston-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-7275-08dcda4bcc36",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/houston-county-ga-president.json",
+      "precinctRows": 17,
+      "voteTotal": 81514
+    },
+    {
+      "county": "Irwin County",
+      "shortName": "irwin-county-ga",
+      "ballotItemId": "01000000-d884-2e72-6f74-08dcda4bccae",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/irwin-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-6f74-08dcda4bccae",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/irwin-county-ga-president.json",
+      "precinctRows": 2,
+      "voteTotal": 4342
+    },
+    {
+      "county": "Jackson County",
+      "shortName": "jackson-county-ga",
+      "ballotItemId": "01000000-d884-2e72-e0fc-08dcda4bcd21",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/jackson-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-e0fc-08dcda4bcd21",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/jackson-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 47243
+    },
+    {
+      "county": "Jasper County",
+      "shortName": "jasper-county-ga",
+      "ballotItemId": "01000000-d884-2e72-fd1d-08dcda4bcd86",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/jasper-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-fd1d-08dcda4bcd86",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/jasper-county-ga-president.json",
+      "precinctRows": 3,
+      "voteTotal": 9118
+    },
+    {
+      "county": "Jeff Davis County",
+      "shortName": "jeff-davis-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3843-08dcda4bce31",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/jeff-davis-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3843-08dcda4bce31",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/jeff-davis-county-ga-president.json",
+      "precinctRows": 9,
+      "voteTotal": 5872
+    },
+    {
+      "county": "Jefferson County",
+      "shortName": "jefferson-county-ga",
+      "ballotItemId": "01000000-d884-2e72-db20-08dcda4bcecb",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/jefferson-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-db20-08dcda4bcecb",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/jefferson-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 7463
+    },
+    {
+      "county": "Jenkins County",
+      "shortName": "jenkins-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1613-08dcda4bcf67",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/jenkins-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1613-08dcda4bcf67",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/jenkins-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 3409
+    },
+    {
+      "county": "Johnson County",
+      "shortName": "johnson-county-ga",
+      "ballotItemId": "01000000-d884-2e72-66cd-08dcda4bcfd6",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/johnson-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-66cd-08dcda4bcfd6",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/johnson-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 3984
+    },
+    {
+      "county": "Jones County",
+      "shortName": "jones-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3ee3-08dcda4bd0b3",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/jones-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3ee3-08dcda4bd0b3",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/jones-county-ga-president.json",
+      "precinctRows": 10,
+      "voteTotal": 16092
+    },
+    {
+      "county": "Lamar County",
+      "shortName": "lamar-county-ga",
+      "ballotItemId": "01000000-d884-2e72-73a6-08dcda4bd126",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/lamar-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-73a6-08dcda4bd126",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/lamar-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 10412
+    },
+    {
+      "county": "Lanier County",
+      "shortName": "lanier-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5663-08dcda4bd17b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/lanier-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5663-08dcda4bd17b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/lanier-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 3736
+    },
+    {
+      "county": "Laurens County",
+      "shortName": "laurens-county-ga",
+      "ballotItemId": "01000000-d884-2e72-6c99-08dcda4bd27b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/laurens-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-6c99-08dcda4bd27b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/laurens-county-ga-president.json",
+      "precinctRows": 15,
+      "voteTotal": 23352
+    },
+    {
+      "county": "Lee County",
+      "shortName": "lee-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f889-08dcda4bd346",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/lee-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f889-08dcda4bd346",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/lee-county-ga-president.json",
+      "precinctRows": 10,
+      "voteTotal": 17683
+    },
+    {
+      "county": "Liberty County",
+      "shortName": "liberty-county-ga",
+      "ballotItemId": "01000000-d884-2e72-c4b1-08dcda4bd422",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/liberty-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-c4b1-08dcda4bd422",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/liberty-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 23028
+    },
+    {
+      "county": "Lincoln County",
+      "shortName": "lincoln-county-ga",
+      "ballotItemId": "01000000-d884-2e72-388b-08dcda4bd4c7",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/lincoln-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-388b-08dcda4bd4c7",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/lincoln-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 4931
+    },
+    {
+      "county": "Long County",
+      "shortName": "long-county-ga",
+      "ballotItemId": "01000000-d884-2e72-7938-08dcda4bd561",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/long-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-7938-08dcda4bd561",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/long-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 7056
+    },
+    {
+      "county": "Lowndes County",
+      "shortName": "lowndes-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5f01-08dcda4bd68c",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/lowndes-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5f01-08dcda4bd68c",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/lowndes-county-ga-president.json",
+      "precinctRows": 18,
+      "voteTotal": 47795
+    },
+    {
+      "county": "Lumpkin County",
+      "shortName": "lumpkin-county-ga",
+      "ballotItemId": "01000000-d884-2e72-c536-08dcda4bd6e7",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/lumpkin-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-c536-08dcda4bd6e7",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/lumpkin-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 17808
+    },
+    {
+      "county": "Macon County",
+      "shortName": "macon-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5741-08dcda4bd767",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/macon-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5741-08dcda4bd767",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/macon-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 4686
+    },
+    {
+      "county": "Madison County",
+      "shortName": "madison-county-ga",
+      "ballotItemId": "01000000-d884-2e72-b7d4-08dcda4bd854",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/madison-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-b7d4-08dcda4bd854",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/madison-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 16787
+    },
+    {
+      "county": "Marion County",
+      "shortName": "marion-county-ga",
+      "ballotItemId": "01000000-d884-2e72-47ee-08dcda4bd8d6",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/marion-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-47ee-08dcda4bd8d6",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/marion-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 3621
+    },
+    {
+      "county": "McDuffie County",
+      "shortName": "mcduffie-county-ga",
+      "ballotItemId": "01000000-d884-2e72-2b03-08dcda4bd972",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/mcduffie-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-2b03-08dcda4bd972",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/mcduffie-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 10537
+    },
+    {
+      "county": "McIntosh County",
+      "shortName": "mcintosh-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8930-08dcda4bd9fb",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/mcintosh-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8930-08dcda4bd9fb",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/mcintosh-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 7408
+    },
+    {
+      "county": "Meriwether County",
+      "shortName": "meriwether-county-ga",
+      "ballotItemId": "01000000-d884-2e72-da5f-08dcda4bdb06",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/meriwether-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-da5f-08dcda4bdb06",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/meriwether-county-ga-president.json",
+      "precinctRows": 14,
+      "voteTotal": 11788
+    },
+    {
+      "county": "Miller County",
+      "shortName": "miller-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8d25-08dcda4bdb66",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/miller-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8d25-08dcda4bdb66",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/miller-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 2724
+    },
+    {
+      "county": "Mitchell County",
+      "shortName": "mitchell-county-ga",
+      "ballotItemId": "01000000-d884-2e72-4c04-08dcda4bdc3b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/mitchell-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-4c04-08dcda4bdc3b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/mitchell-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 8877
+    },
+    {
+      "county": "Monroe County",
+      "shortName": "monroe-county-ga",
+      "ballotItemId": "01000000-d884-2e72-66a3-08dcda4bdd40",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/monroe-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-66a3-08dcda4bdd40",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/monroe-county-ga-president.json",
+      "precinctRows": 14,
+      "voteTotal": 17704
+    },
+    {
+      "county": "Montgomery County",
+      "shortName": "montgomery-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3d57-08dcda4bddae",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/montgomery-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3d57-08dcda4bddae",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/montgomery-county-ga-president.json",
+      "precinctRows": 3,
+      "voteTotal": 3973
+    },
+    {
+      "county": "Morgan County",
+      "shortName": "morgan-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1e4e-08dcda4bde38",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/morgan-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1e4e-08dcda4bde38",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/morgan-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 13181
+    },
+    {
+      "county": "Murray County",
+      "shortName": "murray-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1434-08dcda4bdeec",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/murray-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1434-08dcda4bdeec",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/murray-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 17468
+    },
+    {
+      "county": "Muscogee County",
+      "shortName": "muscogee-county-ga",
+      "ballotItemId": "01000000-d884-2e72-e795-08dcda4be0b6",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/muscogee-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-e795-08dcda4be0b6",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/muscogee-county-ga-president.json",
+      "precinctRows": 25,
+      "voteTotal": 80491
+    },
+    {
+      "county": "Newton County",
+      "shortName": "newton-county-ga",
+      "ballotItemId": "01000000-d884-2e72-4490-08dcda4be25d",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/newton-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-4490-08dcda4be25d",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/newton-county-ga-president.json",
+      "precinctRows": 19,
+      "voteTotal": 59051
+    },
+    {
+      "county": "Oconee County",
+      "shortName": "oconee-county-ga",
+      "ballotItemId": "01000000-d884-2e72-96ae-08dcda4be33c",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/oconee-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-96ae-08dcda4be33c",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/oconee-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 27287
+    },
+    {
+      "county": "Oglethorpe County",
+      "shortName": "oglethorpe-county-ga",
+      "ballotItemId": "01000000-d884-2e72-11df-08dcda4be3b7",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/oglethorpe-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-11df-08dcda4be3b7",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/oglethorpe-county-ga-president.json",
+      "precinctRows": 3,
+      "voteTotal": 8822
+    },
+    {
+      "county": "Paulding County",
+      "shortName": "paulding-county-ga",
+      "ballotItemId": "01000000-d884-2e72-a187-08dcda4be531",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/paulding-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-a187-08dcda4be531",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/paulding-county-ga-president.json",
+      "precinctRows": 21,
+      "voteTotal": 95196
+    },
+    {
+      "county": "Peach County",
+      "shortName": "peach-county-ga",
+      "ballotItemId": "01000000-7f30-6208-0b29-08dcdbf016d2",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/peach-county-ga/2024NovGen/ballot-items/01000000-7f30-6208-0b29-08dcdbf016d2",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/peach-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 13454
+    },
+    {
+      "county": "Pickens County",
+      "shortName": "pickens-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f46d-08dcda4be663",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/pickens-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f46d-08dcda4be663",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/pickens-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 20915
+    },
+    {
+      "county": "Pierce County",
+      "shortName": "pierce-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8e50-08dcda4be724",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/pierce-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8e50-08dcda4be724",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/pierce-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 9761
+    },
+    {
+      "county": "Pike County",
+      "shortName": "pike-county-ga",
+      "ballotItemId": "01000000-d884-2e72-dbcf-08dcda4be7e1",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/pike-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-dbcf-08dcda4be7e1",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/pike-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 12549
+    },
+    {
+      "county": "Polk County",
+      "shortName": "polk-county-ga",
+      "ballotItemId": "01000000-d884-2e72-aa33-08dcda4be892",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/polk-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-aa33-08dcda4be892",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/polk-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 19171
+    },
+    {
+      "county": "Pulaski County",
+      "shortName": "pulaski-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3eba-08dcda4be8eb",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/pulaski-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3eba-08dcda4be8eb",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/pulaski-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 4336
+    },
+    {
+      "county": "Putnam County",
+      "shortName": "putnam-county-ga",
+      "ballotItemId": "01000000-d884-2e72-19b8-08dcda4be97a",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/putnam-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-19b8-08dcda4be97a",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/putnam-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 12877
+    },
+    {
+      "county": "Quitman County",
+      "shortName": "quitman-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8e23-08dcda4be9dd",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/quitman-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8e23-08dcda4be9dd",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/quitman-county-ga-president.json",
+      "precinctRows": 2,
+      "voteTotal": 1140
+    },
+    {
+      "county": "Rabun County",
+      "shortName": "rabun-county-ga",
+      "ballotItemId": "01000000-d884-2e72-07e3-08dcda4bea32",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/rabun-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-07e3-08dcda4bea32",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/rabun-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 10423
+    },
+    {
+      "county": "Randolph County",
+      "shortName": "randolph-county-ga",
+      "ballotItemId": "01000000-d884-2e72-9b37-08dcda4bead8",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/randolph-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-9b37-08dcda4bead8",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/randolph-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 2990
+    },
+    {
+      "county": "Richmond County",
+      "shortName": "richmond-county-ga",
+      "ballotItemId": "01000000-d884-2e72-aba9-08dcda4bef67",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/richmond-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-aba9-08dcda4bef67",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/richmond-county-ga-president.json",
+      "precinctRows": 68,
+      "voteTotal": 83578
+    },
+    {
+      "county": "Rockdale County",
+      "shortName": "rockdale-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f5a6-08dcda4bf0ec",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/rockdale-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f5a6-08dcda4bf0ec",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/rockdale-county-ga-president.json",
+      "precinctRows": 16,
+      "voteTotal": 45160
+    },
+    {
+      "county": "Schley County",
+      "shortName": "schley-county-ga",
+      "ballotItemId": "01000000-d884-2e72-44da-08dcda4bf156",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/schley-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-44da-08dcda4bf156",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/schley-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 2428
+    },
+    {
+      "county": "Screven County",
+      "shortName": "screven-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5719-08dcda4bf212",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/screven-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5719-08dcda4bf212",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/screven-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 6920
+    },
+    {
+      "county": "Seminole County",
+      "shortName": "seminole-county-ga",
+      "ballotItemId": "01000000-d884-2e72-2739-08dcda4bf2ad",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/seminole-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-2739-08dcda4bf2ad",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/seminole-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 4007
+    },
+    {
+      "county": "Spalding County",
+      "shortName": "spalding-county-ga",
+      "ballotItemId": "01000000-d884-2e72-2a11-08dcda4bf423",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/spalding-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-2a11-08dcda4bf423",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/spalding-county-ga-president.json",
+      "precinctRows": 17,
+      "voteTotal": 33038
+    },
+    {
+      "county": "Stephens County",
+      "shortName": "stephens-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f34e-08dcda4bf47b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/stephens-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f34e-08dcda4bf47b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/stephens-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 13099
+    },
+    {
+      "county": "Stewart County",
+      "shortName": "stewart-county-ga",
+      "ballotItemId": "01000000-d884-2e72-390c-08dcda4bf50d",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/stewart-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-390c-08dcda4bf50d",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/stewart-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 2028
+    },
+    {
+      "county": "Sumter County",
+      "shortName": "sumter-county-ga",
+      "ballotItemId": "01000000-d884-2e72-a8e1-08dcda4bf60d",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/sumter-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-a8e1-08dcda4bf60d",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/sumter-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 12049
+    },
+    {
+      "county": "Talbot County",
+      "shortName": "talbot-county-ga",
+      "ballotItemId": "01000000-d884-2e72-6c3d-08dcda4bf6cf",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/talbot-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-6c3d-08dcda4bf6cf",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/talbot-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 3379
+    },
+    {
+      "county": "Taliaferro County",
+      "shortName": "taliaferro-county-ga",
+      "ballotItemId": "01000000-d884-2e72-c9ce-08dcda4bf739",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/taliaferro-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-c9ce-08dcda4bf739",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/taliaferro-county-ga-president.json",
+      "precinctRows": 2,
+      "voteTotal": 884
+    },
+    {
+      "county": "Tattnall County",
+      "shortName": "tattnall-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1953-08dcda4bf812",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/tattnall-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1953-08dcda4bf812",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/tattnall-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 8512
+    },
+    {
+      "county": "Taylor County",
+      "shortName": "taylor-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8511-08dcda4bf896",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/taylor-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8511-08dcda4bf896",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/taylor-county-ga-president.json",
+      "precinctRows": 3,
+      "voteTotal": 3982
+    },
+    {
+      "county": "Telfair County",
+      "shortName": "telfair-county-ga",
+      "ballotItemId": "01000000-d884-2e72-3c55-08dcda4bf951",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/telfair-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-3c55-08dcda4bf951",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/telfair-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 4214
+    },
+    {
+      "county": "Terrell County",
+      "shortName": "terrell-county-ga",
+      "ballotItemId": "01000000-d884-2e72-ae8e-08dcda4bfa06",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/terrell-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-ae8e-08dcda4bfa06",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/terrell-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 4341
+    },
+    {
+      "county": "Thomas County",
+      "shortName": "thomas-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8b74-08dcda4bfbb3",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/thomas-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8b74-08dcda4bfbb3",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/thomas-county-ga-president.json",
+      "precinctRows": 20,
+      "voteTotal": 22080
+    },
+    {
+      "county": "Tift County",
+      "shortName": "tift-county-ga",
+      "ballotItemId": "01000000-d884-2e72-9b93-08dcda4bfcd3",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/tift-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-9b93-08dcda4bfcd3",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/tift-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 16989
+    },
+    {
+      "county": "Toombs County",
+      "shortName": "toombs-county-ga",
+      "ballotItemId": "01000000-d884-2e72-f7c7-08dcda4bfd75",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/toombs-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-f7c7-08dcda4bfd75",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/toombs-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 10912
+    },
+    {
+      "county": "Towns County",
+      "shortName": "towns-county-ga",
+      "ballotItemId": "01000000-d884-2e72-b9d0-08dcda4bfdec",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/towns-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-b9d0-08dcda4bfdec",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/towns-county-ga-president.json",
+      "precinctRows": 2,
+      "voteTotal": 8838
+    },
+    {
+      "county": "Treutlen County",
+      "shortName": "treutlen-county-ga",
+      "ballotItemId": "01000000-d884-2e72-d83a-08dcda4bfe6c",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/treutlen-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-d83a-08dcda4bfe6c",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/treutlen-county-ga-president.json",
+      "precinctRows": 2,
+      "voteTotal": 3121
+    },
+    {
+      "county": "Troup County",
+      "shortName": "troup-county-ga",
+      "ballotItemId": "01000000-d884-2e72-36cc-08dcda4bffa4",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/troup-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-36cc-08dcda4bffa4",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/troup-county-ga-president.json",
+      "precinctRows": 13,
+      "voteTotal": 31304
+    },
+    {
+      "county": "Turner County",
+      "shortName": "turner-county-ga",
+      "ballotItemId": "01000000-d884-2e72-c58b-08dcda4c0029",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/turner-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-c58b-08dcda4c0029",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/turner-county-ga-president.json",
+      "precinctRows": 3,
+      "voteTotal": 3833
+    },
+    {
+      "county": "Twiggs County",
+      "shortName": "twiggs-county-ga",
+      "ballotItemId": "01000000-d884-2e72-d487-08dcda4c00cd",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/twiggs-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-d487-08dcda4c00cd",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/twiggs-county-ga-president.json",
+      "precinctRows": 5,
+      "voteTotal": 4456
+    },
+    {
+      "county": "Union County",
+      "shortName": "union-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1013-08dcda4c01e7",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/union-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1013-08dcda4c01e7",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/union-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 17880
+    },
+    {
+      "county": "Upson County",
+      "shortName": "upson-county-ga",
+      "ballotItemId": "01000000-d884-2e72-dbec-08dcda4c027b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/upson-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-dbec-08dcda4c027b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/upson-county-ga-president.json",
+      "precinctRows": 4,
+      "voteTotal": 13662
+    },
+    {
+      "county": "Walker County",
+      "shortName": "walker-county-ga",
+      "ballotItemId": "01000000-d884-2e72-5bb1-08dcda4c039c",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/walker-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-5bb1-08dcda4c039c",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/walker-county-ga-president.json",
+      "precinctRows": 11,
+      "voteTotal": 32086
+    },
+    {
+      "county": "Walton County",
+      "shortName": "walton-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8c5e-08dcda4c0565",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/walton-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8c5e-08dcda4c0565",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/walton-county-ga-president.json",
+      "precinctRows": 19,
+      "voteTotal": 58376
+    },
+    {
+      "county": "Ware County",
+      "shortName": "ware-county-ga",
+      "ballotItemId": "01000000-d884-2e72-646b-08dcda4c06b9",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/ware-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-646b-08dcda4c06b9",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/ware-county-ga-president.json",
+      "precinctRows": 13,
+      "voteTotal": 14392
+    },
+    {
+      "county": "Warren County",
+      "shortName": "warren-county-ga",
+      "ballotItemId": "01000000-d884-2e72-517c-08dcda4c0727",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/warren-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-517c-08dcda4c0727",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/warren-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 2592
+    },
+    {
+      "county": "Washington County",
+      "shortName": "washington-county-ga",
+      "ballotItemId": "01000000-d884-2e72-8f48-08dcda4c080b",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/washington-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-8f48-08dcda4c080b",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/washington-county-ga-president.json",
+      "precinctRows": 8,
+      "voteTotal": 9493
+    },
+    {
+      "county": "Wayne County",
+      "shortName": "wayne-county-ga",
+      "ballotItemId": "01000000-d884-2e72-93ec-08dcda4c093e",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/wayne-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-93ec-08dcda4c093e",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/wayne-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 13561
+    },
+    {
+      "county": "Webster County",
+      "shortName": "webster-county-ga",
+      "ballotItemId": "01000000-d884-2e72-0696-08dcda4c09a9",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/webster-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-0696-08dcda4c09a9",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/webster-county-ga-president.json",
+      "precinctRows": 1,
+      "voteTotal": 1336
+    },
+    {
+      "county": "Wheeler County",
+      "shortName": "wheeler-county-ga",
+      "ballotItemId": "01000000-d884-2e72-6e0e-08dcda4c0a1e",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/wheeler-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-6e0e-08dcda4c0a1e",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/wheeler-county-ga-president.json",
+      "precinctRows": 2,
+      "voteTotal": 2276
+    },
+    {
+      "county": "White County",
+      "shortName": "white-county-ga",
+      "ballotItemId": "01000000-d884-2e72-1ec5-08dcda4c0b3e",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/white-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-1ec5-08dcda4c0b3e",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/white-county-ga-president.json",
+      "precinctRows": 10,
+      "voteTotal": 16825
+    },
+    {
+      "county": "Whitfield County",
+      "shortName": "whitfield-county-ga",
+      "ballotItemId": "01000000-d884-2e72-e26e-08dcda4c0d4e",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/whitfield-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-e26e-08dcda4c0d4e",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/whitfield-county-ga-president.json",
+      "precinctRows": 23,
+      "voteTotal": 39828
+    },
+    {
+      "county": "Wilcox County",
+      "shortName": "wilcox-county-ga",
+      "ballotItemId": "01000000-d884-2e72-a907-08dcda4c0e2a",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/wilcox-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-a907-08dcda4c0e2a",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/wilcox-county-ga-president.json",
+      "precinctRows": 6,
+      "voteTotal": 3347
+    },
+    {
+      "county": "Wilkes County",
+      "shortName": "wilkes-county-ga",
+      "ballotItemId": "01000000-d884-2e72-9835-08dcda4c0f02",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/wilkes-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-9835-08dcda4c0f02",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/wilkes-county-ga-president.json",
+      "precinctRows": 7,
+      "voteTotal": 5098
+    },
+    {
+      "county": "Wilkinson County",
+      "shortName": "wilkinson-county-ga",
+      "ballotItemId": "01000000-d884-2e72-becc-08dcda4c1003",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/wilkinson-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-becc-08dcda4c1003",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/wilkinson-county-ga-president.json",
+      "precinctRows": 9,
+      "voteTotal": 4908
+    },
+    {
+      "county": "Worth County",
+      "shortName": "worth-county-ga",
+      "ballotItemId": "01000000-d884-2e72-976d-08dcda4c1143",
+      "sourceUrl": "https://results.sos.ga.gov/results/public/api/elections/worth-county-ga/2024NovGen/ballot-items/01000000-d884-2e72-976d-08dcda4c1143",
+      "localFile": "data/review-sources/ga-2024-president-precinct-details/worth-county-ga-president.json",
+      "precinctRows": 12,
+      "voteTotal": 9309
+    }
+  ]
+}

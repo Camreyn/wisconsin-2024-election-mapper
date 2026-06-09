@@ -7,10 +7,10 @@ This audit tracks the separate source-collection task for states that do not yet
 ## Summary
 
 - Review-source states audited: 44
-- Local Row Source Collected: 16
+- Local Row Source Collected: 17
 - Official Portal Identified No Download: 1
 - County Local Sources Partially Collected: 2
-- County Local Required: 4
+- County Local Required: 3
 - Statewide Precinct Source Identified: 1
 - Official Source Not Found: 1
 - Official Portal Identified Needs Capture: 6
@@ -33,7 +33,7 @@ This audit tracks the separate source-collection task for states that do not yet
 | CO | statewide_precinct_source_identified | precinct | [2024 General Election Precinct-Level Results](https://redistrictingdatahub.org/state/colorado/) | Colorado SOS precinct results parser | Download the Colorado Secretary of State precinct-level results package and map President plus a statewide/congressional comparison contest. |
 | CT | local_row_source_collected | town | [Connecticut official town presidential rows](https://portal.ct.gov/-/media/sots/electionservices/statementofvote_pdfs/2024_statement_of_vote.pdf) | Connecticut Statement of Vote town comparison parser | Map a statewide down-ballot contest from the Statement of Vote text to the same town rows. |
 | DE | local_row_source_collected | election district | [Delaware election-district report](https://elections.delaware.gov/reports/GE2024.html) | Delaware report HTML election-district parser | Map President and a statewide comparison race from the official report page election-district rows. |
-| GA | county_local_required | county-local precinct | [Georgia county official Statement of Votes Cast reports](https://results.sos.ga.gov/results/public/Georgia/2024NovGen) | county SOV parser family | Collect official county SOV reports or identify a statewide precinct export behind the SOS portal. |
+| GA | local_row_source_collected | county official precinct | [Georgia SOS county-scoped President precinct detail API](https://results.sos.ga.gov/results/public/Georgia/2024NovGen) | Georgia precinct vote-share parser | Loaded 2,694 presidential precinct vote-share rows across all 159 counties; down-ballot advisory flags are suppressed until congressional district precinct rows are mapped safely. |
 | HI | local_row_source_collected | precinct | [Hawaii precinct or reporting-unit detail](https://files.hawaii.gov/elections/files/results/2024/General/media.txt) | Hawaii media/precinct file parser | Map President and U.S. Senate or another statewide contest from media.txt/precinct.pdf. |
 | IA | official_source_not_found | unknown | [Iowa precinct or reporting-unit results](https://sos.iowa.gov/elections/pdf/2024/general/canvsummary.pdf) | TBD | Search Iowa SOS and county auditor sites for official precinct-level general-election canvass/result exports. |
 | ID | official_portal_identified_needs_capture | portal result rows | [Idaho precinct or reporting-unit detail](https://canvass.sos.idaho.gov/eng/contests/view/19439/) | Idaho Canvass portal export/parser | Inspect canvass.sos.idaho.gov network exports for precinct or reporting-unit contest rows. |

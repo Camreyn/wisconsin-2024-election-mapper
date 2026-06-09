@@ -6175,6 +6175,74 @@ def review_charts_georgia_house_json(config):
     return review_rows, eta_analysis
 
 
+def review_charts_georgia_precinct_vote_share(config):
+    review = config["reviewCharts"]
+    manifest_path = local_source(config, review["sourceId"])
+    with manifest_path.open("r", encoding="utf-8") as handle:
+        manifest = json.load(handle)
+
+    review_rows = []
+    county_totals = defaultdict(lambda: defaultdict(int))
+    for entry in manifest.get("counties", []):
+        county = entry["county"].replace(" County", "")
+        detail_path = ROOT / entry["localFile"]
+        with detail_path.open("r", encoding="utf-8") as handle:
+            detail = json.load(handle)
+        for precinct_row in detail.get("breakdownResults", []):
+            precinct = georgia_enr_text((precinct_row.get("precinct") or {}).get("name"))
+            if not precinct:
+                continue
+            votes = georgia_enr_candidate_votes(precinct_row.get("ballotOptions"))
+            president_total = int_text(precinct_row.get("voteTotal"))
+            if not president_total:
+                continue
+            harris = votes["dem"]
+            trump = votes["rep"]
+            review_rows.append(
+                {
+                    "county": county,
+                    "ward": precinct,
+                    "total": president_total,
+                    "harris": harris,
+                    "trump": trump,
+                    "harrisShare": round2((harris / president_total) * 100),
+                    "trumpShare": round2((trump / president_total) * 100),
+                    "demDropoff": 0,
+                    "repDropoff": 0,
+                }
+            )
+            county_totals[county]["total"] += president_total
+            county_totals[county]["harris"] += harris
+            county_totals[county]["trump"] += trump
+
+    expected_rows = review.get("expectedCountyCount") or config["expected"].get("countyRows")
+    if expected_rows and len(county_totals) != expected_rows:
+        raise ValueError(f"Expected {expected_rows} Georgia precinct counties, found {len(county_totals)}")
+
+    expected_totals = review.get("statewideTotals")
+    if expected_totals:
+        parsed_totals = {
+            "harris": sum(item["harris"] for item in county_totals.values()),
+            "trump": sum(item["trump"] for item in county_totals.values()),
+            "total": sum(item["total"] for item in county_totals.values()),
+        }
+        for key, expected in expected_totals.items():
+            if parsed_totals.get(key) != expected:
+                raise ValueError(f"Georgia precinct {key} total mismatch: {parsed_totals.get(key)} != {expected}")
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], 0, 0)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["coverageNote"] = (
+        "Official Georgia Secretary of State county-scoped precinct President rows are loaded for vote-share "
+        "advisory review. Down-ballot advisory flags are suppressed until district-contest precinct rows are mapped safely."
+    )
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "Georgia review rows are official presidential precinct vote-share rows only; down-ballot flags are suppressed.",
+    )
+    return review_rows, eta_analysis
+
+
 def iowa_house_county_totals(config, review):
     path = local_source(config, review["sourceId"])
     lines = [line.strip() for line in extract_pdf_text(path).splitlines() if line.strip()]
@@ -13736,6 +13804,7 @@ REVIEW_CHART_PARSERS = {
     "electionwarePrecinctSummaryComparison": review_charts_electionware_precinct_summary,
     "floridaPrecinctZipComparison": review_charts_florida_precinct_zip,
     "georgiaHouseJsonCountyComparison": review_charts_georgia_house_json,
+    "georgiaPrecinctVoteShare": review_charts_georgia_precinct_vote_share,
     "hawaiiCountySummaryPdfCountyComparison": review_charts_hawaii_county_summary_pdfs,
     "hawaiiMediaPrecinctComparison": review_charts_hawaii_media_precinct,
     "idahoPrecinctCsvComparison": review_charts_idaho_precinct_csv,
