@@ -1,0 +1,230 @@
+{
+  "sourceAuthority": "Utah Lieutenant Governor / Vote.Utah.gov",
+  "sourceUrl": "https://electionresults.utah.gov/results/public/utah/elections/general11052024",
+  "apiBaseUrl": "https://electionresults.utah.gov/results/public/api",
+  "electionSlug": "general11052024",
+  "stateContestIds": {
+    "president": "88e40000-968a-0c37-b0b0-08dce9374078",
+    "governor": "88e40000-968a-0c37-fd62-08dce9374086"
+  },
+  "generatedAt": "2026-06-09T19:32:31.774Z",
+  "counties": [
+    {
+      "county": "Beaver",
+      "slug": "beaver-county-ut",
+      "mapFeatureId": "01",
+      "presidentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "presidentFile": "beaver-county-ut-president.json",
+      "presidentVoteTotal": 3212,
+      "precinctReportingUnits": 9
+    },
+    {
+      "county": "Box Elder",
+      "slug": "box-elder-county-ut",
+      "mapFeatureId": "02",
+      "presidentBallotItemId": "01000000-b224-daec-82ae-08dce966c0dd",
+      "presidentFile": "box-elder-county-ut-president.json",
+      "presidentVoteTotal": 28920,
+      "precinctReportingUnits": 53
+    },
+    {
+      "county": "Cache",
+      "slug": "cache-county-ut",
+      "mapFeatureId": "03",
+      "presidentBallotItemId": "01000000-35d3-9298-c698-08dcea0b60ce",
+      "presidentFile": "cache-county-ut-president.json",
+      "presidentVoteTotal": 60258,
+      "precinctReportingUnits": 167
+    },
+    {
+      "county": "Carbon",
+      "slug": "carbon-county-ut",
+      "mapFeatureId": "04",
+      "presidentBallotItemId": "01000000-7e04-96f8-c916-08dce88840f9",
+      "presidentFile": "carbon-county-ut-president.json",
+      "presidentVoteTotal": 9445,
+      "precinctReportingUnits": 21
+    },
+    {
+      "county": "Utah",
+      "slug": "utah-county-ut",
+      "mapFeatureId": "25",
+      "presidentBallotItemId": "01000000-8d07-629f-95f6-08dce709de35",
+      "presidentFile": "utah-county-ut-president.json",
+      "presidentVoteTotal": 298143,
+      "precinctReportingUnits": 498
+    },
+    {
+      "county": "Wasatch",
+      "slug": "wasatch-county-ut",
+      "mapFeatureId": "26",
+      "presidentBallotItemId": "01000000-b224-daec-30cc-08dce96bb808",
+      "presidentFile": "wasatch-county-ut-president.json",
+      "presidentVoteTotal": 18354,
+      "precinctReportingUnits": 54
+    }
+  ],
+  "skippedCounties": [
+    {
+      "county": "Daggett",
+      "slug": "daggett-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 550,
+      "precinctReportingUnits": 4
+    },
+    {
+      "county": "Davis",
+      "slug": "davis-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 166570,
+      "precinctReportingUnits": 438
+    },
+    {
+      "county": "Duchesne",
+      "slug": "duchesne-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 8968,
+      "precinctReportingUnits": 81
+    },
+    {
+      "county": "Emery",
+      "slug": "emery-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 5011,
+      "precinctReportingUnits": 13
+    },
+    {
+      "county": "Garfield",
+      "slug": "garfield-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 2811,
+      "precinctReportingUnits": 12
+    },
+    {
+      "county": "Grand",
+      "slug": "grand-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 5300,
+      "precinctReportingUnits": 24
+    },
+    {
+      "county": "Iron",
+      "slug": "iron-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 27878,
+      "precinctReportingUnits": 50
+    },
+    {
+      "county": "Juab",
+      "slug": "juab-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 6518,
+      "precinctReportingUnits": 31
+    },
+    {
+      "county": "Kane",
+      "slug": "kane-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 4488,
+      "precinctReportingUnits": 11
+    },
+    {
+      "county": "Millard",
+      "slug": "millard-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 6387,
+      "precinctReportingUnits": 18
+    },
+    {
+      "county": "Morgan",
+      "slug": "morgan-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 6760,
+      "precinctReportingUnits": 25
+    },
+    {
+      "county": "Piute",
+      "slug": "piute-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 963,
+      "precinctReportingUnits": 6
+    },
+    {
+      "county": "Rich",
+      "slug": "rich-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 1447,
+      "precinctReportingUnits": 12
+    },
+    {
+      "county": "Salt Lake",
+      "slug": "salt-lake-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 509637,
+      "precinctReportingUnits": 983
+    },
+    {
+      "county": "San Juan",
+      "slug": "san-juan-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 6329,
+      "precinctReportingUnits": 25
+    },
+    {
+      "county": "Sanpete",
+      "slug": "sanpete-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 12944,
+      "precinctReportingUnits": 29
+    },
+    {
+      "county": "Sevier",
+      "slug": "sevier-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 10926,
+      "precinctReportingUnits": 24
+    },
+    {
+      "county": "Summit",
+      "slug": "summit-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 25876,
+      "precinctReportingUnits": 79
+    },
+    {
+      "county": "Tooele",
+      "slug": "tooele-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 34006,
+      "precinctReportingUnits": 84
+    },
+    {
+      "county": "Uintah",
+      "slug": "uintah-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 15832,
+      "precinctReportingUnits": 30
+    },
+    {
+      "county": "Washington",
+      "slug": "washington-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 97256,
+      "precinctReportingUnits": 136
+    },
+    {
+      "county": "Wayne",
+      "slug": "wayne-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 1651,
+      "precinctReportingUnits": 8
+    },
+    {
+      "county": "Weber",
+      "slug": "weber-county-ut",
+      "reason": "Official county API did not expose President precinct breakdown rows.",
+      "presidentVoteTotal": 112054,
+      "precinctReportingUnits": 180
+    }
+  ]
+}

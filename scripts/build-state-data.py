@@ -9260,6 +9260,89 @@ def review_charts_utah_canvass_pdf(config):
     return review_rows, eta_analysis
 
 
+def review_charts_utah_precinct_vote_share(config):
+    review = config["reviewCharts"]
+    manifest_path = local_source(config, review["sourceId"])
+    source = source_map(config)[review["sourceId"]]
+    with manifest_path.open("r", encoding="utf-8") as handle:
+        manifest = json.load(handle)
+
+    def localized_text(value):
+        if isinstance(value, list):
+            for item in value:
+                if item.get("languageId") == "en" and item.get("text"):
+                    return " ".join(item["text"].split())
+            return " ".join(str(value[0].get("text", "")).split()) if value else ""
+        return " ".join(str(value or "").split())
+
+    def candidate_key(option):
+        name = localized_text(option.get("name")).upper()
+        if "KAMALA" in name and "HARRIS" in name:
+            return "harris"
+        if "DONALD" in name and "TRUMP" in name:
+            return "trump"
+        return "other"
+
+    review_rows = []
+    loaded_counties = []
+    total_mismatches = []
+    for county_info in manifest.get("counties", []):
+        county = county_info["county"]
+        county_path = manifest_path.parent / county_info["presidentFile"]
+        with county_path.open("r", encoding="utf-8") as handle:
+            payload = json.load(handle)
+        county_total = 0
+        for row in payload.get("breakdownResults", []):
+            president_total = int_text(row.get("voteTotal"))
+            if not president_total:
+                continue
+            totals = defaultdict(int)
+            for option in row.get("ballotOptions", []):
+                totals[candidate_key(option)] += int_text(option.get("voteCount"))
+            harris = totals["harris"]
+            trump = totals["trump"]
+            county_total += president_total
+            review_rows.append(
+                {
+                    "county": county,
+                    "ward": localized_text(row.get("precinct", {}).get("name")),
+                    "total": president_total,
+                    "harris": harris,
+                    "trump": trump,
+                    "harrisShare": round2((harris / president_total) * 100),
+                    "trumpShare": round2((trump / president_total) * 100),
+                    "demDropoff": 0,
+                    "repDropoff": 0,
+                    "sourceUrl": source["url"],
+                }
+            )
+        expected_total = int_text(county_info.get("presidentVoteTotal"))
+        if expected_total and county_total != expected_total:
+            total_mismatches.append(
+                {
+                    "county": county,
+                    "precinctTotal": county_total,
+                    "contestTotal": expected_total,
+                }
+            )
+        loaded_counties.append(county)
+
+    harris_total = sum(row["harris"] for row in review_rows)
+    trump_total = sum(row["trump"] for row in review_rows)
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], harris_total, trump_total)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "Utah review rows use official President precinct vote-share rows only; down-ballot comparison flags are disabled.",
+    )
+    eta_analysis["loadedCounties"] = sorted(loaded_counties)
+    eta_analysis["skippedCounties"] = manifest.get("skippedCounties", [])
+    eta_analysis["totalMismatches"] = total_mismatches
+    eta_analysis["partialCoverage"] = bool(manifest.get("skippedCounties"))
+    eta_analysis["sourceUrl"] = source["url"]
+    return review_rows, eta_analysis
+
+
 def review_charts_maine_county_town_xlsx(config):
     review = config["reviewCharts"]
     certified = config["certifiedResults"]
@@ -13846,6 +13929,7 @@ REVIEW_CHART_PARSERS = {
     "southDakotaCanvassPdfCountyComparison": review_charts_south_dakota_canvass_pdf,
     "texasCountyJsonComparison": review_charts_texas_county_json,
     "utahCanvassPdfCountyComparison": review_charts_utah_canvass_pdf,
+    "utahPrecinctVoteShare": review_charts_utah_precinct_vote_share,
     "vermontMunicipalityCsvComparison": review_charts_vermont_municipality_csv,
     "virginiaPrecinctCsvComparison": review_charts_virginia_precinct_csv,
     "washingtonPrecinctCsvComparison": review_charts_washington_precinct_csv,

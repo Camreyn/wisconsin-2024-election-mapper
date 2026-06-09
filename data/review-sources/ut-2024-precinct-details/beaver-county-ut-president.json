@@ -1,0 +1,4399 @@
+{
+  "id": "01000000-7783-7a2e-55d7-08dce7a9df04",
+  "name": [
+    {
+      "languageId": "en",
+      "text": "U.S. President "
+    }
+  ],
+  "voteFor": [],
+  "referendum": [],
+  "turnout": null,
+  "reportingStatus": {
+    "reportingUnits": 9,
+    "totalUnits": 9,
+    "asOf": "2025-11-04T18:26:43.3524267Z",
+    "reportingStatusDetails": null
+  },
+  "contestType": "Candidate",
+  "voteTotal": 3212,
+  "summaryResults": {
+    "ballotOptions": [
+      {
+        "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+        "nativeId": "9",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+        "nativeId": "3",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+          }
+        ],
+        "voteCount": 1,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+        "nativeId": "13",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "JOEL SKOUSEN / RIK COMBS"
+          }
+        ],
+        "voteCount": 14,
+        "party": {
+          "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CONSTITUTION PARTY "
+            }
+          ],
+          "abbreviation": "CON",
+          "standardName": null,
+          "color": "#FF9933",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+        "nativeId": "8",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "JILL STEIN / RUDOLPH WARE"
+          }
+        ],
+        "voteCount": 8,
+        "party": {
+          "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "GREEN PARTY "
+            }
+          ],
+          "abbreviation": "GRN",
+          "standardName": null,
+          "color": "#007029",
+          "textColor": "#ffffff"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+        "nativeId": "5",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "DONALD J. TRUMP / JD VANCE"
+          }
+        ],
+        "voteCount": 2781,
+        "party": {
+          "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "REPUBLICAN PARTY "
+            }
+          ],
+          "abbreviation": "REP",
+          "standardName": null,
+          "color": "#960018",
+          "textColor": "#ffffff"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+        "nativeId": "10",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "CHASE OLIVER / MIKE TER MAAT"
+          }
+        ],
+        "voteCount": 10,
+        "party": {
+          "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LIBERTARIAN PARTY "
+            }
+          ],
+          "abbreviation": "LIB",
+          "standardName": null,
+          "color": "#f4c900",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+        "nativeId": "4",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "KAMALA D. HARRIS / TIM WALZ"
+          }
+        ],
+        "voteCount": 394,
+        "party": {
+          "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DEMOCRATIC PARTY "
+            }
+          ],
+          "abbreviation": "DEM",
+          "standardName": null,
+          "color": "#255C99",
+          "textColor": "#ffffff"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+        "nativeId": "15",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+          }
+        ],
+        "voteCount": 4,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": false,
+        "isQualifiedWriteIn": false,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+        "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "FUTURE MADAM POTUS"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": true,
+        "isQualifiedWriteIn": true,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+        "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": true,
+        "isQualifiedWriteIn": true,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-90d4-523e-8754-08dcf866a62f",
+        "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "JAY J BOWMAN / DE D. BOWMAN"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": true,
+        "isQualifiedWriteIn": true,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+        "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "STEVE M. JOHNSON"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": true,
+        "isQualifiedWriteIn": true,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-90d4-523e-b611-08dcf866a62f",
+        "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "ANDRE RAMON MC NEIL"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": true,
+        "isQualifiedWriteIn": true,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+        "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "SHONDRA YEVETTE IRVING"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": true,
+        "isQualifiedWriteIn": true,
+        "isWinner": false
+      },
+      {
+        "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+        "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "BUDDIE ARDEN WILKERSON"
+          }
+        ],
+        "voteCount": 0,
+        "party": {
+          "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "UNAFFILIATED "
+            }
+          ],
+          "abbreviation": "UNA",
+          "standardName": null,
+          "color": "#32373c",
+          "textColor": "#000000"
+        },
+        "groupResults": null,
+        "isWriteIn": true,
+        "isQualifiedWriteIn": true,
+        "isWinner": false
+      }
+    ]
+  },
+  "rankedChoiceSummaryResults": null,
+  "breakdownResults": [
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-ad20-08dce7a9deb6",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "BEAVER 1"
+          }
+        ],
+        "precinctOrder": 0,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 707,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 2,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 632,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 4,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 69,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-d466-08dce7a9dec0",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "BEAVER 2"
+          }
+        ],
+        "precinctOrder": 1,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 615,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 3,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 540,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 69,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-f989-08dce7a9dec0",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "BEAVER 3"
+          }
+        ],
+        "precinctOrder": 2,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 209,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 196,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 13,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-fbe8-08dce7a9dec0",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "BEAVER 4"
+          }
+        ],
+        "precinctOrder": 3,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 462,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 3,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 2,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 406,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 51,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-feba-08dce7a9dec0",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "GREENVILLE 1"
+          }
+        ],
+        "precinctOrder": 4,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 115,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 100,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 15,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-00be-08dce7a9dec1",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "MILFORD 1"
+          }
+        ],
+        "precinctOrder": 5,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 94,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 71,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 20,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-03ac-08dce7a9dec1",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "MILFORD 2"
+          }
+        ],
+        "precinctOrder": 6,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 444,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 2,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 2,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 327,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 111,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-05b9-08dce7a9dec1",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "MILFORD 3"
+          }
+        ],
+        "precinctOrder": 7,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 118,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 94,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 1,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 20,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 2,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    },
+    {
+      "parentBallotItemId": "01000000-7783-7a2e-55d7-08dce7a9df04",
+      "precinct": {
+        "id": "01000000-7783-7a2e-07ed-08dce7a9dec1",
+        "name": [
+          {
+            "languageId": "en",
+            "text": "MINERSVILLE 1"
+          }
+        ],
+        "precinctOrder": 8,
+        "reportingStatus": 3,
+        "mapFeatureId": null,
+        "isVirtual": false
+      },
+      "voteTotal": 448,
+      "ballotOptions": [
+        {
+          "id": "01000000-7783-7a2e-64c1-08dce7a9df04",
+          "nativeId": "9",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CORNEL RONALD WEST / MELINA ABDULLAH"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6d90-08dce7a9df04",
+          "nativeId": "3",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "LUCIFER \"JUSTIN CASE\" EVERYLOVE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6da9-08dce7a9df04",
+          "nativeId": "13",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JOEL SKOUSEN / RIK COMBS"
+            }
+          ],
+          "voteCount": 4,
+          "party": {
+            "id": "01000000-7783-7a2e-5868-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "CONSTITUTION PARTY "
+              }
+            ],
+            "abbreviation": "CON",
+            "standardName": null,
+            "color": "#FF9933",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db0-08dce7a9df04",
+          "nativeId": "8",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JILL STEIN / RUDOLPH WARE"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-55d5-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "GREEN PARTY "
+              }
+            ],
+            "abbreviation": "GRN",
+            "standardName": null,
+            "color": "#007029",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6db8-08dce7a9df04",
+          "nativeId": "5",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "DONALD J. TRUMP / JD VANCE"
+            }
+          ],
+          "voteCount": 415,
+          "party": {
+            "id": "01000000-7783-7a2e-4e5a-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "REPUBLICAN PARTY "
+              }
+            ],
+            "abbreviation": "REP",
+            "standardName": null,
+            "color": "#960018",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc0-08dce7a9df04",
+          "nativeId": "10",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CHASE OLIVER / MIKE TER MAAT"
+            }
+          ],
+          "voteCount": 3,
+          "party": {
+            "id": "01000000-7783-7a2e-5ada-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "LIBERTARIAN PARTY "
+              }
+            ],
+            "abbreviation": "LIB",
+            "standardName": null,
+            "color": "#f4c900",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dc8-08dce7a9df04",
+          "nativeId": "4",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "KAMALA D. HARRIS / TIM WALZ"
+            }
+          ],
+          "voteCount": 26,
+          "party": {
+            "id": "01000000-7783-7a2e-52cc-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "DEMOCRATIC PARTY "
+              }
+            ],
+            "abbreviation": "DEM",
+            "standardName": null,
+            "color": "#255C99",
+            "textColor": "#ffffff"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-7783-7a2e-6dcf-08dce7a9df04",
+          "nativeId": "15",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "CLAUDIA DE LA CRUZ / KARINA ALEXANDRA GARCIA"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": false,
+          "isQualifiedWriteIn": false,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b8f0-08dcf866a62f",
+          "nativeId": "FUTUREMADAMPOTUS-33-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "FUTURE MADAM POTUS"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b77d-08dcf866a62f",
+          "nativeId": "PETERSONSKI/LAURENMICHELLEONAK-32-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "PETER SONSKI / LAUREN MICHELLE ONAK"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-8754-08dcf866a62f",
+          "nativeId": "JAYJ.BOWAMN/DED.BOWMAN-28-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "JAY J BOWMAN / DE D. BOWMAN"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b43f-08dcf866a62f",
+          "nativeId": "STEVEM.JOHNSON-30-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "STEVE M. JOHNSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b611-08dcf866a62f",
+          "nativeId": "ANDRERAMONMCNEIL-31-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "ANDRE RAMON MC NEIL"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-ba27-08dcf866a62f",
+          "nativeId": "SHONDRAYEVETTEIRVING-34-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "SHONDRA YEVETTE IRVING"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        },
+        {
+          "id": "01000000-90d4-523e-b1e1-08dcf866a62f",
+          "nativeId": "BUDDIEARDENWILKERSON-29-NON-PARTISAN ",
+          "name": [
+            {
+              "languageId": "en",
+              "text": "BUDDIE ARDEN WILKERSON"
+            }
+          ],
+          "voteCount": 0,
+          "party": {
+            "id": "01000000-7783-7a2e-5cc9-08dce7a9defa",
+            "name": [
+              {
+                "languageId": "en",
+                "text": "UNAFFILIATED "
+              }
+            ],
+            "abbreviation": "UNA",
+            "standardName": null,
+            "color": "#32373c",
+            "textColor": "#000000"
+          },
+          "groupResults": null,
+          "isWriteIn": true,
+          "isQualifiedWriteIn": true,
+          "isWinner": false
+        }
+      ]
+    }
+  ],
+  "breakdownResultCount": 9
+}
