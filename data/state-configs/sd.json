@@ -20,6 +20,26 @@
       "localFile": "data/sd-2024-post-election-audit-election-returns.pdf"
     },
     {
+      "id": "sd-2024-general-aurora-clark-canvass",
+      "url": "https://sdsos.gov/elections-voting/assets/2024%20Assets/Recount-Canvass-and-Canvass-Docs-General/Aurora-Clark.pdf",
+      "localFile": "data/review-sources/sd-2024-general-aurora-clark-canvass.pdf"
+    },
+    {
+      "id": "sd-2024-general-clay-faulk-canvass",
+      "url": "https://sdsos.gov/elections-voting/assets/2024%20Assets/Recount-Canvass-and-Canvass-Docs-General/Clay-Faulk.pdf",
+      "localFile": "data/review-sources/sd-2024-general-clay-faulk-canvass.pdf"
+    },
+    {
+      "id": "sd-2024-general-grant-lyman-canvass",
+      "url": "https://sdsos.gov/elections-voting/assets/2024%20Assets/Recount-Canvass-and-Canvass-Docs-General/Grant-Lyman.pdf",
+      "localFile": "data/review-sources/sd-2024-general-grant-lyman-canvass.pdf"
+    },
+    {
+      "id": "sd-2024-general-marshall-ziebach-canvass",
+      "url": "https://sdsos.gov/elections-voting/assets/2024%20Assets/Recount-Canvass-and-Canvass-Docs-General/Marshall-Ziebach.pdf",
+      "localFile": "data/review-sources/sd-2024-general-marshall-ziebach-canvass.pdf"
+    },
+    {
       "id": "sd-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2746%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/sd-counties.geojson"
@@ -59,10 +79,23 @@
     ]
   },
   "reviewCharts": {
-    "format": "southDakotaCanvassPdfCountyComparison",
-    "sourceId": "sd-2024-general-election-canvass-with-cert",
-    "downBallotContest": "United States Representative",
-    "endMarker": "Public Utilities Commissioner",
+    "format": "southDakotaPrecinctVoteShare",
+    "sourceId": "sd-2024-general-aurora-clark-canvass",
+    "sourceIds": [
+      "sd-2024-general-aurora-clark-canvass",
+      "sd-2024-general-clay-faulk-canvass",
+      "sd-2024-general-grant-lyman-canvass",
+      "sd-2024-general-marshall-ziebach-canvass"
+    ],
+    "expectedCounties": [
+      "Aurora County",
+      "Bennett County",
+      "Brown County",
+      "Hand County",
+      "Potter County",
+      "Todd County"
+    ],
+    "warning": "South Dakota local review rows are partial and vote-share-only. They use official county canvass precinct rows only where OCR-extracted rows reconcile exactly to certified county presidential totals.",
     "policy": {
       "outlierThresholdPct": 15,
       "minCandidateVotes": 100,
@@ -114,12 +147,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "South Dakota county review rows",
-        "detail": "The official canvass PDF contains matching county tables for President and U.S. Representative. The review graph compares Harris/Trump presidential votes to Sheryl Johnson/Dusty Johnson U.S. House votes at county level.",
+        "title": "South Dakota partial precinct review rows",
+        "detail": "Official South Dakota Secretary of State grouped county canvass PDFs contain precinct presidential rows. The parser loads vote-share-only local rows for counties whose OCR-extracted precinct rows reconcile exactly to certified county presidential totals: Aurora, Bennett, Brown, Hand, Potter, and Todd.",
         "sourceUrl": "https://sdsos.gov/elections-voting/election-resources/election-history/2024_Election_History.aspx",
-        "localFile": "data/sd-2024-general-election-canvass-with-cert.pdf; data/sd-app-data.js",
+        "localFile": "data/review-sources/sd-2024-general-aurora-clark-canvass.pdf; data/review-sources/sd-2024-general-grant-lyman-canvass.pdf; data/review-sources/sd-2024-general-marshall-ziebach-canvass.pdf; data/sd-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "Official canvass contains President and U.S. Representative county tables with total rows reconciled by the parser.",
+        "sourceTimestampBasis": "Official grouped county canvass PDFs are linked from the South Dakota SOS 2024 election-history page; local rows are accepted only after reconciling to certified county presidential totals.",
         "status": "Loaded"
       },
       "turnout": {
@@ -134,11 +167,11 @@
     },
     "sourceInventory": [
       {
-        "category": "Presidential county results",
-        "file": "data/sd-2024-general-election-canvass-with-cert.pdf; data/sd-app-data.js",
+        "category": "Presidential county results and partial local review rows",
+        "file": "data/sd-2024-general-election-canvass-with-cert.pdf; data/review-sources/sd-2024-general-aurora-clark-canvass.pdf; data/review-sources/sd-2024-general-clay-faulk-canvass.pdf; data/review-sources/sd-2024-general-grant-lyman-canvass.pdf; data/review-sources/sd-2024-general-marshall-ziebach-canvass.pdf; data/sd-app-data.js",
         "sourceUrl": "https://sdsos.gov/elections-voting/election-resources/election-history/2024_Election_History.aspx",
-        "usedFor": "South Dakota county table, statewide totals, candidate breakdown, CSV export, presidential-vs-House review graph, and Source Planner rows.",
-        "confidence": "Official South Dakota Secretary of State 2024 General Election Canvass and Certificate PDF."
+        "usedFor": "South Dakota county table, statewide totals, candidate breakdown, CSV export, vote-share-only local review rows, and Source Planner rows.",
+        "confidence": "Official South Dakota Secretary of State 2024 General Election Canvass and Certificate PDF plus official grouped county canvass PDFs."
       },
       {
         "category": "Official county turnout denominator",
@@ -185,9 +218,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "South Dakota reporting-unit row",
-    "reviewRowLabelPlural": "South Dakota reporting-unit rows",
-    "reviewGraphTitlePrefix": "South Dakota reporting unit",
+    "reviewRowLabel": "South Dakota local reporting-unit row",
+    "reviewRowLabelPlural": "South Dakota local reporting-unit rows",
+    "reviewGraphTitlePrefix": "South Dakota local reporting unit",
     "mapLoadingText": "Loading local South Dakota county boundaries...",
     "noGeometryText": "South Dakota county geometry is not loaded yet; showing the tile fallback."
   },
@@ -198,7 +231,7 @@
     "trump": 272081,
     "harris": 146859,
     "other": 9982,
-    "reviewRows": 66,
+    "reviewRows": 39,
     "turnoutRows": 66,
     "turnoutWarningRows": 0,
     "historicalSeries": 0,

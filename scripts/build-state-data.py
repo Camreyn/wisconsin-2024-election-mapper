@@ -10391,6 +10391,250 @@ def review_charts_south_dakota_canvass_pdf(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
 
+def review_charts_south_dakota_precinct_vote_share(config):
+    review = config["reviewCharts"]
+    certified_rows, _, _ = certified_results(config)
+    certified_by_county = {row["county"]: row for row in certified_rows}
+    county_names = set(certified_by_county)
+    county_bases = {county.replace(" County", ""): county for county in county_names}
+    digit_translation = str.maketrans(
+        {
+            "O": "0",
+            "o": "0",
+            "Q": "0",
+            "D": "0",
+            "I": "1",
+            "l": "1",
+            "L": "1",
+            "t": "1",
+            "T": "1",
+            "|": "1",
+            "s": "5",
+            "S": "5",
+            "B": "8",
+            "b": "6",
+        }
+    )
+
+    def clean_sd_number(value):
+        text = str(value or "").replace(",", "").replace(".", "").strip().translate(digit_translation)
+        return int(text) if re.fullmatch(r"\d+", text) else None
+
+    def number_candidates(value):
+        raw = str(value or "").replace(",", "").replace(".", "").strip()
+        seven_indexes = [index for index, char in enumerate(raw) if char == "7"]
+        candidates = set()
+        for mask in range(1 << len(seven_indexes)):
+            chars = list(raw)
+            for bit, index in enumerate(seven_indexes):
+                if mask & (1 << bit):
+                    chars[index] = "1"
+            normalized = "".join(chars).translate(digit_translation)
+            if re.fullmatch(r"\d+", normalized):
+                candidates.add(int(normalized))
+        base = clean_sd_number(value)
+        if base is not None:
+            candidates.add(base)
+        return sorted(candidates, key=lambda candidate: (candidate != base, candidate))
+
+    def solve_column(tokens, target):
+        states = {0: ([], 0)}
+        for token in tokens:
+            next_states = {}
+            candidates = number_candidates(token)
+            if not candidates:
+                return None
+            base = candidates[0]
+            for total, (values, cost) in states.items():
+                for candidate in candidates:
+                    next_total = total + candidate
+                    next_cost = cost + int(candidate != base)
+                    current = next_states.get(next_total)
+                    if current is None or next_cost < current[1]:
+                        next_states[next_total] = (values + [candidate], next_cost)
+            states = next_states
+        return states.get(target, (None, None))[0]
+
+    def page_rows(items):
+        rows = []
+        for item in sorted(items, key=lambda candidate: -candidate["y"]):
+            if not rows or abs(rows[-1][0] - item["y"]) > 3.5:
+                rows.append([item["y"], [item]])
+            else:
+                rows[-1][1].append(item)
+        return [sorted(group, key=lambda candidate: candidate["x"]) for _, group in rows]
+
+    def normalized_words(value):
+        return re.sub(r"[^a-z]+", " ", value.lower())
+
+    def page_county(page):
+        top_text = " ".join(item["value"] for item in page["items"] if item["y"] > 480)
+        normalized = normalized_words(top_text)
+        matches = [
+            county
+            for base, county in county_bases.items()
+            if re.search(rf"\b{re.escape(normalized_words(base).strip())}\b", normalized)
+        ]
+        return matches[0] if len(matches) == 1 else None
+
+    def is_presidential_page(page):
+        text = " ".join(item["value"] for item in page["items"]).lower()
+        return (
+            ("kamala" in text or "harris" in text or "hanis" in text)
+            and "trump" in text
+            and ("kennedy" in text or "chase" in text or "oliver" in text)
+        )
+
+    def is_total_label(value):
+        text = value.lower()
+        return any(token in text for token in ("total", "fotal", "iotal", "rotal", "tota"))
+
+    def is_usable_label(value):
+        text = value.lower().strip()
+        if not text or text in {"name", "precinct name", "precinct"}:
+            return False
+        return not any(
+            token in text
+            for token in (
+                "kamala",
+                "trump",
+                "chase",
+                "kennedy",
+                "harris",
+                "donald",
+                "robert",
+                "elector",
+                "general election",
+                " dem",
+                " rep",
+                " ub",
+                " lib",
+                " ind",
+            )
+        )
+
+    def parse_presidential_page(page):
+        parsed_rows = []
+        pending_label_parts = []
+        for row in page_rows(page["items"]):
+            numeric_items = [
+                item
+                for item in row
+                if clean_sd_number(item["value"]) is not None
+            ]
+            if len(numeric_items) >= 4:
+                value_items = numeric_items[-4:]
+                first_number_x = value_items[0]["x"]
+                same_line_label = re.sub(
+                    r"\s+",
+                    " ",
+                    " ".join(item["value"] for item in row if item["x"] < first_number_x - 8),
+                ).strip()
+                if is_total_label(same_line_label) or (
+                    not same_line_label and any(is_total_label(part) for part in pending_label_parts)
+                ):
+                    pending_label_parts = []
+                    continue
+                if is_usable_label(same_line_label):
+                    label = same_line_label
+                else:
+                    label = re.sub(
+                        r"\s+",
+                        " ",
+                        " ".join(pending_label_parts + ([same_line_label] if same_line_label else [])),
+                    ).strip()
+                pending_label_parts = []
+                if is_usable_label(label):
+                    parsed_rows.append(
+                        {
+                            "ward": label,
+                            "tokens": [item["value"] for item in value_items],
+                        }
+                    )
+                continue
+
+            left_label = re.sub(
+                r"\s+",
+                " ",
+                " ".join(item["value"] for item in row if item["x"] < 170),
+            ).strip()
+            if is_usable_label(left_label):
+                pending_label_parts.append(left_label)
+            elif left_label:
+                pending_label_parts = []
+        return parsed_rows
+
+    review_rows = []
+    accepted_counties = set()
+    source_ids = review.get("sourceIds") or [review["sourceId"]]
+    for source_id in source_ids:
+        for page in extract_pdf_items(local_source(config, source_id)):
+            if not is_presidential_page(page):
+                continue
+            county = page_county(page)
+            if not county or county in accepted_counties:
+                continue
+            parsed_rows = parse_presidential_page(page)
+            if not parsed_rows:
+                continue
+            certified = certified_by_county[county]
+            targets = [
+                certified["harris"],
+                certified.get("libertarian", 0),
+                certified["trump"],
+                certified.get("independent", 0),
+            ]
+            solved_columns = []
+            for index, target in enumerate(targets):
+                solved = solve_column([row["tokens"][index] for row in parsed_rows], target)
+                if solved is None:
+                    solved_columns = []
+                    break
+                solved_columns.append(solved)
+            if not solved_columns:
+                continue
+
+            accepted_counties.add(county)
+            for index, parsed_row in enumerate(parsed_rows):
+                harris = solved_columns[0][index]
+                libertarian = solved_columns[1][index]
+                trump = solved_columns[2][index]
+                independent = solved_columns[3][index]
+                total = harris + libertarian + trump + independent
+                review_rows.append(
+                    {
+                        "county": county,
+                        "ward": parsed_row["ward"],
+                        "total": total,
+                        "harris": harris,
+                        "trump": trump,
+                        "harrisShare": round2((harris / total) * 100) if total else 0,
+                        "trumpShare": round2((trump / total) * 100) if total else 0,
+                        "demDropoff": 0,
+                        "repDropoff": 0,
+                    }
+                )
+
+    expected_counties = set(review.get("expectedCounties", []))
+    if expected_counties and accepted_counties != expected_counties:
+        raise ValueError(
+            "South Dakota local review parser accepted unexpected counties: "
+            f"{sorted(accepted_counties)} != {sorted(expected_counties)}"
+        )
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], 0, 0)
+    eta_analysis["coverageMode"] = "voteShareOnly"
+    eta_analysis["coverageStatus"] = "partial"
+    eta_analysis["loadedCounties"] = sorted(accepted_counties)
+    eta_analysis["missingCounties"] = sorted(county_names - accepted_counties)
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "South Dakota local review rows use official presidential precinct vote share only for "
+        "counties whose OCR-extracted rows reconcile exactly to certified county totals.",
+    )
+    return review_rows, eta_analysis
+
+
 def review_charts_delaware_county_html(config):
     review = config["reviewCharts"]
     path = local_source(config, review["sourceId"])
@@ -14384,6 +14628,7 @@ REVIEW_CHART_PARSERS = {
     "rhodeIslandSummaryXlsxComparison": review_charts_rhode_island_summary_xlsx,
     "southCarolinaHouseEnrCountyComparison": review_charts_south_carolina_house_enr,
     "southDakotaCanvassPdfCountyComparison": review_charts_south_dakota_canvass_pdf,
+    "southDakotaPrecinctVoteShare": review_charts_south_dakota_precinct_vote_share,
     "texasCountyJsonComparison": review_charts_texas_county_json,
     "texasHarrisCanvassPdfVoteShare": review_charts_texas_harris_canvass_pdf_vote_share,
     "utahCanvassPdfCountyComparison": review_charts_utah_canvass_pdf,
