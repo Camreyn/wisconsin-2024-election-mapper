@@ -20,6 +20,11 @@
       "localFile": "data/nv-2024-statewide-turnout.csv"
     },
     {
+      "id": "nv-clark-2024-general-cvr",
+      "url": "https://elections.clarkcountynv.gov/electionresultsTV/cvr/24G/24G_CVRExport_NOV_Final_Confidential.zip",
+      "localFile": "data/review-sources/nv-clark-2024-general-cvr.zip"
+    },
+    {
       "id": "nv-county-geometry",
       "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1/query?where=STATE%3D%2732%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=true&outSR=4326&f=geojson",
       "localFile": "data/nv-counties.geojson"
@@ -64,10 +69,26 @@
     ]
   },
   "reviewCharts": {
-    "format": "nevadaStatewideHtmlCountyComparison",
-    "sourceId": "nv-2024-official-statewide-general-election-results",
-    "presidentContest": "President and Vice President of the United States",
-    "downBallotContest": "United States Senator",
+    "format": "nevadaClarkCvrComparison",
+    "sourceId": "nv-clark-2024-general-cvr",
+    "county": "Clark County",
+    "downBallotContestPrefix": "United States Senate",
+    "coverageMode": "partialLocal",
+    "expectedRows": 749,
+    "expectedCvrTotals": {
+      "harris": 519991,
+      "trump": 492717,
+      "other": 17968,
+      "total": 1030676,
+      "ballots": 1032990
+    },
+    "expectedCertifiedGap": {
+      "harris": 196,
+      "trump": 335,
+      "other": 16,
+      "total": 547
+    },
+    "warning": "Nevada local review rows currently cover Clark County only, from the official Clark County CVR. The CVR presidential aggregate is 547 votes below the certified Clark County presidential canvass total, so use these rows for advisory local-pattern review rather than certified county totals.",
     "majorCandidates": {
       "trump": {
         "candidateContains": "TRUMP"
@@ -138,12 +159,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Nevada county review comparison",
-        "detail": "County-level review rows compare the official Nevada presidential table to the official U.S. Senate table from the same SOS statewide results page. Precinct or reporting-unit review remains a follow-up if a lower-level official source is collected.",
-        "sourceUrl": "https://www.nvsos.gov/SOSelectionPages/results/2024StateWideGeneral/ElectionSummary.aspx",
-        "localFile": "data/nv-2024-official-statewide-general-election-results.html; data/nv-app-data.js",
-        "sourceLastModifiedUtc": "2025-09-11T04:16:27Z",
-        "sourceTimestampBasis": "Official SOS table checked during Nevada promotion; it provides county columns but not precinct rows.",
+        "title": "Nevada partial Clark County CVR review rows",
+        "detail": "Official Clark County Cast Vote Record rows are aggregated by PrecinctPortion for President-vs-U.S. Senate advisory review. This is partial county-local coverage; the CVR aggregate is 547 presidential votes below the certified Clark County canvass total, and the other Nevada counties remain county-only until local sources are collected.",
+        "sourceUrl": "https://elections.clarkcountynv.gov/electionresultsTV/cvr/24G/24G_CVRExport_NOV_Final_Confidential.zip",
+        "localFile": "data/review-sources/nv-clark-2024-general-cvr.zip; data/nv-app-data.js",
+        "sourceLastModifiedUtc": "2024-12-04T23:39:03Z",
+        "sourceTimestampBasis": "Official Clark County Reports, Data, Maps page links the November 5, 2024 General Election CVR; sourceLastModifiedUtc records HTTP metadata from the CVR download, not a page-posted certification date.",
         "status": "Loaded"
       },
       "turnout": {
@@ -161,8 +182,15 @@
         "category": "Certified presidential county results",
         "file": "data/nv-2024-official-statewide-general-election-results.html; data/nv-app-data.js",
         "sourceUrl": "https://www.nvsos.gov/SOSelectionPages/results/2024StateWideGeneral/ElectionSummary.aspx",
-        "usedFor": "Nevada 2024 presidential county results and county-level President-vs-Senate review rows.",
+        "usedFor": "Nevada 2024 presidential county results.",
         "confidence": "Nevada Secretary of State official statewide general election results table, collected through an archived official page snapshot because the live page is protected from plain HTTP access."
+      },
+      {
+        "category": "Official Clark County CVR local review rows",
+        "file": "data/review-sources/nv-clark-2024-general-cvr.zip; data/nv-app-data.js",
+        "sourceUrl": "https://elections.clarkcountynv.gov/electionresultsTV/cvr/24G/24G_CVRExport_NOV_Final_Confidential.zip",
+        "usedFor": "Clark County precinct-portion President-vs-U.S. Senate advisory rows and vote-method ballot counts.",
+        "confidence": "Official Clark County public CVR export linked from the county 2024 General Election information and Reports, Data, Maps pages. Parsed CVR totals are internally validated and the known 547-vote gap versus certified Clark County presidential totals is warning-labeled."
       },
       {
         "category": "County boundaries",
@@ -214,7 +242,7 @@
     "trump": 751205,
     "harris": 705197,
     "other": 28438,
-    "reviewRows": 17,
+    "reviewRows": 749,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,

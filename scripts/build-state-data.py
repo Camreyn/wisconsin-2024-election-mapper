@@ -7900,6 +7900,160 @@ def review_charts_nevada_statewide_html(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
 
+def review_charts_nevada_clark_cvr(config):
+    review = config["reviewCharts"]
+    path = local_source(config, review["sourceId"])
+    source = source_map(config)[review["sourceId"]]
+    county = review.get("county", "Clark County")
+    certified_rows, _candidate_labels, _precinct_rows = certified_results_nevada_statewide_html(config)
+    certified = next((row for row in certified_rows if row["county"] == county), None)
+    if not certified:
+        raise ValueError(f"Nevada Clark CVR parser could not find certified county row for {county}")
+
+    def cvr_vote(value):
+        value = str(value or "").strip()
+        if value.startswith('="') and value.endswith('"'):
+            value = value[2:-1]
+        return int(value) if value in {"0", "1"} else 0
+
+    def candidate_key(candidate, rules):
+        for key, rule in rules.items():
+            if new_york_column_matches(candidate, "", rule):
+                return key
+        return "other"
+
+    by_precinct = defaultdict(lambda: defaultdict(int))
+    with zipfile.ZipFile(path) as archive:
+        csv_names = [name for name in archive.namelist() if name.lower().endswith(".csv")]
+        if len(csv_names) != 1:
+            raise ValueError(f"Nevada Clark CVR ZIP should contain one CSV, found {csv_names}")
+        with archive.open(csv_names[0]) as raw:
+            reader = csv.reader(io.TextIOWrapper(raw, encoding="utf-8-sig", errors="replace", newline=""))
+            try:
+                _election_row = next(reader)
+                contest_row = next(reader)
+                candidate_row = next(reader)
+                header_row = next(reader)
+            except StopIteration as error:
+                raise ValueError(f"Nevada Clark CVR CSV is missing header rows: {csv_names[0]}") from error
+
+            try:
+                precinct_index = header_row.index("PrecinctPortion")
+                counting_group_index = header_row.index("CountingGroup")
+            except ValueError as error:
+                raise ValueError("Nevada Clark CVR CSV missing PrecinctPortion or CountingGroup column") from error
+
+            president_columns = []
+            senate_columns = []
+            for index, contest in enumerate(contest_row):
+                if index >= len(candidate_row):
+                    continue
+                contest = str(contest or "")
+                candidate = candidate_row[index]
+                if contest.startswith("PRESIDENT"):
+                    president_columns.append((index, candidate_key(candidate, review["majorCandidates"])))
+                elif contest.startswith(review.get("downBallotContestPrefix", "United States Senate")):
+                    senate_columns.append((index, candidate_key(candidate, review["downBallotCandidates"])))
+
+            if not president_columns:
+                raise ValueError("Nevada Clark CVR parser found no President columns")
+            if not senate_columns:
+                raise ValueError("Nevada Clark CVR parser found no Senate columns")
+
+            for row in reader:
+                if len(row) <= max(precinct_index, counting_group_index):
+                    continue
+                precinct = str(row[precinct_index] or "").strip()
+                if not precinct:
+                    continue
+                item = by_precinct[precinct]
+                item["ballots"] += 1
+                counting_group = str(row[counting_group_index] or "").strip().lower()
+                if "mail" in counting_group:
+                    item["mailBallots"] += 1
+                elif "early" in counting_group:
+                    item["earlyVotingBallots"] += 1
+                elif "election day" in counting_group:
+                    item["electionDayBallots"] += 1
+                for index, key in president_columns:
+                    vote = cvr_vote(row[index] if index < len(row) else "")
+                    if vote:
+                        item[key] += vote
+                for index, key in senate_columns:
+                    vote = cvr_vote(row[index] if index < len(row) else "")
+                    if vote and key in {"dem", "rep"}:
+                        item[f"senate_{key}"] += vote
+
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+    for precinct, totals in sorted(by_precinct.items()):
+        harris = totals["harris"]
+        trump = totals["trump"]
+        other = totals["other"]
+        president_total = harris + trump + other
+        if not president_total:
+            continue
+        senate_dem = totals["senate_dem"]
+        senate_rep = totals["senate_rep"]
+        senate_dem_total += senate_dem
+        senate_rep_total += senate_rep
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+                "mailBallots": totals["mailBallots"],
+                "earlyVotingBallots": totals["earlyVotingBallots"],
+                "electionDayBallots": totals["electionDayBallots"],
+                "sourceUrl": source["url"],
+            }
+        )
+
+    expected_rows = review.get("expectedRows")
+    if expected_rows and len(review_rows) != expected_rows:
+        raise ValueError(f"Nevada Clark CVR row count mismatch: {len(review_rows)} != {expected_rows}")
+
+    parsed = {
+        "harris": sum(row["harris"] for row in review_rows),
+        "trump": sum(row["trump"] for row in review_rows),
+        "other": sum(row["total"] - row["harris"] - row["trump"] for row in review_rows),
+        "total": sum(row["total"] for row in review_rows),
+        "ballots": sum(row["mailBallots"] + row["earlyVotingBallots"] + row["electionDayBallots"] for row in review_rows),
+    }
+    expected_totals = review.get("expectedCvrTotals")
+    if expected_totals and parsed != expected_totals:
+        raise ValueError(f"Nevada Clark CVR totals mismatch: {parsed} != {expected_totals}")
+
+    certified_gap = {
+        "harris": certified["harris"] - parsed["harris"],
+        "trump": certified["trump"] - parsed["trump"],
+        "other": certified["other"] - parsed["other"],
+        "total": certified["total"] - parsed["total"],
+    }
+    expected_gap = review.get("expectedCertifiedGap")
+    if expected_gap and certified_gap != expected_gap:
+        raise ValueError(f"Nevada Clark certified-vs-CVR gap mismatch: {certified_gap} != {expected_gap}")
+
+    eta_analysis = eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+    eta_analysis["coverageMode"] = review.get("coverageMode", "partialLocal")
+    eta_analysis["loadedCounties"] = [county]
+    eta_analysis["partialCoverage"] = True
+    eta_analysis["certifiedGap"] = certified_gap
+    eta_analysis["cvrTotals"] = parsed
+    eta_analysis["warning"] = review.get(
+        "warning",
+        "Nevada review rows currently cover Clark County CVR precinct rows only; the official CVR aggregate is smaller than the certified Clark County canvass total.",
+    )
+    return review_rows, eta_analysis
+
+
 def review_charts_texas_county_json(config):
     review = config["reviewCharts"]
     data = json.loads(local_source(config, review["sourceId"]).read_text(encoding="utf-8"))
@@ -14106,6 +14260,7 @@ REVIEW_CHART_PARSERS = {
     "michiganCountyTabComparison": review_charts_michigan_tab,
     "montanaCanvassPdfCountyComparison": review_charts_montana_canvass_pdf,
     "nebraskaCanvassPdfCountyComparison": review_charts_nebraska_canvass_pdf,
+    "nevadaClarkCvrComparison": review_charts_nevada_clark_cvr,
     "nevadaStatewideHtmlCountyComparison": review_charts_nevada_statewide_html,
     "northDakotaStatewideCsvCountyComparison": review_charts_north_dakota_csv,
     "oklahomaEnrZipCountyComparison": review_charts_oklahoma_enr_zip,
