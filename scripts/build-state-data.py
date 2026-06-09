@@ -8101,6 +8101,108 @@ def review_charts_massachusetts_county_html(config):
     return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
 
 
+def massachusetts_precinct_label(town, ward, precinct):
+    parts = [town]
+    if ward and ward != "-":
+        parts.append(f"Ward {ward}")
+    if precinct and precinct != "-":
+        parts.append(f"Precinct {precinct}")
+    return " - ".join(parts)
+
+
+def massachusetts_precinct_csv_votes(config, source_id, columns, map_source_id, aliases):
+    path = local_source(config, source_id)
+    subdivision_lookup = connecticut_subdivision_lookup(config, map_source_id, aliases)
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.reader(handle)
+        header = next(reader)
+        next(reader, None)
+        column_index = {name: index for index, name in enumerate(header)}
+        output = {}
+        missing = set()
+        for row in reader:
+            if len(row) < 3:
+                continue
+            town = str(row[column_index["City/Town"]] or "").strip()
+            ward = str(row[column_index["Ward"]] or "").strip()
+            precinct = str(row[column_index["Pct"]] or "").strip()
+            if not town or town.lower().startswith("total"):
+                continue
+            lookup = subdivision_lookup.get(normalize_connecticut_town(town, aliases))
+            if not lookup:
+                missing.add(town)
+                continue
+            item = {
+                "county": lookup["county"],
+                "ward": massachusetts_precinct_label(town, ward, precinct),
+                "dem": int_text(row[column_index[columns["dem"]]]),
+                "rep": int_text(row[column_index[columns["rep"]]]),
+                "other": 0,
+            }
+            for column in columns.get("other", []):
+                item["other"] += int_text(row[column_index[column]])
+            item["total"] = item["dem"] + item["rep"] + item["other"]
+            output[(normalize_connecticut_town(town, aliases), ward, precinct)] = item
+    if missing:
+        raise ValueError(f"Massachusetts precinct rows could not be mapped to counties: {', '.join(sorted(missing))}")
+    return output
+
+
+def review_charts_massachusetts_precinct_csv(config):
+    review = config["reviewCharts"]
+    aliases = review.get("municipalityAliases", {})
+    map_source_id = review["municipalityMapSourceId"]
+    president = massachusetts_precinct_csv_votes(
+        config,
+        review.get("presidentSourceId", review["sourceId"]),
+        review["presidentColumns"],
+        map_source_id,
+        aliases,
+    )
+    senate = massachusetts_precinct_csv_votes(
+        config,
+        review["downBallotSourceId"],
+        review["downBallotColumns"],
+        map_source_id,
+        aliases,
+    )
+    if set(president) != set(senate):
+        missing = sorted(set(president) - set(senate))
+        extra = sorted(set(senate) - set(president))
+        raise ValueError(f"Massachusetts review precinct mismatch: missing={missing[:10]} extra={extra[:10]}")
+
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+    for key in sorted(president, key=lambda item: (president[item]["county"], president[item]["ward"])):
+        president_row = president[key]
+        senate_row = senate[key]
+        president_total = president_row["total"]
+        if not president_total:
+            continue
+        harris = president_row["dem"]
+        trump = president_row["rep"]
+        senate_dem = senate_row["dem"]
+        senate_rep = senate_row["rep"]
+        senate_dem_total += senate_dem
+        senate_rep_total += senate_rep
+        review_rows.append(
+            {
+                "county": president_row["county"],
+                "ward": president_row["ward"],
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+
+
 def review_charts_new_jersey_senate_pdf(config):
     review = config["reviewCharts"]
     president_rows, _candidate_labels, _row_count = certified_results_new_jersey_president_pdf(config)
@@ -9079,6 +9181,107 @@ def review_charts_delaware_county_html(config):
             {
                 "county": county,
                 "ward": county,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - senate_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - senate_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    return review_rows, eta_analysis_from_review_rows(review_rows, review["policy"], senate_dem_total, senate_rep_total)
+
+
+def delaware_county_for_election_district(label):
+    match = re.search(r"Election District\s+(\d+)-", label)
+    if not match:
+        raise ValueError(f"Delaware election district label is not recognized: {label!r}")
+    representative_district = int(match.group(1))
+    if representative_district <= 27:
+        return "New Castle County"
+    if representative_district <= 34:
+        return "Kent County"
+    return "Sussex County"
+
+
+def delaware_election_district_totals(section, contest_class, candidate_rules):
+    pattern = re.compile(
+        rf"<h4[^>]*class=[\"'][^\"']*electiondistrict-title[^\"']*{re.escape(contest_class)}"
+        rf"[^\"']*ElectionDistrict\d+[^\"']*[\"'][^>]*>(.*?)</h4>\s*"
+        rf"<table[^>]*class=[\"'][^\"']*{re.escape(contest_class)}[^\"']*[\"'][^>]*>.*?"
+        rf"<tbody>(.*?)</tbody>",
+        flags=re.DOTALL | re.IGNORECASE,
+    )
+    output = defaultdict(lambda: defaultdict(int))
+    for district_html, body_html in pattern.findall(section):
+        label = clean_html_cell(district_html)
+        county = delaware_county_for_election_district(label)
+        item = output[(county, label)]
+        for row_html in re.findall(r"<tr>(.*?)</tr>", body_html, flags=re.DOTALL | re.IGNORECASE):
+            cells = [
+                clean_html_cell(cell)
+                for cell in re.findall(r"<td(?:\s[^>]*)?>(.*?)</td>", row_html, flags=re.DOTALL | re.IGNORECASE)
+            ]
+            if len(cells) < 6:
+                continue
+            candidate = cells[0]
+            party = cells[1]
+            key = "other"
+            for candidate_key, rule in candidate_rules.items():
+                if new_york_column_matches(candidate, party, rule):
+                    key = candidate_key
+                    break
+            votes = int_text(cells[5])
+            item[key] += votes
+            item["total"] += votes
+    return output
+
+
+def review_charts_delaware_election_district_html(config):
+    review = config["reviewCharts"]
+    path = local_source(config, review["sourceId"])
+    document = path.read_text(encoding="utf-8")
+    start = document.find(review.get("sectionMarker", 'id="byelectiondist"'))
+    end = document.find(review.get("endMarker", 'id="bycounty"'), start)
+    if start < 0 or end < 0:
+        raise ValueError(f"Could not find Delaware election-district results section in {path}")
+    section = document[start:end]
+    president = delaware_election_district_totals(
+        section,
+        review.get("presidentContestClass", "PresidentandVicePresident"),
+        review["majorCandidates"],
+    )
+    president = {key: value for key, value in president.items() if value["total"]}
+    down_ballot = delaware_election_district_totals(
+        section,
+        review.get("downBallotContestClass", "USSenator"),
+        review["downBallotCandidates"],
+    )
+    down_ballot = {key: value for key, value in down_ballot.items() if key in president}
+    if set(president) != set(down_ballot):
+        missing = sorted(set(president) - set(down_ballot))
+        extra = sorted(set(down_ballot) - set(president))
+        raise ValueError(f"Delaware election-district review mismatch: missing={missing[:10]} extra={extra[:10]}")
+
+    review_rows = []
+    senate_dem_total = 0
+    senate_rep_total = 0
+    for county, district in sorted(president):
+        president_total = president[(county, district)]["total"]
+        if not president_total:
+            continue
+        harris = president[(county, district)]["harris"]
+        trump = president[(county, district)]["trump"]
+        senate_dem = down_ballot[(county, district)]["dem"]
+        senate_rep = down_ballot[(county, district)]["rep"]
+        senate_dem_total += senate_dem
+        senate_rep_total += senate_rep
+        review_rows.append(
+            {
+                "county": county,
+                "ward": district,
                 "total": president_total,
                 "harris": harris,
                 "trump": trump,
@@ -12845,6 +13048,7 @@ REVIEW_CHART_PARSERS = {
     "clarityEnrCountyJsonComparison": review_charts_clarity_enr_county_json,
     "connecticutStatementTextTownComparison": review_charts_connecticut_statement_text,
     "delawareCountyHtmlComparison": review_charts_delaware_county_html,
+    "delawareElectionDistrictHtmlComparison": review_charts_delaware_election_district_html,
     "floridaPrecinctZipComparison": review_charts_florida_precinct_zip,
     "georgiaHouseJsonCountyComparison": review_charts_georgia_house_json,
     "hawaiiCountySummaryPdfCountyComparison": review_charts_hawaii_county_summary_pdfs,
@@ -12862,6 +13066,7 @@ REVIEW_CHART_PARSERS = {
     "mississippiRecapCsvCountyComparison": review_charts_mississippi_recap_csv,
     "missouriActualResultsPdfCountyComparison": review_charts_missouri_actual_results_pdf,
     "massachusettsCountyHtmlComparison": review_charts_massachusetts_county_html,
+    "massachusettsPrecinctCsvComparison": review_charts_massachusetts_precinct_csv,
     "newJerseySenatePdfCountyComparison": review_charts_new_jersey_senate_pdf,
     "newYorkCountyCsvComparison": review_charts_new_york_county_csv,
     "northCarolinaPrecinctZipComparison": review_charts_north_carolina_precinct_zip,

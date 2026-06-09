@@ -20,6 +20,21 @@
       "localFile": "data/ma-2024-us-senate-general-election.html"
     },
     {
+      "id": "ma-2024-president-precinct-results",
+      "url": "https://electionstats.state.ma.us/elections/download/165300/precincts_include:1/",
+      "localFile": "data/ma-2024-president-precinct-results.csv"
+    },
+    {
+      "id": "ma-2024-us-senate-precinct-results",
+      "url": "https://electionstats.state.ma.us/elections/download/165304/precincts_include:1/",
+      "localFile": "data/ma-2024-us-senate-precinct-results.csv"
+    },
+    {
+      "id": "ma-county-subdivisions",
+      "url": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer/22/query?where=STATE%3D%2725%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=false&f=geojson",
+      "localFile": "data/ma-county-subdivisions.geojson"
+    },
+    {
       "id": "ma-2024-state-election-statewide-turnout",
       "url": "https://www.sec.state.ma.us/divisions/elections/research-and-statistics/voter-turnout-statistics.htm",
       "localFile": "data/ma-2024-state-election-statewide-turnout.csv"
@@ -81,17 +96,59 @@
     ]
   },
   "reviewCharts": {
-    "format": "massachusettsCountyHtmlComparison",
-    "sourceId": "ma-2024-president-general-election",
-    "presidentSourceId": "ma-2024-president-general-election",
-    "downBallotSourceId": "ma-2024-us-senate-general-election",
+    "format": "massachusettsPrecinctCsvComparison",
+    "sourceId": "ma-2024-president-precinct-results",
+    "presidentSourceId": "ma-2024-president-precinct-results",
+    "downBallotSourceId": "ma-2024-us-senate-precinct-results",
+    "municipalityMapSourceId": "ma-county-subdivisions",
+    "municipalityAliases": {
+      "Agawam": "Agawam Town",
+      "Amherst": "Amherst Town",
+      "Barnstable": "Barnstable Town",
+      "Braintree": "Braintree Town",
+      "Bridgewater": "Bridgewater Town",
+      "E. Bridgewater": "East Bridgewater",
+      "E. Brookfield": "East Brookfield",
+      "E. Longmeadow": "East Longmeadow",
+      "Franklin": "Franklin Town",
+      "N. Adams": "North Adams",
+      "N. Andover": "North Andover",
+      "N. Attleborough": "North Attleborough Town",
+      "N. Brookfield": "North Brookfield",
+      "N. Reading": "North Reading",
+      "Palmer": "Palmer Town",
+      "Randolph": "Randolph Town",
+      "S. Hadley": "South Hadley",
+      "Southbridge": "Southbridge Town",
+      "W. Boylston": "West Boylston",
+      "W. Bridgewater": "West Bridgewater",
+      "W. Brookfield": "West Brookfield",
+      "W. Newbury": "West Newbury",
+      "W. Springfield": "West Springfield Town",
+      "W. Stockbridge": "West Stockbridge",
+      "W. Tisbury": "West Tisbury",
+      "Weymouth": "Weymouth Town",
+      "Winthrop": "Winthrop Town"
+    },
     "presidentColumns": {
       "dem": "Harris/ Walz",
-      "rep": "Trump/ Vance"
+      "rep": "Trump/ Vance",
+      "other": [
+        "Stein/ Caballero-Roca",
+        "Ayyadurai/ Ellis",
+        "Oliver/ Ter Maat",
+        "De La Cruz/ Garcia",
+        "Sonski/ Onak",
+        "West/ Abdullah",
+        "All Others"
+      ]
     },
     "downBallotColumns": {
-      "dem": "E. Warren",
-      "rep": "J. Deaton"
+      "dem": "Elizabeth Ann Warren",
+      "rep": "John Deaton",
+      "other": [
+        "All Others"
+      ]
     },
     "policy": {
       "outlierThresholdPct": 15,
@@ -148,12 +205,12 @@
         "status": "Loaded"
       },
       "wardDetail": {
-        "title": "Massachusetts county review comparison",
-        "detail": "Official PD43+ President and U.S. Senate county tables are loaded for county President-vs-U.S. Senate review rows. Municipality or precinct rows remain a future parser upgrade.",
-        "sourceUrl": "https://electionstats.state.ma.us/elections/view/165304",
-        "localFile": "data/ma-2024-president-general-election.html; data/ma-2024-us-senate-general-election.html; data/ma-app-data.js",
+        "title": "Massachusetts precinct review comparison",
+        "detail": "Official PD43+ President and U.S. Senate precinct CSV exports are loaded for precinct-level President-vs-U.S. Senate review rows, grouped under county rows with the Census county-subdivision map.",
+        "sourceUrl": "https://electionstats.state.ma.us/elections/download/165300/precincts_include:1/",
+        "localFile": "data/ma-2024-president-precinct-results.csv; data/ma-2024-us-senate-precinct-results.csv; data/ma-county-subdivisions.geojson; data/ma-app-data.js",
         "sourceLastModifiedUtc": "",
-        "sourceTimestampBasis": "PD43+ pages identify the 2024 President and U.S. Senate General Election county tables.",
+        "sourceTimestampBasis": "PD43+ precinct CSV exports for election 165300 President and election 165304 U.S. Senate, joined to Census TIGERweb county-subdivision county identifiers.",
         "status": "Loaded"
       },
       "turnout": {
@@ -168,18 +225,25 @@
     },
     "sourceInventory": [
       {
-        "category": "Official presidential county results",
-        "file": "data/ma-2024-president-general-election.html; data/ma-2024-us-senate-general-election.html; data/ma-app-data.js",
+        "category": "Official presidential county and precinct results",
+        "file": "data/ma-2024-president-general-election.html; data/ma-2024-president-precinct-results.csv; data/ma-app-data.js",
         "sourceUrl": "https://electionstats.state.ma.us/elections/view/165300",
-        "usedFor": "Massachusetts certified 2024 presidential county result table and county President-vs-U.S. Senate review rows.",
+        "usedFor": "Massachusetts certified 2024 presidential county result table and precinct-level President-vs-U.S. Senate review rows.",
         "confidence": "Official Massachusetts Secretary of the Commonwealth PD43+ election results database."
       },
       {
-        "category": "Official U.S. Senate county results",
-        "file": "data/ma-2024-us-senate-general-election.html; data/ma-app-data.js",
+        "category": "Official U.S. Senate precinct results",
+        "file": "data/ma-2024-us-senate-precinct-results.csv; data/ma-app-data.js",
         "sourceUrl": "https://electionstats.state.ma.us/elections/view/165304",
-        "usedFor": "Massachusetts county President-vs-U.S. Senate review rows.",
+        "usedFor": "Massachusetts precinct-level President-vs-U.S. Senate review rows.",
         "confidence": "Official Massachusetts Secretary of the Commonwealth PD43+ election results database."
+      },
+      {
+        "category": "County-subdivision county map",
+        "file": "data/ma-county-subdivisions.geojson; data/ma-app-data.js",
+        "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer/22/query?where=STATE%3D%2725%27&outFields=NAME,BASENAME,GEOID,STATE,COUNTY&returnGeometry=false&f=geojson",
+        "usedFor": "Mapping Massachusetts PD43+ town and city precinct rows to counties for local advisory review rows.",
+        "confidence": "U.S. Census TIGERweb county-subdivision geography."
       },
       {
         "category": "Official statewide turnout",
@@ -218,9 +282,9 @@
       ]
     },
     "historicalSummary": "Historical comparison data is not loaded yet.",
-    "reviewRowLabel": "Massachusetts reporting-unit row",
-    "reviewRowLabelPlural": "Massachusetts reporting-unit rows",
-    "reviewGraphTitlePrefix": "Massachusetts reporting unit",
+    "reviewRowLabel": "Massachusetts precinct row",
+    "reviewRowLabelPlural": "Massachusetts precinct rows",
+    "reviewGraphTitlePrefix": "Massachusetts precinct",
     "mapLoadingText": "Loading local Massachusetts county boundaries...",
     "noGeometryText": "Massachusetts county geometry is not loaded yet; showing the tile fallback."
   },
@@ -231,7 +295,7 @@
     "trump": 1251303,
     "harris": 2126518,
     "other": 95847,
-    "reviewRows": 14,
+    "reviewRows": 2382,
     "turnoutRows": 1,
     "turnoutWarningRows": 1,
     "historicalSeries": 0,
