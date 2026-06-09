@@ -8498,6 +8498,120 @@ def review_charts_civera_precinct_vote_share(config):
     return review_rows, eta_analysis
 
 
+def review_charts_electionware_precinct_summary(config):
+    review = config["reviewCharts"]
+    source_items = review.get("sources") or [{"sourceId": review["sourceId"], "county": review["county"]}]
+    president_contest = review.get("presidentContestName", "FOR PRESIDENT").upper()
+    down_ballot_contest = review.get("downBallotContestName", "FOR U.S. SENATOR").upper()
+    summary_labels = {
+        "",
+        "TOTAL VOTES CAST",
+        "OVERVOTES",
+        "UNDERVOTES",
+        "CONTEST TOTALS",
+        "NO CANDIDATE(S) NOMINATED",
+    }
+    by_precinct = defaultdict(lambda: {"president": defaultdict(int), "downBallot": defaultdict(int)})
+
+    def add_votes(target, candidate, votes, candidate_rules, include_other):
+        candidate_upper = candidate.upper()
+        if candidate_upper in summary_labels:
+            return
+        for key, rule in candidate_rules.items():
+            if new_york_column_matches(candidate, "", rule):
+                target[key] += votes
+                return
+        if include_other:
+            target["other"] += votes
+
+    for source in source_items:
+        county = source["county"]
+        current_precinct = ""
+        current_contest = None
+        with local_source(config, source["sourceId"]).open("r", encoding="utf-8-sig", newline="") as handle:
+            for row in csv.reader(handle):
+                first = str(row[0] if row else "").strip()
+                second = str(row[1] if len(row) > 1 else "").strip()
+                if first.upper().startswith("PRECINCT "):
+                    current_precinct = first
+                    current_contest = None
+                    continue
+                if second.upper().startswith("FOR "):
+                    contest = second.upper()
+                    if contest == president_contest:
+                        current_contest = "president"
+                    elif contest == down_ballot_contest:
+                        current_contest = "downBallot"
+                    else:
+                        current_contest = None
+                    continue
+                if not current_precinct or not current_contest or not first:
+                    continue
+                votes = int_text(row[2] if len(row) > 2 else 0)
+                item = by_precinct[(county, current_precinct)]
+                if current_contest == "president":
+                    add_votes(item["president"], first, votes, review["majorCandidates"], True)
+                else:
+                    add_votes(item["downBallot"], first, votes, review["downBallotCandidates"], False)
+
+    review_rows = []
+    down_ballot_dem_total = 0
+    down_ballot_rep_total = 0
+    for county, precinct in sorted(by_precinct):
+        item = by_precinct[(county, precinct)]
+        harris = item["president"]["harris"]
+        trump = item["president"]["trump"]
+        other = item["president"]["other"]
+        president_total = harris + trump + other
+        if not president_total:
+            continue
+        down_ballot_dem = item["downBallot"]["dem"]
+        down_ballot_rep = item["downBallot"]["rep"]
+        if not down_ballot_dem and not down_ballot_rep:
+            continue
+        down_ballot_dem_total += down_ballot_dem
+        down_ballot_rep_total += down_ballot_rep
+        review_rows.append(
+            {
+                "county": county,
+                "ward": precinct,
+                "total": president_total,
+                "harris": harris,
+                "trump": trump,
+                "harrisShare": round2((harris / president_total) * 100),
+                "trumpShare": round2((trump / president_total) * 100),
+                "demDropoff": round2(((harris - down_ballot_dem) / harris) * 100) if harris else 0,
+                "repDropoff": round2(((trump - down_ballot_rep) / trump) * 100) if trump else 0,
+            }
+        )
+
+    expected = review.get("expectedCountyTotals")
+    if expected:
+        parsed = {}
+        for row in review_rows:
+            county = row["county"]
+            target = parsed.setdefault(county, defaultdict(int))
+            target["trump"] += row["trump"]
+            target["harris"] += row["harris"]
+            target["total"] += row["total"]
+            target["other"] += row["total"] - row["trump"] - row["harris"]
+        normalized = {county: dict(totals) for county, totals in parsed.items()}
+        if normalized != expected:
+            raise ValueError(f"Electionware precinct summary totals do not match expected county totals: {normalized} != {expected}")
+
+    eta_analysis = eta_analysis_from_review_rows(
+        review_rows,
+        review["policy"],
+        down_ballot_dem_total,
+        down_ballot_rep_total,
+    )
+    if review.get("coverageMode"):
+        eta_analysis["coverageMode"] = review["coverageMode"]
+    if review.get("warning"):
+        eta_analysis["warning"] = review["warning"]
+    return review_rows, eta_analysis
+
+
 def civera_precinct_totals_by_locality(path, candidate_rules, excluded_columns=None, skip_precincts=None):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.reader(handle))
@@ -13103,6 +13217,7 @@ REVIEW_CHART_PARSERS = {
     "connecticutStatementTextTownComparison": review_charts_connecticut_statement_text,
     "delawareCountyHtmlComparison": review_charts_delaware_county_html,
     "delawareElectionDistrictHtmlComparison": review_charts_delaware_election_district_html,
+    "electionwarePrecinctSummaryComparison": review_charts_electionware_precinct_summary,
     "floridaPrecinctZipComparison": review_charts_florida_precinct_zip,
     "georgiaHouseJsonCountyComparison": review_charts_georgia_house_json,
     "hawaiiCountySummaryPdfCountyComparison": review_charts_hawaii_county_summary_pdfs,

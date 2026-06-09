@@ -70,6 +70,7 @@ const supportedReviewFormats = new Set([
   "connecticutStatementTextTownComparison",
   "delawareCountyHtmlComparison",
   "delawareElectionDistrictHtmlComparison",
+  "electionwarePrecinctSummaryComparison",
   "floridaPrecinctZipComparison",
   "georgiaHouseJsonCountyComparison",
   "hawaiiCountySummaryPdfCountyComparison",
