@@ -1,0 +1,196 @@
+{
+  "checkedAt": "2026-06-15",
+  "purpose": "Native importer handoff package for the next states after Ohio and Wisconsin.",
+  "notes": [
+    "These packages point to official source artifacts already present in this repository.",
+    "Generated *-app-data.js bundles are listed only as reference outputs; native ETL should parse the official artifacts directly.",
+    "County geometry is available for these three states. Precinct/ward boundary geometry is not included in this package."
+  ],
+  "states": [
+    {
+      "state": "MN",
+      "name": "Minnesota",
+      "priority": 1,
+      "nativeReadiness": "complete_county_map_precinct_review_turnout",
+      "authority": "Minnesota Secretary of State",
+      "configFile": "data/state-configs/mn.json",
+      "legacyReferenceBundle": "data/mn-app-data.js",
+      "artifacts": {
+        "presidentialCountyResults": {
+          "sourceTitle": "Minnesota SOS official federal/state precinct spreadsheet",
+          "sourceUrl": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+          "localFile": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx",
+          "parserHint": "XLSX sheet Precinct-Results; aggregate COUNTYNAME rows using USPRSR, USPRSDFL, USPRSTOTAL, and other USPRS* candidate columns."
+        },
+        "localReviewRows": {
+          "sourceTitle": "Minnesota SOS precinct federal/state spreadsheet",
+          "sourceUrl": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+          "localFile": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx",
+          "level": "precinct",
+          "comparisonContest": "U.S. Senate",
+          "parserHint": "Use COUNTYNAME, MCDNAME, PCTNAME, USPRSR, USPRSDFL, USPRSTOTAL, USSENR, and USSENDFL."
+        },
+        "turnout": {
+          "sourceTitle": "Minnesota SOS precinct voter-stat fields",
+          "sourceUrl": "https://www.sos.mn.gov/media/yt3llxwd/2024-general-federal-state-results-by-precinct-official.xlsx",
+          "localFile": "data/mn-2024-general-federal-state-results-by-precinct-official.xlsx",
+          "level": "precinct",
+          "denominator": "REG7AM plus EDR",
+          "ballotsCast": "TOTVOTING"
+        },
+        "countyBoundary": {
+          "sourceTitle": "MnGeo county boundary feature service",
+          "sourceUrl": "https://feat.gisdata.mn.gov/arcgis/rest/services/MnGeo/mn_counties/FeatureServer/0",
+          "localFile": "data/mn-counties.geojson",
+          "appReadyFile": "data/mn-counties.js",
+          "nameProperty": "county_name",
+          "codeProperty": "county_code"
+        }
+      },
+      "expected": {
+        "countyRows": 87,
+        "geometryFeatures": 87,
+        "stateTotal": 3253920,
+        "trump": 1519032,
+        "harris": 1656979,
+        "other": 77909,
+        "localReviewRows": 4075,
+        "turnoutRows": 4103
+      },
+      "validationStatus": {
+        "localArtifactsPresent": true,
+        "generatedBundleTotalsReconcile": true,
+        "reviewMode": "president_vs_senate_dropoff",
+        "turnoutMode": "precinct_registered_voters_plus_election_day_registrations"
+      },
+      "caveats": [
+        "County presidential totals can be aggregated from the precinct workbook; separate official county text files also exist for historical baseline.",
+        "Precinct boundary GeoJSON is not present in this package."
+      ]
+    },
+    {
+      "state": "MI",
+      "name": "Michigan",
+      "priority": 2,
+      "nativeReadiness": "complete_county_map_precinct_review_county_turnout",
+      "authority": "Michigan Secretary of State",
+      "configFile": "data/state-configs/mi.json",
+      "legacyReferenceBundle": "data/mi-app-data.js",
+      "artifacts": {
+        "presidentialCountyResults": {
+          "sourceTitle": "Michigan MVIC official county result export",
+          "sourceUrl": "https://mvic.sos.state.mi.us/VoteHistory/GetElectionResultFile?electionId=699",
+          "localFile": "data/mi-2024-general-election-results.txt",
+          "parserHint": "Tab-delimited MVIC county export; filter presidential electors contest and aggregate party/candidate rows by county."
+        },
+        "localReviewRows": {
+          "sourceTitle": "Michigan MVIC official precinct result ZIP",
+          "sourceUrl": "https://mvic.sos.state.mi.us/VoteHistory/GetPrecinctResultsFile?electionId=699",
+          "localFile": "data/mi-2024-precinct-results.zip",
+          "level": "precinct",
+          "comparisonContest": "U.S. Senate",
+          "parserHint": "Join 2024GEN/2024vote.txt to county, city, and candidate lookup tables. President officeCode 1; Senate officeCode 5."
+        },
+        "turnout": {
+          "sourceTitle": "Michigan MVIC turnout export plus voter registration totals",
+          "sourceUrl": "https://mvic.sos.state.mi.us/VoteHistory/GetVoterTurnoutFile?electionId=699",
+          "localFile": "data/mi-2024-voter-turnout.txt; data/mi-2024-registered-voter-count.pdf",
+          "level": "county",
+          "denominator": "November active registered voters",
+          "ballotsCast": "MVIC county voter turnout export"
+        },
+        "countyBoundary": {
+          "sourceTitle": "U.S. Census TIGERweb county geography",
+          "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+          "localFile": "data/mi-counties.geojson",
+          "appReadyFile": "data/mi-counties.js",
+          "nameProperty": "NAME",
+          "codeProperty": "COUNTY"
+        }
+      },
+      "expected": {
+        "countyRows": 83,
+        "geometryFeatures": 83,
+        "stateTotal": 5664186,
+        "trump": 2816636,
+        "harris": 2736533,
+        "other": 111017,
+        "localReviewRows": 4428,
+        "turnoutRows": 83
+      },
+      "validationStatus": {
+        "localArtifactsPresent": true,
+        "generatedBundleTotalsReconcile": true,
+        "reviewMode": "president_vs_senate_dropoff",
+        "turnoutMode": "county_turnout_joined_to_registration_pdf"
+      },
+      "caveats": [
+        "MVIC live download endpoints are browser-protected; local official export artifacts are already stored in the repo.",
+        "Turnout is county-level, not precinct-level.",
+        "Precinct boundary GeoJSON is not present in this package."
+      ]
+    },
+    {
+      "state": "PA",
+      "name": "Pennsylvania",
+      "priority": 3,
+      "nativeReadiness": "complete_county_map_precinct_review_county_turnout",
+      "authority": "Pennsylvania Department of State",
+      "configFile": "data/state-configs/pa.json",
+      "legacyReferenceBundle": "data/pa-app-data.js",
+      "artifacts": {
+        "presidentialCountyResults": {
+          "sourceTitle": "Pennsylvania DOS precinct election returns bulk file",
+          "sourceUrl": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_268768_20250129.txt",
+          "localFile": "data/pa-2024-general-election-returns-precinct.txt",
+          "parserHint": "Comma-delimited DOS precinct returns; filter officeCode USP and aggregate candidate/party rows by county."
+        },
+        "localReviewRows": {
+          "sourceTitle": "Pennsylvania DOS precinct election returns bulk file",
+          "sourceUrl": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/er/erstat_2024_g_268768_20250129.txt",
+          "localFile": "data/pa-2024-general-election-returns-precinct.txt",
+          "level": "precinct",
+          "comparisonContest": "U.S. Senate",
+          "parserHint": "Use officeCode USP for President and USS for U.S. Senate; group by county, precinct code, municipality, ward, and precinct breakdown fields."
+        },
+        "turnout": {
+          "sourceTitle": "Pennsylvania DOS vote history and voter registration summary",
+          "sourceUrl": "https://www.pa.gov/content/dam/copapwp-pagov/en/dos/resources/voting-and-elections/bulk-data/2024-general-election/voter%20registration%20-%20vote%20history%20summary%20-%202024%20general.xlsx",
+          "localFile": "data/pa-2024-voter-registration-vote-history-summary.xlsx",
+          "level": "county",
+          "denominator": "Registered voters",
+          "ballotsCast": "Vote History"
+        },
+        "countyBoundary": {
+          "sourceTitle": "U.S. Census TIGERweb county geography",
+          "sourceUrl": "https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer",
+          "localFile": "data/pa-counties.geojson",
+          "appReadyFile": "data/pa-counties.js",
+          "nameProperty": "NAME",
+          "codeProperty": "COUNTY"
+        }
+      },
+      "expected": {
+        "countyRows": 67,
+        "geometryFeatures": 67,
+        "stateTotal": 7031737,
+        "trump": 3543041,
+        "harris": 3420865,
+        "other": 67831,
+        "localReviewRows": 9154,
+        "turnoutRows": 67
+      },
+      "validationStatus": {
+        "localArtifactsPresent": true,
+        "generatedBundleTotalsReconcile": true,
+        "reviewMode": "president_vs_senate_dropoff",
+        "turnoutMode": "county_vote_history_registration_summary"
+      },
+      "caveats": [
+        "Official readme says the election returns data was extracted January 10, 2025; the direct bulk file name includes 20250129.",
+        "Turnout is county-level, not precinct-level.",
+        "Precinct boundary GeoJSON is not present in this package."
+      ]
+    }
+  ]
+}
