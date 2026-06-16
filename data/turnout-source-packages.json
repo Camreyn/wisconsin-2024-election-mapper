@@ -1,5 +1,5 @@
 {
-  "checkedAt": "2026-06-15",
+  "checkedAt": "2026-06-16",
   "purpose": "Turnout source handoff packages for Civic Result Maps native ETL.",
   "notes": [
     "Packages point to official source artifacts already stored in this repository.",
@@ -27,6 +27,12 @@
         "rows": 412,
         "warningRows": 411,
         "warningRule": "Warn when registration denominator timing is preElectionDay or unknown."
+      },
+      "nativeImportArtifact": {
+        "manifest": "data/wi-2024-turnout-source-package.json",
+        "combinedCsv": "data/wi-2024-turnout-partial.csv",
+        "format": "normalizedTurnoutCsv",
+        "status": "ready_for_partial_native_import"
       },
       "normalizedArtifacts": [
         {
