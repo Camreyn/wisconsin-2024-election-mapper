@@ -1,0 +1,129 @@
+{
+  "checkedAt": "2026-06-15",
+  "purpose": "Turnout source handoff packages for Civic Result Maps native ETL.",
+  "notes": [
+    "Packages point to official source artifacts already stored in this repository.",
+    "Generated turnout-data.js/json files are listed only as reference outputs; native ETL should parse the normalized CSV artifacts or the official raw artifacts directly.",
+    "Wisconsin is currently partial. Do not present this package as statewide turnout coverage."
+  ],
+  "states": [
+    {
+      "state": "WI",
+      "name": "Wisconsin",
+      "priority": 1,
+      "status": "partial_official_local_sources_available",
+      "authority": "Wisconsin county and municipal election offices; Wisconsin Elections Commission ward results provide result/review rows but not turnout denominators",
+      "existingNativeData": {
+        "resultsReviewSource": "data/Ward by Ward Report Federal and State Contests.xlsx",
+        "referenceBundle": "data/wi-app-data.js",
+        "countyResultRows": 72,
+        "reviewRows": 3503,
+        "comparisonRows": 3503,
+        "currentNativeTurnoutRows": 0
+      },
+      "referenceTurnoutOutput": {
+        "json": "data/turnout-data.json",
+        "js": "data/turnout-data.js",
+        "rows": 412,
+        "warningRows": 411,
+        "warningRule": "Warn when registration denominator timing is preElectionDay or unknown."
+      },
+      "normalizedArtifacts": [
+        {
+          "localFile": "data/milwaukee-city-turnout.csv",
+          "rows": 355,
+          "county": "Milwaukee",
+          "level": "ward",
+          "ballotsCastField": "ballots_cast",
+          "denominatorField": "registered_voters",
+          "denominatorType": "registered_voters",
+          "denominatorTiming": "preElectionDay",
+          "joinKeys": ["county", "municipality", "ward"],
+          "sourceUrl": "https://city.milwaukee.gov/ImageLibrary/Groups/electionAuthors/Election-Results/2024/2024-November-4-General-Election-WardbyWard-Reults.pdf",
+          "rawArtifact": "data/City of Milwaukee 2024 General Election Ward by Ward Results.pdf",
+          "caveat": "Registered voter counts are treated as pre-Election-Day unless a final denominator source is found."
+        },
+        {
+          "localFile": "data/dane-county-turnout.csv",
+          "rows": 1,
+          "county": "Dane",
+          "level": "county",
+          "ballotsCastField": "ballots_cast",
+          "denominatorField": "registered_voters",
+          "denominatorType": "registered_voters",
+          "denominatorTiming": "final",
+          "joinKeys": ["county"],
+          "sourceUrl": "https://elections.countyofdane.com/Election-Result/172",
+          "rawArtifact": "data/dane-2024-general-result.html",
+          "caveat": "County-level turnout total only; not ward-level denominator data."
+        },
+        {
+          "localFile": "data/jefferson-county-turnout.csv",
+          "rows": 34,
+          "county": "Jefferson",
+          "level": "ward",
+          "ballotsCastField": "ballots_cast",
+          "denominatorField": "registered_voters",
+          "denominatorType": "registered_voters",
+          "denominatorTiming": "unknown",
+          "joinKeys": ["county", "municipality", "ward"],
+          "sourceUrl": "https://apps.jeffersoncountywi.gov/jc/election/results/11052024",
+          "rawArtifact": "data/jefferson-2024-general-result.html",
+          "caveat": "Registered-voter denominator timing is not stated, so rows must be warning-gated."
+        },
+        {
+          "localFile": "data/oneida-county-turnout.csv",
+          "rows": 22,
+          "county": "Oneida",
+          "level": "ward",
+          "ballotsCastField": "ballots_cast",
+          "denominatorField": "registered_voters",
+          "denominatorType": "registered_voters",
+          "denominatorTiming": "preElectionDay",
+          "joinKeys": ["county", "municipality", "ward"],
+          "sourceUrl": "https://www.oneidacountywi.gov/election-results/",
+          "rawArtifact": "data/oneida-2024-general-result.html",
+          "caveat": "Registered-voter row is explicitly dated 11/01/2024, before Election Day, so rows must be warning-gated."
+        }
+      ],
+      "expected": {
+        "coverageStatus": "partial",
+        "coveredCounties": ["Dane", "Jefferson", "Milwaukee", "Oneida"],
+        "coveredCountyCount": 4,
+        "missingCountyCount": 68,
+        "rowCount": 412,
+        "wardLevelRows": 411,
+        "countyLevelRows": 1,
+        "warningRows": 411,
+        "partialBallotsCastTotal": 691073,
+        "partialRegisteredVotersTotal": 769431,
+        "statewideBallotsCastTotal": null,
+        "statewideDenominatorTotal": null
+      },
+      "parserContract": {
+        "format": "normalizedTurnoutCsv",
+        "requiredColumns": [
+          "county",
+          "municipality",
+          "ward",
+          "ballots_cast",
+          "registered_voters",
+          "registration_denominator_timing",
+          "source_url"
+        ],
+        "optionalColumns": ["source_level", "notes"],
+        "acceptedDenominatorTimingValues": ["final", "postElectionDay", "preElectionDay", "unknown"],
+        "warningRequiredWhen": ["preElectionDay", "unknown"],
+        "joinStrategy": "Use county + municipality + ward for ward-level rows when matching WEC ward result rows. Use county-only for Dane because the current source is county-level."
+      },
+      "caveats": [
+        "This is not a statewide Wisconsin turnout package.",
+        "Statewide WEC ward-by-ward results do not include registered-voter denominator fields.",
+        "Wisconsin same-day registration means pre-Election-Day denominators can understate final eligible/registered voters and may produce inflated turnout percentages.",
+        "Absentee, provisional, and reporting-unit handling can vary by local source.",
+        "Ward labels require normalization before joining to WEC ward result rows.",
+        "Additional county or municipal official canvass reports are needed for statewide native turnout coverage."
+      ]
+    }
+  ]
+}
